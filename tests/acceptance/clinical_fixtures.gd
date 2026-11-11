@@ -18,7 +18,7 @@ func _dispose_simulations() -> void:
 		simulation.dispose()
 	_simulations.clear()
 
-func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = true, initial_guidance_cell: Array = [], capture_events: bool = false, team_floor: int = 1) -> Dictionary:
+func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = true, initial_guidance_cell: Array = [], capture_events: bool = false, team_floor: int = 1, or_floor: int = 1) -> Dictionary:
 	_fixture_sequence += 1
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"临床验收%04d"%_fixture_sequence,true,_content)
 	var doctors: Array = []
@@ -47,7 +47,14 @@ func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = tr
 		for id: String in world.ids("facilities"):
 			if world.facts.facilities[id].definition_id=="FUR09": world.facts.facilities.erase(id)
 	if surgical:
-		_add_layout(world,"or_standard","clin_or",[33,65])
+		var top_floor: int=maxi(team_floor,or_floor)
+		if top_floor>1:
+			world.facts.floors.height_intervals=[{"first":1,"last":top_floor,"height_m":float(_content.balance.floors.clear_height_m)}]
+			world.facts.floors.completed_top_floor={HospitalSpace.plot_key([1,2]):top_floor}
+			for floor_id: int in range(2,top_floor+1):
+				world.facts.floors.overrides[str(floor_id)]={"plots":[[1,2]],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
+			world.facts.connectors["clin_lift"]={"id":"clin_lift","definition_id":"VC02","first_floor":1,"last_floor":top_floor,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"ticket_next":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+		_add_layout(world,"or_standard","clin_or",[33,65],or_floor)
 		_add_layout(world,"ward_two_beds","clin_ward",[45,65])
 		_add_worker(world,"clin_surgeon","doctor",[34,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02","clin_or")
 		_add_worker(world,"clin_anesthesia","doctor",[38,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02","clin_or")
@@ -57,19 +64,15 @@ func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = tr
 		# Keep the original worker and physical load; the former compulsory
 		# round doctor now follows the ordinary office-idle rule.
 		_add_worker(world,"clin_round","doctor",[51,72],"outpatient",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
-		if team_floor==2:
+		if team_floor>1:
 			# Declared built hospital and initial spawn, before simulation exists.
 			# All subsequent connector travel and gathering remain real work.
-			world.facts.floors.height_intervals = [{"first":1,"last":2,"height_m":float(_content.balance.floors.clear_height_m)}]
-			world.facts.floors.completed_top_floor = {HospitalSpace.plot_key([1,2]):2}
-			world.facts.floors.overrides["2"] = {"plots":[[1,2]],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
 			# OR nursing keeps its existing same-floor workbench rule. Move the
 			# original public base into this initial floor; do not add a base or
 			# prefill preparation. Floor one keeps the original ward workbench.
-			world.facts.facilities.nurse_workbench.floor_id = 2
-			world.facts.connectors["clin_lift"] = {"id":"clin_lift","definition_id":"VC02","first_floor":1,"last_floor":2,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"ticket_next":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+			world.facts.facilities.nurse_workbench.floor_id = team_floor
 			for index: int in 3:
-				world.facts.actors[["clin_surgeon","clin_anesthesia","clin_or_nurse"][index]].location = {"kind":"floor","floor_id":2,"cell":[54+index*2,72],"height_m":0.0}
+				world.facts.actors[["clin_surgeon","clin_anesthesia","clin_or_nurse"][index]].location = {"kind":"floor","floor_id":team_floor,"cell":[54+index*2,72],"height_m":0.0}
 	var simulation: HospitalSimulation = HospitalSimulation.new(world,_content)
 	_simulations.append(simulation)
 	var c: Dictionary = {"sim":simulation,"world":world,"serial":0,"visit_id":"","doctors":doctors,"started":{},"group_seen":false,"beats":{},"errors":[],"fixture_ready":true}
@@ -93,7 +96,6 @@ func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = tr
 		print("CASE_INPUT "+JSON.stringify(placement))
 		if not initial or not moved.accepted or not unchanged_actors: _fixture_failure(c,placement)
 	_tick(c)
-	_seed_stream(world,"arrival",false,true,2500,5000)
 	return c
 
 func _fixture_preflight(c: Dictionary, c_profile: bool, surgical: bool) -> void:
@@ -113,7 +115,8 @@ func _fixture_preflight(c: Dictionary, c_profile: bool, surgical: bool) -> void:
 	for definition_id: String in required:
 		var placed: bool = false
 		for facility: Dictionary in c.world.facts.facilities.values():
-			if facility.definition_id!=definition_id or int(facility.floor_id)!=1 or bool(facility.failed): continue
+			if facility.definition_id!=definition_id or bool(facility.failed): continue
+			if definition_id!="EQ01" and int(facility.floor_id)!=1: continue
 			var room_id: String = str(facility.get("room_id",""))
 			if definition_id in ["FUR02","M09","EQ01","EQ05"] and not c.world.facts.rooms.has(room_id): continue
 			placed = true
@@ -162,12 +165,12 @@ func _add_worker(world: WorldState, id: String, role: String, position: Array, d
 	staff.schedule = _schedule(duty,[] if room_id.is_empty() else [room_id])
 	staff.on_shift = duty!="rest"
 
-func _add_layout(world: WorldState, layout_id: String, room_id: String, origin: Array) -> void:
+func _add_layout(world: WorldState, layout_id: String, room_id: String, origin: Array, floor_id: int = 1) -> void:
 	var layout: Dictionary = {}
 	for candidate: Dictionary in _content.layouts.layouts:
 		if candidate.id==layout_id: layout = candidate
 	if layout.is_empty(): return
-	HospitalFactory._add_room(world,{"id":room_id,"type":layout.room_type_id,"anchor":origin,"size":layout.size,
+	HospitalFactory._add_room(world,{"id":room_id,"type":layout.room_type_id,"anchor":origin,"size":layout.size,"floor_id":floor_id,
 		"door":{"definition_id":layout.door_id,"offset":layout.door_offset}},_content)
 	var bed_index: int = 0
 	for index: int in layout.objects.size():
@@ -177,6 +180,7 @@ func _add_layout(world: WorldState, layout_id: String, room_id: String, origin: 
 		var cell: Array = [int(origin[0])+int(item.anchor[0]),int(origin[1])+int(item.anchor[1])]
 		HospitalFactory._add_facility(world,{"id":id,"definition_id":item.definition_id,"anchor":cell,"size":definition.footprint,"room_id":room_id},_content)
 		var facility: Dictionary = world.facts.facilities[id]
+		facility.floor_id=floor_id
 		if item.definition_id=="EQ01":
 			facility.patient_cell = _layout_point(layout,"patient_staging",origin)
 			facility.operator_cells = [_layout_point(layout,"surgeon",origin),_layout_point(layout,"anesthetist",origin),_layout_point(layout,"nurse",origin)]
@@ -265,7 +269,7 @@ func _session(c: Dictionary, kind: String) -> Dictionary:
 
 func _stay(c: Dictionary) -> Dictionary:
 	for value: Dictionary in c.world.facts.ward_stays.values():
-		if c.world.facts.attempts[value.attempt_id].visit_id==c.visit_id: return value
+		if value.visit_id==c.visit_id: return value
 	return {}
 
 func _income(c: Dictionary, component: String = "") -> int:
@@ -285,7 +289,7 @@ func _remember(c: Dictionary, key: String) -> void:
 		_fixture_failures.append({"boundary":key,"validation":error})
 		return
 	var state: Dictionary = {"facts":c.world.freeze(),"visit_id":c.visit_id,"serial":int(c.serial),"doctors":c.doctors.duplicate(),"started":c.started.duplicate(),"group_seen":c.group_seen,"beats":c.beats.duplicate()}
-	for field: String in ["queue_gp_session","queue_ready","ward_return","plan_selection","diagnosis_trace","boundary_input"]:
+	for field: String in ["queue_gp_session","queue_ready","ward_return","plan_selection","diagnosis_trace","boundary_input","before_bed_arrival","before_admission","clinical_scenario"]:
 		if c.has(field): state[field] = c[field]
 	_snapshots[key] = state.duplicate(true)
 	_building_key = key
@@ -309,15 +313,13 @@ func _checkpoint_recipes() -> Dictionary:
 	if not _checkpoint_recipe_cache.is_empty(): return _checkpoint_recipe_cache
 	var recipes: Dictionary = {
 		"gp_started":{"generator":"_gp_checkpoint","condition":{"phase":"gp"}},
-		"c_diagnosed":{"generator":"_diagnosis_state","arguments":[false],"condition":{"diagnosis_third":true}},
-		"c_diagnosed_gentle":{"generator":"_diagnosis_state","arguments":[false,[56,78]],"condition":{"diagnosis_third":true}},
-		"surgery_queue":{"generator":"_surgery_queue","arguments":[false],"condition":{"phase":"wait_surgery"}},
-		"c_surgery_queue":{"generator":"_surgery_queue","arguments":[true],"condition":{"phase":"wait_surgery"}},
-		"companion_entered":{"generator":"_companion_entry"},
-		"visitor_visiting":{"generator":"_visitor_bedside","requires":["ward_entered"]},
+		"c_diagnosed":{"generator":"_diagnosis_state","arguments":[false],"condition":{"diagnosed":true}},
+		"surgery_queue":{"generator":"_surgery_queue","arguments":[false],"condition":{"phase":"wait_surgery","stay_phase":"waiting_surgery"}},
+		"c_surgery_queue":{"generator":"_surgery_queue","arguments":[true],"condition":{"phase":"wait_surgery","stay_phase":"waiting_surgery"}},
 		"outpatient_queue":{"parent":"gp_started","maximum_ticks":2200,"condition":{"phase":"wait_outpatient","preparation":true,"no_attempt":true},"output_flags":{"queue_ready":true}},
 		"outpatient_started":{"parent":"outpatient_queue","maximum_ticks":2200,"condition":{"phase":"outpatient"}},
 		"surgery_prepared":{"parent":"surgery_queue","maximum_ticks":600,"condition":{"preparation":true}},
+		"surgery_setup":{"parent":"surgery_prepared","maximum_ticks":900,"condition":{"preparation":true,"setup_started":true}},
 		"surgery_started":{"parent":"surgery_prepared","maximum_ticks":600,"condition":{"phase":"surgery"}},
 		"surgery_wake":{"parent":"surgery_started","maximum_ticks":1800,"condition":{"phase":"wake"}},
 		"surgery_transfer":{"parent":"surgery_wake","maximum_ticks":200,"condition":{"phase":"transfer"}},
@@ -335,7 +337,7 @@ func _checkpoint_dependencies(key: String) -> Dictionary:
 
 func _gp_checkpoint(t) -> Dictionary:
 	var c: Dictionary = _context()
-	_seed_stream(c.world,"treatment",true,true,9200,9800)
+	_seed_stream(c.world,"treatment",false,true,4000,9200)
 	if _arrive(c) and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="gp"):
 		c.queue_gp_session = _session(c,"gp").duplicate(true)
 	return c
@@ -426,8 +428,9 @@ func _at_boundary(c: Dictionary, key: String) -> bool:
 	if condition.is_empty(): return false
 	if condition.has("phase") and _visit(c).get("phase","")!=condition.phase: return false
 	if condition.get("preparation",false) and not c.world.facts.preparations.has(c.visit_id): return false
+	if condition.get("setup_started",false) and int(c.world.facts.preparations.get(c.visit_id,{}).get("deadline_tick",-1))<0: return false
 	if condition.get("no_attempt",false) and not _visit(c).attempt_ids.is_empty(): return false
-	if condition.get("diagnosis_third",false) and not bool(c.get("diagnosis_trace",{}).get("third",false)): return false
+	if condition.get("diagnosed",false) and _visit(c).get("diagnosis",{}).get("state","")!="diagnosed": return false
 	if condition.has("session") and _session(c,condition.session).is_empty(): return false
 	if condition.has("stay_flag") and not bool(_stay(c).get(condition.stay_flag,false)): return false
 	if condition.has("stay_phase") and _stay(c).get("phase","")!=condition.stay_phase: return false
@@ -497,33 +500,54 @@ func _roundtrip(c: Dictionary) -> Dictionary:
 	c.sim = simulation
 	return {"ok":true,"bytes":encoder.bytes,"sha256":encoder.digest}
 
-func _surgery_queue(t, c_profile: bool = false) -> Dictionary:
-	var c: Dictionary = _context(true,c_profile)
-	c.ward_return = {"ok":false,"reason":"consult_missing"}
-	c.plan_selection = CommandResult.new(false,"consult_missing").to_record()
+func _surgery_queue(t, c_profile: bool = false, allow_visitors: bool = false, or_floor: int = 1) -> Dictionary:
+	var c: Dictionary=_context(true,c_profile,true,[],false,or_floor,or_floor)
+	c.clinical_scenario=true
+	c.ward_return={"ok":false,"reason":"ward_base_not_ready"}
+	c.plan_selection=CommandResult.new(false,"diagnosis_missing").to_record()
 	if c_profile:
-		c.world.facts.staff.clin_surgeon.title_id = "DT03"
-		c.world.facts.staff.clin_surgeon.abilities.surgery = 3
-		c.world.facts.staff.clin_or_nurse.abilities.surgery = 2
-	var binding: String = "B_S22_D14_M14" if c_profile else "B_S13_D09_M09"
-	var plan: String = "P_D14_SURGERY" if c_profile else "P_D09_SURGERY"
-	_seed_stream(c.world,"treatment",true,true,9600,9800)
-	if not _arrive(c,binding,plan): return c
-	var diagnostic: Dictionary = {"reported":false}
-	var consulted: bool = await _until(t,c,func()->bool:
-		var visit: Dictionary = _visit(c)
-		if not diagnostic.reported and visit.get("phase","")=="wait_consult" and c.world.sim_tick-int(visit.get("last_progress_tick",c.world.sim_tick))>=150:
-			diagnostic.reported = true
-			_surgery_wait_diagnostic(c,plan)
-		return visit.get("phase","") in ["wait_outpatient","wait_surgery"],3000)
-	if consulted:
-		c.ward_return = await _wait_ward_nurse_return(t,c)
-		var selected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":plan}) if c.ward_return.ok else CommandResult.new(false,"ward_return_incomplete",str(c.ward_return.reason))
-		c.plan_selection = selected.to_record()
-		if not selected.accepted: c.errors.append({"select_surgery":selected.to_record()})
-	else:
-		c.errors.append({"missing":"completed_consultation"})
+		c.world.facts.staff.clin_surgeon.title_id="DT03"
+		c.world.facts.staff.clin_surgeon.abilities.surgery=3
+		c.world.facts.staff.clin_or_nurse.abilities.surgery=2
+	# Nursing setup is an actual prefix before the patient arrives, so waiting
+	# for it can never accidentally start this patient's ordinary treatment.
+	var nurse_ready: bool=await _until(t,c,func()->bool:return _surgery_staff_ready(c),1200)
+	c.ward_return={"ok":nurse_ready,"reason":"" if nurse_ready else "ward_base_not_ready","after":_ward_nurse_return_state(c)}
+	if not nurse_ready: return c
+	var binding: String="B_S22_D14_M14" if c_profile else "B_S13_D09_M09"
+	var plan: String="P_D14_SURGERY" if c_profile else "P_D09_SURGERY"
+	_seed_stream(c.world,"treatment",false,true,3200 if c_profile else 4000,9600)
+	# Bed/nurse cases use the lawful no-family branch; family scenarios opt in
+	# to the two independent hit outcomes and still execute all actual travel.
+	_seed_stream(c.world,"arrival",allow_visitors,allow_visitors,8000,3000)
+	if not _arrive(c,binding,plan,allow_visitors): return c
+	var diagnosed: bool=await _until(t,c,func()->bool:return _visit(c).get("diagnosis",{}).get("state","")=="diagnosed" and str(_visit(c).phase).begins_with("wait_"),3000)
+	if not diagnosed:
+		c.errors.append({"missing":"completed_diagnosis"})
+		return c
+	var selected: CommandResult=_command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":plan})
+	c.plan_selection=selected.to_record()
+	if not selected.accepted:
+		_fixture_failure(c,{"stage":"surgery_plan_selection","selection":selected.to_record(),"diagnosis":_visit(c).diagnosis.duplicate(true)})
+		return c
+	for index: int in 2200:
+		var before: Dictionary=c.world.freeze()
+		_tick(c)
+		var ward: Dictionary=_stay(c)
+		if not c.has("before_bed_arrival") and ward.get("phase","")=="admitting":
+			var bed: Dictionary=c.sim.space.facility_layout(c.world,str(ward.bed_id))
+			if not c.sim.space.at(c.world,str(_visit(c).actor_id),int(bed.floor_id),bed.patient_cell):
+				c.before_bed_arrival={"facts":c.world.freeze(),"visit_id":c.visit_id}
+		if ward.has("admitted_tick"):
+			c.before_admission={"facts":before,"visit_id":c.visit_id}
+			return c
+		if index%100==99: await t.process_frame
+	c.errors.append({"missing":"actual_admission"})
 	return c
+
+func _surgery_staff_ready(c: Dictionary) -> bool:
+	var nurse: Dictionary=c.world.facts.staff.clin_or_nurse
+	return bool(_ward_nurse_return_state(c).ready) and nurse.on_shift and bool(nurse.get("base_prepared",false)) and nurse.get("base_task",{}).is_empty() and str(nurse.get("life_task",{}).get("phase","idle")) in ["idle","wait_safe"] and not c.world.facts.moves.has("clin_or_nurse") and not c.sim.clinic.staff_busy(c.world,"clin_or_nurse")
 
 func _ward_nurse_return_state(c: Dictionary) -> Dictionary:
 	var nurse: Dictionary = c.world.facts.staff.clin_cover
@@ -554,20 +578,6 @@ func _wait_ward_nurse_return(t, c: Dictionary) -> Dictionary:
 		reason = "覆盖护士未完成实际回岗"
 	return {"ok":reason.is_empty(),"reason":reason,"started_tick":started_tick,"finished_tick":c.world.sim_tick,"no_attempt_started":unstarted,"phase":_visit(c).get("phase",""),"before":before,"after":after}
 
-func _surgery_wait_diagnostic(c: Dictionary, surgery_plan: String) -> void:
-	# A single read-only observation after a prolonged consultation wait.
-	var visit: Dictionary = _visit(c)
-	var quotes: Dictionary = {}
-	var operators: Dictionary = {}
-	for doctor_id: String in c.doctors.slice(0,2):
-		var staff: Dictionary = c.world.facts.staff[doctor_id]
-		operators[doctor_id] = {"location":c.world.facts.actors[doctor_id].location.duplicate(true),"abilities":staff.abilities.duplicate(),"on_shift":staff.on_shift,"base_prepared":staff.get("base_prepared",false),"block_new_work":staff.get("block_new_work",false),"schedule":staff.schedule.duplicate(true),"clinical_release":staff.get("clinical_release",{}).duplicate(true)}
-		for suffix: String in ["COMMON","GENTLE"]:
-			var plan_id: String = "P_"+str(visit.disease_id)+"_"+suffix
-			quotes[doctor_id+":"+suffix] = c.sim.clinic.plan_quote(c.world,c.visit_id,plan_id,{"doctor_id":doctor_id})
-	quotes.surgery = c.sim.clinic.plan_quote(c.world,c.visit_id,surgery_plan)
-	print("CLINICAL SURGERY WAIT "+JSON.stringify({"tick":c.world.sim_tick,"visit_id":c.visit_id,"waiting_reason":visit.get("waiting_reason",""),"consult_candidates":c.sim.clinic.service_candidates(c.world,visit,"consult"),"doctor_quotes":quotes,"operators":operators}))
-
 func _waiting_case(c: Dictionary, position: Array) -> String:
 	# A second already-diagnosed queue member is a boundary fixture, not a second flow implementation.
 	var source: Dictionary = _visit(c)
@@ -585,7 +595,6 @@ func _waiting_case(c: Dictionary, position: Array) -> String:
 	visit.ticket_id = ticket_id
 	visit.arrival_key = "second-prepared-patient"
 	visit.phase = "wait_surgery"
-	visit.companion_intent = false
 	visit.attempt_ids = []
 	visit.final_result = ""
 	visit.erase("clinical_participants")
@@ -627,82 +636,13 @@ func _remove_waiting_chairs(world: WorldState) -> void:
 		if world.facts.facilities[id].definition_id=="FUR09": world.facts.facilities.erase(id)
 	world.touch()
 
-func _companion_entry(t, report_case: bool = false) -> void:
-	var companion: Dictionary = _context(false,false,false)
-	_seed_stream(companion.world,"arrival",true,true,2500,5000)
-	# Admission starts after the real nurse journey, not an assumed tick budget.
-	var guide_ready: bool = await _until(t,companion,func()->bool: return companion.sim.services.floor_guidance._desk_usable(companion.world,"floor_guidance_desk"),600)
-	var admitted: bool = guide_ready and _arrive(companion,"B_S13_D09_M09","P_D09_COMMON",true)
-	# Named pre-operation unavailable-entry boundary. No actor is relocated:
-	# the original 1F entrance is restored before admission can succeed.
-	var original_entry: Dictionary = companion.world.facts.entry.duplicate(true)
-	companion.world.facts.entry.cell = [0,0]
-	companion.world.touch(false)
-	var unavailable_input_valid: bool = companion.world.validate(_content).is_empty()
-	var requested: bool = admitted and await _until(t,companion,func()->bool: return not companion.world.facts.visitors.requests.is_empty(),180)
-	# The configured entrance has no legal route into owned hospital space.
-	# Missing chairs alone must not reject a compatible standing companion.
-	var no_actor_before_space: bool = requested and companion.world.facts.visitors.requests.size()==1 and companion.world.facts.visitors.stays.is_empty() and not _visit(companion).has("relative_actor_id")
-	var host: Dictionary = companion.world.facts.actors[_visit(companion).actor_id]
-	var entrance: Dictionary = companion.world.facts.entry
-	var probe: Dictionary = {"id":"relative_probe","species_id":host.species_id,"posture":"standing","facing":0.0,"location":{"kind":"floor","floor_id":entrance.floor_id,"cell":entrance.cell,"height_m":0.0}}
-	var entrance_unavailable: bool = not companion.sim.space.static_reason(companion.world,probe,int(entrance.floor_id),Vector2i(0,0)).is_empty()
-	var before_retry: Dictionary = companion.world.freeze()
-	var rejected_atomically: bool = requested and not companion.sim.clinic.visitors._admit(companion.world,_visit(companion),companion.world.facts.visitors.requests.values()[0]) and before_retry==companion.world.freeze()
-	var furniture_free: bool = companion.world.facts.facilities.values().all(func(facility: Dictionary)->bool: return not facility.definition_id in HospitalVisitors.WAITING_SEAT_DEFINITIONS)
-	companion.world.facts.entry = original_entry
-	companion.world.touch(false)
-	var entered: bool = requested and await _until(t,companion,func()->bool: return not _visitor(companion).is_empty(),160)
-	var relative: Dictionary = _visitor(companion)
-	var actor: Dictionary = companion.world.facts.actors.get(relative.get("actor_id",""),{})
-	var patient: Dictionary = companion.world.facts.actors.get(_visit(companion).get("actor_id",""),{})
-	var from_entry: bool = false
-	if not actor.is_empty() and actor.location.kind=="floor":
-		var entry: Array = companion.world.facts.entry.cell
-		from_entry = int(actor.location.floor_id)==1 and absf(float(actor.location.cell[0])-float(entry[0]))+absf(float(actor.location.cell[1])-float(entry[1]))<=1.0
-	var own_standing_point: bool = entered and companion.sim.space.public_areas.safe_wait(companion.world,str(actor.id),int(relative.waiting_floor),relative.waiting_cell) and companion.sim.space.travel_quote(companion.world,str(actor.id),int(relative.waiting_floor),relative.waiting_cell).ok
-	var no_family_income: bool = true
-	for entry: Dictionary in companion.world.facts.ledger.entries.values():
-		no_family_income = no_family_income and not str(entry.owner_id) in [str(relative.get("id","")),str(relative.get("actor_id",""))]
-	if report_case:
-		t.check("CLIN-30",no_actor_before_space and unavailable_input_valid and entrance_unavailable and rejected_atomically and furniture_free and own_standing_point and entered and from_entry and actor.get("id","")!=patient.get("id","") and actor.get("species_id","")==patient.get("species_id","") and actor.get("relative_of","")==patient.get("id","") and relative.get("visit_id","")==companion.visit_id and companion.world.facts.visitors.stays.size()==1 and no_family_income and not bool(companion.world.facts.arrivals.intake_open),{"no_actor_before_space":no_actor_before_space,"unavailable_input_valid":unavailable_input_valid,"entrance_unavailable":entrance_unavailable,"rejected_atomically":rejected_atomically,"furniture_free":furniture_free,"own_standing_point":own_standing_point,"entered_from_real_entry":from_entry,"visitor":relative,"actor":actor,"state":_state(companion)})
-	if entered: _remember(companion,"companion_entered")
-
-func _visitor_bedside(t) -> Dictionary:
-	if not _snapshots.has("ward_entered"): return {}
-	var visiting: Dictionary = _copy("ward_entered")
-	_command(visiting,"clinical_visit_consent",{"visit_id":visiting.visit_id,"allow":true})
-	_seed_stream(visiting.world,"arrival",true,false,5000,5000)
-	var trace: Array = []
-	var bedside: bool = await _until(t,visiting,func()->bool:
-		var visitor: Dictionary = _visitor(visiting)
-		var phase: String = str(visitor.get("phase","absent"))
-		if trace.is_empty() or trace.back().phase!=phase:
-			trace.append({"tick":visiting.world.sim_tick,"phase":phase,"visitor":visitor.duplicate(true),"care_completed":_stay(visiting).get("care_completed",false),"sessions":visiting.world.facts.sessions.duplicate(true)})
-		return phase=="visiting",1000)
-	if bedside: _remember(visiting,"visitor_visiting")
-	visiting.bedside_ready = bedside
-	visiting.visitor_trace = trace
-	if not bedside: visiting.failure_world = _failure_world("visitor_bedside",visiting.world)
-	return visiting
-
 func _diagnosis_state(t, upgraded: bool, initial_guidance_cell: Array = []) -> Dictionary:
-	var c: Dictionary = _context(false,true,true,initial_guidance_cell)
-	for staff: Dictionary in c.world.facts.staff.values():
-		if staff.role in ["doctor","nurse"]: staff.abilities.diagnosis = 3 if upgraded else 1
-	# The sole table is in gp: a doctor needs diagnosis 2 for the two checks.
-	# Base C evidence is now 44+37+27; an old nurse wildcard cannot supply 102.
-	if not upgraded: c.world.facts.staff[c.doctors[0]].abilities.diagnosis = 2
-	if upgraded: c.world.facts.facilities.gp_station.grade = 2
-	var arrived: bool = _arrive(c,"B_S22_D14_M14","P_D14_COMMON")
-	var first: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("evidence_by_source",{}).has("gp"))
-	var gp_evidence: float = float(_visit(c).get("evidence_by_source",{}).get("gp",-1))
-	var second: bool = first and await _until(t,c,func()->bool: return _visit(c).get("evidence_by_source",{}).has("spectrum"))
-	var after_spectrum: float = 0.0
-	for amount: Variant in _visit(c).get("evidence_by_source",{}).values(): after_spectrum += float(amount)
-	var third: bool = second
-	if not upgraded: third = second and await _until(t,c,func()->bool: return _visit(c).get("evidence_by_source",{}).has("resonance"))
-	var total: float = 0.0
-	for amount: Variant in _visit(c).get("evidence_by_source",{}).values(): total += float(amount)
-	c.diagnosis_trace = {"third":third,"gp":gp_evidence,"after_spectrum":after_spectrum,"total":total}
+	var c: Dictionary=_context(false,true,true,initial_guidance_cell)
+	c.clinical_scenario=true
+	c.world.facts.staff[c.doctors[0]].abilities.diagnosis=3 if upgraded else 2
+	if upgraded: c.world.facts.facilities.gp_station.grade=2
+	_seed_stream(c.world,"treatment",false,true,2400 if upgraded else 3200,9200)
+	var arrived: bool=_arrive(c,"B_S22_D14_M14","P_D14_COMMON")
+	var diagnosed: bool=arrived and await _until(t,c,func()->bool:return _visit(c).get("diagnosis",{}).get("state","")=="diagnosed" and _visit(c).phase=="wait_outpatient",2200)
+	if not diagnosed: c.errors.append({"missing":"actual_diagnosis_before_treatment"})
 	return c

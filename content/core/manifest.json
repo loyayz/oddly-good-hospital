@@ -238,7 +238,7 @@
     },
     {
       "path": "profiles.json",
-      "sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861"
+      "sha256": "63cb4e453faf509aa2fb18134745439e5da573bd5c63fa090545003f4c3e8016"
     },
     {
       "path": "queue_cues.json",
@@ -274,7 +274,7 @@
     },
     {
       "path": "rules.json",
-      "sha256": "33e9307af9d3c2a0f527034c9bd550d47db74f64f298a59d7638d8f7d8c583e5"
+      "sha256": "642a1651c8cf69c9c523a07bbea7552791f36a79ecd750558b1529eb92622c09"
     },
     {
       "path": "service_equipment.json",
@@ -378,7 +378,7 @@
     },
     {
       "path": "treatment_protocols.json",
-      "sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1"
+      "sha256": "679d92758dd380e2883a4d0efb0ddb731cd9ac5dde7259259e5804930cb30a06"
     },
     {
       "path": "treatment_routines.json",

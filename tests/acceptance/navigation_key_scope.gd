@@ -5,9 +5,14 @@ const OTHER: String = "navigation_key_other"
 
 class KeyProbe extends NavigationCache:
 	var shapes: int = 0
+	var graph_builds: int = 0
 	func _traversal_shape(space: HospitalSpace, actor: Dictionary, offset: Array, source: Dictionary) -> Array:
 		shapes += 1
 		return super._traversal_shape(space,actor,offset,source)
+	func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary, entry: Dictionary) -> Dictionary:
+		var rebuilt: Dictionary=super._refresh_graph(space,world,floor_id,actor,members,offsets,source,entry)
+		if entry.is_empty(): graph_builds+=1
+		return rebuilt
 
 # Original complete serialization, independent of every new scope key view.
 class FullKeys extends KeyProbe:
@@ -285,10 +290,12 @@ func run_case(suite: RefCounted) -> Dictionary:
 	actual._trim(0,pair.actual.query_counts)
 	original._trim(0,pair.original.query_counts)
 	checks.scope_keys_do_not_pin_evicted_graphs_or_charges = actual._entries.is_empty() and actual._charged==0 and actual._query_charged==0 and original._entries.is_empty()
-	var used: int = actual._used
+	var builds: int = actual.graph_builds
 	var rebuilt: FloorNavigation = actual.graph(pair.actual,world,1,actor,[],{})
 	var rebuilt_original: FloorNavigation = original.graph(pair.original,world,1,actor,[],{})
-	checks.same_scope_key_still_rebuilds_evicted_graph = rebuilt!=old_graph and actual._used==used+1 and actual._entries.size()==1 and actual._charged>0
+	checks.same_scope_key_still_rebuilds_evicted_graph = rebuilt!=old_graph and actual.graph_builds==builds+1 and actual._entries.size()==1 and actual._charged>0
+	var rebuilt_comparison: Dictionary=preload("res://tests/acceptance/navigation_cold_graph.gd").new()._compare(rebuilt,{"graph":rebuilt_original,"enabled":rebuilt_original._enabled,"edges":rebuilt_original._edges})
+	checks.rebuilt_complete_graph_matches_original=rebuilt_comparison.ok
 	var cold_goal: Vector2i = Vector2i(49,85)
 	checks.rebuilt_graph_path_and_cost_match_original = rebuilt.find_path(Vector2i(44,80),cold_goal,rebuilt.geometry)==rebuilt_original.find_path(Vector2i(44,80),cold_goal,rebuilt_original.geometry)
 	for name: String in ["navigation_envelopes","navigation_graph_keys","navigation_distance_keys"]:
@@ -335,6 +342,6 @@ func run_case(suite: RefCounted) -> Dictionary:
 	for observation: Dictionary in observations: ok = ok and observation.ok
 	checks.scopes_close = pair.actual._route_queries.is_empty() and pair.original._route_queries.is_empty()
 	ok = ok and checks.scopes_close
-	var result: Dictionary = {"ok":ok,"validation":validation,"checks":checks,"envelope_cases":envelope_result,"permission_handoffs":permission_result,"observations":observations,"prepared_shape_calls":actual.shapes,"reference_shape_calls":original.shapes,"prepared_full_route_envelopes":pair.actual.navigation.envelopes,"reference_full_route_envelopes":pair.original.navigation.envelopes}
+	var result: Dictionary = {"ok":ok,"validation":validation,"checks":checks,"envelope_cases":envelope_result,"permission_handoffs":permission_result,"observations":observations,"rebuilt_complete_graph":rebuilt_comparison,"prepared_shape_calls":actual.shapes,"reference_shape_calls":original.shapes,"prepared_full_route_envelopes":pair.actual.navigation.envelopes,"reference_full_route_envelopes":pair.original.navigation.envelopes}
 	sim.dispose()
 	return result

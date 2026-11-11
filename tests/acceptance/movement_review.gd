@@ -40,11 +40,16 @@ func _ready_support_exit(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
 	# The queue is tested at the existing supported-body departure boundary.
 	# Construct the bed and supported pose; do not simulate or assert sleep work.
-	HospitalFactory._add_room(sim.world,{"id":"support_room","type":"rest","anchor":[34,66],"size":[12,12],"door":{"definition_id":"DR01","offset":4}},suite.content)
+	HospitalFactory._add_room(sim.world,{"id":"support_room","type":"dormitory","anchor":[34,66],"size":[12,12],"door":{"definition_id":"DR01","offset":4}},suite.content)
 	HospitalFactory._add_facility(sim.world,{"id":"support_bed","definition_id":"SE04","anchor":[39,69],"size":[1,2],"room_id":"support_room"},suite.content)
 	suite._add_staff(sim,"reused_ready","doctor",[44,82])
-	var wellbeing: HospitalStaffWellbeing = HospitalStaffWellbeing.new(suite.content,sim.space)
-	wellbeing.ensure(sim.world)
+	# Initialize all original fact owners before creating the stale ready item
+	# or the supported departure being measured. No sleep work is simulated.
+	var raw_facts: Dictionary = sim.world.freeze()
+	sim.dispose()
+	sim = HospitalSimulation.new(WorldState.new(raw_facts),suite.content)
+	var wellbeing: HospitalStaffWellbeing = sim.services.wellbeing
+	var input_validation: String = sim.world.validate(suite.content)
 	var requested: String = sim.space.request_move(sim.world,"reused_ready",1,[44,85])
 	var queued: bool = sim.world.facts.moves.get("reused_ready",{}).get("route_pending",false)
 	sim.world.facts.moves.erase("reused_ready")
@@ -59,8 +64,8 @@ func _ready_support_exit(suite: RefCounted) -> Dictionary:
 	sim.world.touch()
 	sim.space.sync_actor(sim.world,actor.id)
 	var validation: String = wellbeing.validate(sim.world)
-	var legal_support: bool = validation.is_empty()
 	var bed_owner: Dictionary = sim.world.facts.staff_life.personal_beds.get("support_bed",{}).duplicate(true)
+	var legal_support: bool = input_validation.is_empty() and validation.is_empty() and bed_owner.get("staff_id","")=="reused_ready"
 	var original_goal: Array = [44,74]
 	var departure: String = sim.space.request_move(sim.world,actor.id,1,original_goal)
 	var move_before: Dictionary = sim.world.facts.moves.get(actor.id,{}).duplicate(true)
@@ -102,7 +107,7 @@ func _ready_support_exit(suite: RefCounted) -> Dictionary:
 		if not sim.world.facts.moves.has(actor.id): break
 	var continued: bool = stood_at_exit and not sim.world.facts.moves.has(actor.id) and sim.space.at(sim.world,actor.id,1,original_goal)
 	sim.dispose()
-	return {"ok":legal_support and requested.is_empty() and queued and departure.is_empty() and support and retained and cleared and safely_waited and displaced and bounded_steps and waiting_cleared and continued,"legal_personal_bed_departure":legal_support,"support_validation":validation,"personal_bed_owner":bed_owner,"support_exit_without_sequence":support,"departure_retained":retained,"cancelled_ready_removed":cleared,"new_obstacle_preserves_supported_body":safely_waited,"real_departure_after_clearance":displaced,"standing_at_original_exit":stood_at_exit,"original_goal_completed":continued,"bounded_actual_steps":bounded_steps,"maximum_step_cells":max_step,"waiting_reason_cleared_after_moving":waiting_cleared}
+	return {"ok":legal_support and requested.is_empty() and queued and departure.is_empty() and support and retained and cleared and safely_waited and displaced and bounded_steps and waiting_cleared and continued,"input_validation":input_validation,"legal_personal_bed_departure":legal_support,"support_validation":validation,"personal_bed_owner":bed_owner,"support_exit_without_sequence":support,"departure_retained":retained,"cancelled_ready_removed":cleared,"new_obstacle_preserves_supported_body":safely_waited,"real_departure_after_clearance":displaced,"standing_at_original_exit":stood_at_exit,"original_goal_completed":continued,"bounded_actual_steps":bounded_steps,"maximum_step_cells":max_step,"waiting_reason_cleared_after_moving":waiting_cleared}
 
 func _blocked_goal(suite: RefCounted, ids: Array[String]) -> HospitalSimulation:
 	var sim: HospitalSimulation = suite._fixture()

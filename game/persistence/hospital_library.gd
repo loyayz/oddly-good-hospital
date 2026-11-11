@@ -6,7 +6,7 @@ const PENDING: String = ".library-pending"
 const TRASH_RECORD: String = ".trash.json"
 const DEFINITION_IDS: Array[String] = ["definition_id","species_id","disease_id","binding_id","body_binding_id","title_id","personality_id","requested_plan_id","plan_id","course_id","research_id","material_id","handler_id","certificate_id","department_definition_id"]
 const INSTANCE_ARRAYS: Array[String] = ["riders","occupants","participants","queue","pools","pool"]
-const INSTANCE_KEY_MAPS: Array[String] = ["moves","command_receipts","completed_jobs","use_receipts","issues","reservations","completion_receipts","evidence_by_source","work_receipts"]
+const INSTANCE_KEY_MAPS: Array[String] = ["moves","command_receipts","completed_jobs","use_receipts","issues","reservations","completion_receipts","work_receipts"]
 
 var content: HospitalContent
 var snapshots: HospitalSnapshots
@@ -417,7 +417,7 @@ static func _typed_instance_map(path: Array[String]) -> bool:
 	return owner in ["maintenance","environment"] and field=="contributions"
 
 static func _instance_field(field: String) -> bool:
-	return not field in DEFINITION_IDS and (field=="id" or field.ends_with("_id") or field.ends_with("_ids") or field in INSTANCE_ARRAYS)
+	return not field in DEFINITION_IDS and (field in ["id","relative_of"] or field.ends_with("_id") or field.ends_with("_ids") or field in INSTANCE_ARRAYS)
 
 static func _hospital_prefix(value: String,hospital_id: String) -> bool:
 	return value.begins_with(hospital_id+":") or value.begins_with(hospital_id+"_") or value.begins_with(hospital_id+"/")

@@ -1875,7 +1875,8 @@ func _staff_has_movement_responsibility(world: WorldState, staff_id: String, con
 		var owners: Dictionary = {}
 		for stay: Dictionary in world.facts.ward_stays.values():
 			if not stay.get("phase","") in ["release_wait","complete"]:
-				for id: String in [stay.get("nurse_id",""),stay.get("escort_id","")]: owners[id] = true
+				owners[stay.get("nurse_id","")] = true
+				if stay.get("phase","") in ["reserved","transfer"]: owners[stay.get("escort_id","")] = true
 		for reservation: Dictionary in world.facts.adaptations.values():
 			owners[reservation.get("actor_id","")] = true
 			for id: String in reservation.get("staff_ids",[]): owners[id] = true

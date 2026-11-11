@@ -3449,33 +3449,18 @@
           "base_success": {
             "type": "number"
           },
-          "gp_confidence": {
-            "type": "integer"
-          },
           "min_skill": {
             "type": "integer"
           },
           "supply_units": {
             "minimum": 0,
             "type": "integer"
-          },
-          "tests": {
-            "items": {
-              "enum": [
-                "spectrum",
-                "resonance"
-              ],
-              "type": "string"
-            },
-            "type": "array"
           }
         },
         "required": [
           "base_success",
-          "gp_confidence",
           "min_skill",
-          "supply_units",
-          "tests"
+          "supply_units"
         ],
         "type": "object"
       }
@@ -10210,33 +10195,18 @@
           "base_success": {
             "type": "number"
           },
-          "gp_confidence": {
-            "type": "integer"
-          },
           "min_skill": {
             "type": "integer"
           },
           "supply_units": {
             "minimum": 0,
             "type": "integer"
-          },
-          "tests": {
-            "items": {
-              "enum": [
-                "spectrum",
-                "resonance"
-              ],
-              "type": "string"
-            },
-            "type": "array"
           }
         },
         "required": [
           "base_success",
-          "gp_confidence",
           "min_skill",
-          "supply_units",
-          "tests"
+          "supply_units"
         ],
         "type": "object"
       }
@@ -12197,6 +12167,13 @@
               "minimum": 0,
               "type": "integer"
             },
+            "diagnosis_insufficient_bp": {
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": "array"
+            },
             "equipment_no_progress_referral_seconds": {
               "minimum": 0,
               "type": "integer"
@@ -12256,6 +12233,7 @@
             "clinic_guard_seconds",
             "complex_probability",
             "consult_seconds",
+            "diagnosis_insufficient_bp",
             "equipment_no_progress_referral_seconds",
             "max_beds_per_room",
             "max_ward_beds",
@@ -13016,22 +12994,17 @@
           "minimum": 0,
           "type": "integer"
         },
-        "diagnosis_threshold": {
-          "type": "integer"
-        },
         "diagnostic_flow": {
           "properties": {
             "completed_test_limit": {
-              "type": "string"
+              "minimum": 1,
+              "type": "integer"
             },
             "duplicate_guard": {
               "type": "string"
             },
             "progress_source": {
               "type": "string"
-            },
-            "skip_at_threshold": {
-              "type": "boolean"
             },
             "skipped_service_effects": {
               "type": "boolean"
@@ -13041,7 +13014,6 @@
             "completed_test_limit",
             "duplicate_guard",
             "progress_source",
-            "skip_at_threshold",
             "skipped_service_effects"
           ],
           "type": "object"
@@ -18683,30 +18655,22 @@
           "properties": {
             "resonance": {
               "properties": {
-                "confidence": {
-                  "type": "integer"
-                },
                 "seconds": {
                   "type": "integer"
                 }
               },
               "required": [
-                "confidence",
                 "seconds"
               ],
               "type": "object"
             },
             "spectrum": {
               "properties": {
-                "confidence": {
-                  "type": "integer"
-                },
                 "seconds": {
                   "type": "integer"
                 }
               },
               "required": [
-                "confidence",
                 "seconds"
               ],
               "type": "object"
@@ -19818,7 +19782,6 @@
         "daily_cost_per_indoor_cell",
         "daily_cost_per_station",
         "day_seconds",
-        "diagnosis_threshold",
         "diagnostic_flow",
         "diagnostic_work_presentation",
         "dialogue_presentation",

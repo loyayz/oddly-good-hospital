@@ -302,15 +302,14 @@ func _diagnosed_outpatient(f: Dictionary, key: String, waiting_cell: Array) -> S
 		return ""
 	f.w.facts.actors[actor.id] = actor
 	var diagnostic: Dictionary = f.w.facts.staff.starter_doctor_a
-	var profile: Dictionary = _content.catalog.profiles[_content.definition("diseases",visit.disease_id).profile]
-	visit.evidence_by_source = {"gp":float(profile.gp_confidence)}
+	visit.diagnosis = preload("res://tests/acceptance/clinical_input.gd").diagnosed(diagnostic.id,"gp_station")
 	visit.doctor_fee_quote = _content.doctor_fee(str(diagnostic.title_id))
 	visit.clinical_participants = {diagnostic.id:true}
 	visit.department_id = "general"
-	visit.phase = "wait_consult"
+	visit.phase = "wait_plan"
 	visit.waiting_reason = "已诊断，等待选择合法方案"
 	visit.ticket_id = f.w.new_id("ticket")
-	f.w.facts.tickets[visit.ticket_id] = {"id":visit.ticket_id,"visit_id":visit_id,"kind":"consult","enqueued_tick":f.w.sim_tick,
+	f.w.facts.tickets[visit.ticket_id] = {"id":visit.ticket_id,"visit_id":visit_id,"kind":"plan","enqueued_tick":f.w.sim_tick,
 		"service_assigned":false,"called_tick":-1,"waited_ticks":0,"pause_reasons":{}}
 	var history_id: String = visit_id+":given_gp"
 	var consultation: CommandResult = HospitalLedger.post(f.w,LedgerEntry.new(visit_id,"consultation",int(visit.doctor_fee_quote)))
@@ -330,8 +329,8 @@ func _diagnosed_outpatient(f: Dictionary, key: String, waiting_cell: Array) -> S
 	experience.phase_started_tick = f.w.sim_tick
 	f.w.touch()
 	f.s.space.sync_actor(f.w,actor.id)
-	if not consultation.accepted or not facility_fee.accepted or float(profile.gp_confidence)<float(_content.balance.diagnosis_threshold):
-		f.errors.append({"diagnosed_input":key,"reason":"给定诊断证据或历史收费前提不成立"})
+	if not consultation.accepted or not facility_fee.accepted:
+		f.errors.append({"diagnosed_input":key,"reason":"给定已完成初诊及历史收费前提不成立"})
 		return ""
 	var selected_plan: CommandResult = _command(f,"clinical_select_plan",{"visit_id":visit_id,"plan_id":"P_D37_COMMON"})
 	if not selected_plan.accepted:
@@ -994,10 +993,13 @@ func _case_26() -> Dictionary:
 	# Re-selecting it here would recheck readiness before safe handoff completes.
 	if f.w.facts.visits[visit_id].plan_decision.get("plan_id","")!="P_D37_COMMON":
 		return _result(false,{"unexpected_plan":f.w.facts.visits[visit_id].plan_decision})
-	for tick: int in 500:
+	var first_wait_started: int=f.w.sim_tick
+	# The named input precedes real guidance, local arrival and team gathering.
+	# Their complete journeys are not bounded by the old pre-guidance 50 seconds.
+	for tick: int in 1800:
 		_clinic_tick(f)
 		if not f.w.facts.attempts.is_empty(): break
-	if f.w.facts.attempts.is_empty(): return _result(false,"未形成实际Attempt")
+	if f.w.facts.attempts.is_empty(): return _result(false,{"prerequisite":"实际门诊未开工","elapsed_ticks":f.w.sim_tick-first_wait_started,"visit":f.w.facts.visits[visit_id].duplicate(true),"patient_move":_clinic_move(f,str(f.w.facts.visits[visit_id].actor_id)),"guidance":f.s.services.floor_guidance.state(f.w,visit_id).duplicate(true),"validation":f.w.validate(_content)})
 	var attempt_id: String = str(f.w.facts.attempts.keys()[0])
 	var promised: Dictionary = f.w.facts.attempts[attempt_id].duplicate(true)
 	var facility_id: String = str(promised.get("facility_id",""))
@@ -1070,7 +1072,8 @@ func _case_26() -> Dictionary:
 	if next_visit.is_empty(): return _result(false,f.errors)
 	var next_selected: bool = f.w.facts.visits[next_visit].plan_decision.get("plan_id","")=="P_D37_COMMON"
 	if not next_selected: return _result(false,{"unexpected_plan":f.w.facts.visits[next_visit].plan_decision})
-	for tick: int in 500:
+	var next_wait_started: int=f.w.sim_tick
+	for tick: int in 1800:
 		if not f.w.facts.visits[next_visit].attempt_ids.is_empty(): break
 		_clinic_tick(f)
 	var next_ids: Array = f.w.facts.visits[next_visit].attempt_ids
@@ -1082,7 +1085,7 @@ func _case_26() -> Dictionary:
 	var unchanged: bool = true
 	for key: String in promised:
 		unchanged = unchanged and f.w.facts.attempts[attempt_id].get(key)==promised[key]
-	return _result(upgraded_safely and external_only and next_uses_grade and unchanged and f.w.facts.inventory.issues[attempt_id]==issue and f.w.facts.inventory.issues.size()==2,{"facility_id":facility_id,"item_at_upgrade_completion":upgraded,"order":order,"receipt":receipt,"safe_release":retained_work,"holds_original_work":holds_original_work,"held_ticks":held_ticks,"external_worker_departed":external_only,"original_attempt":promised,"original_terms_unchanged":unchanged,"next_attempt":next_attempt,"expected_effective_level":utilization.get(level)})
+	return _result(upgraded_safely and external_only and next_uses_grade and unchanged and f.w.facts.inventory.issues[attempt_id]==issue and f.w.facts.inventory.issues.size()==2,{"facility_id":facility_id,"item_at_upgrade_completion":upgraded,"order":order,"receipt":receipt,"safe_release":retained_work,"holds_original_work":holds_original_work,"held_ticks":held_ticks,"external_worker_departed":external_only,"original_attempt":promised,"original_terms_unchanged":unchanged,"next_attempt":next_attempt,"expected_effective_level":utilization.get(level),"actual_attempt_wait_ticks":{"first":int(promised.get("start_tick",-1))-first_wait_started,"after_upgrade":int(next_attempt.get("start_tick",-1))-next_wait_started}})
 
 func _case_27() -> Dictionary:
 	var f: Dictionary = _machine("已施工升级库存接续")

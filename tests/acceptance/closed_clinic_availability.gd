@@ -29,7 +29,7 @@ func run() -> void:
  var visit: Dictionary = world.facts.visits["visit_00000011"]
  var room: Dictionary = world.facts.rooms.room_physical
  check("exact_restore",world.freeze()==raw,world.validate(content))
- check("closed_input",not room.open and visit.phase=="wait_consult")
+ check("closed_input",not room.get("open_intent",true) and visit.phase in ["gp","consult","wait_plan"])
  var before: Dictionary = world.freeze()
  var quotes: Array = sim.clinic.compare_plans(world,visit.id)
  for quote: Dictionary in quotes:
@@ -46,16 +46,17 @@ func run() -> void:
   if not row.ok:
    finish(sim)
    return
- # Advance real consultation while the later treatment room remains closed.
+ # Complete the actual GP decision/review while its later treatment room is closed.
  var consultation_ticket_id: String = visit.ticket_id
- var evidence: Dictionary = visit.evidence_by_source.duplicate(true)
+ var diagnosis: Dictionary = visit.diagnosis.duplicate(true)
  var start_tick: int = world.sim_tick
  while world.sim_tick<start_tick+1600 and visit.phase!="wait_outpatient" and visit.phase!="departed":
   sim.step()
   if world.sim_tick%100==0: await process_frame
  save("waiting",world.freeze())
- check("closed_consultation_recommends_without_future_hold",visit.phase=="wait_outpatient" and not visit.plan_decision.is_empty() and world.facts.preparations.is_empty() and world.facts.attempts.is_empty(),visit)
- check("consultation_keeps_evidence",visit.evidence_by_source==evidence)
+ check("closed_plan_without_future_hold",visit.phase=="wait_outpatient" and not visit.plan_decision.is_empty() and world.facts.preparations.is_empty() and world.facts.attempts.is_empty(),visit)
+ check("completion_keeps_diagnosis_history",visit.diagnosis.get("doctor_id","")==diagnosis.get("doctor_id","") and visit.diagnosis.get("facility_id","")==diagnosis.get("facility_id","") and visit.diagnosis.get("gp_completed",false))
+ var completed_diagnosis: Dictionary=visit.diagnosis.duplicate(true)
  var ticket_id: String = visit.ticket_id
  var ticket: Dictionary = world.facts.tickets.get(ticket_id,{}).duplicate(true)
  check("new_stage_has_outpatient_ticket",ticket.get("kind","")=="outpatient" and ticket_id!=consultation_ticket_id,ticket)
@@ -64,7 +65,7 @@ func run() -> void:
  check("closed_wait_keeps_decision",visit.plan_decision==decision and visit.ticket_id==ticket_id and world.facts.attempts.is_empty())
  # Explicit legal pre-operation reopening of the existing room only. This is
  # not a construction/UI test and changes no positions, timers, work or ticket.
- room.open = true
+ room.open_intent = true
  save("reopened-input",world.freeze())
  check("reopened_quote",sim.clinic.plan_quote(world,visit.id,str(decision.get("plan_id","P_D09_COMMON"))).ok)
  check("reopened_candidates",not sim.clinic.service_candidates(world,visit,"outpatient").is_empty())
@@ -78,7 +79,7 @@ func run() -> void:
  var active_session: Dictionary = {}
  for session: Dictionary in world.facts.sessions.values():
   if session.visit_id==visit.id and session.kind=="outpatient": active_session=session
- check("reopen_keeps_decision_evidence_ticket",visit.plan_decision==decision and visit.evidence_by_source==evidence and active_session.get("original_ticket",{}).get("id","")==ticket_id and active_session.get("original_ticket",{}).get("enqueued_tick",-1)==ticket.get("enqueued_tick",-2))
+ check("reopen_keeps_decision_diagnosis_ticket",visit.plan_decision==decision and visit.diagnosis==completed_diagnosis and active_session.get("original_ticket",{}).get("id","")==ticket_id and active_session.get("original_ticket",{}).get("enqueued_tick",-1)==ticket.get("enqueued_tick",-2))
  if not world.facts.attempts.is_empty():
   var attempts: Dictionary = world.facts.attempts.duplicate(true)
   var session_ids: Array = world.ids("sessions")

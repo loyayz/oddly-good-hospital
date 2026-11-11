@@ -37,7 +37,49 @@ func snapshot(world: WorldState) -> Dictionary:
 	for id: String in world.facts.staff:
 		var s: Dictionary = world.facts.staff[id]
 		if s.role=="nurse": nurses.append({"id":id,"location":world.facts.actors[id].location.duplicate(true),"on_shift":s.get("on_shift",false),"job":s.get("active_job_id",""),"schedule":s.schedule,"abilities":s.abilities,"certificates":s.certificates})
-	return {"tick":world.sim_tick,"population":population_current(world),"beds":beds,"props":props,"rooms":world.facts.rooms.size(),"facilities":world.facts.facilities.size(),"desks":desks,"nurses":nurses,"guidance":world.facts.get("floor_guidance",{}).duplicate(true),"sessions":world.facts.sessions.duplicate(true),"intake":world.facts.arrivals.duplicate(true)}
+	var family_roles: Dictionary={}
+	for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
+		if world.facts.actors[stay.actor_id].location.kind!="outside": family_roles[stay.purpose]=int(family_roles.get(stay.purpose,0))+1
+	var clinical_phases: Dictionary={}
+	for id: String in world.active_visit_ids():
+		var phase: String=str(world.facts.visits[id].phase)
+		clinical_phases[phase]=int(clinical_phases.get(phase,0))+1
+	return {"tick":world.sim_tick,"population":population_current(world),"family_roles":family_roles,"clinical_phases":clinical_phases,"beds":beds,"props":props,"rooms":world.facts.rooms.size(),"facilities":world.facts.facilities.size(),"desks":desks,"nurses":nurses,"guidance":world.facts.get("floor_guidance",{}).duplicate(true),"sessions":world.facts.sessions.duplicate(true),"ward_stays":world.facts.ward_stays.duplicate(true),"intake":world.facts.arrivals.duplicate(true)}
+
+func _time_statistics(rows: Array, wall_us: int) -> Dictionary:
+	var values: Array=[]
+	var populations: Array=[]
+	var total: int=0
+	for row: Dictionary in rows:
+		values.append(int(row.elapsed_us))
+		populations.append(int(row.present))
+		total+=int(row.elapsed_us)
+	values.sort()
+	populations.sort()
+	var metrics: Dictionary={"count":values.size(),"sum_step_us":total,"real_window_us_including_observation":wall_us,"simulated_seconds":values.size()*WorldState.TICK_SECONDS,"simulation_seconds_per_wall_second":values.size()*WorldState.TICK_SECONDS*1000000.0/maxi(1,wall_us),"observation_logging_and_loop_wall_us":wall_us-total}
+	if not values.is_empty():
+		metrics.mean_step_us=float(total)/values.size()
+		metrics.max_us=values.back()
+		metrics.present_population={"minimum":populations.front(),"median":populations[ceili(populations.size()*0.5)-1],"maximum":populations.back()}
+		for pct: int in [50,95,99]: metrics["p%d_us"%pct]=values[ceili(values.size()*pct/100.0)-1]
+	return metrics
+
+func _dense_statistics(rows: Array, window_end_us: int, threshold: int) -> Dictionary:
+	var segments: Array=[]
+	var current: Array=[]
+	var dense_count: int=0
+	for row: Dictionary in rows:
+		if int(row.present)>=threshold:
+			current.append(row)
+			dense_count+=1
+		elif not current.is_empty():
+			segments.append(_dense_segment(current,int(row.wall_start_us)))
+			current=[]
+	if not current.is_empty(): segments.append(_dense_segment(current,window_end_us))
+	return {"threshold_present":threshold,"minimum_qualified_samples":1000,"dense_sample_count":dense_count,"has_qualified_segment":segments.any(func(segment:Dictionary)->bool:return int(segment.metrics.count)>=1000),"segments":segments,"scope":"Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed."}
+
+func _dense_segment(rows: Array, end_us: int) -> Dictionary:
+	return {"first_index":rows.front().index,"last_index":rows.back().index,"first_tick":rows.front().tick,"last_tick":rows.back().tick,"metrics":_time_statistics(rows,end_us-int(rows.front().wall_start_us)),"sample_count_qualified":rows.size()>=1000}
 func _run() -> void:
 	var input: String = ""
 	var steps: int = 1000
@@ -74,8 +116,8 @@ func _run() -> void:
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
-	var comprehensive: bool = envelope.get("scenario","")=="comprehensive160-v1"
-	var observer = load("res://tools/performance/current/comprehensive_observer.gd").new() if comprehensive else null
+	var comprehensive: bool = envelope.get("scenario","")=="comprehensive160-clinical-family-v2"
+	var observer = load("res://tools/performance/current/comprehensive_observer.gd").new(content) if comprehensive else null
 	var operations = load("res://tools/performance/current/comprehensive_operations.gd").new() if comprehensive else null
 	if require_coverage and not comprehensive:
 		write_json(output,{"complete":false,"reason":"The input has no comprehensive coverage contract"});sim.dispose();quit(2);return
@@ -109,6 +151,7 @@ func _run() -> void:
 	var prefix_wall_us: int = 0
 	var wall_start: int = Time.get_ticks_usec()
 	for index: int in prefix_steps+steps:
+		var iteration_started_us: int=Time.get_ticks_usec()
 		if index==prefix_steps:
 			prefix_work=work.duplicate();prefix_guidance=guidance_work;prefix_events=event_counts.duplicate()
 			sample_start_population=population_current(world)
@@ -138,7 +181,7 @@ func _run() -> void:
 		if not world.facts.moves.is_empty(): actual_moving_steps += 1
 		for event: SimEvent in result.facts:
 			events.append(event.to_record());event_counts[event.kind]=int(event_counts.get(event.kind,0))+1
-		var row: Dictionary = {"index":index,"tick":world.sim_tick,"elapsed_us":elapsed,"present":world.present_actor_count(),"sessions":world.facts.sessions.size(),"moves":world.facts.moves.size()}
+		var row: Dictionary = {"index":index,"tick":world.sim_tick,"elapsed_us":elapsed,"wall_start_us":iteration_started_us,"present":world.present_actor_count(),"sessions":world.facts.sessions.size(),"moves":world.facts.moves.size()}
 		samples.append(row)
 		stream.store_line(JSON.stringify({"kind":"complete","sample":row}));stream.flush()
 		if index%100==0: print("PLAIN_PROGRESS="+JSON.stringify(row))
@@ -151,20 +194,12 @@ func _run() -> void:
 	var final: Dictionary = snapshot(world)
 	var ending: FileAccess = FileAccess.open(output+".final.bin",FileAccess.WRITE)
 	ending.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":envelope.floors,"visitor_ids":envelope.visitor_ids,"events":events});ending.close()
-	var values: Array = []
-	var populations: Array = []
-	var sum_us: int = 0
-	for row: Dictionary in samples:
-		if int(row.index)>=prefix_steps:
-			values.append(int(row.elapsed_us));sum_us+=int(row.elapsed_us)
-			populations.append(int(row.present))
-	values.sort()
-	populations.sort()
-	var metrics: Dictionary = {"count":values.size(),"sum_step_us":sum_us,"real_window_us_including_observation":wall_us,"simulated_seconds":values.size()*0.1,"simulation_seconds_per_wall_second":values.size()*100000.0/maxi(1,wall_us),"observation_logging_and_loop_wall_us":wall_us-sum_us}
-	if not values.is_empty():
-		metrics.present_population={"minimum":populations.front(),"median":populations[ceili(populations.size()*0.5)-1],"maximum":populations.back()}
-		metrics.mean_step_us=float(sum_us)/values.size();metrics.fresh_runtime_first_prefix_or_sample_step_us=samples[0].elapsed_us;metrics.first_sample_step_us=samples[prefix_steps].elapsed_us;metrics.max_us=values.back()
-		for pct: int in [50,95,99]: metrics["p%d_us"%pct]=values[ceili(values.size()*pct/100.0)-1]
+	var measured_rows: Array=samples.slice(prefix_steps)
+	var metrics: Dictionary=_time_statistics(measured_rows,wall_us)
+	if not measured_rows.is_empty():
+		metrics.fresh_runtime_first_prefix_or_sample_step_us=samples[0].elapsed_us
+		metrics.first_sample_step_us=measured_rows[0].elapsed_us
+	metrics.dense_intervals=_dense_statistics(measured_rows,window_end,ceili(int(initial.population.present)*0.9))
 	var sample_work: Dictionary = {}
 	for kind: String in work: sample_work[kind]=int(work[kind])-int(prefix_work.get(kind,0))
 	var sample_events: Dictionary = {}

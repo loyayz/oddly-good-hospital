@@ -2,8 +2,8 @@ extends RefCounted
 
 const ColdGraph = preload("res://tests/acceptance/navigation_cold_graph.gd")
 
-# Frozen pre-bucket-borrowing predicate. Every wall/door cut and its original
-# failure ordering remains explicit here rather than sharing the new helper.
+# Independent complete predicate. Floor walls have no room owner; legacy
+# room walls retain their owner. Every cut and failure order stays explicit.
 class OriginalClearance extends RouteClearance:
 	func _wall_reason(rect: Rect2) -> String:
 		var walls: Array = _walls
@@ -21,7 +21,7 @@ class OriginalClearance extends RouteClearance:
 			if low>=high or before>=float(wall.line) or after<=float(wall.line): continue
 			var opening: bool = false
 			for door: Dictionary in _doors:
-				if door.room_id!=wall.room_id or door.axis!=wall.axis or not door.ok: continue
+				if (not str(wall.room_id).is_empty() and door.room_id!=wall.room_id) or door.axis!=wall.axis or not door.ok: continue
 				var line: float = door.opening.position.y if wall.axis=="x" else door.opening.position.x
 				var a: float = door.opening.position.x if wall.axis=="x" else door.opening.position.y
 				var b: float = door.opening.end.x if wall.axis=="x" else door.opening.end.y

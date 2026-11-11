@@ -80,7 +80,7 @@ func _init(database: HospitalContent, count: int, layout: String = "four_floors"
 		var actor: Dictionary = {"id":id,"name":"患者%04d"%index,"species_id":binding.species_id,"body_binding_id":binding.id,"facing":0.0,"posture":"standing"}
 		actor.location = _location(floor_id,_next_position(floor_id,actor))
 		world.facts.actors[id] = actor
-		world.facts.visits[visit_id] = {"id":visit_id,"actor_id":id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_D09_SURGERY" if index%5==0 else "P_D09_COMMON","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrived_tick":0,"arrival_key":visit_id,"last_progress_tick":0,"last_service_tick":0}
+		world.facts.visits[visit_id] = {"id":visit_id,"actor_id":id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_D09_SURGERY" if index%5==0 else "P_D09_COMMON","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"arrival","diagnosis":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrived_tick":0,"arrival_key":visit_id,"last_progress_tick":0,"last_service_tick":0}
 		world.facts.arrival_receipts[visit_id] = visit_id
 		_space.sync_actor(world,id)
 	for index: int in visitors:

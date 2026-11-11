@@ -14,7 +14,7 @@ const CASES: Dictionary = {
 	"CORE-11":"阶段02至03规格§3：无关修订不锁定，非法目标原子",
 	"CORE-12":"阶段02至03规格§3：运行命令在保存边界排空",
 	"CORE-13":"阶段02至03规格§3：账目幂等及负余额拒绝",
-	"CORE-14":"技术规格§4：十二独立随机流",
+	"CORE-14":"技术规格§4及统一临床规格§17：原十二随机流与独立registration流",
 	"CORE-15":"实施路线4.2至4.4：完整基础内容和引用",
 	"CORE-16":"实施路线4.3：注册表不可变",
 	"CORE-17":"实施路线4.4：加载失败保留有效注册表",
@@ -133,7 +133,11 @@ func _case_04(t, content: HospitalContent) -> void:
 		var session: GameSession = GameSession.new(sim,"clock")
 		rates = rates and session.actual_speed()==0
 		session.set_speed(speed)
-		session.advance(0.2)
+		var first: Array[TickResult]=session.advance(0.2)
+		rates = rates and first.size()<=8
+		for _frame: int in 6:
+			if not session.running_slow: break
+			rates = rates and session.advance(0.0).size()<=8
 		rates = rates and world.sim_tick==[2,4,6][speed-1]
 		sim.dispose()
 	t.check("CORE-04",rates)
@@ -171,9 +175,11 @@ func _case_07(t, content: HospitalContent) -> void:
 	session.advance(0.0)
 	session.advance(2.0)
 	var suspended: bool = world.sim_tick==0
-	session.advance(0.9)
-	var bounded: bool = world.sim_tick==8 and session.running_slow
-	session.advance(0.0)
+	var first: Array[TickResult]=session.advance(0.9)
+	var bounded: bool = not first.is_empty() and first.size()<=8 and world.sim_tick<=8 and session.running_slow
+	for _frame: int in 9:
+		if not session.running_slow: break
+		bounded = bounded and session.advance(0.0).size()<=8
 	t.check("CORE-07",suspended and bounded and world.sim_tick==9)
 	sim.dispose()
 
@@ -295,7 +301,7 @@ func _case_14(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
 	var original_rng: Dictionary = empty.facts.rng.duplicate(true)
 	empty.draw("treatment",10000)
-	var independent: bool = empty.facts.rng.size()==12 and original_rng.treatment!=empty.facts.rng.treatment
+	var independent: bool = empty.facts.rng.size()==13 and empty.facts.rng.has("registration") and original_rng.treatment!=empty.facts.rng.treatment
 	for stream: String in original_rng:
 		if stream!="treatment" and original_rng[stream]!=empty.facts.rng[stream]: independent = false
 	t.check("CORE-14",independent)

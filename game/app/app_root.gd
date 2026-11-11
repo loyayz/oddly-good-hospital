@@ -949,12 +949,10 @@ func _update_details() -> void:
 		sessions_by_visit[session.visit_id].append(session)
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
-		var evidence: float = 0.0
-		for value: Variant in visit.evidence_by_source.values():
-			evidence += float(value)
 		lines.append("\n[b]"+str(world.facts.actors[visit.actor_id].name)+"[/b]")
-		lines.append(str(_content.definition("diseases",visit.disease_id).name) if evidence>=90 else str(_content.definition("treatment_bindings",visit.binding_id).symptom_variant))
-		lines.append("诊断进度 %d / 90" % mini(90,floori(evidence)))
+		var diagnosed: bool=visit.get("diagnosis",{}).get("state","")=="diagnosed"
+		lines.append(str(_content.definition("diseases",visit.disease_id).name) if diagnosed else str(_content.definition("treatment_bindings",visit.binding_id).symptom_variant))
+		lines.append("已确诊" if diagnosed else "等待检查后复核" if visit.get("diagnosis",{}).get("exam_completed",false) else "信息不足，等待一次检查" if visit.get("diagnosis",{}).get("state","")=="insufficient" else "等待初诊结果")
 		lines.append(_phase_name(visit.phase))
 		if not visit.waiting_reason.is_empty():
 			lines.append(visit.waiting_reason)
@@ -996,7 +994,8 @@ func _notification(what: int) -> void:
 
 static func _phase_name(phase: String) -> String:
 	return {"arrival":"到院","wait_gp":"等候初诊","gp":"初诊中",
+		"wait_examination":"等候一次检查安排","wait_plan":"等待医生选择方案","continuation_leaving":"原医生下班，正在安全离院","continuation_outside":"等待预定时刻返回原医生",
 		"wait_spectrum":"等候光谱检查","spectrum":"光谱检查中","wait_resonance":"等候共振检查","resonance":"共振检查中",
-		"wait_consult":"等候方案会诊","consult":"方案会诊中","wait_outpatient":"等候门诊治疗","outpatient":"治疗中",
+		"wait_consult":"等候原医生复核","consult":"原医生复核中","wait_outpatient":"等候门诊治疗","outpatient":"治疗中",
 		"wait_surgery":"手术准备","surgery":"手术进行中","wake":"治疗完成，苏醒中","transfer":"正在转床",
 		"recovery":"住院恢复与护理","leaving":"正在离院","departed":"已离院"}.get(phase,phase)

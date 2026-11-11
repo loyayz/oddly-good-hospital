@@ -12,11 +12,13 @@ var _allow: Button
 var _decline: Button
 
 const STATES: Dictionary = {
+	"admitting":"正在前往病房入住", "waiting_surgery":"在病房等待手术安排", "to_surgery":"正在前往手术室", "return_preop":"准备中止，正在返回原床",
+	"outside":"夜间已离院，白天返回", "walking":"家属正在实际行走",
 	"reserved":"已承诺床位", "transfer":"护送转床", "recovery":"住院恢复",
 	"release_wait":"等待安全离床",
 	"referral_release":"等待安全转诊", "surgery":"手术中", "wake":"苏醒中",
 	"to_waiting":"正前往候诊区", "waiting":"在候诊区等候", "to_bed":"正前往床边",
-	"visiting":"床边探视", "yielding":"为护理让出床边", "leaving":"正在离院"
+	"visiting":"在病房陪伴患者", "yielding":"为医疗离开病房", "leaving":"正在离院"
 }
 
 func build_controls() -> void:
@@ -60,7 +62,7 @@ func _actor_name(id: String) -> String:
 func _locate_bed() -> void:
 	var facts: Dictionary = simulation.world.facts
 	for stay: Dictionary in facts.get("ward_stays",{}).values():
-		if facts.get("attempts",{}).get(stay.get("attempt_id",""),{}).get("visit_id","")==_visit_id:
+		if stay.get("visit_id","")==_visit_id:
 			locate_requested.emit(str(stay.bed_id))
 			return
 	for preparation: Dictionary in facts.get("preparations",{}).values():
@@ -87,14 +89,14 @@ func _details() -> String:
 			var label: String = "床边护理" if kind=="care" else str(STATES.get(kind,"医疗服务"))
 			lines.append("%s · 剩余约 %d 医院分钟\n设施：%s" % [label,ceili(float(active.get("remaining_ticks",0))/12.5),str(active.get("facility_id",""))])
 	for stay: Dictionary in facts.get("ward_stays",{}).values():
-		var attempt: Dictionary = facts.get("attempts",{}).get(stay.get("attempt_id",""),{})
-		if attempt.get("visit_id","")!=_visit_id: continue
+		if stay.get("visit_id","")!=_visit_id: continue
 		var phase: String = str(stay.get("phase",""))
-		_transfer.disabled = not phase in ["recovery"] or _beds.item_count==0
-		_refer.disabled = not phase in ["recovery"]
+		_transfer.disabled = not phase in ["waiting_surgery","recovery"] or _beds.item_count==0
+		_refer.disabled = not phase in ["waiting_surgery","recovery"]
 		var nurse: Dictionary = facts.get("staff",{}).get(stay.get("nurse_id",""),{})
 		var bed: Dictionary = facts.get("facilities",{}).get(stay.get("bed_id",""),{})
-		lines.append("%s · %s\n恢复剩余工作量约 %d 医院分钟\n主动护理：%s" % [str(STATES.get(phase,"住院处理中")),str(stay.get("bed_id","")),ceili(float(stay.get("remaining_ticks",0))/12.5),"已完成" if stay.get("care_completed",false) else "尚未完成"])
+		lines.append("%s · %s" % [str(STATES.get(phase,"住院处理中")),str(stay.get("bed_id",""))])
+		if phase=="recovery": lines.append("恢复剩余工作量约 %d 医院分钟\n主动护理：%s" % [ceili(float(stay.get("remaining_ticks",0))/12.5),"已完成" if stay.get("care_completed",false) else "尚未完成"])
 		lines.append("覆盖护士：%s\n当班：%s · 分配于本病房：%s" % [_actor_name(str(stay.get("nurse_id",""))),"是" if nurse.get("on_shift",false) else "否","是" if not nurse.is_empty() and nurse.get("ward_id","")==bed.get("room_id","") else "否"])
 		var nurse_actor: Dictionary = facts.get("actors",{}).get(stay.get("nurse_id",""),{})
 		var location: Dictionary = nurse_actor.get("location",{})
@@ -114,5 +116,5 @@ func _details() -> String:
 		if request.get("visit_id","")==_visit_id: lines.append("家属有到场意向，正在等待真实入口与候诊位置。")
 	for relative: Dictionary in relatives.get("stays",{}).values():
 		if relative.get("visit_id","")!=_visit_id: continue
-		lines.append("%s · %s\n%s%s" % [_actor_name(str(relative.actor_id)),"陪诊" if relative.get("purpose","")=="companion" else "探视",str(STATES.get(str(relative.get("phase","")),"家属在院")),"\n"+str(relative.waiting_reason) if not str(relative.get("waiting_reason","")).is_empty() else ""])
+		lines.append("%s · %s\n%s%s" % [_actor_name(str(relative.actor_id)),"住院陪同" if relative.get("purpose","")=="companion" else "探视",str(STATES.get(str(relative.get("phase","")),"家属在院")),"\n"+str(relative.waiting_reason) if not str(relative.get("waiting_reason","")).is_empty() else ""])
 	return "\n\n".join(lines)

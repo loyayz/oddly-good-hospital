@@ -213,6 +213,10 @@ def validate_semantics(collections: dict, rules: dict, indexes: dict, schema: di
                 numeric_walk(child, path+f"[{index}]")
     numeric_walk(collections, "content")
     numeric_walk(rules, "rules")
+    diagnosis_probabilities = rules["clinical"]["diagnosis_insufficient_bp"]
+    require(len(diagnosis_probabilities) == 6 and diagnosis_probabilities[0] == 0
+            and all(0 <= chance <= 10000 for chance in diagnosis_probabilities),
+            "rules.clinical.diagnosis_insufficient_bp", "expected level-zero sentinel and five basis-point probabilities")
     no_cycles({row["id"]: row["requires"] for row in values("research")}, "research")
     species = indexes["species"]
     rig_roles = {row["rig"]: set(row["roles"]) for row in values("staff_rig_adapters")}
@@ -254,6 +258,8 @@ def validate_semantics(collections: dict, rules: dict, indexes: dict, schema: di
             require(row["requires_distinct_staff"] and all(1 <= row[key] <= 5 for key in ("min_surgeon_surgery", "min_anesthetist_surgery", "min_nurse_surgery")), row["id"], "invalid three-position surgery qualification")
         elif not row["uses_disease_profile"]:
             require(set(row["clinical_profiles"]) == set(indexes["profiles"]), row["id"], "outpatient clinical profiles incomplete")
+            require(all(profile["recovery_seconds"] == 0 for profile in row["clinical_profiles"].values()),
+                    row["id"], "outpatient treatment cannot create an inpatient recovery commitment")
     disease_protocols = {}
     for row in values("treatment_plans"):
         disease_protocols.setdefault(row["disease_id"], set()).add(row["protocol_id"])

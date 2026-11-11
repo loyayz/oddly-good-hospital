@@ -27,15 +27,22 @@ func ensure(world: WorldState) -> void:
 		# Existing completed diagnostic work is the migration evidence; no visit is
 		# created to open the panel or to supply a research topic.
 		for visit: Dictionary in world.facts.visits.values():
-			if visit.evidence_by_source.has("gp"):
+			if visit.get("diagnosis",{}).get("gp_completed",false):
 				var occurred: int = int(world.facts.ledger.entries.get(visit.id+":gp",{}).get("tick",world.sim_tick))
 				var opened_tick: int = int(world.facts.research_progress.opened_tick)
 				world.facts.research_progress.opened_tick = occurred if opened_tick<0 else mini(opened_tick,occurred)
-			if _evidence(visit)>=float(content.balance.diagnosis_threshold):
+			if visit.get("diagnosis",{}).get("state","")=="diagnosed":
 				_collect_diagnosis(world,visit)
 		for research_id: String in _diagnoses:
 			world.facts.research_progress.materials[research_id] = _diagnoses[research_id]
 		_diagnoses.clear()
+	if not world.facts.research_progress.has("first_profile_b_tick"):
+		world.facts.research_progress.first_profile_b_tick=-1
+		for visit: Dictionary in world.facts.visits.values():
+			if content.definition("diseases",str(visit.disease_id)).get("profile","")=="B":
+				var occurred: int=int(visit.get("arrived_tick",world.sim_tick))
+				var previous: int=int(world.facts.research_progress.first_profile_b_tick)
+				world.facts.research_progress.first_profile_b_tick=occurred if previous<0 else mini(previous,occurred)
 	for definition: Dictionary in content.catalog.research:
 		if definition.disease_ids.is_empty() and not world.facts.research_progress.materials.has(definition.id):
 			world.facts.research_progress.materials[definition.id] = {"kind":"initial","tick":0}
@@ -178,8 +185,12 @@ func _start(world: WorldState, research_id: String, payload: Dictionary) -> Comm
 func record_diagnostic_work(world: WorldState, visit: Dictionary, kind: String) -> void:
 	if kind=="gp" and not opened(world):
 		_opening_tick = world.sim_tick
-	if _evidence(visit)>=float(content.balance.diagnosis_threshold):
+	if visit.get("diagnosis",{}).get("state","")=="diagnosed":
 		_collect_diagnosis(world,visit)
+
+func record_arrival(world: WorldState, visit: Dictionary) -> void:
+	if content.definition("diseases",str(visit.disease_id)).get("profile","")!="B": return
+	if int(world.facts.research_progress.first_profile_b_tick)<0: world.facts.research_progress.first_profile_b_tick=world.sim_tick
 
 func _collect_diagnosis(world: WorldState, visit: Dictionary) -> void:
 	for definition: Dictionary in content.catalog.research:
@@ -519,12 +530,6 @@ static func disease_unlocked(world: WorldState, database: HospitalContent, disea
 			return true
 	return false
 
-static func _evidence(visit: Dictionary) -> float:
-	var total: float = 0.0
-	for value: Variant in visit.evidence_by_source.values():
-		total += float(value)
-	return total
-
 static func _in_region(cell: Array, region: Dictionary) -> bool:
 	var origin: Array = region.get("origin",[0,0])
 	var size: Array = region.get("size",[0,0])
@@ -536,6 +541,7 @@ func validate(world: WorldState) -> String:
 		return "研究资料、简报、待办或任务集合缺失"
 	if not _saved_integer(progress.get("opened_tick"),-1,world.sim_tick):
 		return "研究面板开放事实无效"
+	if not _saved_integer(progress.get("first_profile_b_tick",-1),-1,world.sim_tick): return "光谱检查首次B病例开放事实无效"
 	for research_id: Variant in progress.materials:
 		var source: Variant = progress.materials[research_id]
 		if not research_id is String or content.definition("research",research_id).is_empty() or not source is Dictionary or not source.get("kind") in ["initial","diagnosis","mail"] or not _saved_integer(source.get("tick"),0,world.sim_tick):

@@ -485,6 +485,29 @@ func public_point(world: WorldState, floor_id: int, point: Vector2i) -> bool:
 	_ensure(world,floor_id)
 	return _facility_areas.public_point(world,floor_id,point)
 
+func floor_waiting_point(world: WorldState, actor_id: String) -> Dictionary:
+	var actor: Dictionary=world.facts.actors[actor_id]
+	if actor.location.kind!="floor": return {}
+	var floor_id: int=int(actor.location.floor_id)
+	var origin: Vector2=Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	# Complete owned public floor, nearest first. The original full body,
+	# standing constraints and route proof apply to every candidate.
+	var points: Array[Vector2i]=[]
+	for plot: Array in HospitalSpace.floor_plots(world,floor_id):
+		for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
+			for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32):
+				var point: Vector2i=Vector2i(x,y)
+				if space.room_use.public_point(world,floor_id,point): points.append(point)
+	points.sort_custom(func(a: Vector2i,b: Vector2i)->bool:
+		var da: float=origin.distance_squared_to(Vector2(a))
+		var db: float=origin.distance_squared_to(Vector2(b))
+		return da<db if da!=db else a.y<b.y if a.y!=b.y else a.x<b.x)
+	for point: Vector2i in points:
+		var cell: Array=[point.x,point.y]
+		if safe_wait(world,actor_id,floor_id,cell) and space.can_reach(world,actor_id,floor_id,cell):
+			return {"floor_id":floor_id,"cell":cell}
+	return {}
+
 func room_exit_point(world: WorldState, actor_id: String) -> Dictionary:
 	var actor: Dictionary=world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {}
@@ -1173,6 +1196,12 @@ func _wait_door_view(world: WorldState, floor_id: int, spans: Array) -> Dictiona
 func _wait_constraints(world: WorldState) -> Dictionary:
 	if not _wait_geometry.is_empty(): return _wait_geometry
 	var result: Dictionary = {"points":{},"doors":{},"posts":{}}
+	var entry: Dictionary=world.facts.get("entry",{"floor_id":1,"cell":[47,93]})
+	var entrance: Rect2=Rect2(float(entry.cell[0]),float(entry.cell[1]),1.0,1.0)
+	var entry_posts: Dictionary=result.posts.get_or_add(int(entry.floor_id),{})
+	for x: int in range(floori(entrance.position.x/8.0),floori(entrance.end.x/8.0)+1):
+		for y: int in range(floori(entrance.position.y/8.0),floori(entrance.end.y/8.0)+1):
+			entry_posts.get_or_add(Vector2i(x,y),[]).append(entrance)
 	for floor_key: String in world.facts.floors.overrides:
 		var floor_id: int = int(floor_key)
 		result.doors[floor_id] = []
@@ -1225,11 +1254,10 @@ func _wait_estimate(world: WorldState, reference: Dictionary, facility_ids: Arra
 
 func _wait_estimate_view(world: WorldState) -> Dictionary:
 	var result: Dictionary = {"remaining":{},"queued":{}}
-	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
-		if need.phase in ["using","returning"]:
-			var id: String = str(need.get("facility_id",""))
-			result.remaining[id] = maxi(int(result.remaining.get(id,0)),int(need.remaining_ticks) if need.phase=="using" else 2147483647)
 	for intent: Dictionary in intents(world):
+		if intent.phase in ["using","returning"]:
+			var id: String=str(intent.get("facility_id",""))
+			if not id.is_empty(): result.remaining[id]=maxi(int(result.remaining.get(id,0)),int(intent.remaining_ticks) if intent.phase=="using" else 2147483647)
 		if int(intent.get("arrived_tick",-1))<0 or not intent.phase in ["local_wait","local_travel"]: continue
 		var purpose: String = str(intent.get("public_purpose",""))
 		var area: Dictionary = intent.get("area",{})
@@ -1253,6 +1281,7 @@ func _intent_view(world: WorldState) -> Dictionary:
 		var task: Dictionary = staff.get("life_task",{})
 		if task.has("public_purpose"): result.append(task)
 	for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
+		if not stay.get("life_task",{}).is_empty(): result.append(stay.life_task)
 		if stay.has("public_use"):
 			result.append(stay.public_use)
 			if stay.public_use.get("phase","")=="seated": visitor_seats[str(stay.public_use.get("facility_id",""))] = true

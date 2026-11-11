@@ -230,14 +230,11 @@
     ]
   },
   "gp_seconds": 12,
-  "diagnosis_threshold": 90,
   "tests": {
     "spectrum": {
-      "confidence": 35,
       "seconds": 18
     },
     "resonance": {
-      "confidence": 25,
       "seconds": 22
     }
   },
@@ -697,6 +694,7 @@
     "nurse_or_seconds": 120
   },
   "clinical": {
+    "diagnosis_insufficient_bp": [0, 4000, 3200, 2400, 1600, 800],
     "consult_seconds": 8,
     "minimum_predicted_success": 0.75,
     "outpatient_priority_success": 0.8,
@@ -1173,7 +1171,7 @@
     "prepare_accessory_seconds": 10,
     "visitor_yield_seconds": 2,
     "ward_visit_seconds": 30,
-    "ward_visits_per_patient_per_day": 2,
+    "ward_visits_per_patient_per_day": 1,
     "nursing_handoff_seconds": 5,
     "max_companions_per_patient": 1,
     "accessory_scope": "detachable_visual_props_only",
@@ -1656,11 +1654,11 @@
   },
   "ward_care": {
     "coverage": "physically_in_assigned_ward",
-    "companion_probability": 0.25,
-    "ward_visit_probability": 0.5,
+    "companion_probability": 0.8,
+    "ward_visit_probability": 0.3,
     "visitor_request_scan_seconds": 5,
-    "visitor_budget_per_visit": 1,
-    "window_state_owner": "Visit",
+    "visitor_budget_per_visit": 2,
+    "window_state_owner": "WardStay",
     "repeat_intent_roll": false,
     "visit_requires_consent": true,
     "visit_changes_recovery": false,
@@ -2388,7 +2386,7 @@
   },
   "hospital_growth": {
     "entity_limits": "physical_layout_and_services",
-    "ordinary_visitors": "one_per_active_visit_and_real_waiting_position",
+    "ordinary_visitors": "one_companion_and_one_ward_visitor_per_inpatient_with_actual_entry_and_safe_waiting_position",
     "patient_limit": "scaled_intake_allowance",
     "employee_count_cap": null,
     "room_count_cap": null,
@@ -2889,10 +2887,9 @@
     "world_effects": false
   },
   "diagnostic_flow": {
-    "completed_test_limit": "once_per_mode_per_visit",
-    "skip_at_threshold": true,
+    "completed_test_limit": 1,
     "progress_source": "actual_completed_service",
-    "duplicate_guard": "visit_evidence_by_source",
+    "duplicate_guard": "visit.diagnosis.exam_completed",
     "skipped_service_effects": false
   },
   "audio_presentation": {

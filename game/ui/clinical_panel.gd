@@ -10,8 +10,10 @@ var _refer: Button
 const PHASES: Dictionary = {
 	"arrival":"正在到院",
 	"wait_gp":"等待初诊", "gp":"初诊中", "wait_spectrum":"等待光谱检查",
+	"wait_examination":"等待一次检查安排", "wait_plan":"等待医生选择方案",
+	"continuation_leaving":"原医生下班，正在安全离院", "continuation_outside":"等待预定时刻返回原医生",
 	"spectrum":"光谱检查中", "wait_resonance":"等待共振检查", "resonance":"共振检查中",
-	"wait_consult":"等待会诊", "consult":"会诊中", "wait_outpatient":"等待门诊治疗",
+	"wait_consult":"等待原医生复核", "consult":"原医生复核中", "wait_outpatient":"等待门诊治疗",
 	"outpatient":"门诊治疗中", "wait_surgery":"等待手术", "surgery":"手术中",
 	"wake":"苏醒中", "transfer":"转往病床", "recovery":"住院恢复",
 	"ward_referral":"安全转诊中",
@@ -47,8 +49,9 @@ func _details() -> String:
 	var waiting: int = 0
 	for visit_id: String in simulation.world.active_visit_ids():
 		var visit: Dictionary = facts.visits[visit_id]
-		if visit.get("phase","")!="departed": active += 1
-		if str(visit.get("phase","")).begins_with("wait_"): waiting += 1
+		var present: bool=facts.actors.get(str(visit.actor_id),{}).get("location",{}).get("kind","outside")!="outside"
+		if present: active += 1
+		if present and str(visit.get("phase","")).begins_with("wait_"): waiting += 1
 	var lines: Array[String] = ["在院 %d 位 · 候诊 %d 位" % [active,waiting]]
 	if simulation.services.has("floor_guidance"): lines.append(simulation.services.floor_guidance.summary(simulation.world))
 	var visit: Dictionary = facts.get("visits",{}).get(_visit_id,{})
@@ -60,7 +63,7 @@ func _details() -> String:
 	lines.append("当前阶段："+str(PHASES.get(phase,"诊疗进行中")))
 	var ticket: Dictionary = facts.get("tickets",{}).get(visit.get("ticket_id",""),{})
 	if not ticket.is_empty():
-		lines.append("原号签：%s\n本段候诊已过约 %d 医院分钟" % [ticket.id,ceili(float(simulation.world.sim_tick-int(ticket.get("enqueued_tick",0)))/12.5)])
+		lines.append("原号签：%s\n本段候诊已过约 %d 医院分钟" % [ticket.id,ceili(float(ticket.get("waited_ticks",0))/12.5)])
 	else:
 		lines.append("当前无需候诊号签")
 	var reason: String = str(visit.get("waiting_reason",""))

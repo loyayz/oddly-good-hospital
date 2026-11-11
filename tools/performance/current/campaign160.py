@@ -49,6 +49,15 @@ def processes():
     return json.loads(raw) if raw.strip() else []
 
 
+def target_checks(metrics, targets):
+    return {
+        "p95": metrics["p95_us"] <= targets["sim_step_p95_ms"] * 1000,
+        "p99": metrics["p99_us"] <= targets["sim_step_p99_ms"] * 1000,
+        "ordinary_maximum": metrics["max_us"] <= targets["sim_step_ordinary_max_ms"] * 1000,
+        "speed_1x_including_observation": metrics["simulation_seconds_per_wall_second"] >= targets["sim_speed_ratio_min"],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
@@ -57,11 +66,12 @@ def main():
     parser.add_argument("--profile-stages", action="store_true")
     parser.add_argument("--main-thread-policy", choices=["app", "default"], default="app")
     parser.add_argument("--worker-tasks", choices=[0, 1, 4], type=int, default=4)
-    parser.add_argument("--exact-reference", type=Path)
+    parser.add_argument("--outcome-reference", "--exact-reference", dest="outcome_reference", type=Path,
+                        help="Same input/window full final-world and ordered-event hash witness; not the retired clinical capacity reference")
     parser.add_argument("--smoke", action="store_true", help="Two-step tool qualification, no performance claim")
     parser.add_argument("--repeat-number", type=int, choices=[1, 2, 3], help="One full repeat for the serial paired controller; never shortens either window")
     parser.add_argument("--prefix-steps", type=int, default=1000)
-    parser.add_argument("--sample-steps", type=int, default=2000)
+    parser.add_argument("--sample-steps", type=int, default=6000)
     parser.add_argument("--require-coverage", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[3]
@@ -89,6 +99,7 @@ def main():
                     "sim_step_p95_ms", "sim_step_p99_ms", "sim_step_ordinary_max_ms", "sim_speed_ratio_min")},
                 "source_inventory_sha256": digest(root / "source-inventory.json") if (root / "source-inventory.json").is_file() else None,
                 "paired_repeat": args.repeat_number,
+                "outcome_reference": str(args.outcome_reference.resolve()) if args.outcome_reference else None,
                 "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "scope": "Simulation.step elapsed, no renderer/GameSession. Fresh processes; OS caches retained. Desktop applications remain running. Stage timers are diagnostic."}
     write(output / "protocol.json", protocol)
@@ -145,20 +156,27 @@ def main():
         if args.require_coverage and not args.smoke:
             assert data["sample_business"]["comprehensive"]["coverage_pass"], data["sample_business"]["comprehensive"]
         metrics = data["metrics"]
-        checks = {
-            "p95": metrics["p95_us"] <= targets["sim_step_p95_ms"] * 1000,
-            "p99": metrics["p99_us"] <= targets["sim_step_p99_ms"] * 1000,
-            "ordinary_maximum": metrics["max_us"] <= targets["sim_step_ordinary_max_ms"] * 1000,
-            "speed_1x_including_observation": metrics["simulation_seconds_per_wall_second"] >= targets["sim_speed_ratio_min"],
-        }
+        checks = target_checks(metrics, targets)
+        dense = metrics["dense_intervals"]
+        dense_checks = [{"first_index": interval["first_index"], "last_index": interval["last_index"],
+                         "count": interval["metrics"]["count"], "sample_count_qualified": interval["sample_count_qualified"],
+                         "checks": target_checks(interval["metrics"], targets)}
+                        for interval in dense["segments"]]
+        checks["dense_interval_samples"] = dense["has_qualified_segment"]
+        checks["dense_interval_targets"] = bool(dense_checks) and all(all(row["checks"].values()) for row in dense_checks)
+        if not args.smoke:
+            assert data["initial"]["population"]["present"] == 160, "The measured initial population is not 160 real actors"
         assert digest(Path(str(result_path) + ".final.bin")) == data["final_sha256"]
         execution = read(Path(str(result_path) + ".execution.json"))
         if args.main_thread_policy == "app":
             assert execution["main_thread_policy"]["applied"], execution["main_thread_policy"]
         if results:
             assert data["final_sha256"] == results[0]["final_sha256"], "Repeat business outcome changed"
-        if args.exact_reference:
-            assert data["final_sha256"] == read(args.exact_reference / "r1.json")["final_sha256"], "Diagnostic/candidate outcome differs from the reference"
+        if args.outcome_reference:
+            reference = read(args.outcome_reference / "r1.json")
+            assert reference["source_input_sha256"] == protocol["input_sha256"], "Outcome witness used a different complete input"
+            assert reference["requested_sample_steps"] == steps and reference["requested_prefix_steps"] == prefix, "Outcome witness used another window"
+            assert data["final_sha256"] == reference["final_sha256"], "Diagnostic/candidate final world or ordered events differ from the requested witness"
         assert source_identity(root) == source, "Source changed during execution"
         assert native_identity(root) == protocol["native"], "Native libraries changed during execution"
         assert digest(input_path) == protocol["input_sha256"], "Input changed during execution"
@@ -166,6 +184,7 @@ def main():
         row = {"repeat": repeat, "returncode": process.returncode, "wall_seconds": elapsed,
                "metrics": data["metrics"], "business": data["sample_business"],
                "cpu_target_checks": checks, "cpu_targets_pass": all(checks.values()) if not args.smoke else None,
+               "dense_interval_checks": dense_checks,
                "final_sha256": data["final_sha256"], "execution": execution}
         results.append(row)
         write(output / "summary.json", results)

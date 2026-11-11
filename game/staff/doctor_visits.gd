@@ -20,7 +20,7 @@ func consider(world: WorldState, staff_id: String) -> void:
 	for stay_id: String in world.ids("ward_stays"):
 		var stay: Dictionary=world.facts.ward_stays[stay_id]
 		if stay.get("phase","")!="recovery": continue
-		var visit_id: String=str(world.facts.attempts[stay.attempt_id].visit_id)
+		var visit_id: String=str(stay.visit_id)
 		var history: Dictionary=world.facts.get("patient_experience",{}).get("experience",{}).get(visit_id,{}).get("completed_services",{})
 		for service: Dictionary in history.values():
 			var staff_ids: Array=service.get("staff_ids",[])

@@ -39,7 +39,14 @@ func run_case(database: HospitalContent, mode: String) -> Dictionary:
 func _produce_ward_input() -> Dictionary:
 	var started: int = Time.get_ticks_msec()
 	var c: Dictionary = _context(true,false,true,[],true)
-	_seed_stream(c.world,"treatment",true,true,9600,9800)
+	for warmup: int in 1200:
+		if _surgery_staff_ready(c): break
+		_tick(c)
+	if not _surgery_staff_ready(c):
+		_fixture_failures.append({"actual_ward_or_nurse_not_ready":_ward_nurse_return_state(c)})
+		return {}
+	_seed_stream(c.world,"treatment",false,true,4000,9600)
+	_seed_stream(c.world,"arrival",false,false,8000,3000)
 	if not _arrive(c,"B_S13_D09_M09","P_D09_SURGERY"):
 		_fixture_failures.append({"failure_world":_failure_world("WARD-CONTRACT-PREFIX",c.world)})
 		return {}

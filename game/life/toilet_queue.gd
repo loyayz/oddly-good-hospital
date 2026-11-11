@@ -14,6 +14,7 @@ func observe(world: WorldState) -> void:
 	_intents.clear()
 	for need: Dictionary in world.facts.waiting_life.needs.values(): register(need)
 	for staff: Dictionary in world.facts.staff.values(): register(staff.get("life_task",{}))
+	for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values(): register(stay.get("life_task",{}))
 
 func register(intent: Dictionary) -> void:
 	if intent.get("public_purpose","")=="toilet": _intents[str(intent.actor_id)]=intent

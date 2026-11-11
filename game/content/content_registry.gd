@@ -51,13 +51,19 @@ func _init(data: Dictionary = {}) -> void:
 	_freeze(_compatibility)
 
 func definition(collection: String, identifier: String) -> Dictionary:
-	return _indexes.get(collection, {}).get(canonical_id(identifier), {})
+	var index: Variant = _indexes.get(collection)
+	if index==null: return {}
+	var found: Variant = index.get(canonical_id(identifier))
+	return found if found!=null else {}
 
 func equipment_effect_kind(identifier: String) -> String:
 	return str(_equipment_effects.get(legacy_id(identifier),""))
 
 func legacy_definition(collection: String, identifier: String) -> Dictionary:
-	return _compatibility.get("indexes", {}).get(collection, {}).get(legacy_id(identifier), {})
+	var index: Variant = _compatibility.indexes.get(collection)
+	if index==null: return {}
+	var found: Variant = index.get(legacy_id(identifier))
+	return found if found!=null else {}
 
 func collection(name: String) -> Variant:
 	return _data.get("collections", {}).get(name, [])
@@ -87,7 +93,8 @@ func snapshot_identity() -> Array[Dictionary]:
 	return identity
 
 func facility_definition(identifier: String) -> Dictionary:
-	return _facilities.get(canonical_id(identifier),{})
+	var found: Variant = _facilities.get(canonical_id(identifier))
+	return found if found!=null else {}
 
 func resolve_bindings(species_id: String, disease_id: String) -> Array:
 	return _bindings.get(canonical_id(species_id) + "|" + canonical_id(disease_id), [])

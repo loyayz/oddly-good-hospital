@@ -13,6 +13,8 @@ var facts: Dictionary:
 		_ordered_ids.clear()
 		_active_visits.clear()
 		_active_visit_count = -1
+		_active_visit_order.clear()
+		_active_visit_order_dirty = true
 		_layout_projection.clear()
 		_pending_ledger = null
 		_ledger_owners.clear()
@@ -32,6 +34,8 @@ var _facility_count: int = -1
 var _ordered_ids: Dictionary = {}
 var _active_visits: Dictionary = {}
 var _active_visit_count: int = -1
+var _active_visit_order: Array = []
+var _active_visit_order_dirty: bool = true
 var _layout_projection: Dictionary = {}
 var _layout_revision: int = -1
 var _pending_ledger: Variant = null
@@ -242,6 +246,7 @@ func ids(collection: String) -> Array:
 
 func register_visit(id: String) -> void:
 	if _active_visit_count<0: return
+	if not _active_visits.has(id): _active_visit_order_dirty = true
 	_active_visits[id] = true
 	_active_visit_count = facts.visits.size()
 	_ordered_ids.erase("visits")
@@ -253,15 +258,22 @@ func active_visit_ids(ordered: bool = true) -> Array:
 			var visit: Dictionary = facts.visits[id]
 			if visit.phase!="departed" or not visit.get("departure_recorded",false): _active_visits[id] = true
 		_active_visit_count = facts.visits.size()
-	var result: Array = _active_visits.keys()
-	if ordered: result.sort()
-	return result
+		_active_visit_order_dirty = true
+	if not ordered: return _active_visits.keys()
+	if _active_visit_order_dirty:
+		_active_visit_order = _active_visits.keys()
+		_active_visit_order.sort()
+		_active_visit_order_dirty = false
+	# Callers own their result; a local sort/pop cannot edit the shared index.
+	return _active_visit_order.duplicate()
 
 func finish_visits() -> void:
 	# All clinical, department and resident settlements have consumed departure
 	# before this complete-step boundary. History itself remains untouched.
 	for id: String in _active_visits.keys():
-		if not facts.visits.has(id) or facts.visits[id].phase=="departed" and facts.visits[id].get("departure_recorded",false): _active_visits.erase(id)
+		if not facts.visits.has(id) or facts.visits[id].phase=="departed" and facts.visits[id].get("departure_recorded",false):
+			_active_visits.erase(id)
+			_active_visit_order_dirty = true
 
 func capacity_layout() -> Dictionary:
 	# Layout writes commit through facts replacement or geometry invalidation.
@@ -454,7 +466,7 @@ func validate(content: HospitalContent) -> String:
 		if actor.has("support_facility_id") and not facts.facilities.has(actor.support_facility_id):
 			return "身体承托引用无效"
 	for visit: Dictionary in facts.visits.values():
-		var reason: String = _fields(visit,{"id":TYPE_STRING,"actor_id":TYPE_STRING,"disease_id":TYPE_STRING,"binding_id":TYPE_STRING,"phase":TYPE_STRING,"evidence_by_source":TYPE_DICTIONARY,"attempt_ids":TYPE_ARRAY,"plan_decision":TYPE_DICTIONARY,"complex":TYPE_BOOL})
+		var reason: String = _fields(visit,{"id":TYPE_STRING,"actor_id":TYPE_STRING,"disease_id":TYPE_STRING,"binding_id":TYPE_STRING,"phase":TYPE_STRING,"diagnosis":TYPE_DICTIONARY,"attempt_ids":TYPE_ARRAY,"plan_decision":TYPE_DICTIONARY,"complex":TYPE_BOOL})
 		if not reason.is_empty():
 			return "就诊"+reason
 	for session: Dictionary in facts.sessions.values():
@@ -491,7 +503,7 @@ func validate(content: HospitalContent) -> String:
 		var record: Variant = facts.rng[stream]
 		if not record is Dictionary or not _signed_decimal(record.get("state_decimal")) or not _signed_decimal(record.get("seed_decimal")) or record.get("algorithm","")!="godot-pcg32-4.7.2":
 			return "随机流无效：" + stream
-	for stream: String in ["arrival","treatment","incident","personality","equipment","task_board","guidance","communication","gratitude","patience","recruitment","community_activity"]:
+	for stream: String in ["arrival","treatment","incident","personality","equipment","task_board","guidance","communication","gratitude","patience","recruitment","community_activity","registration"]:
 		if not facts.rng.has(stream):
 			return "必要随机流缺失："+stream
 	for id: String in facts.actors:
@@ -562,7 +574,7 @@ func validate(content: HospitalContent) -> String:
 	var occupied_beds: Dictionary = {}
 	for id: String in facts.ward_stays:
 		var stay: Dictionary = facts.ward_stays[id]
-		if not facts.attempts.has(stay.attempt_id) or not facts.facilities.has(stay.bed_id):
+		if not facts.visits.has(stay.get("visit_id","")) or (not stay.attempt_id.is_empty() and (not facts.attempts.has(stay.attempt_id) or facts.attempts[stay.attempt_id].visit_id!=stay.visit_id)) or not facts.facilities.has(stay.bed_id):
 			return "住院引用无效：" + id
 		if occupied_beds.has(stay.bed_id):
 			return "床位重复占用：" + stay.bed_id
@@ -579,7 +591,7 @@ func validate(content: HospitalContent) -> String:
 		if kind=="surgery" and preparation.bed_id.is_empty():
 			return "手术准备缺少兼容床位承诺："+id
 		if not preparation.bed_id.is_empty():
-			if not facts.facilities.has(preparation.bed_id) or occupied_beds.has(preparation.bed_id):
+			if not facts.facilities.has(preparation.bed_id) or occupied_beds.has(preparation.bed_id) and facts.ward_stays.get(str(occupied_beds[preparation.bed_id]),{}).get("visit_id","")!=preparation.visit_id:
 				return "临床准备的床位预留不一致："+id
 			occupied_beds[preparation.bed_id] = id
 		for staff_id: String in preparation.staff_ids:
@@ -804,7 +816,7 @@ func _validate_convoy_ground(geometry: HospitalSpace) -> String:
 	return ""
 
 func _reservation_owner_exists(id: String) -> bool:
-	for collection: String in ["actors","tickets","preparations","sessions","attempts"]:
+	for collection: String in ["actors","tickets","preparations","sessions","attempts","ward_stays"]:
 		if facts[collection].has(id):
 			return true
 	for staff: Dictionary in facts.staff.values():
@@ -882,7 +894,7 @@ func _validate_shapes() -> String:
 		"tickets":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"kind":TYPE_STRING,"enqueued_tick":TYPE_INT},
 		"attempts":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"plan_id":TYPE_STRING,"result":TYPE_BOOL,"start_tick":TYPE_INT,"probability_bp":TYPE_INT,"work_ticks":TYPE_INT,"recovery_ticks":TYPE_INT,"supply_units":TYPE_INT,"cure_fee":TYPE_INT,"facility_fee":TYPE_INT,"staff_ids":TYPE_ARRAY,"effective_level":TYPE_FLOAT},
 		"preparations":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"bed_id":TYPE_STRING,"facility_id":TYPE_STRING,"staff_ids":TYPE_ARRAY,"deadline_tick":TYPE_INT,"setup_remaining_ticks":TYPE_INT},
-		"ward_stays":{"id":TYPE_STRING,"attempt_id":TYPE_STRING,"bed_id":TYPE_STRING,"phase":TYPE_STRING,"remaining_ticks":TYPE_INT,"work_credit_milli":TYPE_INT,"care_completed":TYPE_BOOL,"nurse_id":TYPE_STRING,"escort_id":TYPE_STRING},
+		"ward_stays":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"attempt_id":TYPE_STRING,"bed_id":TYPE_STRING,"phase":TYPE_STRING,"remaining_ticks":TYPE_INT,"work_credit_milli":TYPE_INT,"care_completed":TYPE_BOOL,"nurse_id":TYPE_STRING,"escort_id":TYPE_STRING},
 		"facilities":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"floor_id":TYPE_INT,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"patient_cell":TYPE_ARRAY,"operator_cells":TYPE_ARRAY,"repair_cell":TYPE_ARRAY,"grade":TYPE_INT,"condition":TYPE_FLOAT,"failed":TYPE_BOOL,"pending_failure":TYPE_BOOL,"use_receipts":TYPE_DICTIONARY},
 		"rooms":{"id":TYPE_STRING,"kind":TYPE_STRING,"floor_id":TYPE_INT,"origin":TYPE_ARRAY,"size":TYPE_ARRAY},
 		"connectors":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"anchor":TYPE_ARRAY,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"floor_id":TYPE_INT,"phase":TYPE_STRING,"riders":TYPE_ARRAY,"remaining_ticks":TYPE_INT},
@@ -938,11 +950,28 @@ func _validate_shapes() -> String:
 		for value: Variant in visit.attempt_ids:
 			if not value is String:
 				return "尝试引用类型无效"
-		if not visit.get("evidence_by_source") is Dictionary:
-			return "诊断证据结构无效"
-		for value: Variant in visit.evidence_by_source.values():
-			if not (value is int or value is float) or not is_finite(float(value)) or float(value)<0 or float(value)>100:
-				return "诊断证据数值无效"
+		if not visit.get("diagnosis") is Dictionary: return "诊断状态结构无效"
+		var diagnosis: Dictionary=visit.diagnosis
+		if not diagnosis.is_empty():
+			if not diagnosis.get("state","") in ["pending","working","insufficient","review_pending","diagnosed"] or not diagnosis.get("gp_completed") is bool or not diagnosis.get("exam_completed") is bool or not diagnosis.get("review_completed") is bool: return "诊断完成事实无效"
+			if not diagnosis.get("exam_kind","") in ["","spectrum","resonance"] or diagnosis.exam_completed and str(diagnosis.exam_kind).is_empty(): return "检查模式或完成事实无效"
+		if visit.has("continuation"):
+			var plan: Variant=visit.continuation
+			if not plan is Dictionary: return "原医生续诊返院计划无效"
+			var pending_departure: bool=plan.get("stage","")=="leaving" and plan.get("first_day",0)==-1 and plan.get("return_day",0)==-1 and plan.get("due_tick",0)==-1
+			if not pending_departure and (not _natural(plan.get("first_day",-1)) or not _natural(plan.get("return_day",-1)) or int(plan.return_day)<int(plan.first_day)+1 or int(plan.return_day)>int(plan.first_day)+2 or not _natural(plan.get("due_tick",-1)) or int(plan.due_tick)/TICKS_PER_DAY!=int(plan.return_day) or not plan.get("stage","") in ["leaving","outside","guidance","continuing","finished"]): return "原医生续诊返院计划无效"
+			var periods: Variant=plan.get("outside_periods")
+			if not periods is Array or periods.size()>2 or plan.stage=="outside" and periods.is_empty(): return "续诊院外区间无效"
+			var previous_end: int=-1
+			for index: int in periods.size():
+				var period: Variant=periods[index]
+				if not period is Dictionary or not _natural(period.get("left_tick")) or int(period.left_tick)>sim_tick or int(period.left_tick)<previous_end: return "续诊实际离院时刻无效"
+				if period.get("returned_tick")==-1:
+					if index!=periods.size()-1 or plan.stage!="outside": return "续诊院外区间尚未真实结束"
+				else:
+					if not _natural(period.get("returned_tick")) or int(period.returned_tick)<int(period.left_tick) or int(period.returned_tick)>sim_tick: return "续诊实际返院时刻无效"
+					previous_end=int(period.returned_tick)
+			if plan.stage=="outside" and periods.back().returned_tick!=-1: return "院外续诊缺少开放区间"
 	for session: Dictionary in facts.sessions.values():
 		if not session.get("staff_ids") is Array or not session.get("resources") is Array:
 			return "执行会话资源结构无效"

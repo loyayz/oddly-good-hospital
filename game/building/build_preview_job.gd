@@ -9,6 +9,8 @@ var complete: bool = false
 var result: Dictionary = {"ok":false,"ready":false,"reason":"正在分片检查当前草案"}
 var units_checked: int = 0
 var atomic_overruns: int = 0
+var maximum_unit_usec: int = 0
+var maximum_unit_phase: String = ""
 var _phase: String = "shape_start"
 var _cursor: int = 0
 var _actual: Array = []
@@ -29,6 +31,10 @@ var _actor_checks: Array = []
 var _occupancy_views: Dictionary = {}
 var _safety_checker: HospitalSpace
 var _previous_checker: HospitalSpace
+var _prepare_keys: Array = []
+var _prepare_room_id: String = ""
+var _prepare_room_cursor: int = 0
+var _ignored_ids: Array = []
 
 func _init(building: BuildService, world: WorldState, request: Dictionary, basis: Dictionary = {}, navigation: NavigationCache = null, previous_navigation: NavigationCache = null) -> void:
 	service = building
@@ -126,8 +132,13 @@ func advance(world: WorldState, budget_usec: int, maximum_units: int = 0) -> voi
 	var count: int = 0
 	while not complete and (maximum_units<=0 or count<maximum_units) and (count==0 or Time.get_ticks_usec()-start<budget_usec):
 		var unit_start: int = Time.get_ticks_usec()
+		var phase: String = _phase
 		_step(world)
-		if Time.get_ticks_usec()-unit_start>budget_usec:
+		var elapsed: int = Time.get_ticks_usec()-unit_start
+		if elapsed>maximum_unit_usec:
+			maximum_unit_usec=elapsed
+			maximum_unit_phase=phase
+		if elapsed>budget_usec:
 			atomic_overruns += 1
 		count += 1
 		units_checked += 1
@@ -253,31 +264,55 @@ func _step(world: WorldState) -> void:
 			# only the candidate owns edited layout, never a second deep copy.
 			_source = world
 			dependency_key = dependencies(world)
-			var ignored: Array = []
-			for id: String in _plan.changed_ids:
-				if _candidate.facts.facilities.has(id):
-					ignored.append(id)
-			for id: String in _plan.changed_ids:
-				if _candidate.facts.rooms.has(id) and kind in ["build_room","build_move","build_rotate","build_resize"]:
-					var room: Dictionary = _candidate.facts.rooms[id]
-					if not room.has("cells") or room.cells.size()==int(room.size[0])*int(room.size[1]):
-						# A complete row has exactly the union of its unit cells;
-						# keep each row as a bounded occupancy/safety work unit.
-						for y: int in range(int(room.origin[1]),int(room.origin[1])+int(room.size[1])):
-							_room_checks.append({"room_id":id,"floor_id":int(room.floor_id),"rect":Rect2(float(room.origin[0]),y,float(room.size[0]),1),"ignored":ignored})
-					else:
-						for cell: Array in BuildGeometry.cells(room):
-							_room_checks.append({"room_id":id,"floor_id":int(room.floor_id),"rect":Rect2(float(cell[0]),float(cell[1]),1,1),"ignored":ignored})
-				if _candidate.facts.facilities.has(id):
-					_facility_checks.append(id)
-			for room: Dictionary in _candidate.facts.rooms.values():
-				if int(room.floor_id) in _plan.floors and room.has("cells"):
-					_public_checks.append(room.id)
-			for actor: Dictionary in _candidate.facts.actors.values():
-				if actor.location.kind=="floor" and int(actor.location.floor_id) in _plan.floors:
-					_actor_checks.append(actor.id)
 			_cursor = 0
-			_phase = "room_occupancy"
+			_phase = "prepare_changes"
+		"prepare_changes":
+			if _cursor>=_plan.changed_ids.size():
+				_prepare_keys=_candidate.facts.rooms.keys()
+				_cursor=0
+				_phase="prepare_public"
+				return
+			var id: String=str(_plan.changed_ids[_cursor])
+			_cursor+=1
+			if _candidate.facts.facilities.has(id):
+				_ignored_ids.append(id)
+				_facility_checks.append(id)
+			if _candidate.facts.rooms.has(id) and kind in ["build_room","build_move","build_rotate","build_resize"]:
+				_prepare_room_id=id
+				_prepare_room_cursor=0
+				_phase="prepare_room"
+		"prepare_room":
+			var room: Dictionary=_candidate.facts.rooms[_prepare_room_id]
+			var rectangle: bool=not room.has("cells") or room.cells.size()==int(room.size[0])*int(room.size[1])
+			var total: int=int(room.size[1]) if rectangle else room.cells.size()
+			if _prepare_room_cursor>=total:
+				_phase="prepare_changes"
+				return
+			var rect: Rect2
+			if rectangle: rect=Rect2(float(room.origin[0]),int(room.origin[1])+_prepare_room_cursor,float(room.size[0]),1)
+			else:
+				var cell: Array=room.cells[_prepare_room_cursor]
+				rect=Rect2(float(cell[0]),float(cell[1]),1,1)
+			_room_checks.append({"room_id":_prepare_room_id,"floor_id":int(room.floor_id),"rect":rect,"ignored":_ignored_ids})
+			_prepare_room_cursor+=1
+		"prepare_public":
+			if _cursor>=_prepare_keys.size():
+				_prepare_keys=_candidate.facts.actors.keys()
+				_cursor=0
+				_phase="prepare_actors"
+				return
+			var room: Dictionary=_candidate.facts.rooms[_prepare_keys[_cursor]]
+			_cursor+=1
+			if int(room.floor_id) in _plan.floors and room.has("cells"): _public_checks.append(room.id)
+		"prepare_actors":
+			if _cursor>=_prepare_keys.size():
+				_prepare_keys=[]
+				_cursor=0
+				_phase="room_occupancy"
+				return
+			var actor: Dictionary=_candidate.facts.actors[_prepare_keys[_cursor]]
+			_cursor+=1
+			if actor.location.kind=="floor" and int(actor.location.floor_id) in _plan.floors: _actor_checks.append(actor.id)
 		"room_occupancy":
 			if _cursor>=_room_checks.size():
 				_cursor = 0
@@ -308,22 +343,26 @@ func _step(world: WorldState) -> void:
 		"public_access":
 			if _cursor>=_public_checks.size():
 				_cursor = 0
-				for floor_id: int in _plan.floors:
-					var door_error: String = service.door_connections_error(_candidate,floor_id)
-					if not door_error.is_empty():
-						_fail(door_error)
-						return
-					var guidance: Dictionary = service.guidance_floor_error(_candidate,floor_id)
-					if not guidance.ok:
-						_finish(guidance,world)
-						return
-				_phase = "actor_safety"
+				_phase = "floor_access"
 				return
 			var id: String = _public_checks[_cursor]
 			_cursor += 1
 			var reason: String = service._public_door(_candidate,_candidate.facts.rooms[id],_safety_checker)
 			if not reason.is_empty():
 				_fail(reason)
+		"floor_access":
+			if _cursor>=_plan.floors.size():
+				_cursor=0
+				_phase="actor_safety"
+				return
+			var floor_id: int=int(_plan.floors[_cursor])
+			_cursor+=1
+			var door_error: String=service.door_connections_error(_candidate,floor_id)
+			if not door_error.is_empty():
+				_fail(door_error)
+				return
+			var guidance: Dictionary=service.guidance_floor_error(_candidate,floor_id)
+			if not guidance.ok: _finish(guidance,world)
 		"actor_safety":
 			if _cursor>=_actor_checks.size():
 				_finish(_plan,world)

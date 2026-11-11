@@ -51,6 +51,8 @@ func sample(world: WorldState) -> void:
 		if not world.facts.patient_experience.experience.has(visit_id): continue
 		var experience: Dictionary = world.facts.patient_experience.experience[visit_id]
 		if int(experience.closed_tick)>=0: continue
+		if visit.has("continuation_complaint") and not experience.unhandled.has("original_doctor_absent"):
+			experience.unhandled.original_doctor_absent={"staff_id":str(visit.continuation_complaint.doctor_id),"tick":int(visit.continuation_complaint.tick),"reason":"第三日原医生仍未在班"}
 		_track_phase(world,visit,experience)
 		var actor: Dictionary = world.facts.actors[visit.actor_id]
 		var observation: Dictionary = {}

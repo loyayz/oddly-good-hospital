@@ -17,7 +17,7 @@ func run(suite: RefCounted) -> Dictionary:
 		rows.append(_exercise(suite,prepared,restored,true))
 	var ok: bool=rows.size()==4
 	for row: Dictionary in rows: ok=ok and bool(row.ok)
-	return {"ok":ok,"rows":rows,"scope":"Actual completed renovation and actual companion admission generate the owners. A declared legal partial local-return input precedes the final physical leg. Every final displacement and both owner departure handoffs execute production steps; no invalid outside/local state or completed movement is supplied."}
+	return {"ok":ok,"rows":rows,"scope":"Actual completed renovation and actual inpatient companion admission generate the owners. A declared legal partial local-return input precedes the final physical leg. Every final displacement and both owner departure handoffs execute production steps; no invalid outside/local state or completed movement is supplied."}
 
 func _prepare(suite: RefCounted, kind: String) -> Dictionary:
 	var sim: HospitalSimulation=suite._fixture()
@@ -49,29 +49,36 @@ func _prepare(suite: RefCounted, kind: String) -> Dictionary:
 		metadata.construction_work_milli=contributed
 		metadata.contractor=sim.world.facts.maintenance.contractors[actor_id].duplicate(true)
 	else:
-		var seat: CommandResult=suite._command(sim,"build_facility",{"id":"departure_public_seat","definition_id":"FUR09","floor_id":1,"cell":[40,84]})
-		metadata.commands=[seat.to_record()]
-		if not seat.accepted: return _failed(sim,kind,"Actual public seat rejected",metadata)
-		# Legal waiting-patient input, before any clinical service. The family
-		# itself is not supplied: its original request/admission checks the real
-		# entrance, identity, body, public seat and complete route below.
-		suite._add_actor(sim,"departure_patient","S49",[44,88])
+		# The tested operation is the relative owner's final exit. Its input is
+		# a lawful, already admitted inpatient; no admission/travel claim is made
+		# for that preceding history. The relative is admitted from the real door.
+		var fixture: RefCounted=load("res://tests/acceptance/clinical_fixtures.gd").new()
+		fixture._content=suite.content
+		fixture._add_layout(sim.world,"ward_two_beds","departure_ward",[45,65])
+		fixture._add_worker(sim.world,"departure_cover","nurse",[46,72],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","departure_ward")
+		fixture._add_worker(sim.world,"departure_doctor","doctor",[55,88],"outpatient",{"diagnosis":1,"treatment":2,"care":0,"surgery":0})
+		sim.world.facts.staff.departure_cover.base_prepared=true
+		for definition: Dictionary in suite.content.catalog.research: sim.world.facts.research.append(definition.id)
+		suite._add_actor(sim,"departure_patient","S13",[47,67])
 		var patient: Dictionary=sim.world.facts.actors.departure_patient
-		patient.body_binding_id="B_S49_D37_M37"
-		var visit: Dictionary={"id":"departure_visit","actor_id":patient.id,"disease_id":"D37","binding_id":"B_S49_D37_M37","requested_plan_id":"P_D37_COMMON","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrived_tick":sim.world.sim_tick,"arrival_key":"departure_initial_patient","last_progress_tick":sim.world.sim_tick,"last_service_tick":sim.world.sim_tick,"companion_intent":true}
+		patient.body_binding_id="B_S13_D09_M09"
+		var visit: Dictionary={"id":"departure_visit","actor_id":patient.id,"disease_id":"D09","binding_id":"B_S13_D09_M09","requested_plan_id":"P_D09_SURGERY","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"wait_surgery","diagnosis":preload("res://tests/acceptance/clinical_input.gd").diagnosed("departure_doctor","completed_gp_station"),"attempt_ids":[],"plan_decision":{"plan_id":"P_D09_SURGERY","source":"director","doctor_id":"departure_doctor","revision":1,"probability_bp":9600,"expected_team":[]},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"departure_ticket","doctor_fee_quote":20,"arrived_tick":sim.world.sim_tick,"arrival_key":"departure_initial_patient","last_progress_tick":sim.world.sim_tick,"last_service_tick":sim.world.sim_tick}
 		sim.world.facts.visits[visit.id]=visit
 		sim.world.facts.arrival_receipts[visit.arrival_key]=visit.id
+		sim.world.facts.tickets[visit.ticket_id]={"id":visit.ticket_id,"visit_id":visit.id,"kind":"surgery","enqueued_tick":sim.world.sim_tick}
 		sim.world.register_visit(visit.id)
+		var ward: Dictionary={"id":"departure_stay","visit_id":visit.id,"attempt_id":"","bed_id":"departure_ward_0","phase":"waiting_surgery","remaining_ticks":0,"work_credit_milli":0,"care_completed":false,"nurse_id":"departure_cover","escort_id":"departure_cover","last_progress_tick":sim.world.sim_tick,"admitted_tick":sim.world.sim_tick,"companion_evaluated":true,"companion_qualified":true,"companion_actor_id":"","visitor_day":sim.world.sim_tick/WorldState.TICKS_PER_DAY,"visitor_intent":false,"visitor_requested":false}
+		sim.world.facts.ward_stays[ward.id]=ward
+		var bed_reason: String=sim.space.reserve_facility(sim.world,ward.bed_id,visit.actor_id,ward.id,[ward.nurse_id])
+		if not bed_reason.is_empty(): return _failed(sim,kind,"Lawful inpatient bed input rejected",metadata)
+		sim.clinic._support(sim.world,visit,sim.space.facility_layout(sim.world,ward.bed_id),"lying")
 		sim.world.touch();sim.space.sync_actor(sim.world,patient.id)
-		sim.clinic._queue(sim.world,visit,"gp")
 		var visitors: HospitalVisitors=sim.clinic.visitors
-		visitors._request(sim.world,visit,"companion","")
-		var request_id: String=""
-		for id: String in sim.world.facts.visitors.requests:
-			if sim.world.facts.visitors.requests[id].visit_id==visit.id: request_id=id;break
-		if request_id.is_empty() or not visitors._admit(sim.world,visit,sim.world.facts.visitors.requests[request_id]): return _failed(sim,kind,"Original companion admission rejected",metadata)
+		visitors._request(sim.world,visit,"companion",str(sim.world.sim_tick/WorldState.TICKS_PER_DAY))
+		var request_id: String=visit.id+":companion"
+		if not sim.world.facts.visitors.requests.has(request_id) or not visitors._admit(sim.world,visit,sim.world.facts.visitors.requests[request_id]): return _failed(sim,kind,"Inpatient companion actual admission rejected",metadata)
 		sim.world.facts.visitors.requests.erase(request_id)
-		actor_id=str(visit.relative_actor_id)
+		actor_id=str(ward.companion_actor_id)
 		for id: String in sim.world.facts.visitors.stays:
 			if sim.world.facts.visitors.stays[id].actor_id==actor_id: owner_id=id;break
 		if owner_id.is_empty(): return _failed(sim,kind,"Admitted family lacks its real stay",metadata)
@@ -91,7 +98,7 @@ func _prepare(suite: RefCounted, kind: String) -> Dictionary:
 		metadata.original_public_route=sim.world.facts.moves.get(actor_id,{}).duplicate(true)
 		metadata.cleared_entry_and_exit_by_two_cells=cleared_entry
 		if not cleared_entry: return _failed(sim,kind,"Real companion did not walk clear of the entrance and exit",metadata)
-		var referred: CommandResult=suite._command(sim,"clinical_refer",{"visit_id":visit.id})
+		var referred: CommandResult=suite._command(sim,"clinical_ward_refer",{"visit_id":visit.id})
 		metadata.commands.append(referred.to_record())
 		if not referred.accepted: return _failed(sim,kind,"Original patient referral rejected",metadata)
 	# The task owns a genuine departure. Stop before a final, still uncompleted
@@ -150,7 +157,7 @@ func _exercise(suite: RefCounted, prepared: Dictionary, sim: HospitalSimulation,
 	if pending_local and arrival_validation.is_empty() and errors.is_empty():
 		for step: int in 4:
 			_observe(suite,sim,actor_id,trace,errors)
-			var outside: bool=sim.world.facts.actors[actor_id].location.kind=="outside"
+			var outside: bool=not sim.world.facts.actors.has(actor_id) or sim.world.facts.actors[actor_id].location.kind=="outside"
 			var retired: bool=not sim.world.facts.moves.has(actor_id) and not sim.space.movement._pending_routes.has(actor_id) and not sim.space.movement._route_checks.has(actor_id) and not sim.space.movement._route_failures.has(actor_id)
 			var owner_done: bool=sim.world.facts.maintenance.contractors.get(actor_id,{}).get("phase","")=="departed" if prepared.kind=="contractor" else not sim.world.facts.visitors.stays.has(prepared.owner_id)
 			if step==0: handed_off=outside and retired and owner_done
@@ -160,7 +167,7 @@ func _exercise(suite: RefCounted, prepared: Dictionary, sim: HospitalSimulation,
 	var checks: Dictionary={"real_final_leg":arrival and trace.size()>0,"original_goal_sequence":original,"pending_local_rejoin_at_real_exit":pending_local,"legal_arrival_boundary":arrival_validation.is_empty(),"cold_restore_exact":restored_equal,"owner_retires_move_before_outside":handed_off,"no_resurrection_over_four_steps":stable,"original_accounts_work_receipts_and_inventory":accounts,"bounded_actual_body_sweeps":errors.is_empty(),"final_validation":validation.is_empty()}
 	var ok: bool=true
 	for value: bool in checks.values(): ok=ok and value
-	var row: Dictionary={"ok":ok,"kind":prepared.kind,"restore_at_real_arrival":restore_at_arrival,"checks":checks,"setup":prepared.metadata,"actor_id":actor_id,"owner_id":prepared.owner_id,"goal":prepared.goal,"initial_move":original_move,"arrived_move":arrived_move,"arrival_validation":arrival_validation,"errors":errors,"final_validation":validation,"final_actor":sim.world.facts.actors[actor_id].duplicate(true),"final_movement":sim.world.facts.moves.get(actor_id,{}).duplicate(true),"trace":trace}
+	var row: Dictionary={"ok":ok,"kind":prepared.kind,"restore_at_real_arrival":restore_at_arrival,"checks":checks,"setup":prepared.metadata,"actor_id":actor_id,"owner_id":prepared.owner_id,"goal":prepared.goal,"initial_move":original_move,"arrived_move":arrived_move,"arrival_validation":arrival_validation,"errors":errors,"final_validation":validation,"final_actor":sim.world.facts.actors.get(actor_id,{}).duplicate(true),"final_movement":sim.world.facts.moves.get(actor_id,{}).duplicate(true),"trace":trace}
 	sim.dispose();return row
 
 func _observe(suite: RefCounted, sim: HospitalSimulation, actor_id: String, trace: Array, errors: Array) -> void:
@@ -172,18 +179,18 @@ func _observe(suite: RefCounted, sim: HospitalSimulation, actor_id: String, trac
 	if sim.step()==null: errors.append("Incomplete production step");return
 	if sim.world.sim_tick!=tick+1: errors.append("Changed fixed tick")
 	for id: String in before:
-		var actor: Dictionary=sim.world.facts.actors[id]
-		if actor.location.kind!="floor": continue
+		var actor: Dictionary=sim.world.facts.actors.get(id,{})
+		if actor.is_empty() or actor.location.kind!="floor": continue
 		var after: Rect2=sim.space.body_rectangle(actor)
 		var distance: float=ConvoyTrail.point(before[id].cell).distance_to(ConvoyTrail.point(actor.location.cell))
 		if distance>sim.space.walking_speed(actor)*WorldState.TICK_SECONDS+ROUNDING: errors.append("Walking budget exceeded: "+id)
 		for other: String in before:
-			if other==id or sim.world.facts.actors[other].location.kind!="floor": continue
+			if other==id or not sim.world.facts.actors.has(other) or sim.world.facts.actors[other].location.kind!="floor": continue
 			var end: Rect2=sim.space.body_rectangle(sim.world.facts.actors[other])
 			if after.intersects(end,false) or BodySweep.intersects(before[id].rect,after,before[other].rect,end): errors.append("Actual body or sweep overlap: "+id+"/"+other)
 	var validation: String=sim.world.validate(suite.content)
 	if not validation.is_empty(): errors.append(validation)
-	trace.append({"tick":sim.world.sim_tick,"actor_location":sim.world.facts.actors[actor_id].location.duplicate(true),"movement":sim.world.facts.moves.get(actor_id,{}).duplicate(true)})
+	trace.append({"tick":sim.world.sim_tick,"actor_location":sim.world.facts.actors.get(actor_id,{}).get("location",{"kind":"retired"}).duplicate(true),"movement":sim.world.facts.moves.get(actor_id,{}).duplicate(true)})
 
 func _failed(sim: HospitalSimulation, kind: String, reason: String, metadata: Dictionary) -> Dictionary:
 	var result: Dictionary={"ok":false,"kind":kind,"reason":reason,"setup":metadata,"tick":sim.world.sim_tick,"validation":sim.world.validate(sim.content)}

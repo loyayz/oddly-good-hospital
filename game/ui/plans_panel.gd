@@ -37,7 +37,7 @@ func build_controls() -> void:
 func _populate_plans() -> void:
 	_plans.clear()
 	var visit: Dictionary = simulation.world.facts.visits.get(_visit_id,{})
-	if visit.is_empty():
+	if visit.is_empty() or visit.get("diagnosis",{}).get("state","")!="diagnosed":
 		_plan_id = ""
 		return
 	for plan: Dictionary in simulation.content.catalog.treatment_plans:
@@ -49,16 +49,18 @@ func _populate_plans() -> void:
 	_plan_id = selected(_plans)
 
 func _submit() -> void:
-	var quote: Dictionary = simulation.clinic.plan_quote(simulation.world,_visit_id,_plan_id)
+	var quote: Dictionary = simulation.clinic.selection_quote(simulation.world,_visit_id,_plan_id)
 	if quote.get("ok",false):
 		send("clinical_select_plan",{"visit_id":_visit_id,"plan_id":_plan_id,"probability_bp":int(quote.probability_bp)})
 
 func _details() -> String:
 	var visit: Dictionary = simulation.world.facts.get("visits",{}).get(_visit_id,{})
-	var waiting: bool = str(visit.get("phase","")).begins_with("wait_")
+	var diagnosed: bool=visit.get("diagnosis",{}).get("state","")=="diagnosed"
+	var waiting: bool = diagnosed and str(visit.get("phase","")).begins_with("wait_")
 	_auto.disabled = not waiting
 	_apply.disabled = true
 	if visit.is_empty(): return "尚无病例。来院后可以比较适用于该病例的实际方案。"
+	if not diagnosed: return "完成初诊及必要的检查复核后，可以比较治疗方案。"
 	var decision: Dictionary = visit.get("plan_decision",{})
 	var lines: Array[String] = ["当前决定："+("医生自主" if decision.is_empty() else str(simulation.content.definition("treatment_plans",str(decision.get("plan_id",""))).get("name","医生正在评估")))]
 	if not str(decision.get("reason","")).is_empty(): lines.append(str(decision.reason))
@@ -69,6 +71,8 @@ func _details() -> String:
 		if not quote.get("ok",false):
 			lines.append(name+"\n当前不可开工："+str(quote.get("reason","等待资源")))
 			continue
+		if not quote.get("ready",true): lines.append(name+"\n方案可选；入住病房后等待手术安排。"+str(quote.get("reason","")))
+		if quote.get("quote_basis","")=="standard_protocol": lines.append("以下为标准条件估计，实际术组到齐后重新核验效果与工时。")
 		lines.append("%s\n当前资格满足 · 预计效果 %.1f%%\n治疗约 %d 医院分钟 · 恢复工作量约 %d 医院分钟\n治疗包 %d 包 · 设备收费 %d · 治愈收费 %d" % [name,float(quote.probability_bp)/100.0,ceili(float(quote.get("work_ticks",0))/12.5),ceili(float(quote.get("recovery_ticks",0))/12.5),int(quote.get("supply_units",0)),int(quote.get("facility_fee",0)),int(quote.get("cure_fee",0))])
 	if not waiting: lines.append("当前安全医疗段完成后，才能更改方案。")
 	return "\n\n".join(lines)

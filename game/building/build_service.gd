@@ -13,6 +13,8 @@ var _handoff_world: WeakRef
 var _handoff_facts: Dictionary = {}
 var _handoff_revision: int = -1
 var _handoff_rooms: Dictionary = {}
+var _shape_input: Dictionary = {}
+var _shape_value: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace = null) -> void:
 	content = database
@@ -95,6 +97,11 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 			return CommandResult.new(false,"material_change","实际对象、价款或退款依据已改变，请刷新原草案",[],world.revision)
 	var candidate: WorldState = planned.candidate
 	ensure(candidate)
+	# Planning only reads accounts and history. Own them at the transaction
+	# boundary, before the first write, rather than cloning them for previews.
+	for field: String in ["ledger","build_transactions","build_history"]:
+		if world.facts.has(field) and is_same(candidate.facts[field],world.facts[field]):
+			candidate.facts[field]=candidate.facts[field].duplicate(true)
 	var transaction_id: String = candidate.new_id("build")
 	var amount: int = int(planned.refund)-int(planned.price)
 	candidate.facts.build_transactions[transaction_id] = {"id":transaction_id,"kind":kind,"tick":world.sim_tick,"amount":amount,"changed_ids":planned.changed_ids.duplicate(),"undone":false,"record_key":key,"payload":_intent(payload)}
@@ -122,7 +129,7 @@ func _intent(payload: Dictionary) -> Dictionary:
 func _scratch(world: WorldState) -> WorldState:
 	# The preview shares read-only actors/clinical facts and copies only affected ownership.
 	var data: Dictionary = world.facts.duplicate()
-	for field: String in ["rooms","facilities","floors","staff","ledger","inventory","build_transactions","build_history"]:
+	for field: String in ["rooms","facilities","floors","staff","inventory"]:
 		if data.has(field):
 			data[field] = data[field].duplicate(true)
 	return WorldState.new(data)
@@ -208,10 +215,36 @@ func _prune_room_assignments(world: WorldState, previous_rooms: Dictionary) -> A
 	return changed
 
 func prepare_preview(world: WorldState, kind: String, draft: Dictionary, prepared_shape: Dictionary = {}) -> Dictionary:
+	if not prepared_shape.is_empty(): _remember_shape(draft,prepared_shape)
 	var staging: BuildService = BuildService.new(content)
 	staging._deferred_checks = true
 	staging._prepared_shape = prepared_shape
-	return staging._plan(world,kind,draft)
+	staging._shape_input = _shape_input
+	staging._shape_value = _shape_value
+	var planned: Dictionary=staging._plan(world,kind,draft)
+	_shape_input=staging._shape_input
+	_shape_value=staging._shape_value
+	return planned
+
+func _shape_fields(payload: Dictionary) -> Dictionary:
+	var fields: Dictionary={}
+	for key: String in ["cells","origin","size"]:
+		if payload.has(key): fields[key]=payload[key]
+	return fields
+
+func _remember_shape(payload: Dictionary, shape: Dictionary) -> void:
+	var input: Dictionary=_shape_fields(payload)
+	if not _shape_value.is_empty() and _shape_input==input: return
+	_shape_input=input.duplicate(true)
+	_shape_value=shape.duplicate(true)
+
+func _room_shape(payload: Dictionary) -> Dictionary:
+	var input: Dictionary=_shape_fields(payload)
+	if _shape_value.is_empty() or input!=_shape_input:
+		_remember_shape(payload,BuildGeometry.shape(payload,[1,1]))
+	# Only geometry is reused. Every plan still checks current world facts;
+	# its mutable room arrays cannot modify the retained shape or draft.
+	return _shape_value.duplicate(true)
 
 func _payload_error(payload: Dictionary) -> String:
 	for field: String in ["floor_id","rotation","turns","offset"]:
@@ -321,7 +354,7 @@ func _add_room(world: WorldState, payload: Dictionary) -> Dictionary:
 	var definition: Dictionary = _room_type(type_id)
 	if definition.is_empty():
 		return BuildGeometry.failure("未知房型："+type_id)
-	var shape: Dictionary = _prepared_shape if not _prepared_shape.is_empty() else BuildGeometry.shape(payload,[1,1])
+	var shape: Dictionary = _prepared_shape if not _prepared_shape.is_empty() else _room_shape(payload)
 	if not shape.ok:
 		return shape
 	var floor_id: int = int(payload.get("floor_id",1))
@@ -705,7 +738,7 @@ func _resize_room(world: WorldState, payload: Dictionary) -> Dictionary:
 	if not room.get("structure_valid",true): return BuildGeometry.failure("原房间结构已失效")
 	var busy: String = _busy(world,room.id)
 	if not busy.is_empty(): return BuildGeometry.failure(busy)
-	var shape: Dictionary = BuildGeometry.shape(payload,[1,1])
+	var shape: Dictionary = _room_shape(payload)
 	if not shape.ok: return shape
 	var added: int = _replace_outline(world,int(room.floor_id),BuildGeometry.room_walls(room),shape.wall_edges,str(room.id))
 	room.origin = shape.origin

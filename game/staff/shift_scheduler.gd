@@ -126,7 +126,7 @@ func dispatch(world: WorldState) -> void:
 	var busy: Dictionary = Development.busy_view(world)
 	for stay_id: String in world.ids("ward_stays"):
 		var stay: Dictionary = world.facts.ward_stays[stay_id]
-		if not stay.get("phase","") in ["recovery"]:
+		if not stay.get("phase","") in ["admitting","waiting_surgery","to_surgery","reserved","transfer","return_preop","recovery"]:
 			continue
 		var old_id: String = str(stay.get("nurse_id",""))
 		if old_id.is_empty() or not world.facts.staff.has(old_id):

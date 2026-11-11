@@ -29,7 +29,7 @@
       "C": {
         "base_success": 0.93,
         "min_treatment": 3,
-        "recovery_seconds": 180,
+        "recovery_seconds": 0,
         "supply_units": 4
       }
     },

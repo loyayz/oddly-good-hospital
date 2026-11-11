@@ -149,12 +149,22 @@ func _hot_seat_quote(suite: RefCounted) -> Dictionary:
 
 func _staff_projection_index(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
-	HospitalFactory._add_room(sim.world,{"id":"cost_staff_room","type":"rest","anchor":[34,66],"size":[12,12],"door":{"definition_id":"DR01","offset":4}},suite.content)
+	HospitalFactory._add_room(sim.world,{"id":"cost_staff_room","type":"dormitory","anchor":[34,66],"size":[12,12],"door":{"definition_id":"DR01","offset":4}},suite.content)
 	HospitalFactory._add_facility(sim.world,{"id":"cost_staff_bed","definition_id":"SE04","anchor":[39,69],"size":[1,2],"room_id":"cost_staff_room"},suite.content)
 	suite._add_staff(sim,"cost_sleep_user","doctor",[44,82])
+	# Rebind the complete raw input through the standard initialization boundary
+	# before installing query observers or taking their read-only baseline.
+	var raw_facts: Dictionary = sim.world.freeze()
+	var initial_boundary: Dictionary = {"tick":raw_facts.sim_tick,"rng":raw_facts.rng.duplicate(true),"ledger":raw_facts.ledger.duplicate(true),"inventory":raw_facts.inventory.duplicate(true)}
+	sim.dispose()
+	sim = HospitalSimulation.new(WorldState.new(raw_facts),suite.content)
+	var initialization_preserved: bool = sim.world.sim_tick==initial_boundary.tick and sim.world.facts.rng==initial_boundary.rng and sim.world.facts.ledger==initial_boundary.ledger and sim.world.facts.inventory==initial_boundary.inventory
 	var geometry: CountingSpace = CountingSpace.new(suite.content)
 	var wellbeing: CountingWellbeing = CountingWellbeing.new(suite.content,geometry)
 	wellbeing.ensure(sim.world)
+	var input_validation: String = sim.world.validate(suite.content)
+	var personal_bed_owner: String = str(sim.world.facts.staff_life.personal_beds.get("cost_staff_bed",{}).get("staff_id",""))
+	var personal_bed_owned: bool = personal_bed_owner=="cost_sleep_user"
 	wellbeing.projections.clear()
 	var before: Dictionary = sim.world.freeze()
 	var selected: Dictionary = wellbeing._select_facility(sim.world,"cost_sleep_user","sleep")
@@ -180,4 +190,4 @@ func _staff_projection_index(suite: RefCounted) -> Dictionary:
 	var round_trip: bool = outward.get("ok",false) and back.get("ok",false)
 	var projections: int = wellbeing.projections.size()
 	sim.dispose()
-	return {"ok":no_projection_index and readonly and expected_bed and round_trip,"no_projection_actor_index":no_projection_index,"projection_actor_enumerations":enumerations,"candidate_count":projections,"facts_unchanged":readonly,"personal_bed_selected":expected_bed,"complete_round_trip_legal":round_trip,"selection":selected}
+	return {"ok":initialization_preserved and input_validation.is_empty() and personal_bed_owned and no_projection_index and readonly and expected_bed and round_trip,"initialization_preserved_time_rng_accounts":initialization_preserved,"input_validation":input_validation,"personal_bed_owner":personal_bed_owner,"personal_bed_owned":personal_bed_owned,"no_projection_actor_index":no_projection_index,"projection_actor_enumerations":enumerations,"candidate_count":projections,"facts_unchanged":readonly,"personal_bed_selected":expected_bed,"complete_round_trip_legal":round_trip,"selection":selected}

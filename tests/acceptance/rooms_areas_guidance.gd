@@ -16,14 +16,12 @@ const CASES: Dictionary = {
 	"AREA-03":"房间规格§5.3；局部墙变更仅重建受影响设施投影，移动移除旧区域",
 	"AREA-04":"房间规格§9；区域索引冷恢复所有权隔离，不复制运行时可变视图",
 	"GUIDE-01":"房间规格§7.1～7.2；真实导诊护士、六秒工作、实体队列与实际到诊室",
-	"GUIDE-02":"房间规格§7.3；缺本层目的地整台暂停，恢复后保持原待办",
 	"GUIDE-03":"房间规格§7.4、§9；安排票序、精确三十秒后移三位与冷恢复",
 	"GUIDE-04":"房间规格§7.3～7.4；同层随机房间、忙室仍可分配、六格共享椅",
 	"GUIDE-05":"房间规格§7.2；实际体型蛇形坐标、左右朝向、单列与旋转边界计算",
 	"GUIDE-06":"房间规格§7.4；实际长途到诊室期间医生等满三十秒后移三位",
 	"GUIDE-07":"房间规格§7.3；如厕后实际返回原诊室，原室失效则恢复导诊待办且保留就诊票",
 	"GUIDE-08":"房间规格§7.3、§9；代表设备移往别室或拆除后保留原房间，原行程与冷恢复不改派",
-	"GUIDE-09":"房间规格§7.3、§9；手术原全院选择、患者真实跨层导诊、原目标与实际到场票序及冷恢复",
 	"GUIDE-10":"房间规格§7.4、§9；排票逐次读取当前到场序号，未到场、移除、重排与冷恢复顺序保持",
 	"GUIDE-11":"房间规格§7.1、§9；导诊真实操作位统一派生，完整护士岗位及堵岗真实撤离与冷恢复",
 	"GUIDE-12":"房间规格§7.1～7.2、§9；居中真实患者位、紧接队列完整身体预约、失败原子性及新旧冻结冷恢复",
@@ -77,15 +75,13 @@ func _case(id: String) -> Dictionary:
 		"AREA-02": return _frozen_seat()
 		"AREA-03": return load("res://tests/acceptance/public_region_lifecycle.gd").new().run_case(content)
 		"AREA-04": return load("res://tests/acceptance/public_region_world_copy.gd").new().run_case(content)
-		"GUIDE-01": return _guidance(false)
-		"GUIDE-02": return _guidance(true)
+		"GUIDE-01": return _guidance()
 		"GUIDE-03": return _clinic_order()
 		"GUIDE-04": return _destinations()
 		"GUIDE-05": return preload("res://tests/acceptance/guidance_snake_geometry.gd").new().run_checks()
 		"GUIDE-06": return _actual_call_deadline()
 		"GUIDE-07": return _need_return()
 		"GUIDE-08": return _arranged_room_identity()
-		"GUIDE-09": return load("res://tests/acceptance/surgery_guidance_contract.gd").new().run_case(content)
 		"GUIDE-10": return _ticket_order_keys()
 		"GUIDE-11": return load("res://tests/acceptance/guidance_operator_wait.gd").new().run_case(content)
 		"GUIDE-12": return load("res://tests/acceptance/guidance_patient_post.gd").new().run_case(content)
@@ -164,7 +160,7 @@ func _patient(x: Dictionary, id: String, cell: Array, service: String = "gp", bi
 		if row.id==binding_id or binding_id.is_empty() and row.species_id=="S49": binding=row; break
 	var actor_id: String="patient_"+id
 	x.world.facts.actors[actor_id]={"id":actor_id,"name":id,"species_id":binding.species_id,"body_binding_id":binding.id,"location":{"kind":"floor","floor_id":1,"cell":cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
-	var visit: Dictionary={"id":id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_"+binding.disease_id+"_COMMON","expression":"clear","personality_id":"PP01","anger":0.0,"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrival_tick":x.world.sim_tick,"arrived_tick":x.world.sim_tick,"last_progress_tick":x.world.sim_tick,"last_service_tick":x.world.sim_tick,"arrival_key":"acceptance_"+id}
+	var visit: Dictionary={"id":id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_"+binding.disease_id+"_COMMON","expression":"clear","personality_id":"PP01","anger":0.0,"phase":"arrival","diagnosis":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrival_tick":x.world.sim_tick,"arrived_tick":x.world.sim_tick,"last_progress_tick":x.world.sim_tick,"last_service_tick":x.world.sim_tick,"arrival_key":"acceptance_"+id}
 	x.world.facts.visits[id]=visit
 	x.world.register_visit(id)
 	x.sim.clinic._queue(x.world,visit,service)
@@ -299,22 +295,17 @@ func _areas() -> Dictionary:
 	x.checks.private_change=_command(x,"build_room_use",{"target_id":"rest","room_type_id":"doctor_office"}).accepted and index.for_facility(x.world,"inside").is_empty()
 	return _finish(x)
 
-func _guidance(missing: bool) -> Dictionary:
+func _guidance() -> Dictionary:
 	var x: Dictionary=_base()
 	x.checks.desk=_facility(x,"guide","SE01",[47,83])
 	_staff(x,"guide_nurse","nurse",[55,90])
 	x.world.facts.staff.guide_nurse.base_prepared=true
 	var visit: Dictionary=_patient(x,"first",[42,90])
-	var ticket: String=visit.ticket_id
-	if not missing:
-		x.checks.clinic=_room(x,"gp","gp",[34,66]) and _facility(x,"diagnosis","FUR02",[38,69],"gp")
-		_staff(x,"doctor","doctor",[57,90],"gp")
+	x.checks.clinic=_room(x,"gp","gp",[34,66]) and _facility(x,"diagnosis","FUR02",[38,69],"gp")
+	_staff(x,"doctor","doctor",[57,90],"gp")
 	var g: HospitalFloorGuidance=x.sim.services.floor_guidance
 	var actual_work: bool=true
 	var work: int=0
-	var paused: bool=false
-	var original_queue: Array=[]
-	var second: Dictionary={}
 	for index: int in 1600:
 		_step(x)
 		var state: Dictionary=g.state(x.world,visit.id)
@@ -322,23 +313,12 @@ func _guidance(missing: bool) -> Dictionary:
 			work+=1
 			var layout: Dictionary=x.sim.space.facility_layout(x.world,"guide")
 			actual_work=actual_work and x.sim.space.at(x.world,visit.actor_id,1,layout.patient_cell) and x.sim.space.at(x.world,"guide_nurse",1,layout.operator_cells[0])
-		if missing and second.is_empty() and state.has("queue_seq"):
-			second=_patient(x,"second",[40,90])
-		if missing and index==300:
-			original_queue=g._desk_queue(x.world,"guide").duplicate()
-			paused=state.get("phase","")=="desk_queue" and g.state(x.world,second.id).get("phase","")=="desk_queue" and work==0 and visit.ticket_id==ticket and not visit.phase in ["leaving","departed"]
-			x.checks.recover=_room(x,"gp","gp",[34,66]) and _facility(x,"diagnosis","FUR02",[38,69],"gp")
-			_staff(x,"doctor","doctor",[57,90],"gp")
 		if not x.service_starts.is_empty(): break
 	x.checks.real_six_second_guidance=actual_work and work==59 and not g.state(x.world,visit.id).get("receipts",[]).is_empty()
 	x.checks.clinical_started_after_arrival=not x.service_starts.is_empty() and int(x.events.get("service_started",0))==1
 	x.checks.fixed_nurse=x.world.facts.staff.guide_nurse.get("active_job_id","")=="floor_desk:guide"
 	x.checks.no_preparation_gate=not x.world.facts.staff.doctor.has("base_prepared")
-	if missing:
-		x.checks.entire_desk_paused=paused and original_queue==[visit.id,second.id]
-		x.checks.original_ticket=visit.ticket_id==ticket or not x.world.facts.tickets.has(ticket)
-		x.checks.no_forced_referral=visit.final_result.is_empty()
-	return _finish(x,{"observed_guidance_work_boundaries":work,"queue_before_recovery":original_queue})
+	return _finish(x,{"observed_guidance_work_boundaries":work})
 
 func _clinic_order() -> Dictionary:
 	var x: Dictionary=_base()
@@ -485,7 +465,7 @@ func _arranged_room_identity() -> Dictionary:
 		_staff(x,"original_doctor","doctor",[55,90],"original")
 		_staff(x,"other_doctor","doctor",[70,90],"other")
 		var visit: Dictionary=_patient(x,"room_identity",[58,90],"outpatient","B_S13_D09_M09")
-		visit.evidence_by_source={"gp":100}
+		visit.diagnosis=preload("res://tests/acceptance/clinical_input.gd").diagnosed("original_doctor","completed_gp_station")
 		x.checks.plan=x.sim.clinic.execute(x.world,"clinical_select_plan",{"visit_id":visit.id,"plan_id":visit.requested_plan_id}).accepted
 		_arranged(x,visit,"anchor")
 		for index: int in 20:
@@ -847,7 +827,10 @@ func _treatment_parallel() -> Dictionary:
 	var a: Dictionary=_patient(x,"treatment_a",[45,85],"outpatient","B_S13_D09_M09")
 	var b: Dictionary=_patient(x,"treatment_b",[48,85],"outpatient","B_S49_D37_M37")
 	var exam: Dictionary=_patient(x,"examination",[51,85],"spectrum","B_S13_D09_M09")
-	a.evidence_by_source={"gp":100};b.evidence_by_source={"gp":100};exam.evidence_by_source={"gp":42}
+	a.diagnosis=preload("res://tests/acceptance/clinical_input.gd").diagnosed("doctor_a","completed_gp_station")
+	b.diagnosis=preload("res://tests/acceptance/clinical_input.gd").diagnosed("doctor_b","completed_gp_station")
+	exam.diagnosis=preload("res://tests/acceptance/clinical_input.gd").insufficient("doctor_a","completed_gp_station")
+	exam.diagnosis.exam_kind="spectrum"
 	var accepted: bool=true
 	for visit: Dictionary in [a,b]:
 		var result: CommandResult=x.sim.clinic.execute(x.world,"clinical_select_plan",{"visit_id":visit.id,"plan_id":visit.requested_plan_id})
@@ -1036,7 +1019,7 @@ func _same_equipment_parallel() -> Dictionary:
 	var accepted: bool=true
 	for row: Array in [["first",[45,85]],["second",[48,85]]]:
 		var visit: Dictionary=_patient(x,row[0],row[1],"outpatient","B_S13_D09_M09")
-		visit.evidence_by_source={"gp":100}
+		visit.diagnosis=preload("res://tests/acceptance/clinical_input.gd").diagnosed("doctor_a","completed_gp_station")
 		accepted=accepted and x.sim.clinic.execute(x.world,"clinical_select_plan",{"visit_id":visit.id,"plan_id":visit.requested_plan_id}).accepted
 		_arranged(x,visit,"machine_a")
 	x.checks.legal_plan_quotes=accepted

@@ -110,7 +110,9 @@ func _unsupported(raw: Dictionary) -> Dictionary:
 		match mode:
 			"outside_plot": input.source.layout.plots.append([3,2])
 			"fractional_blocked": input.source.layout.blocked.append([35.5,82])
-			"fractional_wall": input.source.rooms.unit_mask_room.wall_edges[0].line = float(input.source.rooms.unit_mask_room.wall_edges[0].line)+0.25
+			# Floor walls are authoritative; changing a shadowed room copy would
+			# leave the actual native input entirely integral.
+			"fractional_wall": input.source.layout.wall_edges[0].line = float(input.source.layout.wall_edges[0].line)+0.25
 			"fractional_raw_span": input.source.layout.doors[0].span = float(input.source.layout.doors[0].span)+0.25
 			"fractional_opening":
 				var opening: Rect2 = input.doors[0].opening

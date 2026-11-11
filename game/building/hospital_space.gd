@@ -221,6 +221,16 @@ func sync_actor(world: WorldState, id: String) -> void:
 	_ensure_actor_index(world)
 	_sync_actor(world,id)
 
+# The fact owner calls this only after real departure, while the outside actor
+# still exists. Remove its derived spatial identity before deleting that fact.
+func forget_actor(world: WorldState, id: String) -> bool:
+	_ensure_actor_index(world)
+	var actor: Dictionary=world.facts.actors[id]
+	if actor.location.kind!="outside" or world.facts.moves.has(id) or _convoy_owner.has(id) or not movement._member_owner(world,id).is_empty(): return false
+	_sync_actor(world,id)
+	_actor_shapes.erase(id)
+	return true
+
 func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 	var actor: Dictionary = world.facts.actors[id]
 	var previous: BodyIndex.Record = _actor_index._records.get(id)

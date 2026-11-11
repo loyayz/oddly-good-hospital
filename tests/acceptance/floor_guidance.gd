@@ -38,8 +38,8 @@ func _base(doctor: bool = false, upper: bool = false) -> Dictionary:
 		world.facts.floors.completed_top_floor = {}
 		for plot: Array in plots: world.facts.floors.completed_top_floor[HospitalSpace.plot_key(plot)] = 2
 		world.facts.floors.height_intervals = [{"first":1,"last":2,"height_m":float(_content.balance.floors.clear_height_m)}]
-		world.facts.floors.overrides["2"] = {"plots":plots,"blocked":world.facts.floors.overrides["1"].blocked.duplicate(true),"doors":world.facts.floors.overrides["1"].doors.duplicate(true),"paths":[]}
-		world.facts.floors.overrides["1"].blocked = [];world.facts.floors.overrides["1"].doors = []
+		world.facts.floors.overrides["2"] = {"plots":plots,"blocked":world.facts.floors.overrides["1"].blocked.duplicate(true),"wall_edges":world.facts.floors.overrides["1"].get("wall_edges",[]).duplicate(true),"doors":world.facts.floors.overrides["1"].doors.duplicate(true),"paths":[]}
+		world.facts.floors.overrides["1"].blocked = [];world.facts.floors.overrides["1"].wall_edges = [];world.facts.floors.overrides["1"].doors = []
 		world.facts.rooms.clinic.floor_id = 2
 		world.facts.facilities.diagnosis.floor_id = 2
 		_facility(x,"upper_guide","SE01",[47,83]);world.facts.facilities.upper_guide.floor_id = 2
@@ -74,8 +74,8 @@ func _restore_json(x: Dictionary) -> Dictionary:
 	return restored
 
 func _single(json_restore: bool) -> Dictionary:
-	var x: Dictionary = _base()
-	var visit: Dictionary = _visit(x,"single",[40,88])
+	var x: Dictionary = _base(true)
+	var visit: Dictionary = _known_gp_visit(x,"single",[40,88])
 	var ticket: String = visit.ticket_id
 	var no_clinical_hold: bool = true
 	var work_ticks: int = 0
@@ -107,8 +107,12 @@ func _single(json_restore: bool) -> Dictionary:
 	_dispose(x);return result
 
 func _cross_floor() -> Dictionary:
-	var x: Dictionary = _base(false,true)
-	var visit: Dictionary = _visit(x,"upper",[40,88])
+	var x: Dictionary = _base(true,true)
+	# This input has one usable destination-floor desk. The patient starts at
+	# the real entrance floor and must still ride, land and join its queue.
+	x.world.facts.facilities.guide.intake_open=false
+	x.world.touch()
+	var visit: Dictionary = _known_gp_visit(x,"upper",[40,88])
 	var ride: bool = false
 	var no_early: bool = true
 	var restored: bool = false
@@ -119,7 +123,7 @@ func _cross_floor() -> Dictionary:
 		var state: Dictionary = x.g.state(x.world,visit.id)
 		if actor.location.kind=="transit":
 			ride = true
-			no_early = no_early and state.receipts.size()==1 and int(state.arrived_seq)<0
+			no_early = no_early and state.receipts.is_empty() and int(state.arrived_seq)<0
 			if not restored:
 				x = _restore_json(x)
 				if x.has("restore_error"): return {"case":"GUIDE-CROSS-FLOOR","ok":false,"error":x.restore_error}
@@ -129,12 +133,28 @@ func _cross_floor() -> Dictionary:
 	var state: Dictionary = x.g.state(x.world,visit.id)
 	var floors: Array = []
 	for receipt: Dictionary in state.receipts: floors.append(receipt.floor_id)
-	var result: Dictionary = {"case":"GUIDE-CROSS-FLOOR","ok":ride and restored and no_early and floors==[1,2] and state.phase=="ready" and int(x.world.facts.actors[visit.actor_id].location.floor_id)==2 and prevalidation.is_empty() and x.world.validate(_content).is_empty(),"actual_ride":ride,"new_world_in_transit":restored,"no_landing_before_alight":no_early,"guidance_floors":floors,"state":state.duplicate(true),"prevalidation":prevalidation,"validation":x.world.validate(_content),"reason":visit.waiting_reason}
+	var result: Dictionary = {"case":"GUIDE-CROSS-FLOOR","ok":ride and restored and no_early and floors==[2] and state.phase=="ready" and int(x.world.facts.actors[visit.actor_id].location.floor_id)==2 and prevalidation.is_empty() and x.world.validate(_content).is_empty(),"actual_ride":ride,"new_world_in_transit":restored,"no_landing_before_alight":no_early,"guidance_floors":floors,"state":state.duplicate(true),"prevalidation":prevalidation,"validation":x.world.validate(_content),"reason":visit.waiting_reason}
 	_dispose(x);return result
 
 func _same_floor_new_request() -> Dictionary:
 	var x: Dictionary = _base(true)
-	var visit: Dictionary = _visit(x,"stages",[40,88])
+	# A legal next treatment demand replaces the retired extra GP consult.
+	HospitalFactory._add_room(x.world,{"id":"stage_treatment_room","type":"treatment","anchor":[45,66],"size":[10,12],"door":{"definition_id":"DR04","offset":3}},_content)
+	_facility(x,"stage_treatment_machine","M37",[49,69],"stage_treatment_room")
+	HospitalFactory._add_staff(x.world,"treatment_doctor","治疗医生","doctor",[55,88],_content)
+	x.d.ensure(x.world);x.s.ensure(x.world);x.w.ensure(x.world);x.r.ensure(x.world);x.f.ensure(x.world)
+	x.c.scheduler=x.s
+	x.world.facts.staff.doctor.schedule=[{"kind":"outpatient","pools":["clinic"],"locked":false},{"kind":"outpatient","pools":["clinic"],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+	x.world.facts.staff.treatment_doctor.schedule=[{"kind":"outpatient","pools":["stage_treatment_room"],"locked":false},{"kind":"outpatient","pools":["stage_treatment_room"],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+	for seed_value: int in range(1,1000):
+		var generator:=RandomNumberGenerator.new()
+		generator.seed=seed_value
+		var initial: int=generator.state
+		if generator.randi_range(0,9999)>=4000:
+			x.world.facts.rng.treatment={"algorithm":"godot-pcg32-4.7.2","seed_decimal":str(seed_value),"state_decimal":str(initial)}
+			break
+	x.world.touch()
+	var visit: Dictionary = _known_gp_visit(x,"stages",[40,88])
 	var first_ticket: String = visit.ticket_id
 	var clinical_ticks: int = 0
 	var continuous: bool = true
@@ -145,7 +165,7 @@ func _same_floor_new_request() -> Dictionary:
 		if visit.phase=="gp":
 			clinical_ticks += 1
 			continuous = continuous and state.receipts.size()==1 and state.phase=="ready"
-		if visit.evidence_by_source.has("gp"): completed = true
+		if visit.diagnosis.get("gp_completed",false): completed = true
 		if completed and state.receipts.size()>=2: break
 	var state: Dictionary = x.g.state(x.world,visit.id)
 	var different: bool = state.receipts.size()==2 and state.receipts[0].request_key!=state.receipts[1].request_key
@@ -441,3 +461,13 @@ func _dynamic_admission_retry()->Dictionary:
 		x.world.facts.sim_tick+=1;x.world.touch(false)
 	var result:Dictionary={"ok":reached and rejected and released and admitted,"reached_by_actual_movement":reached,"blocked_without_number":rejected,"released_body_check_clear":released,"admitted_without_other_queue_changes":admitted,"revision_before_release":revision,"state":s.duplicate(true)}
 	_dispose(x);return result
+
+func _known_gp_visit(x: Dictionary, id: String, cell: Array) -> Dictionary:
+	var visit: Dictionary=_visit(x,id,cell)
+	var binding: Dictionary=_content.definition("treatment_bindings","B_S49_D37_M37")
+	visit.binding_id=binding.id
+	visit.disease_id=binding.disease_id
+	visit.requested_plan_id="P_D37_COMMON"
+	x.world.facts.actors[visit.actor_id].body_binding_id=binding.id
+	x.world.touch()
+	return visit

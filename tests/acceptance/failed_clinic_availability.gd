@@ -67,17 +67,17 @@ func run() -> void:
  # this same decision, not a new consultation or future resource reservation.
  var waiting: Dictionary = read(args[2])
  save("waiting-raw",waiting)
- waiting.rooms.room_physical.open=true
+ waiting.rooms.room_physical.open_intent=true
  waiting.facilities.zombie_machine.failed=true
  sim=bind("waiting",waiting)
  var world: WorldState=sim.world
  var visit: Dictionary=world.facts.visits.visit_00000011
  var ticket: Dictionary=world.facts.tickets[visit.ticket_id].duplicate(true)
  var decision: Dictionary=visit.plan_decision.duplicate(true)
- var evidence: Dictionary=visit.evidence_by_source.duplicate(true)
+ var evidence: Dictionary=visit.diagnosis.duplicate(true)
  var tick: int=world.sim_tick
  sim.clinic._dispatch_service(world,visit,world.facts.tickets[visit.ticket_id])
- check("fault_dispatch_keeps_original_wait",visit.phase=="wait_outpatient" and visit.ticket_id==ticket.id and world.facts.tickets[ticket.id].enqueued_tick==ticket.enqueued_tick and visit.plan_decision==decision and visit.evidence_by_source==evidence,visit)
+ check("fault_dispatch_keeps_original_wait",visit.phase=="wait_outpatient" and visit.ticket_id==ticket.id and world.facts.tickets[ticket.id].enqueued_tick==ticket.enqueued_tick and visit.plan_decision==decision and visit.diagnosis==evidence,visit)
  check("fault_dispatch_no_start_or_reservation",world.facts.attempts.is_empty() and world.facts.preparations.is_empty() and world.sim_tick==tick)
  save("waiting-after-dispatch",world.freeze())
  check("waiting_final_valid",world.validate(content).is_empty(),world.validate(content))

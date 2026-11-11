@@ -84,7 +84,7 @@ const CASES: Dictionary = {
 	"SPACE-33":"docs/design/08-hospital-life.md §10；目标不预留，实际疏散终点无身体重叠，当前可用不自动应用，失败保留安排",
 	"SPACE-34":"docs/design/08-hospital-life.md §10；取消只撤本安排原因，不恢复过时开放开关",
 	"SPACE-35":"docs/design/08-hospital-life.md §10/§11、07-clinical-team.md §8.1；真实门诊安全转移保原票、证据、Attempt、耗材和余量，双床职责位旋转与保存后仍可达",
-	"SPACE-36":"docs/design/08-hospital-life.md §11、07-clinical-team.md §8.1；改建中沿原病例完成护理、查房、唯一结算和实际释放",
+	"SPACE-36":"统一规格§15.3；改建中沿原病例完成实际护理、完整恢复、唯一结算和实际释放",
 	"SPACE-37":"docs/design/08-hospital-life.md §11；整组旋转跨层搬迁保原身份、状态、成本与工作引用",
 	"SPACE-38":"docs/design/08-hospital-life.md §11；表面最终归属、重叠与80%替换退款只结算一次",
 	"SPACE-39":"docs/design/08-hospital-life.md §12；九内置图只记录相对布局，重复或缺床链接拒绝",
@@ -955,13 +955,18 @@ func _case_35(_t) -> Dictionary:
 	if not bed_layouts.ok: return {"ok":false,"details":{"prerequisite":"内置病房真实床边职责、旋转与保存","bed_layouts":bed_layouts}}
 	var sim: HospitalSimulation = _fixture(true)
 	sim.clinic.experience = null
+	var clinical_fixture: RefCounted=preload("res://tests/acceptance/clinical_fixtures.gd").new()
+	var seeded: bool=clinical_fixture._seed_stream(sim.world,"treatment",false,true,4000,100)
+	var diagnostic_input: Dictionary={"kind":"unconsumed_diagnosis_and_treatment_random_input","sufficient_gp_threshold_bp":4000,"first_attempt_roll_below_bp":100,"rng":sim.world.facts.rng.treatment.duplicate(true)}
+	if not seeded: return _done(sim,false,{"prerequisite":"未消费的充分初诊与首试成功随机输入","input":diagnostic_input})
+	print("CASE_INPUT SPACE-35 "+JSON.stringify(diagnostic_input))
 	var arrival: CommandResult = _command(sim,"clinical_arrive",{"binding_id":"B_S49_D37_M37","arrival_key":"space_actual_outpatient","requested_plan_id":"P_D37_COMMON"})
 	var visit_id: String = str(arrival.changed_ids[0]) if arrival.accepted else ""
 	var begun: bool = _wait(sim,func() -> bool: return not _session(sim,"outpatient").is_empty(),2400)
 	var session: Dictionary = _session(sim,"outpatient").duplicate(true)
-	if not begun: return _done(sim,false,{"prerequisite":"实际门诊未开工","arrival":arrival.to_record(),"visit":sim.world.facts.visits.get(visit_id,{}),"failure_world":preload("res://tests/acceptance/clinical_fixtures.gd").new()._failure_world("space_outpatient",sim.world)})
+	if not begun: return _done(sim,false,{"prerequisite":"实际门诊未开工","input":diagnostic_input,"arrival":arrival.to_record(),"visit":sim.world.facts.visits.get(visit_id,{}),"failure_world":clinical_fixture._failure_world("space_outpatient",sim.world)})
 	var visit: Dictionary = sim.world.facts.visits[visit_id]
-	var evidence: Dictionary = visit.evidence_by_source.duplicate(true)
+	var evidence: Dictionary = visit.diagnosis.duplicate(true)
 	var attempt_id: String = str(session.get("attempt_id",""))
 	var attempt: Dictionary = sim.world.facts.attempts.get(attempt_id,{}).duplicate(true)
 	var issues: Dictionary = sim.world.facts.inventory.issues.duplicate(true)
@@ -974,7 +979,7 @@ func _case_35(_t) -> Dictionary:
 	var order_id: String = str(prepare.changed_ids[0]) if prepare.accepted else ""
 	sim.step()
 	var suspension: Dictionary = sim.world.facts.clinical_suspensions.get(session.id,{})
-	var preserved: bool = prepare.accepted and sim.world.facts.attempts.get(attempt_id,{})==attempt and sim.world.facts.inventory.issues==issues and sim.world.facts.visits[visit_id].evidence_by_source==evidence and sim.world.facts.visits[visit_id].ticket_id==str(original_ticket.get("id","")) and int(suspension.get("remaining_ticks",-1))==int(session.remaining_ticks)
+	var preserved: bool = prepare.accepted and sim.world.facts.attempts.get(attempt_id,{})==attempt and sim.world.facts.inventory.issues==issues and sim.world.facts.visits[visit_id].diagnosis==evidence and sim.world.facts.visits[visit_id].ticket_id==str(original_ticket.get("id","")) and int(suspension.get("remaining_ticks",-1))==int(session.remaining_ticks)
 	var before_auto_plan: Dictionary = sim.world.freeze()
 	var auto_plan: CommandResult = _command(sim,"clinical_auto_plan",{"visit_id":visit_id})
 	var auto_plan_rejected: bool = not auto_plan.accepted and auto_plan.code=="clinical_busy" and before_auto_plan==sim.world.freeze() and sim.world.facts.attempts.get(attempt_id,{})==attempt
@@ -1003,6 +1008,15 @@ func _case_36(_t) -> Dictionary:
 			var staff: Dictionary = sim.world.facts.staff[staff_id]
 			preparation_facts[staff_id] = {"on_shift":staff.get("on_shift",false),"base_prepared":staff.get("base_prepared",false),"base_task":staff.get("base_task",{}).duplicate(true),"block_new_work":staff.get("block_new_work",false),"location":sim.world.facts.actors[staff_id].location.duplicate(true),"move":sim.world.facts.moves.get(staff_id,{}).duplicate(true)}
 		return _done(sim,false,{"prerequisite":"当班手术、病房及诊室医护未完成实际共享基地整理","tick":sim.world.sim_tick,"staff":preparation_facts})
+	# A lawful no-family random outcome isolates the remodel handoff. Family
+	# presence and its actual yielding/exit have separate inpatient cases.
+	for seed_value: int in range(1,1000):
+		var generator:=RandomNumberGenerator.new()
+		generator.seed=seed_value
+		var initial: int=generator.state
+		if generator.randi_range(0,9999)>=8000:
+			sim.world.facts.rng.arrival={"algorithm":"godot-pcg32-4.7.2","seed_decimal":str(seed_value),"state_decimal":str(initial)}
+			break
 	var arrival: CommandResult = _command(sim,"clinical_arrive",{"binding_id":"B_S13_D09_M09","arrival_key":"space_actual_surgery","requested_plan_id":"P_D09_SURGERY"})
 	var visit_id: String = str(arrival.changed_ids[0]) if arrival.accepted else ""
 	if not arrival.accepted: return _done(sim,false,{"prerequisite":"合法手术病例实际入院","arrival":arrival.to_record()})
@@ -1014,11 +1028,10 @@ func _case_36(_t) -> Dictionary:
 	input_actor.location.cell = [44,76]
 	sim.space.sync_actor(sim.world,input_actor.id)
 	var diagnostic: Dictionary = sim.world.facts.staff.starter_doctor_a
-	var profile: Dictionary = content.catalog.profiles[content.definition("diseases",input_visit.disease_id).profile]
-	input_visit.evidence_by_source = {"gp":float(profile.gp_confidence)+2.0*(int(diagnostic.abilities.diagnosis)-1)}
+	input_visit.diagnosis = preload("res://tests/acceptance/clinical_input.gd").diagnosed(diagnostic.id,"gp_station")
 	input_visit.doctor_fee_quote = content.doctor_fee(diagnostic.title_id)
 	input_visit.clinical_participants = {diagnostic.id:true}
-	sim.clinic._queue(sim.world,input_visit,"consult")
+	sim.clinic._queue(sim.world,input_visit,"plan")
 	HospitalLedger.post(sim.world,LedgerEntry.new(visit_id,"consultation",int(input_visit.doctor_fee_quote)))
 	HospitalLedger.post(sim.world,LedgerEntry.new(visit_id,"gp",5))
 	var history_id: String = visit_id+":given_gp"
@@ -1036,25 +1049,28 @@ func _case_36(_t) -> Dictionary:
 	var bed_role_quotes: Array = []
 	for facility_id: String in sim.world.ids("facilities"):
 		if sim.world.facts.facilities[facility_id].definition_id!="EQ05": continue
-		var fit: Dictionary = sim.space.facility_quote(sim.world,facility_id,sim.world.facts.visits[visit_id].actor_id,["ward_nurse","round_doctor"])
+		var fit: Dictionary = sim.space.facility_quote(sim.world,facility_id,sim.world.facts.visits[visit_id].actor_id,["ward_nurse"])
 		var row: Dictionary = {"bed_id":facility_id,"fit":fit.get("ok",false),"reason":fit.get("reason",""),"operators":fit.get("operator_cells",[])}
-		var usable: bool = fit.get("ok",false) and fit.get("operator_cells",[]).size()==2
+		var usable: bool = fit.get("ok",false) and fit.get("operator_cells",[]).size()>=1
 		if usable:
 			row.patient_route = sim.space.route(sim.world,sim.world.facts.visits[visit_id].actor_id,1,fit.patient_cell,[],{},true).ok
 			row.nurse_route = sim.space.route(sim.world,"ward_nurse",1,fit.operator_cells[0],[],{},true).ok
-			row.doctor_route = sim.space.route(sim.world,"round_doctor",1,fit.operator_cells[1],[],{},true).ok
-			usable = row.patient_route and row.nurse_route and row.doctor_route and fit.operator_cells[0]==fit.operator_cells[1]
+			usable = row.patient_route and row.nurse_route
 		bed_roles_ready = bed_roles_ready and usable
 		bed_role_quotes.append(row)
 	bed_roles_ready = bed_roles_ready and bed_role_quotes.size()==2
 	var selected: CommandResult = _command(sim,"clinical_select_plan",{"visit_id":visit_id,"plan_id":"P_D09_SURGERY"})
+	var admission_input: Dictionary={"kind":"real_guidance_before_actual_bed_admission","ward_nurse_assignment":sim.services.scheduler.assignment(sim.world,"ward_nurse",sim.services.scheduler.shift_index(sim.world)).duplicate(true),"bed_candidate":sim.clinic._compatible_bed(sim.world,input_visit,1,[],false)}
+	print("CASE_INPUT SPACE-36-ADMISSION "+JSON.stringify(admission_input))
 	var guidance: Dictionary = {}
 	if selected.accepted:
 		guidance = GuidancePrerequisite.reach(sim,[visit_id],func(gate: Callable) -> void: ClinicalStep.step(sim,true,gate))
-		if not guidance.ok: return _done(sim,false,{"prerequisite":"真实导诊和手术室当地到达","guidance":guidance})
+		if not guidance.ok: return _done(sim,false,{"prerequisite":"真实导诊和住院床位当地到达","input":admission_input,"guidance":guidance,"failure_world":preload("res://tests/acceptance/clinical_fixtures.gd").new()._failure_world("space_surgery_guidance",sim.world)})
 	# Guidance, local arrival, team gathering and every setup tick execute here.
 	# Only the prior diagnostic and base-preparation history above is input.
-	var begun: bool = selected.accepted and _wait(sim,func() -> bool: return not _session(sim,"surgery").is_empty(),1800,clinical_tick)
+	var surgery_wait_started: int=sim.world.sim_tick
+	var begun: bool = selected.accepted and _wait(sim,func() -> bool: return not _session(sim,"surgery").is_empty(),6000,clinical_tick)
+	print("CASE_PREFIX SPACE-36 "+JSON.stringify({"kind":"actual_admission_life_needs_and_surgery_gathering","started_tick":surgery_wait_started,"finished_tick":sim.world.sim_tick,"elapsed_ticks":sim.world.sim_tick-surgery_wait_started,"actual_surgery_started":begun}))
 	if not begun:
 		var snapshot_path: String = "res://space36-plan-blocked.json"
 		var encoder: HospitalJsonStream = HospitalJsonStream.new()
@@ -1063,7 +1079,7 @@ func _case_36(_t) -> Dictionary:
 		for staff_id: String in sim.world.ids("staff"):
 			var staff: Dictionary = sim.world.facts.staff[staff_id]
 			if not staff.role in ["doctor","nurse"]: continue
-			clinical_staff[staff_id] = {"role":staff.role,"ward_id":staff.get("ward_id",""),"location":sim.world.facts.actors[staff_id].location.duplicate(true),"on_shift":staff.get("on_shift",false),"scheduled_kind":staff.get("scheduled_kind",""),"abilities":staff.abilities.duplicate(true),"base_prepared":staff.get("base_prepared",false),"base_task":staff.get("base_task",{}).duplicate(true),"block_new_work":staff.get("block_new_work",false),"move":sim.world.facts.moves.get(staff_id,{}).duplicate(true)}
+			clinical_staff[staff_id] = {"role":staff.role,"ward_id":staff.get("ward_id",""),"location":sim.world.facts.actors[staff_id].location.duplicate(true),"on_shift":staff.get("on_shift",false),"scheduled_kind":staff.get("scheduled_kind",""),"abilities":staff.abilities.duplicate(true),"base_prepared":staff.get("base_prepared",false),"base_task":staff.get("base_task",{}).duplicate(true),"life_task":staff.get("life_task",{}).duplicate(true),"block_new_work":staff.get("block_new_work",false),"move":sim.world.facts.moves.get(staff_id,{}).duplicate(true)}
 		var beds: Dictionary = {}
 		for facility_id: String in sim.world.ids("facilities"):
 			var facility: Dictionary = sim.world.facts.facilities[facility_id]
@@ -1093,57 +1109,73 @@ func _case_36(_t) -> Dictionary:
 	var recovery_stay: Dictionary = stay.duplicate(true)
 	var recovery_use: Dictionary = HospitalEquipmentUse.query(sim.world,bed_id)
 	equipment_handoff = equipment_handoff and recovery_use.occupied and recovery_use.critical_commitment
+	var stay_id: String = str(stay.get("id",""))
+	var recovery_tick: int = sim.world.sim_tick
 	var care_tick: int = -1
-	var round_tick: int = -1
-	var round_record: Dictionary = {}
-	var round_work: Dictionary = {}
+	var care_finished_tick: int = -1
+	var recovery_finished_tick: int = -1
+	var settled_tick: int = -1
+	var patient_departed_tick: int = -1
+	var remodel_ready_tick: int = -1
+	var care_record: Dictionary = {}
+	var care_work: Dictionary = {}
 	var nurse_moved_after_care: bool = false
 	var sequence_legal: bool = true
+	var no_round: bool = true
+	var completion: Dictionary = {"care_finished":false,"recovery_finished":false,"settled":false,"patient_departed":false,"bed_released":false,"arrangement_pending":true,"blocked_until_release":true,"no_early_settlement":true,"ready_after_release":false}
 	if protected:
 		var nurse_id: String = str(stay.nurse_id)
 		var previous: Array = sim.world.facts.actors[nurse_id].location.cell.duplicate()
-		for index: int in 2400:
-			var current_stay: Dictionary = sim.world.facts.ward_stays.get(attempt_id,{})
+		var previous_remaining: int = int(stay.remaining_ticks)
+		for index: int in 3600:
+			var current_stay: Dictionary = sim.world.facts.ward_stays.get(stay_id,{})
+			var visit: Dictionary = sim.world.facts.visits[visit_id]
+			var actor: Dictionary = sim.world.facts.actors[visit.actor_id]
+			var order: Dictionary = sim.world.facts.remodels[order_id]
 			var location: Dictionary = sim.world.facts.actors[nurse_id].location
 			var displacement: float = Vector2(float(previous[0]),float(previous[1])).distance_to(Vector2(float(location.cell[0]),float(location.cell[1])))
-			if care_tick>=0 and current_stay.get("care_completed",false) and displacement>0.001:
+			completion.care_finished = not care_record.is_empty() and not sim.world.facts.sessions.has(str(care_record.get("id",""))) and int(care_work.get("remaining_ticks",-1))==0
+			if completion.care_finished and care_finished_tick<0: care_finished_tick = sim.world.sim_tick
+			if completion.care_finished and displacement>0.001:
 				nurse_moved_after_care = true
 				sequence_legal = sequence_legal and displacement<=float(content.balance.movement_speeds["1"])*WorldState.TICK_SECONDS+0.001
 			previous = location.cell.duplicate()
 			var layout: Dictionary = sim.space.facility_layout(sim.world,bed_id)
 			for active: Dictionary in sim.world.facts.sessions.values():
-				if active.get("stay_id","")!=attempt_id: continue
+				if active.get("visit_id","")==visit_id and active.kind=="round": no_round = false
+				if active.get("stay_id","")!=stay_id: continue
 				if active.kind=="care":
-					if care_tick<0: care_tick = sim.world.sim_tick
-					sequence_legal = sequence_legal and sim.space.at(sim.world,nurse_id,1,layout.operator_cells[0])
-				elif active.kind=="round":
-					round_tick = sim.world.sim_tick
-					round_record = active.duplicate(true)
-					round_work = active
-					var doctor_id: String = str(active.staff_ids[0])
-					sequence_legal = sequence_legal and care_tick>=0 and current_stay.get("care_completed",false) and nurse_moved_after_care and layout.operator_cells[0]==layout.operator_cells[1] and sim.space.at(sim.world,doctor_id,1,layout.operator_cells[1]) and not sim.space.at(sim.world,nurse_id,1,layout.operator_cells[1]) and not sim.space.body_rectangle(sim.world.facts.actors[nurse_id]).intersects(sim.space.body_rectangle(sim.world.facts.actors[doctor_id]),false)
-			if round_tick>=0: break
-			clinical_tick.call()
-	var completion: Dictionary = {"round_finished":false,"patient_departed":false,"bed_released":false,"arrangement_pending":true,"blocked_until_release":true,"no_early_settlement":true}
-	if round_tick>=0:
-		for index: int in 1200:
-			var visit: Dictionary = sim.world.facts.visits[visit_id]
-			var actor: Dictionary = sim.world.facts.actors[visit.actor_id]
-			var order: Dictionary = sim.world.facts.remodels[order_id]
+					if care_tick<0:
+						care_tick = sim.world.sim_tick
+						care_record = active.duplicate(true)
+						care_work = active
+					sequence_legal = sequence_legal and active.staff_ids==[nurse_id] and sim.space.at(sim.world,nurse_id,int(layout.floor_id),layout.operator_cells[0])
+			if not current_stay.is_empty():
+				sequence_legal = sequence_legal and current_stay.visit_id==visit_id and current_stay.attempt_id==attempt_id and int(current_stay.remaining_ticks)>=0 and int(current_stay.remaining_ticks)<=previous_remaining
+				previous_remaining = int(current_stay.remaining_ticks)
+				if previous_remaining==0:
+					completion.recovery_finished = true
+					if recovery_finished_tick<0: recovery_finished_tick = sim.world.sim_tick
+				if not current_stay.get("care_completed",false) or previous_remaining>0:
+					completion.no_early_settlement = completion.no_early_settlement and not sim.world.facts.ledger.entries.has(attempt_id+":ward") and not sim.world.facts.ledger.entries.has(visit_id+":cure")
 			completion.arrangement_pending = completion.arrangement_pending and order.state=="preparing"
-			if sim.world.facts.sessions.has(str(round_record.get("id",""))):
-				completion.no_early_settlement = completion.no_early_settlement and not sim.world.facts.ledger.entries.has(attempt_id+":ward") and not sim.world.facts.ledger.entries.has(visit_id+":cure")
-			if sim.world.facts.ward_stays.has(attempt_id) or sim.world.facts.adaptations.has(bed_id):
+			if sim.world.facts.ward_stays.has(stay_id) or sim.world.facts.adaptations.has(bed_id):
 				completion.blocked_until_release = completion.blocked_until_release and not sim.services.remodel._waiting(sim.world,order).is_empty()
-			completion.round_finished = not sim.world.facts.sessions.has(str(round_record.get("id",""))) and int(round_work.get("remaining_ticks",-1))==0 and visit.get("final_result","")=="cured" and visit.get("result_receipt",{}).get("attempt_id","")==attempt_id
+			completion.settled = visit.get("final_result","")=="cured" and visit.get("result_receipt",{}).get("attempt_id","")==attempt_id
+			if completion.settled:
+				sequence_legal = sequence_legal and completion.care_finished and completion.recovery_finished
+				if settled_tick<0: settled_tick = sim.world.sim_tick
 			completion.patient_departed = visit.phase=="departed" and actor.location.kind=="outside"
-			completion.bed_released = not sim.world.facts.ward_stays.has(attempt_id) and not sim.world.facts.adaptations.has(bed_id) and actor.get("support_facility_id","")!=bed_id
+			if completion.patient_departed and patient_departed_tick<0: patient_departed_tick = sim.world.sim_tick
+			completion.bed_released = not sim.world.facts.ward_stays.has(stay_id) and not sim.world.facts.adaptations.has(bed_id) and actor.get("support_facility_id","")!=bed_id
 			var current_use: Dictionary = HospitalEquipmentUse.query(sim.world,bed_id)
-			if completion.round_finished:
+			if completion.settled:
 				equipment_handoff = equipment_handoff and not current_use.critical_commitment
 			if not completion.bed_released:
 				equipment_handoff = equipment_handoff and current_use.occupied
-			if completion.round_finished and completion.patient_departed and completion.bed_released: break
+			completion.ready_after_release = completion.bed_released and sim.services.remodel.preview(sim.world,order_id).get("ok",false)
+			if completion.ready_after_release and remodel_ready_tick<0: remodel_ready_tick = sim.world.sim_tick
+			if completion.care_finished and completion.recovery_finished and completion.settled and completion.patient_departed and completion.bed_released and completion.ready_after_release: break
 			clinical_tick.call()
 	var charges: Dictionary = {"surgery":0,"ward":0,"cure":0}
 	var charge_counts: Dictionary = {"surgery":0,"ward":0,"cure":0}
@@ -1155,20 +1187,20 @@ func _case_36(_t) -> Dictionary:
 		charges_settled = charges_settled and bool(entry.settled)
 	var settlement: bool = charges_settled and charges=={"surgery":60,"ward":60,"cure":360} and charge_counts=={"surgery":1,"ward":1,"cure":1}
 	var settled_entries: Dictionary = sim.world.facts.ledger.entries.duplicate(true)
-	if completion.round_finished:
-		sim.clinic._complete_service(sim.world,round_record)
+	if completion.care_finished:
+		sim.clinic._complete_service(sim.world,care_record)
 		HospitalLedger.settle(sim.world)
-	var unique_settlement: bool = completion.round_finished and sim.world.facts.ledger.entries==settled_entries
+	var unique_settlement: bool = completion.care_finished and sim.world.facts.ledger.entries==settled_entries
 	for field: String in ["id","visit_id","plan_id","result","probability_bp","work_ticks","recovery_ticks","supply_units","staff_ids","bed_id","facility_fee","ward_fee","cure_fee"]:
 		promise_preserved = promise_preserved and _canonical(sim.world.facts.attempts.get(attempt_id,{}).get(field))==_canonical(attempt.get(field))
 	var same_case: bool = sim.world.facts.visits[visit_id].attempt_ids==[attempt_id] and sim.world.facts.inventory.issues==issues
 	var arrangement_retained: bool = sim.world.facts.remodels.get(order_id,{}).get("state","")=="preparing" and completion.arrangement_pending and completion.blocked_until_release
 	var validation: String = sim.world.validate(content)
 	equipment_handoff = equipment_handoff and not HospitalEquipmentUse.query(sim.world,bed_id).occupied
-	var passed: bool = equipment_handoff and protected and bed_roles_ready and care_tick>=0 and round_tick>care_tick and nurse_moved_after_care and sequence_legal and promise_preserved and same_case and arrangement_retained and completion.round_finished and completion.patient_departed and completion.bed_released and completion.no_early_settlement and settlement and unique_settlement and validation.is_empty()
+	var passed: bool = equipment_handoff and protected and bed_roles_ready and care_tick>=0 and no_round and nurse_moved_after_care and sequence_legal and promise_preserved and same_case and arrangement_retained and completion.care_finished and completion.recovery_finished and completion.settled and completion.patient_departed and completion.bed_released and completion.no_early_settlement and completion.ready_after_release and settlement and unique_settlement and validation.is_empty()
 	var final_scene: Dictionary = {}
 	if not passed:
-		var actual_stay: Dictionary = sim.world.facts.ward_stays.get(attempt_id,{}).duplicate(true)
+		var actual_stay: Dictionary = sim.world.facts.ward_stays.get(stay_id,{}).duplicate(true)
 		var staff_facts: Dictionary = {}
 		for staff_id: String in sim.world.ids("staff"):
 			var staff: Dictionary = sim.world.facts.staff[staff_id]
@@ -1184,7 +1216,7 @@ func _case_36(_t) -> Dictionary:
 		var encoder: HospitalJsonStream = HospitalJsonStream.new()
 		var saved: bool = encoder.encode(snapshot_path,sim.world.freeze(),func(_bytes: int) -> bool: return true)
 		final_scene = {"tick":sim.world.sim_tick,"world_path":ProjectSettings.globalize_path(snapshot_path),"world_saved":saved,"world_save_error":encoder.error,"visit":sim.world.facts.visits[visit_id].duplicate(true),"stay":actual_stay,"ward_covering":coverage,"staff":staff_facts,"sessions":sim.world.facts.sessions.duplicate(true),"bed_layout":sim.space.facility_layout(sim.world,bed_id).duplicate(true),"adaptation":sim.world.facts.adaptations.get(bed_id,{}).duplicate(true)}
-	return _done(sim,passed,{"guidance":guidance,"equipment_handoff":equipment_handoff,"reserved_use":reserved_use,"recovery_use":recovery_use,"selected_plan":selected.to_record(),"bed_role_quotes":bed_role_quotes,"prepared":prepared.to_record(),"initial_block":blocked.get("reason"),"real_transfer":transfer,"promise_preserved":promise_preserved,"stay_at_transfer":recovery_stay,"final_block":still_blocked.get("reason"),"protected":protected,"care_tick":care_tick,"round_tick":round_tick,"nurse_moved_after_care":nurse_moved_after_care,"sequence_legal":sequence_legal,"completion":completion,"charges":charges,"charge_counts":charge_counts,"unique_settlement":unique_settlement,"same_case":same_case,"arrangement_retained":arrangement_retained,"validation":validation,"final_scene":final_scene})
+	return _done(sim,passed,{"boundary_source":{"diagnosis_and_prior_base_preparation":"declared_input","admission_surgery_wake_escort_care_recovery_departure":"executed_here"},"actual_ticks":{"surgery_started":attempt.get("start_tick",-1),"recovery_observed":recovery_tick,"care_started":care_tick,"care_finished":care_finished_tick,"recovery_finished":recovery_finished_tick,"settled":settled_tick,"patient_departed":patient_departed_tick,"remodel_ready":remodel_ready_tick},"guidance":guidance,"equipment_handoff":equipment_handoff,"reserved_use":reserved_use,"recovery_use":recovery_use,"selected_plan":selected.to_record(),"bed_role_quotes":bed_role_quotes,"prepared":prepared.to_record(),"initial_block":blocked.get("reason"),"real_transfer":transfer,"promise_preserved":promise_preserved,"stay_at_transfer":recovery_stay,"final_block":still_blocked.get("reason"),"protected":protected,"no_retired_round_service":no_round,"nurse_moved_after_care":nurse_moved_after_care,"sequence_legal":sequence_legal,"completion":completion,"charges":charges,"charge_counts":charge_counts,"unique_settlement":unique_settlement,"same_case":same_case,"arrangement_retained":arrangement_retained,"validation":validation,"final_scene":final_scene})
 
 func _case_37(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -1682,7 +1714,7 @@ func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id
 	sim.world.facts.actors["patient_"+id].body_binding_id = binding.id
 	var visit: Dictionary = {"id":id,"actor_id":"patient_"+id,"disease_id":binding.disease_id,"binding_id":binding.id,
 		"requested_plan_id":"P_"+str(binding.disease_id)+"_COMMON","expression":"clear","personality_id":"PP01","anger":50.0,
-		"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"",
+		"phase":"arrival","diagnosis":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"",
 		"waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrival_tick":sim.world.sim_tick,"arrived_tick":sim.world.sim_tick,
 		"last_progress_tick":sim.world.sim_tick,"last_service_tick":sim.world.sim_tick,"arrival_key":"arrival_"+id}
 	sim.world.facts.visits[id] = visit
@@ -1850,7 +1882,7 @@ func _bed_blueprint_contract() -> Dictionary:
 				expected = [35+point.x,68+point.y]
 			var fit: Dictionary = sim.space.facility_quote(sim.world,bed.id,"bed_subject",["bed_nurse","bed_doctor"])
 			var row: Dictionary = {"bed_id":bed.id,"rotation":bed.rotation,"fit":fit.get("ok",false),"reason":fit.get("reason",""),"expected_care":expected,"operators":fit.get("operator_cells",[]),"footprint":fit.get("footprint",[])}
-			var usable: bool = fit.get("ok",false) and fit.get("operator_cells",[]).size()==2
+			var usable: bool = fit.get("ok",false) and fit.get("operator_cells",[]).size()>=1
 			if usable:
 				row.patient_route = sim.space.route(sim.world,"bed_subject",1,fit.patient_cell,[],{},true).ok
 				row.nurse_route = sim.space.route(sim.world,"bed_nurse",1,fit.operator_cells[0],[],{},true).ok
@@ -1908,7 +1940,7 @@ func _surgery_fixture() -> HospitalSimulation:
 		var staff: Dictionary = sim.world.facts.staff[str(data[0])]
 		staff.title_id = "DT04"
 		staff.abilities = {"diagnosis":4,"treatment":4,"care":0,"surgery":0 if data[0]=="round_doctor" else 4}
-		var duty: String = "round" if data[0]=="round_doctor" else "surgery"
+		var duty: String = "outpatient" if data[0]=="round_doctor" else "surgery"
 		staff.schedule = [{"kind":duty,"pools":[],"locked":false},{"kind":duty,"pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]
 	_add_staff(sim,"or_nurse","nurse",[42,76])
 	_add_staff(sim,"ward_nurse","nurse",[45,73])
@@ -1917,7 +1949,13 @@ func _surgery_fixture() -> HospitalSimulation:
 	sim.world.facts.staff.ward_nurse.certificates = ["q_ward"]
 	sim.world.facts.staff.ward_nurse.abilities.care = 4
 	for room: Dictionary in sim.world.facts.rooms.values():
-		if room.kind=="ward": sim.world.facts.staff.ward_nurse.ward_id = room.id
+		if room.kind=="operating_room":
+			for staff_id: String in ["surgeon","anesthetist","or_nurse"]:
+				var duty: String="work" if staff_id=="or_nurse" else "surgery"
+				sim.world.facts.staff[staff_id].schedule = [{"kind":duty,"pools":[room.id],"locked":false},{"kind":duty,"pools":[room.id],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+		elif room.kind=="ward":
+			sim.world.facts.staff.ward_nurse.ward_id = room.id
+			sim.world.facts.staff.ward_nurse.schedule = [{"kind":"work","pools":[room.id],"locked":false},{"kind":"work","pools":[room.id],"locked":false},{"kind":"rest","pools":[],"locked":false}]
 	for staff: Dictionary in sim.world.facts.staff.values():
 		if staff.role in ["doctor","nurse"]:
 			staff.base_prepared = true

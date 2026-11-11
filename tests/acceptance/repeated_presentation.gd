@@ -564,7 +564,7 @@ func run_import_overlay(t, content: HospitalContent, case_id: String = "CORE-54"
 	var old: String = "00000000-0000-4000-8000-000000005400"
 	var next: String = "00000000-0000-4000-8000-000000005401"
 	var staff: Array = [old+":a",old+":a:b",old+":prefix/worker", "external:worker"]
-	var facts: Dictionary = {"hospital_id":old,"staff":{},"departments":{"staff_consumed":{}}}
+	var facts: Dictionary = {"hospital_id":old,"staff":{},"patient_experience":{"staff_consumed":{}}}
 	for id: String in staff: facts.staff[id] = {"id":id}
 	for id: String in staff:
 		for source: String in [old+":course",old+"_job",old+"/receipt","external:source",""]:
@@ -574,6 +574,10 @@ func run_import_overlay(t, content: HospitalContent, case_id: String = "CORE-54"
 	var control: Dictionary = _original_remap(library,facts,old,next)
 	var imported: Dictionary = library._remap_hospital(facts,old,next)
 	var mapping: bool = imported==control and facts==before
+	var family: Dictionary={"hospital_id":old,"actors":{old+":patient":{"id":old+":patient"},old+":companion":{"id":old+":companion","relative_of":old+":patient","name":old+":patient"}},"visitors":{"stays":{old+":family":{"id":old+":family","actor_id":old+":companion","visit_id":old+":visit"}}}}
+	var family_before: Dictionary=family.duplicate(true)
+	var family_copy: Dictionary=library._remap_hospital(family,old,next)
+	var family_mapped: bool=family_copy.actors[next+":companion"].relative_of==next+":patient" and family_copy.visitors.stays[next+":family"].actor_id==next+":companion" and family_copy.actors[next+":companion"].name==old+":patient" and family==family_before
 	var overlay: HospitalBuildOverlay = HospitalBuildOverlay.new()
 	var cells: Array = [[34,66],[35,66],[34,66],[36,66]]
 	var blocked: Array = [[35,66],[35,66],[40,90]]
@@ -584,7 +588,7 @@ func run_import_overlay(t, content: HospitalContent, case_id: String = "CORE-54"
 	for index: int in cells.size():
 		var expected: Color = Color("b85550") if cells[index] in blocked else Color("4d719d")
 		for vertex: int in 8: geometry = geometry and colors[index*8+vertex].is_equal_approx(expected)
-	t.check(case_id,mapping and geometry,{"longest_staff_prefix_and_definition_rules":mapping,"irregular_blocked_colors":geometry,"scope":"pure identity rewrite and generated mesh arrays; durable import remains CORE-26/27"})
+	t.check(case_id,mapping and family_mapped and geometry,{"longest_staff_prefix_and_definition_rules":mapping,"family_patient_identity":family_mapped,"irregular_blocked_colors":geometry,"scope":"pure identity rewrite and generated mesh arrays; durable import remains CORE-26/27"})
 	overlay.free()
 
 func _original_remap(library: HospitalLibrary, value: Dictionary, old: String, next: String) -> Dictionary:
@@ -594,7 +598,7 @@ func _original_remap(library: HospitalLibrary, value: Dictionary, old: String, n
 	var staff: Array = value.staff.keys()
 	staff.sort_custom(func(a: String,b: String) -> bool: return a.length()>b.length())
 	var consumed: Dictionary = {}
-	for key: String in value.departments.staff_consumed:
+	for key: String in value.patient_experience.staff_consumed:
 		var mapped: String = key
 		for id: String in staff:
 			if key.begins_with(id+":"):
@@ -602,6 +606,6 @@ func _original_remap(library: HospitalLibrary, value: Dictionary, old: String, n
 				var mapped_source: String = next+source.substr(old.length()) if library._hospital_prefix(source,old) else source
 				mapped = str(ids.get(id,id))+":"+mapped_source
 				break
-		consumed[mapped] = value.departments.staff_consumed[key]
+		consumed[mapped] = value.patient_experience.staff_consumed[key]
 	rewritten.patient_experience.staff_consumed = consumed
 	return rewritten

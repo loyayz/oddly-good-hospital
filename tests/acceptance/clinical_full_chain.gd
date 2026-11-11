@@ -16,23 +16,30 @@ func run_selected(tree: SceneTree, selected: Array) -> Dictionary:
 		okay = okay and row.ok
 		_dispose_simulations()
 	return {"ok":okay,"cases":results,"fixture_failures":_fixture_failures,
-		"scope":"Real arrival, guidance, GP, required examinations, consultation and treatment; C-profile surgery includes full team gathering, instrument check, wake, escorted transfer, recovery, bedside nursing and direct discharge. Experience service stays enabled."}
+		"scope":"Real arrival, guidance, GP, diagnostic decision and treatment; C-profile surgery includes full team gathering, instrument check, wake, escorted transfer, recovery, bedside nursing and direct discharge. Experience service stays enabled."}
 
 func _chain(tree: SceneTree, mode: String) -> Dictionary:
 	var surgical: bool = mode!="OUTPATIENT"
 	var c: Dictionary = _context(surgical,surgical,true,[],true,2 if mode=="RESTORE" else 1)
 	if surgical:
 		# This declared initial hospital has one diagnostic table in gp. A
-		# diagnosis-2 GP doctor can legally perform both checks in that room;
+		# diagnosis-2 GP doctor can legally perform a requested check in that room;
 		# no extra table or nurse wildcard is added to the original load.
 		c.world.facts.staff[c.doctors[0]].abilities.diagnosis = 2
 		c.world.facts.staff[c.doctors[0]].abilities.treatment = 2
 		c.world.facts.staff.clin_surgeon.title_id = "DT03"
 		c.world.facts.staff.clin_surgeon.abilities.surgery = 3
 		c.world.facts.staff.clin_or_nurse.abilities.surgery = 2
+	if surgical:
+		for warmup: int in 1200:
+			if _surgery_staff_ready(c): break
+			_tick(c)
+			if warmup%100==99: await tree.process_frame
+		if not _surgery_staff_ready(c): return {"ok":false,"checks":{"actual_ward_or_nurse_ready":false},"state":_state(c)}
+	_seed_stream(c.world,"arrival",false,false,8000,3000)
 	var binding: String = "B_S22_D14_M14" if surgical else "B_S13_D09_M09"
 	var plan: String = "P_D14_SURGERY" if surgical else "P_D09_COMMON"
-	_seed_stream(c.world,"treatment",true,true,9600 if surgical else 9200,9800)
+	_seed_stream(c.world,"treatment",false,true,3200 if surgical else 4000,9600 if surgical else 9200)
 	var arrived: bool = _arrive(c,binding,plan)
 	var initial: Dictionary = {"validation":c.world.validate(_content),"arrived":arrived,"tick":c.world.sim_tick,
 		"staff":c.world.facts.staff.size(),"facilities":c.world.facts.facilities.size(),"care_beds":c.world.facility_ids("EQ05").size(),"research":c.world.facts.research.duplicate()}
@@ -96,8 +103,8 @@ func _chain(tree: SceneTree, mode: String) -> Dictionary:
 				care_at_bedside = care_at_bedside and c.sim.space.at(c.world,str(old.staff_ids[0]),int(bed.floor_id),bed.operator_cells[0])
 		var stay: Dictionary = _stay(c)
 		var recovery_delta: int = 0
-		if not before_stay.is_empty() and not stay.is_empty(): recovery_delta = maxi(0,int(before_stay.remaining_ticks)-int(stay.remaining_ticks))
-		elif before_stay.is_empty() and not stay.is_empty(): recovery_delta = 2400-int(stay.remaining_ticks)
+		if not before_stay.is_empty() and not stay.is_empty() and before_stay.get("phase","")=="recovery": recovery_delta = maxi(0,int(before_stay.remaining_ticks)-int(stay.remaining_ticks))
+
 		recovery += recovery_delta
 		if recovery_delta>0 and not stay.is_empty():
 			var nurse: Dictionary = c.world.facts.actors[stay.nurse_id]
@@ -122,7 +129,7 @@ func _chain(tree: SceneTree, mode: String) -> Dictionary:
 			await tree.process_frame
 	var attempt: Dictionary = c.world.facts.attempts.get(str(_visit(c).attempt_ids[0]),{}) if not _visit(c).attempt_ids.is_empty() else {}
 	var same_commitment: bool = not original_commitment.is_empty() and _commitments(c.world.facts.attempts)==original_commitment
-	var expected_income: int = 1260 if surgical else 235
+	var expected_income: int = 1225 if surgical else 235
 	var expected_work: int = int(expectation.get("work_ticks",-1))
 	var receipt: Dictionary = c.sim.services.experience.receipt(c.world,c.visit_id)
 	var charges: Array = receipt.get("charges",[])
@@ -141,7 +148,7 @@ func _chain(tree: SceneTree, mode: String) -> Dictionary:
 	var checks: Dictionary = {"legal_initial_world":arrived and initial.validation.is_empty(),"all_real_steps_valid":errors.is_empty(),
 		"actual_departure":finished and _visit(c).get("final_result","")=="cured","one_attempt":_visit(c).attempt_ids.size()==1,
 		"real_guidance":correct_guidance_work,
-		"one_gp_and_consult":int(c.started.get("gp",0))==1 and int(c.started.get("consult",0))==1,
+		"one_gp_without_extra_consult":int(c.started.get("gp",0))==1 and int(c.started.get("consult",0))==0,
 		"work_and_probability":not attempt.is_empty() and int(attempt.get("work_ticks",-2))==expected_work and int(work.get("surgery" if surgical else "outpatient",0))==expected_work and int(attempt.get("probability_bp",-1))==int(expectation.get("probability_bp",-2)),
 		"frozen_attempt":same_commitment,"single_supply_issue":_units_used(c)==(10 if surgical else 1),
 		"exact_income":_income(c)==expected_income,"receipt_and_patient_rating":not receipt.is_empty() and receipt_total==expected_income and charge_ids.size()==charges.size() and int(receipt.get("closed_tick",-1))>=0 and receipt.get("rating",{}).get("score")!=null,
@@ -149,7 +156,7 @@ func _chain(tree: SceneTree, mode: String) -> Dictionary:
 		"no_department_fact":not c.world.facts.has("departments"),"no_compulsory_round":not work.has("round") and not c.started.has("round"),
 		"real_nursing_handoffs":c.nursing_handoff_not_at_base.is_empty()}
 	if surgical:
-		checks.required_checks = int(c.started.get("spectrum",0))==1 and int(c.started.get("resonance",0))==1 and _visit(c).evidence_by_source=={"gp":44.0,"spectrum":37.0,"resonance":27.0}
+		checks.direct_diagnosis = int(c.started.get("spectrum",0))==0 and int(c.started.get("resonance",0))==0 and _visit(c).diagnosis.state=="diagnosed" and not _visit(c).diagnosis.insufficient
 		checks.full_wake_recovery_care = int(work.get("wake",0))==150 and recovery==2400 and int(work.get("care",0))==80 and care_at_bedside and c.group_seen
 		checks.handoff_before_clinical_work = int(c.nursing_handoff_ticks.get("clin_cover",0))>=60 and int(c.nursing_handoff_ticks.get("clin_or_nurse",0))>=60
 		checks.closed_or_safe_finish = closure.get("accepted",false) and closure.get("frozen_unchanged",false) and not c.world.facts.rooms.clin_or.open_intent and not closed_quote.get("ok",true)

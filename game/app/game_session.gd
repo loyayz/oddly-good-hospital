@@ -4,6 +4,10 @@ extends RefCounted
 signal tick_completed(result: TickResult)
 signal playback_changed()
 
+# Finish every started step. The wall-time budget only defers starting the
+# next synchronous step; its accumulated simulation time stays owed.
+const SYNCHRONOUS_BUDGET_USEC: int = 8000
+
 var simulation: HospitalSimulation
 var loading_session_id: String
 var requested_speed: int = 0
@@ -103,7 +107,8 @@ func advance(real_delta: float) -> Array[TickResult]:
 		running_slow = false
 		return results
 	_accumulator += maxf(real_delta,0.0)*actual_speed()
-	while _accumulator+0.000000001>=WorldState.TICK_SECONDS and results.size()<8:
+	var started: int = Time.get_ticks_usec()
+	while _accumulator+0.000000001>=WorldState.TICK_SECONDS and results.size()<8 and (results.is_empty() or Time.get_ticks_usec()-started<SYNCHRONOUS_BUDGET_USEC):
 		var result: TickResult = simulation.step_nonblocking()
 		_accumulator = maxf(0.0,_accumulator-WorldState.TICK_SECONDS)
 		if result==null:

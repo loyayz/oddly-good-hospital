@@ -3035,27 +3035,16 @@
   ],
   "profiles": {
     "A": {
-      "gp_confidence": 92,
-      "tests": [],
       "min_skill": 1,
       "base_success": 0.92,
       "supply_units": 1
     },
     "B": {
-      "gp_confidence": 62,
-      "tests": [
-        "spectrum"
-      ],
       "min_skill": 1,
       "base_success": 0.88,
       "supply_units": 2
     },
     "C": {
-      "gp_confidence": 42,
-      "tests": [
-        "spectrum",
-        "resonance"
-      ],
       "min_skill": 2,
       "base_success": 0.84,
       "supply_units": 3
@@ -12397,7 +12386,7 @@
         },
         "C": {
           "base_success": 0.93,
-          "recovery_seconds": 180,
+          "recovery_seconds": 0,
           "min_treatment": 3,
           "supply_units": 4
         }

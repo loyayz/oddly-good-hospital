@@ -2,32 +2,22 @@ extends "res://tests/acceptance/clinical_fixtures.gd"
 
 const ClinicalTiming = preload("res://tests/acceptance/clinical_timing.gd")
 
-class UnknownTransferEstimate extends HospitalSpace:
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-		if members.size()>1: return {"ok":false,"status":"estimate_unknown","reason":"controlled downstream estimate failure"}
-		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
-	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-		if members.size()>1: return {"ok":false,"status":"estimate_unknown","reason":"controlled downstream estimate failure"}
-		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
-
 const CASES: Dictionary = {
 	"CLIN-01":"docs/design/12-implementation-plan.md §10.1–10.2；入院直接导诊后医生接诊，Actor/Visit只建一次",
 	"CLIN-02":"docs/design/07-clinical-team.md §9、§14、§17；诊断池与治疗池由不同实际医生安全交接，D09首试成功实收235",
-	"CLIN-03":"docs/design/01-simulation.md §4；GP诊断2合法代检，C档证据44→81→108，检查各一次且不领包",
-	"CLIN-04":"docs/design/07-clinical-team.md §14；诊断3/奇想台49.2→93，省略共振全部副作用",
 	"CLIN-05":"docs/design/07-clinical-team.md §14；初诊按开工职称冻结，重复完成不重收25",
 	"CLIN-06":"docs/design/01-simulation.md §4；临床§6、§16；报价只读，常规/舒缓从同一未取整工时分别最终ceil一次",
-	"CLIN-07":"docs/design/07-clinical-team.md §5–6；C档能力/住院研究/覆盖不足不能开工",
+	"CLIN-07":"统一规格§15.1；C档治疗资格仍受限，舒缓不再要求住院研究、床或护理",
 	"CLIN-08":"docs/design/04-technical.md §6、§10；缺包不消费，补货按原票开工且不另扣采购现金",
 	"CLIN-09":"docs/design/07-clinical-team.md §15；首败自动接第二次，重试+15个百分点夹98%，初诊不重收",
 	"CLIN-10":"docs/design/07-clinical-team.md §14–15、§17；D09两次失败实收45、领2包、无第三次",
-	"CLIN-11":"docs/design/07-clinical-team.md §6、§15；院长指定舒缓在短缺及首败后保留意图",
+	"CLIN-11":"统一规格§15.1；手选舒缓在短缺中保留，首败后医生自动选第二方案",
 	"CLIN-12":"docs/design/01-simulation.md §1、§4；暂停与流式恢复保留Attempt、余量、随机流、费用和领包",
 	"CLIN-13":"docs/design/07-clinical-team.md §14；D09舒缓治愈费220、D14手术1080，快照不随后改重算",
 	"CLIN-14":"docs/design/07-clinical-team.md §5、§8；三位互异术组及另一位病区覆盖护士缺一不可",
-	"CLIN-15":"docs/design/07-clinical-team.md §8；准备原子预留8包/床/团队，开术前不领包、不计尝试",
-	"CLIN-16":"docs/design/07-clinical-team.md §8；取消/30秒到齐过期释放未承诺资源，保留原票",
-	"CLIN-17":"docs/design/04-technical.md §10；两术室争一床，原票序只允许一个完整资源束",
+	"CLIN-15":"统一规格§15.2；已住院原床保留，准备原子预留8包与术组，开术前不领包、不计尝试",
+	"CLIN-16":"统一规格§15.2；真实到齐后30秒准备窗口，过期释放术组与材料预约并安全回原床",
+	"CLIN-17":"统一规格§15.2；住院原床不能被第二位患者或术室准备重复承诺",
 	"CLIN-18":"docs/design/07-clinical-team.md §5、§8；开术冻结结果/120秒/180秒及四段15/45/25/15，恢复不重领",
 	"CLIN-19":"docs/design/07-clinical-team.md §8、§14；术毕仍须15秒苏醒，完成才收60且不提前治愈",
 	"CLIN-20":"docs/design/07-clinical-team.md §8；手术护士真实陪同转床，同Attempt交接床承诺",
@@ -39,19 +29,17 @@ const CASES: Dictionary = {
 	"CLIN-26":"docs/design/07-clinical-team.md §8；床故障无备用120秒安全转诊，只保留已完成术台60",
 	"CLIN-27":"docs/design/07-clinical-team.md §8.1；缺员120秒提示/300秒转诊，改派走路不重置无进展",
 	"CLIN-28":"docs/design/07-clinical-team.md §10、§14；真实入床/护理/恢复/结算边界冷恢复并唯一收费",
-	"CLIN-29":"docs/design/07-clinical-team.md §5、§8、§14；C舒缓真实180秒恢复与护理后收60+660，领4包，无查房等待",
-	"CLIN-30":"docs/design/07-clinical-team.md §8.2；无等候点仅有请求，条件齐备后独立亲友从入口真实到院",
-	"CLIN-31":"docs/design/07-clinical-team.md §8.2；每窗口意向一次，换床/恢复不重抽，实际床边才起30秒",
-	"CLIN-32":"docs/design/07-clinical-team.md §8.2；拒绝/医疗让位/出院安全退出，原停留不重启且空间不早释放",
 	"CLIN-33":"docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊到齐预约独占职员，原票接续，床通行权限不冒充工作，路线失败不占资源",
 	"CLIN-34":"docs/design/07-clinical-team.md §6；指定医生与无指定均按原序选择首个完整可用报价，失败继续搜索；结构/实际限制及完整事实随机流不变",
 	"CLIN-37":"docs/design/07-clinical-team.md §8.1；护理后真实离位保留床边缓冲、占位与原班表，旧目标受阻可安全改选，恢复不提前释放",
 	"CLIN-36":"docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊有效预约保持，失效换台不遗留旧票；转诊后真实安全离岗并释放空间",
-	"CLIN-35":"docs/design/07-clinical-team.md §6；推荐与短缺查询批次复用保留全部合法方案、顺序与只读事实"
+	"CLIN-35":"docs/design/07-clinical-team.md §6；推荐与短缺查询批次复用保留全部合法方案、顺序与只读事实",
+	"CLIN-38":"统一规格§15.2；床位预留仍计门诊，真实入床才扣除，缺术组不触发普通弃候"
 }
 
 const PREREQUISITES: Dictionary = {
 	"CLIN-37": ["ward_after_care"],
+	"CLIN-38": ["surgery_queue"],
 	"CLIN-05": [
 		"gp_started"
 	],
@@ -87,7 +75,7 @@ const PREREQUISITES: Dictionary = {
 		"surgery_queue"
 	],
 	"CLIN-16": [
-		"surgery_prepared"
+		"surgery_setup"
 	],
 	"CLIN-17": [
 		"surgery_queue"
@@ -129,17 +117,6 @@ const PREREQUISITES: Dictionary = {
 		"ward_before_settlement",
 		"ward_settled"
 	],
-	"CLIN-29": [
-		"c_diagnosed_gentle"
-	],
-	"CLIN-31": [
-		"ward_entered"
-	],
-	"CLIN-32": [
-		"visitor_visiting",
-		"ward_entered",
-		"companion_entered"
-	]
 }
 
 func run(t) -> void:
@@ -194,7 +171,7 @@ func _case_35(t) -> void:
 
 func _case_01(t) -> void:
 	var c: Dictionary = _context()
-	_seed_stream(c.world,"treatment",true,true,9200,9800)
+	_seed_stream(c.world,"treatment",false,true,4000,9200)
 	var arrived: bool = _arrive(c)
 	var duplicate: CommandResult = CommandResult.new(false,"not_checked")
 	var request: Dictionary = {"arrival_key":_visit(c).get("arrival_key",""),"binding_id":"B_S13_D09_M09","requested_plan_id":"P_D09_COMMON","personality_id":"PP01"}
@@ -207,7 +184,7 @@ func _case_02(t) -> void:
 	# This is the ordinary outpatient integration case. Its actual GP and
 	# treatment handoff run together; quote/boundary cases use checkpoints.
 	var c: Dictionary = _context()
-	_seed_stream(c.world,"treatment",true,true,9200,9800)
+	_seed_stream(c.world,"treatment",false,true,4000,9200)
 	var arrived: bool = _arrive(c)
 	var gp: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="gp")
 	c.queue_gp_session = _session(c,"gp").duplicate(true)
@@ -224,12 +201,6 @@ func _case_02(t) -> void:
 		actual_handoff = c.sim.clinic._schedule_allows(c.world,gp_id,"gp",_visit(c),str(actual_gp.facility_id)) and c.sim.clinic._schedule_allows(c.world,treatment_id,"outpatient",_visit(c),str(actual_treatment.facility_id)) and not c.sim.clinic._schedule_allows(c.world,gp_id,"outpatient",_visit(c),str(actual_treatment.facility_id))
 	t.check("CLIN-02",departed and actual_handoff and _visit(c).get("final_result","")=="cured" and _income(c)==235 and _income(c,"consultation")==20 and _income(c,"gp")==5 and _income(c,"outpatient")==10 and _income(c,"cure")==200 and ids.size()==1 and _units_used(c)==1 and c.world.facts.sessions.is_empty() and c.world.facts.ward_stays.is_empty(),{"actual_gp_doctor":gp_id,"actual_treatment_doctor":treatment_id,"legal_separate_pool_handoff":actual_handoff,"state":_state(c)})
 
-func _case_03(t) -> void:
-	await _diagnosis_chain(t,false)
-
-func _case_04(t) -> void:
-	await _diagnosis_chain(t,true)
-
 func _case_05(t) -> void:
 	if not _require(t,["CLIN-05"],"gp_started"): return
 	var frozen: Dictionary = _copy("gp_started")
@@ -237,12 +208,12 @@ func _case_05(t) -> void:
 	var doctor_id: String = str(original.get("staff_ids",[""])[0])
 	if frozen.world.facts.staff.has(doctor_id): frozen.world.facts.staff[doctor_id].title_id = "DT04"
 	frozen.world.facts.facilities[original.facility_id].grade = 2
-	var completed: bool = await _until(t,frozen,func()->bool: return _visit(frozen).get("evidence_by_source",{}).has("gp"))
+	var completed: bool = await _until(t,frozen,func()->bool: return _visit(frozen).get("diagnosis",{}).get("gp_completed",false))
 	var paid: int = _income(frozen)
 	# Late completion delivery goes through the existing Session identity guard.
 	frozen.sim.clinic._complete_service(frozen.world,original)
 	HospitalLedger.settle(frozen.world)
-	t.check("CLIN-05",completed and int(original.get("doctor_fee",-1))==20 and paid==25 and _income(frozen)==25 and _visit(frozen).evidence_by_source.size()==1,{"quoted":original,"income":_income(frozen),"state":_state(frozen)})
+	t.check("CLIN-05",completed and int(original.get("doctor_fee",-1))==20 and paid==25 and _income(frozen)==25 and _visit(frozen).diagnosis.gp_completed,{"quoted":original,"income":_income(frozen),"state":_state(frozen)})
 
 func _case_06(t) -> void:
 	var c: Dictionary = _copy("outpatient_queue")
@@ -274,18 +245,27 @@ func _case_06(t) -> void:
 	t.check("CLIN-06",oracle_ready and ordinary.get("ok",false) and gentle.get("ok",false) and int(ordinary.get("probability_bp",-1))==9200 and int(gentle.get("probability_bp",-1))==9700 and int(ordinary.get("supply_units",-1))==1 and int(gentle.get("supply_units",-1))==2 and int(ordinary.get("work_ticks",-1))==expected_common_ticks and int(gentle.get("work_ticks",-1))==expected_gentle_ticks and int(ordinary.get("facility_fee",-1))==10 and int(gentle.get("facility_fee",-1))==10 and int(ordinary.get("cure_fee",-1))==200 and int(gentle.get("cure_fee",-1))==220 and gentle==repeated and c.world.freeze()==before,{"ordinary":ordinary,"gentle":gentle,"oracle_inputs":{"operator_id":operator_id,"treatment_level":level,"equipment_grade":grade,"fatigue":fatigue},"unrounded_standard_seconds":unrounded_seconds,"expected_common_ticks":expected_common_ticks,"expected_gentle_ticks":expected_gentle_ticks,"world_changed":c.world.freeze()!=before})
 
 func _case_07(t) -> void:
-	var c: Dictionary = _copy("c_diagnosed")
+	var c: Dictionary=_copy("c_diagnosed")
 	for staff: Dictionary in c.world.facts.staff.values():
-		if staff.role=="doctor": staff.abilities.treatment = 1
-	var too_low: Dictionary = c.sim.clinic.plan_quote(c.world,c.visit_id,"P_D14_COMMON")
+		if staff.role=="doctor": staff.abilities.treatment=1
+	c.world.touch()
+	var too_low: Dictionary=c.sim.clinic.plan_quote(c.world,c.visit_id,"P_D14_COMMON")
 	for staff: Dictionary in c.world.facts.staff.values():
-		if staff.role=="doctor": staff.abilities.treatment = 3
+		if staff.role=="doctor": staff.abilities.treatment=3
 	c.world.facts.research.erase("R33")
-	var missing_research: Dictionary = c.sim.clinic.plan_quote(c.world,c.visit_id,"P_D14_GENTLE")
-	c.world.facts.research.append("R33")
-	var missing_bed: Dictionary = c.sim.clinic.plan_quote(c.world,c.visit_id,"P_D14_GENTLE")
-	var rejected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"})
-	t.check("CLIN-07",not too_low.get("ok",true) and not missing_research.get("ok",true) and not missing_bed.get("ok",true) and not rejected.accepted and c.world.facts.attempts.is_empty() and c.world.facts.preparations.is_empty() and _units_used(c)==0,{"ability":too_low,"research":missing_research,"bed":missing_bed,"command":rejected.to_record()})
+	c.world.touch()
+	var gentle: Dictionary=c.sim.clinic.plan_quote(c.world,c.visit_id,"P_D14_GENTLE")
+	var required: Array=_content.definition("treatment_plans","P_D14_GENTLE").requires_research
+	var other_research_guard: bool=true
+	if not required.is_empty():
+		var original: Array=c.world.facts.research.duplicate()
+		c.world.facts.research.erase(required[0])
+		c.world.touch()
+		other_research_guard=not c.sim.clinic.plan_quote(c.world,c.visit_id,"P_D14_GENTLE").ok
+		c.world.facts.research=original
+		c.world.touch()
+	var selected: CommandResult=_command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"})
+	t.check("CLIN-07",not too_low.get("ok",true) and gentle.get("ok",false) and int(gentle.get("recovery_ticks",-1))==0 and not gentle.has("bed_id") and selected.accepted and other_research_guard and c.world.facts.ward_stays.is_empty() and c.world.facts.attempts.is_empty() and _units_used(c)==0,{"ability":too_low,"gentle_without_R33_bed_or_nurse":gentle,"other_research_preserved":other_research_guard,"command":selected.to_record()})
 
 func _case_08(t) -> void:
 	var short: Dictionary = _copy("outpatient_queue")
@@ -308,13 +288,13 @@ func _case_08(t) -> void:
 func _case_09(t) -> void:
 	var retry: Dictionary = _copy("outpatient_queue")
 	_seed_stream(retry.world,"treatment",false,true,9200,9800)
-	# Doctor ownership exercises automatic consultation after failure.
+	# Doctor ownership exercises automatic plan selection after failure.
 	_visit(retry).plan_decision.source = "doctor"
 	var twice: bool = await _until(t,retry,func()->bool: return _visit(retry).attempt_ids.size()==2,2600)
 	var ids: Array = _visit(retry).attempt_ids
 	var first: Dictionary = retry.world.facts.attempts.get(ids[0],{}) if ids.size()>0 else {}
 	var second: Dictionary = retry.world.facts.attempts.get(ids[1],{}) if ids.size()>1 else {}
-	t.check("CLIN-09",twice and not first.get("result",true) and second.get("result",false) and int(second.get("probability_bp",-1))==9800 and _units_used(retry)==2 and _income(retry,"consultation")==20 and _income(retry,"gp")==5 and int(retry.started.get("consult",0))==2,{"first":first,"second":second,"state":_state(retry)})
+	t.check("CLIN-09",twice and not first.get("result",true) and second.get("result",false) and int(second.get("probability_bp",-1))==9800 and _units_used(retry)==2 and _income(retry,"consultation")==20 and _income(retry,"gp")==5 and int(retry.started.get("consult",0))==0,{"first":first,"second":second,"state":_state(retry)})
 
 func _case_10(t) -> void:
 	var failed: Dictionary = _copy("outpatient_queue")
@@ -325,19 +305,22 @@ func _case_10(t) -> void:
 	t.check("CLIN-10",departed and _visit(failed).attempt_ids.size()==2 and _visit(failed).get("final_result","")=="referred" and _income(failed)==45 and _income(failed,"cure")==0 and _units_used(failed)==2 and failed.world.facts.ledger.entries==at_end,{"income":_income(failed),"used":_units_used(failed),"state":_state(failed)})
 
 func _case_11(t) -> void:
-	var manual: Dictionary = _copy("outpatient_queue")
-	var selected: CommandResult = _command(manual,"clinical_select_plan",{"visit_id":manual.visit_id,"plan_id":"P_D09_GENTLE"})
-	_seed_stream(manual.world,"treatment",false,true,9700,9800)
-	manual.world.facts.inventory.units = 0
-	var ticket: String = str(_visit(manual).ticket_id)
-	var revision: int = int(_visit(manual).plan_decision.get("revision",-1))
+	var manual: Dictionary=_copy("outpatient_queue")
+	var selected: CommandResult=_command(manual,"clinical_select_plan",{"visit_id":manual.visit_id,"plan_id":"P_D09_GENTLE"})
+	var quote: Dictionary=manual.sim.clinic.plan_quote(manual.world,manual.visit_id,"P_D09_GENTLE")
+	_seed_stream(manual.world,"treatment",false,true,int(quote.get("probability_bp",9800)),9800)
+	manual.world.facts.inventory.units=0
+	var ticket: String=str(_visit(manual).ticket_id)
+	var revision: int=int(_visit(manual).plan_decision.get("revision",-1))
 	await _steps(t,manual,20)
-	var preserved: bool = _visit(manual).plan_decision.get("plan_id","")=="P_D09_GENTLE" and _visit(manual).ticket_id==ticket and int(_visit(manual).plan_decision.get("revision",-2))==revision and manual.world.facts.preparations.is_empty()
-	var purchase: CommandResult = _command(manual,"purchase_supplies",{"units":4,"order_id":"clinical_manual_supply"})
-	var repeated: bool = purchase.accepted and await _until(t,manual,func()->bool: return _visit(manual).attempt_ids.size()==2,2800)
-	var all_gentle: bool = true
-	for attempt_id: String in _visit(manual).attempt_ids: all_gentle = all_gentle and manual.world.facts.attempts[attempt_id].plan_id=="P_D09_GENTLE"
-	t.check("CLIN-11",selected.accepted and preserved and repeated and all_gentle and _visit(manual).plan_decision.get("source","")=="director" and int(manual.started.get("consult",0))==1 and _units_used(manual)==4,{"preserved_during_shortage":preserved,"state":_state(manual)})
+	var preserved: bool=_visit(manual).plan_decision.get("plan_id","")=="P_D09_GENTLE" and _visit(manual).ticket_id==ticket and int(_visit(manual).plan_decision.get("revision",-2))==revision and manual.world.facts.preparations.is_empty()
+	var purchase: CommandResult=_command(manual,"purchase_supplies",{"units":4,"order_id":"clinical_manual_supply"})
+	var repeated: bool=purchase.accepted and await _until(t,manual,func()->bool:return _visit(manual).attempt_ids.size()==2,2800)
+	var ids: Array=_visit(manual).attempt_ids
+	var first: Dictionary=manual.world.facts.attempts.get(str(ids[0]),{}) if ids.size()>0 else {}
+	var second: Dictionary=manual.world.facts.attempts.get(str(ids[1]),{}) if ids.size()>1 else {}
+	var legal_second: bool=not second.is_empty() and _content.definition("treatment_plans",str(second.plan_id)).disease_id=="D09" and _visit(manual).plan_decision.get("source","")=="doctor"
+	t.check("CLIN-11",selected.accepted and preserved and repeated and first.get("plan_id","")=="P_D09_GENTLE" and not first.get("result",true) and legal_second and int(manual.started.get("gp",0))==1 and int(manual.started.get("consult",0))==0 and _units_used(manual)==int(first.get("supply_units",0))+int(second.get("supply_units",0)),{"preserved_during_shortage":preserved,"automatic_second_plan":legal_second,"first":first,"second":second,"state":_state(manual)})
 
 func _case_12(t) -> void:
 	var c: Dictionary = _copy("outpatient_started")
@@ -451,13 +434,13 @@ func _case_15(t) -> void:
 	timing.finish("real_reservation",clock)
 	var prepared: bool = c.world.facts.preparations.has(c.visit_id)
 	var preparation: Dictionary = c.world.facts.preparations.get(c.visit_id,{}).duplicate(true)
-	t.check("CLIN-15",supply_boundary and prepared and int(preparation.get("supply_units",-1))==8 and int(preparation.get("setup_remaining_ticks",-1))==80 and int(preparation.get("deadline_tick",-1))-c.world.sim_tick==299 and preparation.get("staff_ids",[]).size()==3 and not str(preparation.get("bed_id","")).is_empty() and c.sim.services.supplies.reserved(c.world)==8 and c.world.facts.attempts.is_empty() and _units_used(c)==0 and int(c.world.facts.inventory.units)==60 and _income(c)==25 and int(c.world.facts.staff.clin_or_nurse.practice.surgery)==0,{"supply_boundary":supply_boundary,"short_requests":short_requests,"enough_requests":enough_requests,"preparation":preparation,"state":_state(c),"timing":timing.report()})
+	t.check("CLIN-15",supply_boundary and prepared and int(preparation.get("supply_units",-1))==8 and int(preparation.get("setup_remaining_ticks",-1))==80 and int(preparation.get("deadline_tick",0))==-1 and preparation.get("staff_ids",[]).size()==3 and not str(preparation.get("bed_id","")).is_empty() and c.sim.services.supplies.reserved(c.world)==8 and c.world.facts.attempts.is_empty() and _units_used(c)==0 and int(c.world.facts.inventory.units)==60 and _income(c)==25 and int(c.world.facts.staff.clin_or_nurse.practice.surgery)==0,{"supply_boundary":supply_boundary,"short_requests":short_requests,"enough_requests":enough_requests,"preparation":preparation,"state":_state(c),"timing":timing.report()})
 
 func _case_16(t) -> void:
 	var timing: RefCounted = ClinicalTiming.new()
 	var clock: int = Time.get_ticks_usec()
-	var cancel: Dictionary = _copy("surgery_prepared")
-	var expiry: Dictionary = _copy("surgery_prepared")
+	var cancel: Dictionary = _copy("surgery_setup")
+	var expiry: Dictionary = _copy("surgery_setup")
 	var old_ticket: String = str(_visit(cancel).ticket_id)
 	var expiry_ticket: String = str(_visit(expiry).ticket_id)
 	var deadline: int = int(expiry.world.facts.preparations[expiry.visit_id].deadline_tick)
@@ -485,52 +468,25 @@ func _case_16(t) -> void:
 	t.check("CLIN-16",cancelled and before_deadline and expired,{"cancelled_without_effects":cancelled,"retained_before_deadline":before_deadline,"expired_at_deadline":expired,"dispatch_ticks":[deadline-1,deadline],"state":_state(expiry),"timing":timing.report()})
 
 func _case_17(t) -> void:
-	var timing: RefCounted = ClinicalTiming.new()
-	var clock: int = Time.get_ticks_usec()
-	var race: Dictionary = _copy("surgery_queue")
-	timing.finish("input_copy",clock)
-	clock = Time.get_ticks_usec()
-	var observation_only: bool = timing.attach(race.sim)
-	timing.finish("timing_install",clock)
-	if not observation_only:
-		t.check("CLIN-17",false,{"timing_changed_facts":true,"timing":timing.report()})
-		return
-	clock = Time.get_ticks_usec()
-	race.world.facts.facilities.erase("clin_ward_1")
-	race.world.facts.floors.overrides["1"].plots.append([0,2])
-	_add_layout(race.world,"or_standard","clin_second_or",[19,65])
-	_add_worker(race.world,"second_surgeon","doctor",[20,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02")
-	_add_worker(race.world,"second_anesthesia","doctor",[24,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02")
-	_add_worker(race.world,"second_or_nurse","nurse",[28,75],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":1})
-	race.world.facts.staff.second_or_nurse.certificates = ["q_or","q_ward"]
-	var second_visit: String = _waiting_case(race,[49,94])
-	var first_ticket: String = str(_visit(race).ticket_id)
-	var second_ticket: String = str(race.world.facts.visits[second_visit].ticket_id)
-	_declare_call_ready(race,[race.visit_id,second_visit])
-	timing.finish("competition_input",clock)
-	clock = Time.get_ticks_usec()
-	var input_validation: String = _validate_rule_input(race,"CLIN-17","two_call_ready_surgical_patients")
-	timing.finish("input_validation",clock)
-	var call_ready: bool = input_validation.is_empty() and race.world.facts.preparations.is_empty() and first_ticket<second_ticket
-	for visit_id: String in [race.visit_id,second_visit]:
-		var visit: Dictionary = race.world.facts.visits[visit_id]
-		call_ready = call_ready and not race.world.facts.moves.has(visit.actor_id) and not race.world.facts.waiting_life.needs.has(visit_id) and race.world.facts.tickets[visit.ticket_id].get("pause_reasons",{}).is_empty()
-	if not call_ready:
-		t.check("CLIN-17",false,{"input_validation":input_validation,"call_ready":call_ready,"timing":timing.report()})
-		return
-	var digest: HashingContext = HashingContext.new()
-	digest.start(HashingContext.HASH_SHA256)
-	digest.update(var_to_bytes(race.world.freeze()))
-	var input_sha256: String = digest.finish().hex_encode()
-	clock = Time.get_ticks_usec()
+	var race: Dictionary=_copy("surgery_queue")
+	var stay_id: String=str(_stay(race).id)
+	var bed_id: String=str(_stay(race).bed_id)
+	for id: String in race.world.facility_ids("EQ05").duplicate():
+		if id!=bed_id: race.world.facts.facilities.erase(id)
+	var second_id: String=_waiting_case(race,[49,94])
+	race.world.touch()
+	var original: Dictionary=_stay(race).duplicate(true)
+	var later: Dictionary=race.world.facts.visits[second_id]
+	var original_ticket: Dictionary=race.world.facts.tickets[later.ticket_id].duplicate(true)
+	var before: Dictionary=race.world.freeze()
+	var quote: Dictionary=race.sim.clinic._compatible_bed(race.world,later,1,[])
+	var read_only: bool=not quote.ok and before==race.world.freeze()
+	var validation: String=race.world.validate(_content)
 	await _steps(t,race,1)
-	timing.finish("formal_dispatch_step",clock)
-	var first_prepared: Dictionary = race.world.facts.preparations.get(race.visit_id,{})
-	var later: Dictionary = race.world.facts.visits[second_visit]
-	clock = Time.get_ticks_usec()
-	var later_quote: Dictionary = race.sim.clinic._surgery_quote(race.world,later,["second_surgeon","second_anesthesia","second_or_nurse"],{"facility_id":"clin_second_or_0"})
-	timing.finish("loser_quote",clock)
-	t.check("CLIN-17",race.world.facts.preparations.size()==1 and not first_prepared.is_empty() and not race.world.facts.preparations.has(second_visit) and str(later.ticket_id)==second_ticket and not later_quote.get("ok",true) and str(later_quote.get("reason","")).contains("床") and race.world.facts.attempts.is_empty() and _units_used(race)==0 and race.sim.services.supplies.reserved(race.world)==8,{"input_sha256":input_sha256,"call_ready_input":call_ready,"first_ticket":first_ticket,"second_ticket":second_ticket,"later_quote":later_quote,"state":_state(race),"timing":timing.report()})
+	var stays: Array=[]
+	for stay: Dictionary in race.world.facts.ward_stays.values():
+		if stay.bed_id==bed_id: stays.append(stay.id)
+	t.check("CLIN-17",validation.is_empty() and race.world.validate(_content).is_empty() and read_only and stays==[stay_id] and _stay(race).visit_id==original.visit_id and not HospitalClinic.Flow.ward_stay(race.world,second_id).has("admitted_tick") and later.ticket_id==original_ticket.id and race.world.facts.tickets[later.ticket_id].enqueued_tick==original_ticket.enqueued_tick and _units_used(race)==0 and race.world.facts.attempts.is_empty(),{"checks":{"bed_owner_unchanged":stays==[stay_id],"second_not_admitted":HospitalClinic.Flow.ward_stay(race.world,second_id).is_empty(),"quote_read_only":read_only},"input_validation":validation,"later_bed_quote":quote,"state":_state(race)})
 
 func _case_18(t) -> void:
 	# Surgical integration retains real gathering, setup and all four work beats.
@@ -694,40 +650,21 @@ func _case_25(t) -> void:
 	var old_progress: int = int(_stay(transfer).last_progress_tick)
 	var switched: CommandResult = _command(transfer,"clinical_transfer_bed",{"visit_id":transfer.visit_id,"bed_id":"clin_ward_1"})
 	var preserved_immediately: bool = switched.accepted and int(_stay(transfer).remaining_ticks)==old_remaining and int(_stay(transfer).last_progress_tick)==old_progress and bool(_stay(transfer).care_completed)
-	var projection: Dictionary = {"initial":_transfer_projection(transfer,original_bed),"exit":false,"freed":false}
+	var projection: Dictionary = {"initial":transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed),"exit":false,"freed":false}
 	var initial_cell: Array = transfer.world.facts.actors[_visit(transfer).actor_id].location.cell.duplicate()
 	var arrived: bool = switched.accepted and await _until(t,transfer,func()->bool:
 		if not projection.exit and transfer.world.facts.actors[_visit(transfer).actor_id].location.cell!=initial_cell and transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed):
-			projection.exit = _transfer_projection(transfer,original_bed)
+			projection.exit = transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed)
 		if not projection.freed and _stay(transfer).get("phase","")=="transfer" and not transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed):
-			projection.freed = _transfer_projection(transfer,original_bed)
+			projection.freed = not transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed)
 		return _stay(transfer).get("phase","")=="recovery",800)
-	projection.released = arrived and _transfer_projection(transfer,original_bed)
+	projection.released = arrived and not _stay(transfer).has("transfer_from_bed_id")
 	var no_transfer_work: bool = arrived and int(_stay(transfer).remaining_ticks)>=old_remaining-1
 	await _until(t,transfer,func()->bool: return not transfer.sim.clinic.staff_busy(transfer.world,str(_stay(transfer).nurse_id)),200)
 	var return_remaining: int = int(_stay(transfer).get("remaining_ticks",-1))
 	var returned: CommandResult = _command(transfer,"clinical_transfer_bed",{"visit_id":transfer.visit_id,"bed_id":original_bed})
 	var back: bool = returned.accepted and await _until(t,transfer,func()->bool: return _stay(transfer).get("phase","")=="recovery",800)
 	t.check("CLIN-25",projection.initial and projection.exit and projection.freed and projection.released and preserved_immediately and no_transfer_work and back and str(_stay(transfer).attempt_id)==original_attempt and bool(_stay(transfer).care_completed) and int(_stay(transfer).remaining_ticks)>=return_remaining-1 and is_equal_approx(float(transfer.world.facts.facilities[original_bed].condition),old_condition) and transfer.world.facts.facilities[original_bed].use_receipts.size()==1 and _units_used(transfer)==8 and _income(transfer,"ward")==0 and _income(transfer,"cure")==0,{"projection":projection,"immediate_preservation":preserved_immediately,"no_work_while_transferring":no_transfer_work,"outward":switched.to_record(),"return":returned.to_record(),"state":_state(transfer)})
-
-func _transfer_projection(c: Dictionary, old_bed: String) -> bool:
-	var facts: Dictionary = c.world.freeze()
-	var stay: Dictionary = _stay(c)
-	var actual: Dictionary = c.sim.clinic.remaining_commitments(c.world)
-	var capture: ArrivalPreparation = ArrivalPreparation.new(_content)
-	var input: Dictionary = capture._capture(c.world,true,-1)
-	var copied: Dictionary = c.sim.clinic.remaining_commitments(WorldState.new(input.facts))
-	capture.dispose()
-	var table_id: String = c.world.facts.attempts[stay.attempt_id].facility_id
-	var overlapping: bool = c.sim.space.overlaps_facility(c.world,_visit(c).actor_id,old_bed)
-	var failure_preserved: bool = true
-	if stay.phase=="transfer":
-		var geometry: HospitalSpace = c.sim.clinic.space
-		c.sim.clinic.space = UnknownTransferEstimate.new(_content)
-		var failed: Dictionary = c.sim.clinic.remaining_commitments(c.world)
-		c.sim.clinic.space = geometry
-		failure_preserved = int(failed.resources.get("facility:"+old_bed,0))==int(actual.resources.get("facility:"+old_bed,0)) and int(failed.resources.get("facility:"+table_id,0))==0 and int(failed.resources.get("facility:"+str(stay.bed_id),0))>=WorldState.TICKS_PER_DAY
-	return failure_preserved and actual==copied and c.world.freeze()==facts and int(actual.resources.get("facility:"+table_id,0))==0 and (int(actual.resources.get("facility:"+old_bed,0))>0)==overlapping and int(actual.resources.get("facility:"+str(stay.bed_id),0))>0
 
 func _case_26(t) -> void:
 	var fault: Dictionary = _copy("ward_after_care")
@@ -811,163 +748,83 @@ func _positive_entries(c: Dictionary) -> Dictionary:
 		if int(entry.amount)>0: entries[key] = entry.duplicate(true)
 	return entries
 
-func _case_29(t) -> void:
-	var timing: RefCounted = ClinicalTiming.new()
-	var clock: int = Time.get_ticks_usec()
-	var c: Dictionary = _copy("c_diagnosed_gentle")
-	var original_actors: Dictionary = c.world.facts.actors.duplicate(true)
-	_add_layout(c.world,"ward_two_beds","clin_ward",[42,72])
-	_add_worker(c.world,"clin_cover","nurse",[43,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","clin_ward")
-	# Retain the original extra worker without a removed clinical round duty.
-	_add_worker(c.world,"clin_round","doctor",[51,79],"outpatient",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
-	c.world.facts.staff[c.doctors[1]].abilities.treatment = 3
-	c.world.touch()
-	c.sim._ensure_services()
-	var original_actors_unchanged: bool = true
-	for id: String in original_actors: original_actors_unchanged = original_actors_unchanged and c.world.facts.actors[id]==original_actors[id]
-	var input_validation: String = c.world.validate(_content)
-	timing.finish("diagnosed_and_built_ward_input",clock)
-	if not input_validation.is_empty() or not original_actors_unchanged:
-		t.check("CLIN-29",false,{"input_validation":input_validation,"original_actors_unchanged":original_actors_unchanged,"timing":timing.report()});return
-	clock = Time.get_ticks_usec()
-	var coverage_ready: bool = await _until(t,c,func()->bool:return bool(_ward_nurse_return_state(c).ready),900)
-	var coverage_at_selection: Dictionary = _ward_nurse_return_state(c)
-	timing.finish("actual_nursing_base_handoff",clock)
-	clock = Time.get_ticks_usec()
-	_seed_stream(c.world,"treatment",true,true,9700,9800)
-	var diagnosed: bool = not _visit(c).evidence_by_source.is_empty() and _visit(c).attempt_ids.is_empty()
-	var selected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"}) if diagnosed and coverage_ready else CommandResult.new(false,"ward_coverage_missing","真实护理交接尚未完成")
-	if not selected.accepted:
-		t.check("CLIN-29",false,{"selection":selected.to_record(),"coverage_at_selection":coverage_at_selection,"state":_state(c),"timing":timing.report()});return
-	var began: bool = await _until(t,c,func()->bool:return _visit(c).phase=="outpatient",1800)
-	var attempt: Dictionary = c.world.facts.attempts.values()[0].duplicate(true) if began else {}
-	timing.finish("select_and_actual_start_outpatient",clock)
-	clock = Time.get_ticks_usec()
-	var operated: bool = began and await _until(t,c,func()->bool:return _visit(c).phase=="transfer",1300)
-	timing.finish("actual_outpatient_work",clock)
-	clock = Time.get_ticks_usec()
-	var unrevealed: bool = operated and _income(c,"ward")==0 and _income(c,"cure")==0 and _visit(c).get("final_result","").is_empty()
-	var recovery: Dictionary = {"previous":1800,"work_ticks":0,"advancing_steps":0,"valid":true,"no_early_charge":true,"care_at_bedside":true}
-	var completed: bool = operated and await _until(t,c,func()->bool:
-		var error: String = c.world.validate(_content)
-		if not error.is_empty(): recovery.valid = false; c.errors.append({"validation":error}); return true
-		var stay: Dictionary = _stay(c)
-		if not stay.is_empty():
-			var remaining: int = int(stay.remaining_ticks)
-			var delta: int = int(recovery.previous)-remaining
-			if delta>0: recovery.work_ticks += delta; recovery.advancing_steps += 1
-			recovery.previous = remaining
-			if remaining>0 or not stay.care_completed: recovery.no_early_charge = recovery.no_early_charge and _income(c,"ward")==0 and _income(c,"cure")==0
-		var care: Dictionary = _session(c,"care")
-		if not care.is_empty():
-			var bed: Dictionary = c.sim.space.facility_layout(c.world,care.facility_id)
-			recovery.care_at_bedside = recovery.care_at_bedside and c.sim.space.at(c.world,str(care.staff_ids[0]),int(bed.floor_id),bed.operator_cells[0])
-		return _visit(c).get("final_result","")=="cured",3500)
-	var departed: bool = completed and await _until(t,c,func()->bool:return _visit(c).phase=="departed",900)
-	timing.finish("actual_transfer_recovery_care_and_departure",clock)
-	var passed: bool = unrevealed and completed and departed and recovery.valid and recovery.no_early_charge and recovery.care_at_bedside and recovery.work_ticks==1800 and recovery.advancing_steps==1800 and int(attempt.get("recovery_ticks",-1))==1800 and int(attempt.get("supply_units",-1))==4 and int(attempt.get("cure_fee",-1))==660 and int(attempt.get("probability_bp",-1))==9700 and int(c.started.get("wake",0))==0 and int(c.started.get("round",0))==0 and _income(c,"outpatient")==10 and _income(c,"ward")==60 and _income(c,"cure")==660 and _income(c)==790 and _units_used(c)==4 and _visit(c).attempt_ids.size()==1 and c.world.validate(_content).is_empty()
-	t.check("CLIN-29",passed,{"recovery":recovery,"diagnosed":diagnosed,"selected":selected.to_record(),"coverage_at_selection":coverage_at_selection,"result_hidden_after_operation":unrevealed,"attempt":attempt,"actual_departure":departed,"supply_units":_units_used(c),"income":_income(c),"timing":timing.report(),"failure_world":_failure_world("CLIN-29",c.world) if not passed else {}})
-
-func _case_30(t) -> void:
-	await _companion_entry(t,true)
-
-func _case_31(t) -> void:
-	var visiting: Dictionary = await _visitor_bedside(t)
-	var bedside: bool = bool(visiting.bedside_ready)
-	var medical_priority: bool = true
-	for observation: Dictionary in visiting.get("visitor_trace",[]):
-		if observation.phase in ["to_bed","visiting"]:
-			medical_priority = medical_priority and bool(observation.care_completed)
-	var original: Dictionary = _visitor(visiting).duplicate(true)
-	var window: String = str(original.get("started_window",""))
-	var windows: Dictionary = _visit(visiting).get("visitor_windows",{}).duplicate(true)
-	var arrival_rng: Dictionary = visiting.world.facts.rng.arrival.duplicate(true)
-	var legal_point: bool = bedside and visiting.sim.space.at(visiting.world,str(original.actor_id),int(original.bedside_floor),original.bedside_cell)
-	var real_clock: bool = bedside and int(original.remaining_ticks)+(visiting.world.sim_tick-int(original.started_tick))==300
-	var restored: Dictionary = _roundtrip(visiting)
-	await _steps(t,visiting,50)
-	var once: bool = visiting.world.facts.rng.arrival==arrival_rng and _visit(visiting).get("visitor_windows",{})==windows and visiting.world.facts.visitors.stays.size()==1
-	# A clinical transfer must first make the same visitor physically yield.
-	var transfer: CommandResult = _command(visiting,"clinical_transfer_bed",{"visit_id":visiting.visit_id,"bed_id":"clin_ward_1"})
-	if not transfer.accepted:
-		await _until(t,visiting,func()->bool: return _visitor(visiting).get("phase","") in ["waiting","to_waiting","leaving"],350)
-		transfer = _command(visiting,"clinical_transfer_bed",{"visit_id":visiting.visit_id,"bed_id":"clin_ward_1"})
-	var transferred: bool = transfer.accepted and await _until(t,visiting,func()->bool: return _stay(visiting).get("phase","")=="recovery",800)
-	if not transferred: visiting.failure_world = _failure_world("visitor_transfer",visiting.world)
-	t.check("CLIN-31",bedside and medical_priority and legal_point and real_clock and restored.ok and once and windows.get(window,{}).get("intent",false) and windows.get(window,{}).get("started",false) and transferred and _visit(visiting).get("visitor_windows",{})==windows and visiting.world.facts.rng.arrival==arrival_rng and str(_visit(visiting).get("relative_actor_id",""))==str(original.get("actor_id","")) and _income(visiting,"ward")==0 and _income(visiting,"cure")==0,{"initial_care_before_bedside":medical_priority,"actual_bedside_before_timer":legal_point,"exact_30_second_timer":real_clock,"single_intent_after_restore":once,"transfer":transfer.to_record(),"restore":restored,"visitor_trace":visiting.get("visitor_trace",[]),"failure_world":visiting.get("failure_world",{}),"state":_state(visiting)})
-
-func _case_32(t) -> void:
-	var missing: Array = []
-	for key: String in ["visitor_visiting","ward_entered","companion_entered"]:
-		if not _snapshots.has(key): missing.append(key)
-	if not missing.is_empty():
-		t.check("CLIN-32",false,{"missing_real_business_boundaries":missing})
-		return
-	var yielding: Dictionary = _copy("visitor_visiting")
-	var before_visitor: Dictionary = _visitor(yielding).duplicate(true)
-	var cleared: bool = yielding.sim.clinic.visitors.yield_for_care(yielding.world,yielding.visit_id)
-	var began_yielding: bool = not cleared and _visitor(yielding).get("phase","")=="yielding" and yielding.world.facts.moves.has(str(before_visitor.actor_id)) and int(_visitor(yielding).get("remaining_ticks",-1))==int(before_visitor.remaining_ticks)
-	await _steps(t,yielding,1)
-	var same_timer: bool = int(_visitor(yielding).get("remaining_ticks",-1))<=int(before_visitor.remaining_ticks) and _visitor(yielding).get("started_tick",-1)==before_visitor.started_tick
-	var refusing: Dictionary = _copy("visitor_visiting")
-	var before_anger: float = float(_visit(refusing).anger)
-	var before_income: int = _income(refusing)
-	var original_relative: String = str(_visitor(refusing).actor_id)
-	var consent: CommandResult = _command(refusing,"clinical_visit_consent",{"visit_id":refusing.visit_id,"allow":false})
-	refusing.sim.clinic.visitors.dispatch(refusing.world)
-	var retained_until_exit: bool = consent.accepted and not _visitor(refusing).is_empty() and refusing.world.facts.actors[original_relative].location.kind=="floor" and _visitor(refusing).get("phase","")=="leaving" and is_equal_approx(float(_visit(refusing).anger),before_anger) and _income(refusing)==before_income
-	var body_observation: Dictionary = {"retained":retained_until_exit,"floor_ticks":0,"body_blocks_space":true}
-	var outside_after_walk: bool = await _until(t,refusing,func()->bool:
-		var relative: Dictionary = refusing.world.facts.actors.get(original_relative,{})
-		if relative.is_empty():
-			body_observation.retained = false
-			return false
-		if relative.location.kind=="floor":
-			body_observation.floor_ticks += 1
-			body_observation.retained = body_observation.retained and not _visitor(refusing).is_empty()
-			# Ignore every other actor to query this visitor's own real body/sweep.
-			var ignored: Array = refusing.world.ids("actors")
-			ignored.erase(original_relative)
-			body_observation.body_blocks_space = body_observation.body_blocks_space and not refusing.sim.space._dynamic_clear(refusing.world,"clinical_visitor_exit_probe",int(relative.location.floor_id),refusing.sim.space.body_rectangle(relative),ignored)
-		return relative.location.kind=="outside" and _visitor(refusing).is_empty(),900)
-	var pending: Dictionary = _copy("ward_entered")
-	_remove_waiting_chairs(pending.world)
-	# No seats still permits standing admission. Use a real unavailable
-	# entrance to retain an unadmitted request, then restore it before retry.
-	var original_entry: Dictionary = pending.world.facts.entry.duplicate(true)
-	pending.world.facts.entry.cell = [0,0]
-	pending.world.touch(false)
-	_command(pending,"clinical_visit_consent",{"visit_id":pending.visit_id,"allow":true})
-	_seed_stream(pending.world,"arrival",true,false,5000,5000)
-	var pending_input_valid: bool = pending.world.validate(_content).is_empty()
-	var had_request: bool = await _until(t,pending,func()->bool: return not pending.world.facts.visitors.requests.is_empty(),100)
-	var unadmitted: bool = pending.world.facts.visitors.stays.is_empty()
-	_command(pending,"clinical_visit_consent",{"visit_id":pending.visit_id,"allow":false})
-	pending.world.facts.entry = original_entry
-	pending.world.touch(false)
-	await _steps(t,pending,50)
-	var cancelled_request: bool = pending_input_valid and unadmitted and had_request and pending.world.facts.visitors.requests.is_empty() and pending.world.facts.visitors.stays.is_empty()
-	var leaving: Dictionary = _copy("companion_entered")
-	var relative_id: String = str(_visitor(leaving).actor_id)
-	var safe_boundary: bool = await _until(t,leaving,func()->bool: return str(_visit(leaving).get("phase","")).begins_with("wait_") and leaving.world.facts.sessions.is_empty(),1000)
-	var referred: CommandResult = _command(leaving,"clinical_refer",{"visit_id":leaving.visit_id}) if safe_boundary else CommandResult.new(false,"safe_boundary_missing")
-	var family_departed: bool = referred.accepted and await _until(t,leaving,func()->bool: return leaving.world.facts.actors[relative_id].location.kind=="outside" and _visitor(leaving).is_empty(),900)
-	t.check("CLIN-32",began_yielding and same_timer and retained_until_exit and body_observation.retained and int(body_observation.floor_ticks)>0 and body_observation.body_blocks_space and outside_after_walk and cancelled_request and family_departed,{"responded_to_clinical_yield":began_yielding,"original_timer_preserved":same_timer,"consent_command":consent.to_record(),"body_retained_until_exit":retained_until_exit and body_observation.retained,"exit_body_observation":body_observation,"outside_after_walk":outside_after_walk,"pending_request_cancelled":cancelled_request,"family_left_after_patient_referral":family_departed,"state":_state(yielding)})
-
-func _diagnosis_chain(t, upgraded: bool) -> void:
-	var id: String = "CLIN-04" if upgraded else "CLIN-03"
-	var c: Dictionary = await _diagnosis_state(t,upgraded)
-	var third: bool = c.diagnosis_trace.third
-	var gp_evidence: float = c.diagnosis_trace.gp
-	var after_spectrum: float = c.diagnosis_trace.after_spectrum
-	var total: float = c.diagnosis_trace.total
-	if upgraded:
-		t.check(id,third and is_equal_approx(gp_evidence,49.2) and is_equal_approx(after_spectrum,93.0) and not _visit(c).evidence_by_source.has("resonance") and int(c.started.get("resonance",0))==0 and _income(c,"resonance")==0 and _income(c)==40 and _units_used(c)==0 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"income":_income(c),"state":_state(c)})
-	else:
-		t.check(id,third and is_equal_approx(gp_evidence,44.0) and is_equal_approx(after_spectrum,81.0) and is_equal_approx(total,108.0) and int(c.started.get("spectrum",0))==1 and int(c.started.get("resonance",0))==1 and _units_used(c)==0 and _income(c)==60 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"total":total,"income":_income(c),"state":_state(c)})
-
 func _case_36(t) -> void:
 	preload("res://tests/acceptance/clinical_handoff.gd").new().run_case(t,_content)
 
 func _case_37(t) -> void:
 	await preload("res://tests/acceptance/clinical_ward_release.gd").new().run_case(t,self)
+
+func _case_38(t) -> void:
+	var c: Dictionary=_copy("surgery_queue")
+	var source: Dictionary=c.get("before_bed_arrival",{})
+	var checks: Dictionary={"real_reserved_bed_source":not source.is_empty()}
+	if source.is_empty():
+		t.check("CLIN-38",false,{"checks":checks,"state":_state(c)})
+		return
+	# This is the first reservation reached by the real diagnosis/admission
+	# prefix. Its actual pending walk resumes in fresh simulation services.
+	c.world=WorldState.new(source.facts.duplicate(true))
+	c.sim=HospitalSimulation.new(c.world,_content)
+	_simulations.append(c.sim)
+	var visit: Dictionary=_visit(c)
+	var stay: Dictionary=_stay(c)
+	var stay_id: String=str(stay.id)
+	var bed_id: String=str(stay.bed_id)
+	var original_ticket: String=str(visit.ticket_id)
+	var initial_location: Dictionary=c.world.facts.actors[visit.actor_id].location.duplicate(true)
+	var bed: Dictionary=c.sim.space.facility_layout(c.world,bed_id)
+	var arrivals: HospitalArrivalService=c.sim.services.arrivals
+	var reserved_count: int=arrivals.outpatient_count(c.world)
+	checks.reserved_not_admitted=stay.phase=="admitting" and not stay.has("admitted_tick") and not c.sim.space.at(c.world,visit.actor_id,int(bed.floor_id),bed.patient_cell)
+	checks.reserved_still_outpatient=reserved_count==1
+	checks.seat_released_for_bed=not c.world.facts.waiting_life.seats.has(visit.id)
+	# This legal shift change removes only the future OR team member. It does
+	# not remove the bed, coverage nurse, patient, or any admission work.
+	c.world.facts.staff.clin_anesthesia.schedule=_schedule("rest")
+	c.world.touch()
+	var input_validation: String=c.world.validate(_content)
+	checks.input_valid=input_validation.is_empty()
+	var counted_until_admission: bool=true
+	var moved: bool=false
+	var admitted: bool=false
+	var pre_support_walk: Dictionary={}
+	for index: int in 900:
+		if c.sim.space.at(c.world,visit.actor_id,int(bed.floor_id),bed.patient_cell) and not c.world.facts.moves.has(visit.actor_id):
+			pre_support_walk={"tick":c.world.sim_tick,"location":c.world.facts.actors[visit.actor_id].location.duplicate(true),"target":bed.patient_cell.duplicate(),"move_empty":true}
+		_tick(c)
+		stay=_stay(c)
+		moved=moved or c.world.facts.actors[visit.actor_id].location!=initial_location
+		if stay.has("admitted_tick"):
+			admitted=true
+			break
+		counted_until_admission=counted_until_admission and arrivals.outpatient_count(c.world)==1 and visit.ticket_id==original_ticket
+		if index%100==99: await t.process_frame
+	var supported_actor: Dictionary=c.world.facts.actors[visit.actor_id]
+	var post_support_location: Dictionary={"actual":supported_actor.location.duplicate(true),"expected":c.sim.space.support_location(c.world,supported_actor,bed)}
+	checks.pre_support_walk=admitted and moved and not pre_support_walk.is_empty()
+	checks.post_support_location=admitted and supported_actor.get("posture","")=="lying" and supported_actor.get("support_facility_id","")==bed_id and supported_actor.location==post_support_location.expected and not c.world.facts.moves.has(visit.actor_id)
+	checks.actual_walk_to_original_bed=checks.pre_support_walk and checks.post_support_location and stay.get("id","")==stay_id and stay.get("bed_id","")==bed_id
+	var admitted_count: int=arrivals.outpatient_count(c.world)
+	checks.count_changes_only_at_admission=counted_until_admission and admitted and admitted_count==0
+	if admitted:
+		var ticket_id: String=str(visit.ticket_id)
+		var admitted_tick: int=int(stay.admitted_tick)
+		var first_check: int=roundi(float(_content.balance.wait_departure.first_check_seconds)/WorldState.TICK_SECONDS)
+		var income: int=_income(c)
+		var used_units: int=_units_used(c)
+		# A value below even the minimum departure probability would leave an
+		# eligible ordinary waiter at its first real 120-second check.
+		_seed_stream(c.world,"patience",true,true,100,10000)
+		var patience: Dictionary=c.world.facts.rng.patience.duplicate(true)
+		var initial_wait_tick: int=c.world.sim_tick
+		await _steps(t,c,first_check+1)
+		stay=_stay(c)
+		checks.real_wait_past_patience_threshold=c.world.sim_tick-initial_wait_tick==first_check+1
+		checks.or_member_actually_unavailable=not c.world.facts.staff.clin_anesthesia.on_shift
+		checks.waiting_in_original_bed=stay.get("id","")==stay_id and stay.get("bed_id","")==bed_id and int(stay.get("admitted_tick",-1))==admitted_tick and stay.get("phase","")=="waiting_surgery" and visit.phase=="wait_surgery" and visit.ticket_id==ticket_id and visit.final_result.is_empty() and c.world.facts.actors[visit.actor_id].get("support_facility_id","")==bed_id and c.world.facts.adaptations.get(bed_id,{}).get("owner_id","")==stay_id
+		checks.no_ordinary_abandonment=c.world.facts.rng.patience==patience and not c.world.facts.wait_departures.get(visit.actor_id,{}).get("selected",false) and int(c.world.facts.tickets.get(ticket_id,{}).get("waited_ticks",-1))==0 and arrivals.outpatient_count(c.world)==0
+		checks.no_unstarted_effects=c.world.facts.preparations.is_empty() and visit.attempt_ids.is_empty() and c.world.facts.attempts.is_empty() and _units_used(c)==used_units and _income(c)==income and _income(c,"ward")==0 and _income(c,"surgery")==0 and _income(c,"cure")==0
+	checks.final_valid=c.world.validate(_content).is_empty()
+	var passed: bool=admitted
+	for value: bool in checks.values(): passed=passed and value
+	t.check("CLIN-38",passed,{"checks":checks,"pre_support_walk":pre_support_walk,"post_support_location":post_support_location,"input_validation":input_validation,"counts":{"reserved":reserved_count,"admitted":admitted_count,"final":arrivals.outpatient_count(c.world)},"state":_state(c)})

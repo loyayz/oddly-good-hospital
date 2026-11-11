@@ -19,7 +19,9 @@ METHODS = {
     "game/building/hospital_space.gd": ["movement_doors", "_reservation_regions", "reservation_view", "_ensure_actor_index", "_dynamic_clear"],
     "game/building/body_index.gd": ["_query", "candidates", "update", "intersects"],
     "game/building/hospital_movement.gd": ["advance", "_move_step", "_unit_sweeps", "_movement_contacts", "_reserve_doors", "_yield", "_dispatch_routes"],
-    "game/clinic/clinical_runtime.gd": ["dispatch", "_gather_assigned", "_dispatch_service", "_surgery_quote", "_availability"],
+    "game/clinic/clinical_runtime.gd": ["dispatch", "_gather_assigned", "_dispatch_service", "_prepare_surgery", "_surgery_quote", "_compatible_bed", "service_candidates", "_select_plan", "_availability"],
+    "game/clinic/hospital_visitors.gd": ["dispatch", "advance", "_bedside_in_query"],
+    "game/operations/floor_guidance.gd": ["prepare", "_refresh_destinations", "_target_ids", "_approach_desk"],
 }
 
 TIMER = '''extends RefCounted

@@ -270,8 +270,8 @@ func _clinical_busy(world: WorldState, actor_id: String) -> bool:
 	for session: Dictionary in world.facts.sessions.values():
 		if actor_id in session.resources: return true
 	for stay: Dictionary in world.facts.ward_stays.values():
-		if world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id].actor_id==actor_id: return true
-		# Coverage and the promised final round remain medical duties between
+		if world.facts.visits[stay.visit_id].actor_id==actor_id: return true
+		# Coverage and required nursing care remain medical duties between
 		# bedside sessions; evacuation must not take their staff out of service.
 		if stay.phase in ["reserved","transfer","recovery"] and actor_id in [stay.nurse_id]: return true
 	return false

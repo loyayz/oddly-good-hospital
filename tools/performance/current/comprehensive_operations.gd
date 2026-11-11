@@ -2,7 +2,7 @@ extends RefCounted
 
 # Only commands are submitted here. The measured production step owns dispatch,
 # travel, attendance, reservations, payments and every unit of actual work.
-const PREFIX: String = "comprehensive160-v1-"
+const PREFIX: String = "comprehensive160-v2-"
 const STUDENT: String = "bench_staff_0015"
 const RESEARCHER: String = "bench_staff_0011"
 const CLEANERS: Array = ["bench_staff_0028","bench_staff_0029","bench_staff_0030","bench_staff_0031"]

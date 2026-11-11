@@ -145,7 +145,7 @@ func _visit(x: Dictionary, id: String = "visit", cell: Array = [38,76], personal
 		"location":{"kind":"floor","floor_id":1,"cell":cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
 	var visit: Dictionary = {"id":id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,
 		"requested_plan_id":"P_"+binding.disease_id+"_COMMON","expression":"clear","personality_id":personality,"anger":50.0,
-		"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"",
+		"phase":"arrival","diagnosis":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"",
 		"waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrival_tick":0,"arrived_tick":0,
 		"last_progress_tick":0,"last_service_tick":0,"arrival_key":"arrival_"+id}
 	x.world.facts.visits[id] = visit

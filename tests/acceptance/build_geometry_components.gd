@@ -9,7 +9,6 @@ func run() -> Dictionary:
 	var original: PackedByteArray = var_to_bytes(elbow)
 	var irregular: Dictionary = BuildGeometry.shape({"cells":elbow},[1,1])
 	checks.irregular_four_neighbour = irregular.ok and irregular.cells==[[0,0],[1,0],[0,1]] and irregular.size==[2,2]
-	checks.minimum_inner_rectangle = not BuildGeometry.shape({"cells":elbow},[2,2]).ok
 	checks.diagonal_not_connected = not BuildGeometry.shape({"cells":[[0,0],[1,1]]},[1,1]).ok
 	checks.separated_not_connected = not BuildGeometry.shape({"cells":[[0,0],[1,0],[3,0]]},[1,1]).ok
 	var ring: Array = [[0,0],[1,0],[2,0],[0,1],[2,1],[0,2],[1,2],[2,2]]

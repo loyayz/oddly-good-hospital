@@ -1,7 +1,7 @@
 #requires -Version 7.0
 [CmdletBinding()]
 param(
-    [ValidateSet('core','clinical','staff','operations','growth','space','room_construction','rooms_areas_guidance')][string[]]$Suite = @('core','clinical','staff','operations','growth','space','room_construction','rooms_areas_guidance'),
+    [ValidateSet('core','clinical','clinical_flow','inpatient_family','performance_contracts','staff','operations','growth','space','room_construction','rooms_areas_guidance')][string[]]$Suite = @('core','clinical','clinical_flow','inpatient_family','performance_contracts','staff','operations','growth','space','room_construction','rooms_areas_guidance'),
     [Alias('Case')][string[]]$CaseId = @(),
     [switch]$ListCases,
     [switch]$All,
@@ -19,9 +19,9 @@ if (-not $All -and -not $ListCases -and -not $PSBoundParameters.ContainsKey('Sui
 if ($All -and ($CaseId.Count -gt 0 -or $PSBoundParameters.ContainsKey('Suite'))) { throw '-All cannot be combined with -Case or -Suite.' }
 $CaseId = @($CaseId | ForEach-Object { $_.Split(',') } | ForEach-Object { $_.Trim().ToUpperInvariant() })
 if (@($CaseId | Sort-Object -Unique).Count -ne $CaseId.Count -or '' -in $CaseId) { throw 'Empty or duplicate acceptance case.' }
-$catalog = foreach ($topic in @('core','clinical','staff','operations','growth','space','room_construction','rooms_areas_guidance')) {
+$catalog = foreach ($topic in @('core','clinical','clinical_flow','inpatient_family','performance_contracts','staff','operations','growth','space','room_construction','rooms_areas_guidance')) {
     foreach ($line in Get-Content -LiteralPath (Join-Path $PSScriptRoot "acceptance/$topic.gd")) {
-        if ($line -match '^\s*"((?:CORE|CLIN|STAFF|OPS|GROW|SPACE|ROOM(?:-BUILD)?|AREA|GUIDE|LIFE|RESULT)-\d{2})"\s*:\s*"([^"]+)"') {
+        if ($line -match '^\s*"((?:CORE|CLIN|CLFLOW|FAMILY|FOLLOWUP|PERF|STAFF|OPS|GROW|SPACE|ROOM(?:-BUILD)?|AREA|GUIDE|LIFE|RESULT)-\d{2})"\s*:\s*"([^"]+)"') {
             [pscustomobject]@{ Suite=$topic; CaseId=$Matches[1]; Requirement=$Matches[2] }
         }
     }
@@ -82,16 +82,54 @@ $isolatedAppData = Join-Path $runtimeProfileRoot 'Roaming'
 $isolatedLocalAppData = Join-Path $runtimeProfileRoot 'Local'
 New-Item -ItemType Directory -Path $isolatedAppData,$isolatedLocalAppData -Force | Out-Null
 function Invoke-AcceptanceGodot([string[]]$EngineArguments, [string]$LogPath) {
-    $previousAppData = $env:APPDATA
-    $previousLocalAppData = $env:LOCALAPPDATA
+    $start = [Diagnostics.ProcessStartInfo]::new($Godot)
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.Environment['APPDATA'] = $isolatedAppData
+    $start.Environment['LOCALAPPDATA'] = $isolatedLocalAppData
+    foreach ($argument in $EngineArguments) { $start.ArgumentList.Add($argument) }
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $start
+    $writer = [IO.StreamWriter]::new($LogPath, $false, [Text.UTF8Encoding]::new($false))
+    $writer.AutoFlush = $true
+    $fatal = $false
     try {
-        $env:APPDATA = $isolatedAppData
-        $env:LOCALAPPDATA = $isolatedLocalAppData
-        & $Godot @EngineArguments *> $LogPath
-        return $LASTEXITCODE
+        if (-not $process.Start()) { throw 'Godot did not start.' }
+        $stdout = $process.StandardOutput.ReadLineAsync()
+        $stderr = $process.StandardError.ReadLineAsync()
+        # A script exception can leave SceneTree alive without advancing the
+        # runner. Capture its evidence, then stop only this process tree.
+        while (-not $process.HasExited -or $null -ne $stdout -or $null -ne $stderr) {
+            if ($null -ne $stdout -and $stdout.IsCompleted) {
+                $line = $stdout.GetAwaiter().GetResult()
+                if ($null -eq $line) { $stdout = $null }
+                else {
+                    $writer.WriteLine($line)
+                    if ($line -match 'SCRIPT ERROR:|Parse Error:|ERROR:') { $fatal = $true }
+                    $stdout = $process.StandardOutput.ReadLineAsync()
+                }
+            }
+            if ($null -ne $stderr -and $stderr.IsCompleted) {
+                $line = $stderr.GetAwaiter().GetResult()
+                if ($null -eq $line) { $stderr = $null }
+                else {
+                    $writer.WriteLine($line)
+                    if ($line -match 'SCRIPT ERROR:|Parse Error:|ERROR:') { $fatal = $true }
+                    $stderr = $process.StandardError.ReadLineAsync()
+                }
+            }
+            if ($fatal -and -not $process.HasExited) { $process.Kill($true) }
+            if (-not $process.HasExited -and ($null -eq $stdout -or -not $stdout.IsCompleted) -and ($null -eq $stderr -or -not $stderr.IsCompleted)) {
+                [Threading.Thread]::Sleep(10)
+            }
+        }
+        $process.WaitForExit()
+        return $(if ($fatal) { 1 } else { $process.ExitCode })
     } finally {
-        $env:APPDATA = $previousAppData
-        $env:LOCALAPPDATA = $previousLocalAppData
+        $writer.Dispose()
+        $process.Dispose()
     }
 }
 $engineHash = (Get-FileHash -LiteralPath $Godot -Algorithm SHA256).Hash

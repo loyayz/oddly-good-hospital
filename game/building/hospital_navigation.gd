@@ -18,6 +18,7 @@ func _route_result(world: WorldState, actor_id: String, floor_id: int, target: A
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {"ok":false,"status":"unavailable","reason":"角色正在竖向通行或院外"}
 	_observe_floor(world,actor_id,int(actor.location.floor_id))
+	if actor.get("posture","standing")=="lying": return _supported_route_result(world,actor,floor_id,target,distance_only)
 	var owner: Dictionary = space.read_view(world,"point_journeys",func()->Dictionary:return {})
 	var subject: Dictionary
 	var journeys: Dictionary
@@ -76,6 +77,39 @@ func _prepare_route_subject(world: WorldState, actor: Dictionary, members: Array
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
 	return _route_result(world,actor_id,floor_id,target,[],{},true,true)
+
+func _supported_route_result(world: WorldState, actor: Dictionary, floor_id: int, target: Array, distance_only: bool) -> Dictionary:
+	var support: Dictionary=space.facility_layout(world,str(actor.support_facility_id))
+	var start: Vector2=Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var exit: Vector2=Vector2(float(support.patient_cell[0]),float(support.patient_cell[1]))
+	# Use the movement owner's support-exit geometry: only the owned support's
+	# solid footprint is exempt. Walls, other fixtures and permissions remain.
+	var source: Dictionary=space._navigation.floor_source(space,world,int(support.floor_id)).duplicate()
+	source.facilities=source.facilities.duplicate()
+	source.facilities.erase(str(support.id))
+	var departure: RouteClearance=RouteClearance.new(space,world,actor,int(support.floor_id),[],{},false,source)
+	var reason: String=departure.sweep_reason(start,exit)
+	if not reason.is_empty(): return {"ok":false,"status":"unreachable","reason":reason}
+	var facts: Dictionary=world.facts.duplicate()
+	facts.actors=world.facts.actors.duplicate()
+	var standing: Dictionary=actor.duplicate(true)
+	standing.posture="standing"
+	standing.erase("support_facility_id")
+	standing.location={"kind":"floor","floor_id":int(support.floor_id),"cell":support.patient_cell.duplicate(),"height_m":0.0}
+	facts.actors[actor.id]=standing
+	var projected: WorldState=WorldState.new(facts)
+	inherit_projection(world,projected)
+	space.begin_route_query(projected)
+	var quote: Dictionary=_route_result(projected,actor.id,floor_id,target,[],{},true,distance_only)
+	space.end_route_query()
+	for observed: int in observed_floors(projected,[actor.id]): _observe_floor(world,actor.id,observed)
+	if quote.ok:
+		var ticks: int=HospitalTransit._add(int(quote.travel_ticks),HospitalTransit.walking_ticks(space,actor,[],start.distance_to(exit)))
+		if ticks<0: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
+		quote.travel_ticks=ticks
+		quote.walking_distance+=start.distance_to(exit)
+		if not distance_only: quote.path.push_front({"kind":"support_exit","floor_id":int(support.floor_id),"cell":support.patient_cell.duplicate()})
+	return quote
 
 # Structural choices read these original declarations and failure directions.
 # Queue tickets, current cabin trips and remaining times do not deny a route.

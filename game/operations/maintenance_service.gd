@@ -9,6 +9,8 @@ var content: HospitalContent
 var space: HospitalSpace
 var finance: RefCounted
 var _maintained_ids: Dictionary = {}
+var _class_registry: WeakRef
+var _classes: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -58,11 +60,17 @@ func _equipment(world: WorldState) -> Dictionary:
 	return result
 
 func _class(item: Dictionary) -> Dictionary:
+	if _class_registry==null or _class_registry.get_ref()!=content.registry:
+		_class_registry=weakref(content.registry)
+		_classes.clear()
+	var id: String=str(item.definition_id)
+	if _classes.has(id): return _classes[id]
 	var definition: Dictionary = content.facility_definition(str(item.definition_id))
 	if definition.is_empty():
 		definition = content.definition("vertical_connectors",str(item.definition_id))
 	for record: Dictionary in content.balance.equipment.classes:
 		if record.id == definition.get("equipment_class",""):
+			_classes[id]=record
 			return record
 	return {}
 
@@ -75,6 +83,7 @@ func boundaries(world: WorldState) -> void:
 		var item: Dictionary = equipment[id]
 		if _in_inventory(world,id):
 			continue
+		if day<=int(item.last_wear_day) and not item.pending_failure: continue
 		var category: Dictionary = _class(item)
 		if category.is_empty():
 			continue

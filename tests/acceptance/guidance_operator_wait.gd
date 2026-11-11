@@ -120,7 +120,7 @@ func _actual(cold: bool) -> Dictionary:
 	var raw: Dictionary=x.world.facts.facilities.guide.duplicate(true)
 	var ledger: Dictionary=x.world.facts.ledger.entries.duplicate(true)
 	var stock: int=int(x.world.facts.inventory.units)
-	var initial_rng: Dictionary=x.world.facts.rng.guidance.duplicate(true)
+	var initial_rng: Dictionary=x.world.facts.rng.registration.duplicate(true)
 	x.checks.legal_blocking_input=x.world.validate(content).is_empty() and not x.sim.space.public_areas.safe_wait(x.world,visit.actor_id,1,original.cell)
 	x.checks.no_clinical_resources_before_guidance=true
 	x.checks.same_original_ticket=true
@@ -149,7 +149,7 @@ func _actual(cold: bool) -> Dictionary:
 		if safety_move and actor.location!=previous: observed.safety_walk_steps+=1
 		var current_move: Dictionary=x.world.facts.moves.get(visit.actor_id,{})
 		if observed.departure_rng.is_empty() and current_move.get("waiting_safety_visit","")==visit.id:
-			observed.departure_rng=x.world.facts.rng.guidance.duplicate(true)
+			observed.departure_rng=x.world.facts.rng.registration.duplicate(true)
 			x.checks.safety_did_not_draw_or_queue=observed.departure_rng==initial_rng and not current.has("queue_seq") and current.get("phase","")=="seek"
 		if cold and observed.restore.is_empty() and int(observed.safety_walk_steps)>0 and current_move.get("waiting_safety_visit","")==visit.id:
 			observed.restore=_restore_operator(x)

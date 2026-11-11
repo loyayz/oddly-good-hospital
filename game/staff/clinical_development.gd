@@ -1,6 +1,8 @@
 class_name HospitalClinicalDevelopment
 extends RefCounted
 
+const STAFF_DEFAULTS: Dictionary = {"training_job_id":"","cured_cases":0}
+
 var content: HospitalContent
 var space: HospitalSpace
 var research: RefCounted
@@ -20,14 +22,18 @@ func ensure(world: WorldState) -> void:
 		world.facts.training_jobs = {}
 	if not world.facts.has("doctor_desks"): world.facts.doctor_desks={}
 	for staff: Dictionary in world.facts.staff.values():
-		if not staff.role in ["doctor","nurse"]:
+		if staff.role!="doctor" and staff.role!="nurse":
 			continue
-		var defaults: Dictionary = {"growth_direction":"treatment" if staff.role=="doctor" else "care", "training_job_id":"", "cured_cases":0,
-			"completed_courses":{}, "growth_history":[], "growth_goal":{}, "base_prepared":false, "base_task":{}, "title_rate_changed_tick":int(staff.get("hired_tick",0))}
-		for key: String in defaults:
-			if staff.role=="doctor" and key in ["base_prepared","base_task"]: continue
-			if not staff.has(key):
-				staff[key] = defaults[key]
+		for key: String in STAFF_DEFAULTS:
+			if not staff.has(key): staff[key] = STAFF_DEFAULTS[key]
+		if not staff.has("growth_direction"): staff.growth_direction="treatment" if staff.role=="doctor" else "care"
+		if not staff.has("completed_courses"): staff.completed_courses={}
+		if not staff.has("growth_history"): staff.growth_history=[]
+		if not staff.has("growth_goal"): staff.growth_goal={}
+		if not staff.has("title_rate_changed_tick"): staff.title_rate_changed_tick=int(staff.get("hired_tick",0))
+		if staff.role=="nurse":
+			if not staff.has("base_prepared"): staff.base_prepared=false
+			if not staff.has("base_task"): staff.base_task={}
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
 	ensure(world)

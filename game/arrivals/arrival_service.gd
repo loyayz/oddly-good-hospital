@@ -336,18 +336,9 @@ func settle(world: WorldState) -> void:
 
 func outpatient_count(world: WorldState) -> int:
 	var bed_visits: Dictionary = {}
-	for preparation: Dictionary in world.facts.preparations.values():
-		if world.facts.facilities.has(preparation.get("bed_id","")):
-			bed_visits[preparation.visit_id] = true
 	for stay: Dictionary in world.facts.ward_stays.values():
-		var attempt: Dictionary = world.facts.attempts.get(stay.get("attempt_id",""),{})
-		if not attempt.is_empty() and world.facts.facilities.has(stay.get("bed_id","")):
-			bed_visits[attempt.visit_id] = true
-	for session: Dictionary in world.facts.sessions.values():
-		if session.get("kind","") in ["surgery","wake"]:
-			var visit: Dictionary = world.facts.visits.get(session.visit_id,{})
-			if world.facts.facilities.has(visit.get("reserved_bed_id","")):
-				bed_visits[session.visit_id] = true
+		if stay.has("admitted_tick") and world.facts.facilities.has(stay.get("bed_id","")):
+			bed_visits[stay.visit_id] = true
 	var counted_actors: Dictionary = {}
 	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
@@ -647,7 +638,7 @@ func _release_identity(world: WorldState, resident_id: String) -> void:
 			world.facts.relationships.erase(relationship_id)
 
 func _eligible_wait(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
-	if not visit.phase in ["wait_gp","wait_spectrum","wait_resonance","wait_test","wait_consult","wait_consultation","wait_outpatient","wait_surgery"]:
+	if not visit.phase in ["wait_gp","wait_examination","wait_spectrum","wait_resonance","wait_test","wait_plan","wait_consult","wait_consultation","wait_outpatient","wait_surgery"]:
 		return false
 	if not ticket.get("pause_reasons",{}).is_empty() or ticket.get("paused",false):
 		return false
@@ -658,7 +649,7 @@ func _eligible_wait(world: WorldState, visit: Dictionary, ticket: Dictionary) ->
 		if session.visit_id == visit.id:
 			return false
 	for stay: Dictionary in world.facts.ward_stays.values():
-		if world.facts.attempts.get(stay.get("attempt_id",""),{}).get("visit_id","") == visit.id:
+		if stay.get("visit_id","") == visit.id and stay.has("admitted_tick"):
 			return false
 	if ticket.get("service_assigned",false) and int(ticket.get("called_tick",-1)) >= 0:
 		var move: Dictionary = world.facts.moves.get(visit.actor_id,{})
@@ -671,11 +662,18 @@ func _eligible_wait(world: WorldState, visit: Dictionary, ticket: Dictionary) ->
 func _deterministic_exit(world: WorldState, visit: Dictionary, ticket: Dictionary) -> String:
 	var last_service: int = int(visit.get("last_service_tick",visit.get("arrival_tick",ticket.enqueued_tick)))
 	var last_progress: int = int(visit.get("last_progress_tick",last_service))
-	if float(visit.get("anger",0)) >= float(content.balance.anger.leave_threshold) and world.sim_tick-last_service >= _ticks(content.balance.anger.leave_no_progress_seconds):
+	if float(visit.get("anger",0)) >= float(content.balance.anger.leave_threshold) and _inside_elapsed(world,visit,last_service) >= _ticks(content.balance.anger.leave_no_progress_seconds):
 		return "anger_no_service"
-	if content.balance.wait_departure.has("no_progress_seconds") and world.sim_tick-last_progress >= _ticks(content.balance.wait_departure.no_progress_seconds):
+	if content.balance.wait_departure.has("no_progress_seconds") and _inside_elapsed(world,visit,last_progress) >= _ticks(content.balance.wait_departure.no_progress_seconds):
 		return "no_progress"
 	return ""
+
+func _inside_elapsed(world: WorldState, visit: Dictionary, since_tick: int) -> int:
+	var elapsed: int=world.sim_tick-since_tick
+	for period: Dictionary in visit.get("continuation",{}).get("outside_periods",[]):
+		var end: int=world.sim_tick if int(period.returned_tick)<0 else mini(world.sim_tick,int(period.returned_tick))
+		elapsed-=maxi(0,end-maxi(since_tick,int(period.left_tick)))
+	return elapsed
 
 func _depart_wait(world: WorldState, visit: Dictionary, ticket: Dictionary, state: Dictionary, reason: String) -> void:
 	if state.selected:

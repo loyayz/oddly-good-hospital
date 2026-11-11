@@ -654,6 +654,14 @@
     "clinic_guard_seconds": 10,
     "complex_probability": 0.25,
     "consult_seconds": 8,
+    "diagnosis_insufficient_bp": [
+      0,
+      4000,
+      3200,
+      2400,
+      1600,
+      800
+    ],
     "equipment_no_progress_referral_seconds": 120,
     "max_beds_per_room": 8,
     "max_ward_beds": null,
@@ -882,12 +890,10 @@
   "daily_cost_per_indoor_cell": 0.05,
   "daily_cost_per_station": 8,
   "day_seconds": 1800,
-  "diagnosis_threshold": 90,
   "diagnostic_flow": {
-    "completed_test_limit": "once_per_mode_per_visit",
-    "duplicate_guard": "visit_evidence_by_source",
+    "completed_test_limit": 1,
+    "duplicate_guard": "visit.diagnosis.exam_completed",
     "progress_source": "actual_completed_service",
-    "skip_at_threshold": true,
     "skipped_service_effects": false
   },
   "diagnostic_work_presentation": {
@@ -1372,7 +1378,7 @@
     "employee_count_cap": null,
     "entity_limits": "physical_layout_and_services",
     "object_count_cap": null,
-    "ordinary_visitors": "one_per_active_visit_and_real_waiting_position",
+    "ordinary_visitors": "one_companion_and_one_ward_visitor_per_inpatient_with_actual_entry_and_safe_waiting_position",
     "patient_limit": "scaled_intake_allowance",
     "room_count_cap": null,
     "station_count_cap": null
@@ -1387,7 +1393,7 @@
     "same_name_seconds": 2,
     "visitor_yield_seconds": 2,
     "ward_visit_seconds": 30,
-    "ward_visits_per_patient_per_day": 2
+    "ward_visits_per_patient_per_day": 1
   },
   "incident_scan_seconds": 5,
   "initial_gift_machines": [
@@ -2701,11 +2707,9 @@
   },
   "tests": {
     "resonance": {
-      "confidence": 25,
       "seconds": 22
     },
     "spectrum": {
-      "confidence": 35,
       "seconds": 18
     }
   },
@@ -2947,7 +2951,7 @@
   },
   "wall_cost_edge": 20,
   "ward_care": {
-    "companion_probability": 0.25,
+    "companion_probability": 0.8,
     "coverage": "physically_in_assigned_ward",
     "handoff_scope": "one_room_coverage_set",
     "repeat_intent_roll": false,
@@ -2956,10 +2960,10 @@
     "scene_selection": "personality_then_default",
     "visit_changes_recovery": false,
     "visit_requires_consent": true,
-    "visitor_budget_per_visit": 1,
+    "visitor_budget_per_visit": 2,
     "visitor_request_scan_seconds": 5,
-    "ward_visit_probability": 0.5,
-    "window_state_owner": "Visit"
+    "ward_visit_probability": 0.3,
+    "window_state_owner": "WardStay"
   },
   "ward_neighbor_presentation": {
     "gameplay_effects": false,

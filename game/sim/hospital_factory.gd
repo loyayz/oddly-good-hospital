@@ -13,7 +13,7 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 		"entry":{"floor_id":1,"cell":starter.entry.anchor.duplicate(),"exit_cell":[48,95]},
 		"arrival_receipts":{},"initial_offers":starter.initial_offers.duplicate()}
 	var world: WorldState = WorldState.new(data)
-	var streams: Array[String] = ["arrival","treatment","incident","personality","equipment","task_board","guidance","communication","gratitude","patience","recruitment","community_activity"]
+	var streams: Array[String] = ["arrival","treatment","incident","personality","equipment","task_board","guidance","communication","gratitude","patience","recruitment","community_activity","registration"]
 	for index: int in streams.size():
 		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
 		generator.seed = 314159 + index * 104729

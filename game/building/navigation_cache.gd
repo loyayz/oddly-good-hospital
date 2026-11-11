@@ -25,8 +25,8 @@ func prepare_floor(space: HospitalSpace, world: WorldState, floor_id: int) -> Di
 	return {"complete":true,"floor_id":floor_id,"resident_hit":hit,"retained":_floor_geometries.has(version),"elapsed_usec":Time.get_ticks_usec()-started,"plots":geometry._plots.size(),"walls":geometry._walls.size(),"doors":geometry.doors.size(),"blocking_facilities":geometry._facilities.size(),"connectors":geometry._connectors.size(),"charge_bytes":geometry.charge}
 
 func floor_geometry(space: HospitalSpace, world: WorldState, floor_id: int, supplied: Dictionary = {}) -> FloorStaticGeometry:
-	var current: Dictionary = floor_source(space,world,floor_id)
 	var record: Dictionary = _source_record(space,world,floor_id)
+	var current: Dictionary = record.source
 	# Explicit hypothetical sources must not borrow a current world's geometry.
 	if not supplied.is_empty() and not is_same(supplied,current) and not is_same(supplied,record.static_source):
 		var static_supplied: Dictionary = supplied.duplicate()
@@ -38,7 +38,8 @@ func floor_geometry(space: HospitalSpace, world: WorldState, floor_id: int, supp
 		var built: FloorStaticGeometry = FloorStaticGeometry.new(space,floor_id,record.static_source)
 		entry = {"geometry":built,"charge":built.charge}
 		_floor_charged += built.charge
-	_floor_geometries.erase(version)
+	_used += 1
+	entry.used = _used
 	_floor_geometries[version] = entry
 	var result: FloorStaticGeometry = entry.geometry
 	if _defer_trim==0: _trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
@@ -85,6 +86,10 @@ func _source_record(space: HospitalSpace, world: WorldState, floor_id: int) -> D
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
 	var entry: Dictionary = _sources.get(key,{})
 	if not entry.is_empty() and entry.world.get_ref()!=world: entry = {}
+	if not entry.is_empty() and entry.revision==world.geometry_revision:
+		_used += 1
+		entry.used = _used
+		return entry
 	if entry.is_empty() or entry.revision!=world.geometry_revision:
 		var current: Dictionary = RouteClearance.capture_source(space,world,floor_id)
 		if entry.is_empty() or entry.source!=current:
@@ -101,7 +106,8 @@ func _store_source(key: String, entry: Dictionary) -> void:
 	# Conservative allowance for both payload views, equality proof keys and
 	# record metadata. Shared containers may be charged twice, never omitted.
 	entry.charge = 2048+_sealed_payload_charge(entry)+entry.graphs.size()*1024
-	_sources.erase(key)
+	_used += 1
+	entry.used = _used
 	_sources[key] = entry
 	_source_charged += int(entry.charge)
 
@@ -134,7 +140,10 @@ func _freeze_source_payload(value: Variant) -> void:
 func _trim_source_payloads(target: int, _counts: Dictionary = {}) -> void:
 	_prune_sources()
 	var allowance: int = maxi(0,mini(target/4,target-_floor_charged-_charged-_query_charged))
-	for key: String in _sources.keys():
+	if _source_charged<=allowance: return
+	var keys: Array = _sources.keys()
+	keys.sort_custom(func(a: String,b: String)->bool:return int(_sources[a].used)<int(_sources[b].used))
+	for key: String in keys:
 		if _source_charged<=allowance: break
 		_source_charged -= int(_sources[key].charge)
 		_sources.erase(key)
@@ -161,9 +170,8 @@ func _static_identity(_world: WorldState, floor_id: int, current: Dictionary) ->
 # A point check can borrow already-built static geometry without paying to
 # build an A* graph. Its reservation query is always constructed afresh.
 func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
-	var current: Dictionary = floor_source(space,world,floor_id)
-	var key: String = _graph_key(space,world,floor_id,actor,[],{},current)
 	var source_record: Dictionary = _source_record(space,world,floor_id)
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},source_record.source)
 	var entry: Dictionary = _entries.get(key,{})
 	if entry.is_empty(): return null
 	if int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
@@ -173,8 +181,6 @@ func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: i
 		if _sources.has(str(world.get_instance_id())+":"+str(floor_id)): _store_source(str(world.get_instance_id())+":"+str(floor_id),source_record)
 	_used += 1
 	entry.used = _used
-	_entries.erase(key)
-	_entries[key] = entry
 	var result: RouteClearance = entry.graph.geometry
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 	return result
@@ -207,9 +213,8 @@ func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor:
 	return result
 
 func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
-	var current: Dictionary = floor_source(space,world,floor_id)
-	var key: String = _graph_key(space,world,floor_id,actor,members,offsets,current)
 	var source_record: Dictionary = _source_record(space,world,floor_id)
+	var key: String = _graph_key(space,world,floor_id,actor,members,offsets,source_record.source)
 	var entry: Dictionary = _entries.get(key,{})
 	_used += 1
 	if entry.is_empty() or int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
@@ -222,7 +227,6 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
 		if _sources.has(str(world.get_instance_id())+":"+str(floor_id)): _store_source(str(world.get_instance_id())+":"+str(floor_id),source_record)
 	entry.used = _used
-	_entries.erase(key)
 	_entries[key] = entry
 	var result: FloorNavigation = entry.graph
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
@@ -248,14 +252,20 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 	return entry
 
 func _trim(target: int, counts: Dictionary = {}) -> void:
+	var available: int=maxi(0,target-_floor_charged-_source_charged)
+	if _floor_charged+_source_charged<=maxi(0,target/4) and _charged+_query_charged<=available and _query_charged<=available/4: return
 	# Limit shared floor ownership to one quarter of the same existing target,
 	# then give graphs/queries the remainder. Never increase the total allowance.
 	_prune_sources()
-	for key: String in _sources.keys():
+	var source_keys: Array = _sources.keys()
+	source_keys.sort_custom(func(a: String,b: String)->bool:return int(_sources[a].used)<int(_sources[b].used))
+	for key: String in source_keys:
 		if _source_charged<=maxi(0,target/4): break
 		_source_charged -= int(_sources[key].charge)
 		_sources.erase(key)
-	for version: String in _floor_geometries.keys():
+	var floor_keys: Array = _floor_geometries.keys()
+	floor_keys.sort_custom(func(a: String,b: String)->bool:return int(_floor_geometries[a].used)<int(_floor_geometries[b].used))
+	for version: String in floor_keys:
 		if _floor_charged+_source_charged<=maxi(0,target/4): break
 		_floor_charged -= int(_floor_geometries[version].charge)
 		_floor_geometries.erase(version)
@@ -264,7 +274,9 @@ func _trim(target: int, counts: Dictionary = {}) -> void:
 	if _charged+_query_charged<=target and _query_charged<=target/4: return
 	counts["cache_trims"] = int(counts.get("cache_trims",0))+1
 	var keys: Array = _entries.keys()
-	# Dictionary preserves insertion order; touches move entries to the tail.
+	# Keep hits allocation-free. Sort recency only when memory actually needs
+	# reclaiming, retaining the same least-recently-used eviction policy.
+	keys.sort_custom(func(a: String,b: String)->bool:return int(_entries[a].used)<int(_entries[b].used))
 	for key: String in keys:
 		var entry: Dictionary = _entries[key]
 		if _query_charged>target/4:
@@ -295,8 +307,10 @@ func _prune_sources() -> void:
 
 func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
 	var current: FloorNavigation = graph(space,world,floor_id,actor,[],{})
-	var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
-	if not _entries.has(key): return RouteClearance.new(space,world,actor,floor_id,members,offsets,true,floor_source(space,world,floor_id),current.geometry)
+	var source_record: Dictionary = _source_record(space,world,floor_id)
+	var source: Dictionary = source_record.source
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},source)
+	if not _entries.has(key): return RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source,current.geometry)
 	var entry: Dictionary = _entries[key]
 	if not entry.has("queries"): entry.queries = {}
 	# Query lifetime follows current actors, never the history of actor IDs.
@@ -307,17 +321,16 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 				entry.query_charge = int(entry.get("query_charge",0))-int(entry.queries[id].charge)
 				entry.queries.erase(id)
 		entry.query_boundary = [world.get_instance_id(),world.revision]
-	var stamp: Array = _reservation_stamp(space,current,world,floor_id,actor.id) if members.is_empty() else [floor_version(space,world,floor_id)]
+	var stamp: Array = _reservation_stamp(space,current,world,floor_id,actor.id) if members.is_empty() else [source_record.version]
 	if not members.is_empty():
 		# Identical bodies do not grant another group the same reservation access.
 		stamp.append(members.duplicate())
-		stamp.append(_envelope(space,world,actor,members,offsets,floor_source(space,world,floor_id)))
+		stamp.append(_envelope(space,world,actor,members,offsets,source))
 	var record: Dictionary = entry.queries.get(actor.id,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
 		entry.query_charge = int(entry.get("query_charge",0))-old_charge
 		_query_charged -= old_charge
-		var source: Dictionary = floor_source(space,world,floor_id)
 		# Static geometry is shared with the graph, not copied per identity.
 		var charge: int = (source.occupancy.size()*256+16384)*(members.size()+1)+var_to_bytes(stamp).size()*8
 		# A grouped query constructs member projections. Do not evict this
@@ -475,7 +488,8 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	# Only a structural query may pass its just-acquired graph. Permission-
 	# dependent distance fields retain the original graph/clearance acquisition.
 	var current: FloorNavigation = prepared_graph if structural_only and prepared_graph!=null else graph(space,world,floor_id,actor,[],{})
-	var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
+	var source: Dictionary = floor_source(space,world,floor_id)
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},source)
 	if not _entries.has(key): return {"ready":false}
 	var entry: Dictionary = _entries[key]
 	if not entry.has("estimates"): entry.estimates = {}
@@ -483,7 +497,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	# not the traveller's identity when it grants no different exemption.
 	var exemptions: Array = []
 	if not structural_only:
-		for reservation: Array in floor_source(space,world,floor_id).occupancy:
+		for reservation: Array in source.occupancy:
 			if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
 	var destination: String = _distance_destination(space,world,floor_id,actor,start,goal,forward,structural_only,exemptions)
 	var stamp: Array = [current.geometry.get_instance_id()] if structural_only else _reservation_stamp(space,current,world,floor_id,actor.id)
@@ -514,7 +528,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 		record.successors = PackedInt32Array() if structural_only and not forward else field.successors
 		record.ready = true
 		var charge: int = ((record.distances as PackedInt32Array).size()+(record.successors as PackedInt32Array).size())*16
-		if forward: charge += floor_source(space,world,floor_id).occupancy.size()*256+16384
+		if forward: charge += source.occupancy.size()*256+16384
 		record.charge += charge
 		entry.query_charge = int(entry.get("query_charge",0))+charge
 		_query_charged += charge

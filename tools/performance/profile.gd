@@ -79,38 +79,6 @@ func report() -> Dictionary:
 			for percentile: int in [50,95,99]: distributions[operation]["p%d_us"%percentile] = values[ceili(values.size()*percentile/100.0)-1]
 	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"call_distributions":distributions,"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate(),"checkpoints":checkpoints.duplicate(),"previous_snapshot_overhead_us":snapshot_overhead_us}
 
-func solver() -> RefCounted:
-	var base: GDScript = preload("res://tests/acceptance/legacy_capacity_solver.gd")
-	# A private diagnostic copy changes static calls into instance calls so
-	# wrappers can observe internal stages. Every original body runs once.
-	var source: String = base.source_code.replace("class_name ArrivalCapacitySolver\n","").replace("static func ","func ")
-	var wrappers: String = "\nvar _performance_timing: RefCounted\n"
-	for method: Dictionary in base.get_script_method_list():
-		var name: String = str(method.name)
-		if not name in ["solve","_maximize","_price_case","_coalesce_cases","_eliminate"]: continue
-		var expression: RegEx = RegEx.new()
-		expression.compile("(?m)^func "+name+"\\([^\\r\\n]*\\)[^\\r\\n]*:[ \\t]*$")
-		var match: RegExMatch = expression.search(source)
-		var header: String = match.get_string()
-		source = source.replace(header,header.replace("func "+name,"func _performance_original_"+name))
-		var arguments: PackedStringArray = []
-		for argument: Dictionary in method.args: arguments.append(str(argument.name))
-		wrappers += header+"\n\tvar started: int = Time.get_ticks_usec()\n"
-		var returns: bool = int(method["return"].type)!=TYPE_NIL
-		wrappers += "\t"+("var result: "+type_string(int(method["return"].type))+" = " if returns else "")+"_performance_original_"+name+"("+",".join(arguments)+")\n"
-		wrappers += "\t_performance_timing.count(\"solver."+name+"\",started)\n"
-		if returns: wrappers += "\treturn result\n"
-	source += wrappers
-	var file: FileAccess = FileAccess.open("res://performance-solver-profile.gd",FileAccess.WRITE)
-	file.store_string(source)
-	var script: GDScript = GDScript.new()
-	script.source_code = source
-	if script.reload()!=OK: return null
-	var result: RefCounted = script.new()
-	result.set("_performance_timing",self)
-	profile_sources.capacity_solver = source.sha256_text()
-	return result
-
 func attach(simulation: HospitalSimulation) -> bool:
 	# Install before dispatch. Keep the same simulation, services and facts.
 	# Every timed override delegates once to its production implementation.
@@ -147,7 +115,7 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 	var wrapped: int = 0
 	for method: Dictionary in base.get_script_method_list():
 		var name: String = str(method.name)
-		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_basis","_reference_geometry_basis","_capacity_reference_world","_case_experience","_reference_classes","_reference_variant","_normalize_bundle","_capacity_part","_resource_budgets","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","sample_at","begin_query","_positive_facilities","_nearby_actors","_coverage_edges","_coverage","_water_usable"]) and not (trace_phases and key=="waiting" and name in ["seat_candidates","_seat_quote"]): continue
+		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity"]) and not (key=="environment" and name in ["environment_at","sample_at","begin_query","_positive_facilities","_nearby_actors","_coverage_edges","_coverage","_water_usable"]) and not (trace_phases and key=="waiting" and name in ["seat_candidates","_seat_quote"]): continue
 		var expression: RegEx = RegEx.new()
 		expression.compile("(?m)^func "+name+"\\([^\\r\\n]*\\)[^\\r\\n]*:[ \\t]*$")
 		var header: RegExMatch = expression.search(base.source_code)
@@ -199,46 +167,10 @@ class TimedClinic extends HospitalClinic:
 	func _init(database: HospitalContent, geometry: HospitalSpace, observer: RefCounted) -> void:
 		super(database,geometry)
 		timing = observer
-	func _arrival_candidate(world: WorldState, binding_id: String, complex_case: bool) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._arrival_candidate(world,binding_id,complex_case)
-		timing.count("clinical.arrival_candidate",started)
-		return result
-	func _reference_options(world: WorldState, binding_id: String, complex_case: bool, shift: int, prior_quote: Dictionary = {}, shared: Dictionary = {}, query: Dictionary = {}) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._reference_options(world,binding_id,complex_case,shift,prior_quote,shared,query)
-		timing.count("clinical.reference_options.retry" if not prior_quote.is_empty() else "clinical.reference_options.first",started)
-		timing.checkpoint("reference_options.retry" if not prior_quote.is_empty() else "reference_options.first")
-		return result
-	func _reference_terminal_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, stages: Dictionary, query: Dictionary = {}) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._reference_terminal_bundle(world,visit,reception,diagnostic,quote,stages,query)
-		timing.count("clinical.reference_terminal_bundle",started)
-		return result
-	func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, shift: int = 0, query: Variant = null) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super.reference_demand(world,binding_id,complex_case,shift,query)
-		timing.count("clinical.reference_demand",started)
-		return result
 	func service_candidates(world: WorldState, visit: Dictionary, kind: String, structural_only: bool = false, reference_schedule: bool = false, selection: Dictionary = {}) -> Array:
 		var started: int = Time.get_ticks_usec()
 		var result: Array = super.service_candidates(world,visit,kind,structural_only,reference_schedule,selection)
 		timing.count("clinical.service_candidates."+kind,started)
-		return result
-	func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, tests: Dictionary, consultation: Dictionary = {}) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._reference_bundle(world,visit,reception,diagnostic,quote,tests,consultation)
-		timing.count("clinical.reference_bundle",started)
-		return result
-	func _reference_with_retry(first: Dictionary, retry: Dictionary, first_probability_bp: int) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._reference_with_retry(first,retry,first_probability_bp)
-		timing.count("clinical.reference_with_retry",started)
-		return result
-	func _reference_model(options: Dictionary, binding_id: String, complex_case: bool, shift: int) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._reference_model(options,binding_id,complex_case,shift)
-		timing.count("clinical.reference_model",started)
 		return result
 	func dispatch(world: WorldState) -> void:
 		var started: int = Time.get_ticks_usec()

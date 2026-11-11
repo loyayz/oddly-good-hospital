@@ -1,13 +1,12 @@
 extends "res://tests/acceptance/clinical_fixtures.gd"
 
 # These checks deliberately begin before admission or before an actual
-# consultation. They never seed completed diagnosis/treatment to prove either.
+# plan selection. They never seed completed diagnosis/treatment to prove either.
 func run(t) -> void:
 	_content = HospitalContent.new()
 	await _natural_diagnosis(t)
-	await _consultation_waits(t)
+	await _plan_waits(t)
 	await _no_doctor_wait(t)
-	await _bed_shortage(t)
 	_low_probability(t)
 	_natural_opportunity(t)
 	_complex_variants(t)
@@ -24,12 +23,13 @@ func _natural_diagnosis(t) -> void:
 	var before: Dictionary = c.world.freeze()
 	var ready: Dictionary = c.sim.clinic.arrival_readiness(c.world,"B_S13_D09_M09")
 	var readonly: bool = before==c.world.freeze()
+	_seed_stream(c.world,"treatment",false,true,4000,9200)
 	var arrived: bool = _arrive(c)
-	var diagnosed: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("evidence_by_source",{}).has("gp"),1800)
-	var diagnosis: Dictionary = _visit(c).get("evidence_by_source",{}).duplicate()
+	var diagnosed: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("diagnosis",{}).get("gp_completed",false),1800)
+	var diagnosis: Dictionary = _visit(c).get("diagnosis",{}).duplicate()
 	var ticket_id: String = str(_visit(c).get("ticket_id",""))
 	await _steps(t,c,25)
-	var waiting: bool = _visit(c).get("phase","")=="wait_consult" and _visit(c).get("ticket_id","")==ticket_id
+	var waiting: bool = _visit(c).get("phase","")=="wait_outpatient" and _visit(c).get("ticket_id","")==ticket_id
 	t.check("NAT-01",ready.ok and readonly and diagnosed and waiting and c.world.facts.attempts.is_empty() and int(c.started.get("gp",0))==1,{"ready":ready,"readonly":readonly,"diagnosis":diagnosis,"waiting":waiting,"state":_state(c)})
 	# Repair is an actual state change; resumed care must not redo the GP.
 	for id: String in c.world.facility_ids("M09"):
@@ -37,7 +37,7 @@ func _natural_diagnosis(t) -> void:
 	c.world.touch()
 	_seed_stream(c.world,"treatment",true,true,9200,9800)
 	var cured: bool = await _until(t,c,func()->bool: return _visit(c).get("phase","")=="departed",2200)
-	t.check("NAT-02",cured and _visit(c).get("final_result","")=="cured" and int(c.started.get("gp",0))==1 and int(c.started.get("consult",0))==1 and _income(c,"consultation")==20 and _units_used(c)==1,{"started":c.started,"state":_state(c)})
+	t.check("NAT-02",cured and _visit(c).get("final_result","")=="cured" and int(c.started.get("gp",0))==1 and int(c.started.get("consult",0))==0 and _income(c,"consultation")==20 and _units_used(c)==1,{"started":c.started,"state":_state(c)})
 
 func _clone(c: Dictionary) -> Dictionary:
 	var copy: Dictionary = c.duplicate(true)
@@ -47,63 +47,53 @@ func _clone(c: Dictionary) -> Dictionary:
 	_simulations.append(copy.sim)
 	return copy
 
-func _consultation_waits(t) -> void:
-	var base: Dictionary = _context()
-	base.sim.clinic.experience = base.sim.services.experience
-	var arrived: bool = _arrive(base)
-	var started: bool = arrived and await _until(t,base,func()->bool: return _visit(base).get("phase","")=="consult",1800)
-	if not started:
-		t.check("NAT-03",false,{"consultation_missing":_state(base)})
-		return
-	var original: Dictionary = _session(base,"consult").duplicate(true)
-	var recommended: Dictionary = original.get("selected_plan",{})
-	var future_staff: Array = [str(base.doctors[1])] # The fixture assigns this separate doctor to the treatment pool.
-	var consultant: String = str(original.staff_ids[0])
-	var unreserved: bool = true
-	for reservation: Dictionary in base.world.facts.preparations.values():
-		if reservation.visit_id==base.visit_id:
-			for id: String in reservation.staff_ids:
-				if id!=consultant: unreserved = false
-	t.check("NAT-03",not recommended.is_empty() and not future_staff.is_empty() and not consultant in future_staff and unreserved,{"consultant":consultant,"future_staff":future_staff,"selected_plan":recommended,"unreserved":unreserved})
+func _plan_waits(t) -> void:
+	var base: Dictionary=_context()
+	_seed_stream(base.world,"treatment",false,true,4000,9200)
+	var arrived: bool=_arrive(base)
+	var planned: bool=arrived and await _until(t,base,func()->bool:return _visit(base).get("diagnosis",{}).get("state","")=="diagnosed" and _visit(base).phase=="wait_outpatient",1800)
+	if not planned:
+		t.check("NAT-03",false,{"plan_missing":_state(base)});return
+	var decision: Dictionary=_visit(base).plan_decision.duplicate(true)
+	var recommended: Dictionary=base.sim.clinic.plan_quote(base.world,base.visit_id,str(decision.plan_id))
+	var future_staff: Array=[str(base.doctors[1])]
+	var unreserved: bool=base.world.facts.preparations.is_empty() and base.world.facts.attempts.is_empty()
+	t.check("NAT-03",recommended.ok and not decision.is_empty() and unreserved and int(base.started.get("consult",0))==0,{"original_doctor":_visit(base).diagnosis.doctor_id,"future_staff":future_staff,"plan":decision,"no_future_bundle_reserved":unreserved})
+	if not recommended.ok: return
 	for shortage: String in ["supplies","staff","equipment","congestion"]:
-		var c: Dictionary = _clone(base)
-		var schedules: Dictionary = {}
-		var units: int = int(c.world.facts.inventory.units)
-		if shortage=="supplies": c.world.facts.inventory.units = 0
+		var c: Dictionary=_clone(base)
+		var schedules: Dictionary={}
+		var units: int=int(c.world.facts.inventory.units)
+		if shortage=="supplies": c.world.facts.inventory.units=0
 		if shortage=="staff":
 			for id: String in future_staff:
-				schedules[id] = c.world.facts.staff[id].schedule.duplicate(true)
-				c.world.facts.staff[id].schedule = _schedule("rest")
-		if shortage=="equipment": c.world.facts.facilities[recommended.facility_id].failed = true
+				schedules[id]=c.world.facts.staff[id].schedule.duplicate(true)
+				c.world.facts.staff[id].schedule=_schedule("rest")
+		if shortage=="equipment": c.world.facts.facilities[recommended.facility_id].failed=true
 		if shortage=="congestion":
-			# A real, stationary body occupies the otherwise legal treatment slot.
-			# We test waiting/recovery, not the bystander's earlier arrival.
-			var blocker: Dictionary = c.world.facts.actors[_visit(c).actor_id].duplicate(true)
-			blocker.id = "temporary_bystander"
-			blocker.location.cell = c.world.facts.facilities[recommended.facility_id].patient_cell.duplicate()
-			c.world.facts.actors[blocker.id] = blocker
+			var blocker: Dictionary=c.world.facts.actors[_visit(c).actor_id].duplicate(true)
+			blocker.id="temporary_bystander"
+			blocker.location.cell=c.world.facts.facilities[recommended.facility_id].patient_cell.duplicate()
+			c.world.facts.actors[blocker.id]=blocker
 			c.sim.space.sync_actor(c.world,blocker.id)
 		c.world.touch()
-		var completed: bool = await _until(t,c,func()->bool: return _visit(c).get("phase","")=="wait_outpatient",150)
-		var decision: Dictionary = _visit(c).get("plan_decision",{}).duplicate(true)
-		var ticket_id: String = str(_visit(c).get("ticket_id",""))
+		var ticket_id: String=str(_visit(c).ticket_id)
 		await _steps(t,c,30)
-		var remained: bool = _visit(c).get("phase","")=="wait_outpatient" and _visit(c).get("plan_decision",{})==decision and _visit(c).get("ticket_id","")==ticket_id and c.world.facts.attempts.is_empty()
-		var valid: String = c.world.validate(_content)
-		var resumed: Dictionary = _clone(c)
-		# Current-version snapshot restore must retain completed consultation.
-		var restored: bool = _visit(resumed).get("plan_decision",{})==decision and _visit(resumed).get("ticket_id","")==ticket_id
-		if shortage=="supplies": resumed.world.facts.inventory.units = units
+		var remained: bool=_visit(c).phase=="wait_outpatient" and _visit(c).plan_decision==decision and _visit(c).ticket_id==ticket_id and c.world.facts.attempts.is_empty()
+		var valid: String=c.world.validate(_content)
+		var resumed: Dictionary=_clone(c)
+		var restored: bool=_visit(resumed).plan_decision==decision and _visit(resumed).ticket_id==ticket_id
+		if shortage=="supplies": resumed.world.facts.inventory.units=units
 		if shortage=="staff":
-			for id: String in schedules: resumed.world.facts.staff[id].schedule = schedules[id]
-		if shortage=="equipment": resumed.world.facts.facilities[recommended.facility_id].failed = false
+			for id: String in schedules: resumed.world.facts.staff[id].schedule=schedules[id]
+		if shortage=="equipment": resumed.world.facts.facilities[recommended.facility_id].failed=false
 		if shortage=="congestion":
-			resumed.world.facts.actors.temporary_bystander.location = {"kind":"outside"}
+			resumed.world.facts.actors.temporary_bystander.location={"kind":"outside"}
 			resumed.sim.space.sync_actor(resumed.world,"temporary_bystander")
 		resumed.world.touch()
 		_seed_stream(resumed.world,"treatment",true,true,9200,9800)
-		var cured: bool = await _until(t,resumed,func()->bool: return _visit(resumed).get("phase","")=="departed",2200)
-		t.check("NAT-04-"+shortage,completed and remained and restored and valid.is_empty() and cured and _visit(resumed).get("final_result","")=="cured" and int(resumed.started.get("consult",0))==1 and _income(resumed,"consultation")==20 and _units_used(resumed)==1,{"completed":completed,"remained":remained,"restored":restored,"validation":valid,"started":resumed.started,"state":_state(resumed)})
+		var cured: bool=await _until(t,resumed,func()->bool:return _visit(resumed).phase=="departed",2200)
+		t.check("NAT-04-"+shortage,remained and restored and valid.is_empty() and cured and _visit(resumed).final_result=="cured" and int(resumed.started.get("gp",0))==1 and int(resumed.started.get("consult",0))==0 and _income(resumed,"consultation")==20 and _units_used(resumed)==1,{"waited":remained,"restored":restored,"validation":valid,"started":resumed.started,"state":_state(resumed)})
 
 func _no_doctor_wait(t) -> void:
 	var c: Dictionary = _context()
@@ -117,40 +107,6 @@ func _no_doctor_wait(t) -> void:
 	_seed_stream(c.world,"patience",true,true,1000,1000)
 	var left: bool = await _until(t,c,func()->bool: return _visit(c).get("phase","")=="departed",1600)
 	t.check("NAT-05-patience",left and _visit(c).get("final_result","")=="abandoned" and int(c.started.get("gp",0))==0 and c.world.facts.tickets.is_empty(),_state(c))
-
-func _bed_shortage(t) -> void:
-	var base: Dictionary = _context(true,true)
-	base.sim.clinic.experience = base.sim.services.experience
-	base.world.facts.staff[base.doctors[1]].abilities.treatment = 3
-	var arrived: bool = _arrive(base,"B_S22_D14_M14","P_D14_COMMON")
-	if arrived: _visit(base).complex = true
-	base.world.touch()
-	var consulted: bool = arrived and await _until(t,base,func()->bool: return _visit(base).get("phase","")=="consult",2200)
-	var session: Dictionary = _session(base,"consult")
-	var selected: Dictionary = session.get("selected_plan",{})
-	if not consulted or selected.get("plan_id","")!="P_D14_GENTLE" or not selected.has("bed_id"):
-		t.check("NAT-06",false,{"selected":selected,"state":_state(base)})
-		return
-	var c: Dictionary = _clone(base)
-	var room_id: String = str(c.world.facts.facilities[selected.bed_id].room_id)
-	c.world.facts.rooms[room_id].open = false
-	c.world.touch()
-	var completed: bool = await _until(t,c,func()->bool: return _visit(c).get("phase","")=="wait_outpatient",150)
-	var ticket: String = str(_visit(c).get("ticket_id",""))
-	var decision: Dictionary = _visit(c).get("plan_decision",{}).duplicate(true)
-	await _steps(t,c,30)
-	var waiting: bool = completed and _visit(c).get("phase","")=="wait_outpatient" and _visit(c).get("ticket_id","")==ticket and _visit(c).get("plan_decision",{})==decision and c.world.facts.attempts.is_empty()
-	c.world.facts.rooms[room_id].open = true
-	c.world.touch()
-	var resumed: bool = await _until(t,c,func()->bool: return _visit(c).get("phase","")=="outpatient",1000)
-	t.check("NAT-06",waiting and resumed and int(c.started.get("consult",0))==1 and not _stay(c).is_empty(),{"waited_for_bed":waiting,"resumed":resumed,"started":c.started,"state":_state(c)})
-	# Removing the selected plan's research is different from resource scarcity.
-	var invalid: Dictionary = _clone(base)
-	for research_id: String in ["R33"]:
-		while research_id in invalid.world.facts.research: invalid.world.facts.research.erase(research_id)
-	invalid.world.touch()
-	var reevaluate: bool = await _until(t,invalid,func()->bool: return _visit(invalid).get("phase","")=="wait_consult",150)
-	t.check("NAT-07",reevaluate and _visit(invalid).get("plan_decision",{}).is_empty() and invalid.world.facts.attempts.is_empty(),_state(invalid))
 
 class CountedClinic extends HospitalClinic:
 	var physical_pairs: int = 0
@@ -237,7 +193,7 @@ func _surgery_policy(t) -> void:
 		# Legal boundary input: a surgery recommendation already exists, but no
 		# preparation, resource promise or Attempt has begun. Only invalidation is tested.
 		var visit: Dictionary = _visit(c)
-		visit.evidence_by_source = {"gp":92.0}
+		visit.diagnosis = preload("res://tests/acceptance/clinical_input.gd").diagnosed(c.doctors[0],"gp_station")
 		visit.plan_decision = {"plan_id":"P_D09_SURGERY","source":source,"doctor_id":c.doctors[0],"revision":1,"probability_bp":9600,"expected_team":["clin_surgeon","clin_anesthesia","clin_or_nurse"]}
 		c.sim.clinic._queue(c.world,visit,"surgery")
 		var ticket: Dictionary = c.world.facts.tickets[visit.ticket_id]
@@ -249,7 +205,7 @@ func _surgery_policy(t) -> void:
 		var before_validation: String = c.world.validate(_content)
 		c.sim.clinic._prepare_surgery(c.world,visit,ticket)
 		var after_validation: String = c.world.validate(_content)
-		var reviewed: bool = visit.phase=="wait_consult" if source=="doctor" else visit.phase=="wait_surgery" and not str(visit.plan_decision.get("pending_reason","")).is_empty()
+		var reviewed: bool = visit.phase in ["wait_outpatient","wait_plan"] and visit.plan_decision.get("plan_id","")!="P_D09_SURGERY" if source=="doctor" else visit.phase=="wait_surgery" and not str(visit.plan_decision.get("pending_reason","")).is_empty()
 		t.check("NAT-11-"+source,before_validation.is_empty() and after_validation.is_empty() and reviewed and visit.ticket_id==ticket_id and int(ticket.waited_ticks)==17 and c.world.facts.attempts.is_empty() and c.world.facts.preparations.is_empty() and int(c.world.facts.inventory.units)==units,{"source":source,"reviewed":reviewed,"before_validation":before_validation,"after_validation":after_validation,"ticket":ticket,"decision":visit.plan_decision,"phase":visit.phase,"waiting_reason":visit.waiting_reason})
 
 func _mixed_treatment_pool(t) -> void:
@@ -265,4 +221,4 @@ func _mixed_treatment_pool(t) -> void:
 	var treatment: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="outpatient",2200)
 	var actual: Dictionary = _session(c,"outpatient").duplicate(true)
 	var departed: bool = treatment and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="departed",1600)
-	t.check("NAT-12",departed and _visit(c).get("final_result","")=="cured" and actual.get("staff_ids",[])==[c.doctors[1]] and _visit(c).plan_decision.doctor_id==c.doctors[0] and int(c.started.get("consult",0))==1 and _units_used(c)==3,{"consultant":_visit(c).get("plan_decision",{}).get("doctor_id",""),"actual_treatment_team":actual.get("staff_ids",[]),"started":c.started,"state":_state(c)})
+	t.check("NAT-12",departed and _visit(c).get("final_result","")=="cured" and actual.get("staff_ids",[])==[c.doctors[1]] and _visit(c).plan_decision.doctor_id==c.doctors[0] and int(c.started.get("consult",0))==0 and _units_used(c)==3,{"consultant":_visit(c).get("plan_decision",{}).get("doctor_id",""),"actual_treatment_team":actual.get("staff_ids",[]),"started":c.started,"state":_state(c)})

@@ -116,7 +116,7 @@ func _context(content: HospitalContent, kind: String, geometry: HospitalSpace = 
 		var visit_id: String = "gather_visit_"+str(index)
 		var binding: Dictionary = content.definition("treatment_bindings","B_S13_D09_M09")
 		world.facts.actors[actor_id] = {"id":actor_id,"name":"候诊居民","species_id":binding.species_id,"body_binding_id":binding.id,"facing":0.0,"posture":"standing","location":{"kind":"floor","floor_id":1,"cell":[20+index*4,24],"height_m":0.0}}
-		world.facts.visits[visit_id] = {"id":visit_id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_D09_COMMON","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrived_tick":0,"arrival_key":visit_id,"last_progress_tick":0,"last_service_tick":0}
+		world.facts.visits[visit_id] = {"id":visit_id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_D09_COMMON","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"arrival","diagnosis":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrived_tick":0,"arrival_key":visit_id,"last_progress_tick":0,"last_service_tick":0}
 		world.facts.arrival_receipts[visit_id] = visit_id
 		# Declared queue input: the measured operation is gathering and actual
 		# arrival, not the prior diagnostic service.

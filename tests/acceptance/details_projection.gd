@@ -61,7 +61,7 @@ func _add_archived_inputs(world: WorldState, early: Dictionary, count: int) -> v
 	for index: int in count:
 		var id: String = "details_history_%02d"%index
 		var visit: Dictionary = template.duplicate(true)
-		visit.merge({"id":id,"actor_id":id,"arrival_key":id,"phase":"departed","ticket_id":"","final_result":"referred","departed_tick":world.sim_tick,"departure_recorded":true,"companion_intent":false},true)
+		visit.merge({"id":id,"actor_id":id,"arrival_key":id,"phase":"departed","ticket_id":"","final_result":"referred","departed_tick":world.sim_tick,"departure_recorded":true},true)
 		var actor: Dictionary = actor_template.duplicate(true)
 		actor.merge({"id":id,"name":"历史病例%02d"%index,"location":{"kind":"outside"}},true)
 		world.facts.actors[id] = actor
@@ -143,12 +143,9 @@ func _original_details(app) -> void:
 		lines.append("暂停原因："+", ".join(reasons))
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
-		var evidence: float = 0.0
-		for value: Variant in visit.evidence_by_source.values():
-			evidence += float(value)
 		lines.append("\n[b]"+str(world.facts.actors[visit.actor_id].name)+"[/b]")
-		lines.append(str(_content.definition("diseases",visit.disease_id).name) if evidence>=90 else str(_content.definition("treatment_bindings",visit.binding_id).symptom_variant))
-		lines.append("诊断进度 %d / 90" % mini(90,floori(evidence)))
+		lines.append(str(_content.definition("diseases",visit.disease_id).name) if visit.get("diagnosis",{}).get("state","")=="diagnosed" else str(_content.definition("treatment_bindings",visit.binding_id).symptom_variant))
+		lines.append("已确诊" if visit.get("diagnosis",{}).get("state","")=="diagnosed" else "等待检查后复核" if visit.get("diagnosis",{}).get("exam_completed",false) else "信息不足，等待一次检查" if visit.get("diagnosis",{}).get("state","")=="insufficient" else "等待初诊结果")
 		lines.append(app._phase_name(visit.phase))
 		if not visit.waiting_reason.is_empty():
 			lines.append(visit.waiting_reason)

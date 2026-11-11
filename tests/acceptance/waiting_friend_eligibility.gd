@@ -25,9 +25,7 @@ func _friend_case(kind: String, prefix: String) -> Dictionary:
 		x.world.facts.actors[friend.actor_id].location = {"kind":"outside"}
 		x.world.facts.tickets.erase(friend.ticket_id);friend.ticket_id="";friend.phase="departed"
 	if kind.begins_with("visitor_"):
-		# The same body is a relative, not a patient. Its purpose owner differs.
-		observer.relative_actor_id = friend.actor_id
-		x.world.facts.visitors.stays["relative"] = {"id":"relative","visit_id":observer.id,"actor_id":friend.actor_id,"purpose":"companion","phase":"waiting" if kind=="visitor_waiting" else "leaving","remaining_ticks":0,"waiting_floor":1,"waiting_cell":[44,90],"pending_window":"","started_window":"","public_use":{}}
+		_inpatient_relative_input(x,friend.actor_id,"waiting" if kind=="visitor_waiting" else "leaving")
 	if kind=="clinical":
 		# Legal pre-operation ready-at-station input. This tests dispatch into
 		# actual GP ownership, not how the patient or doctor arrived here.
@@ -85,3 +83,29 @@ func _friend_case(kind: String, prefix: String) -> Dictionary:
 	var result: Dictionary = {"case":kind,"ok":ok,"input_validation":input_validation,"validation":validation,"quote":quote,"expected_friend":expected,"eligible_idle_public":eligible,"read_only":unchanged,"actual_motion":moved,"restored_moving_excluded":restored_moving_excluded,"actual_arrival_idle":arrived_idle,"request":request,"clinical_started_by_dispatch":clinical_started,"start":start,"observed_end":observed_end,"final_location":actor.location.duplicate(true),"convoy_follower_has_no_own_record":no_own_convoy_record,"sessions":x.world.facts.sessions.duplicate(true)}
 	_dispose(x)
 	return result
+
+# This downstream seating case starts with lawful inpatient-family history.
+# It does not assert that any preceding admission or family walk has occurred.
+func _inpatient_relative_input(x: Dictionary, relative_id: String, phase: String) -> void:
+	var fixture: RefCounted=load("res://tests/acceptance/clinical_fixtures.gd").new()
+	fixture._content=_content
+	fixture._add_layout(x.world,"ward_two_beds","friend_ward",[45,65])
+	fixture._add_worker(x.world,"friend_cover","nurse",[46,72],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","friend_ward")
+	fixture._add_worker(x.world,"friend_host_doctor","doctor",[54,88],"outpatient",{"diagnosis":2,"treatment":2,"care":0,"surgery":0})
+	x.world.facts.staff.friend_cover.base_prepared=true
+	for research: Dictionary in _content.catalog.research:
+		if not research.id in x.world.facts.research: x.world.facts.research.append(research.id)
+	var actor_id: String="friend_host"
+	x.world.facts.actors[actor_id]={"id":actor_id,"name":"住院亲属","species_id":"S49","body_binding_id":"B_S49_D23_M23","location":{"kind":"floor","floor_id":1,"cell":[47,67],"height_m":0.0},"facing":0.0,"posture":"standing"}
+	var visit_id: String="friend_host_visit"
+	var visit: Dictionary={"id":visit_id,"actor_id":actor_id,"disease_id":"D23","binding_id":"B_S49_D23_M23","requested_plan_id":"P_D23_SURGERY","expression":"clear","personality_id":"PP01","anger":0.0,"phase":"wait_surgery","diagnosis":preload("res://tests/acceptance/clinical_input.gd").diagnosed("friend_host_doctor","completed_gp_station"),"attempt_ids":[],"plan_decision":{"plan_id":"P_D23_SURGERY","source":"director","doctor_id":"friend_host_doctor","revision":1,"probability_bp":9600,"expected_team":[]},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"friend_host_ticket","doctor_fee_quote":20,"arrived_tick":x.world.sim_tick,"arrival_key":visit_id,"last_progress_tick":x.world.sim_tick,"last_service_tick":x.world.sim_tick}
+	x.world.facts.visits[visit_id]=visit
+	x.world.register_visit(visit_id)
+	x.world.facts.arrival_receipts[visit_id]=visit_id
+	x.world.facts.tickets[visit.ticket_id]={"id":visit.ticket_id,"visit_id":visit_id,"kind":"surgery","enqueued_tick":x.world.sim_tick}
+	var ward: Dictionary={"id":"friend_host_stay","visit_id":visit_id,"attempt_id":"","bed_id":"friend_ward_0","phase":"waiting_surgery","remaining_ticks":0,"work_credit_milli":0,"care_completed":false,"nurse_id":"friend_cover","escort_id":"friend_cover","last_progress_tick":x.world.sim_tick,"admitted_tick":x.world.sim_tick,"companion_evaluated":true,"companion_qualified":true,"companion_actor_id":relative_id,"visitor_day":x.world.sim_tick/WorldState.TICKS_PER_DAY,"visitor_intent":false,"visitor_requested":false}
+	x.world.facts.ward_stays[ward.id]=ward
+	assert(x.space.reserve_facility(x.world,ward.bed_id,actor_id,ward.id,[ward.nurse_id]).is_empty())
+	x.c._support(x.world,visit,x.space.facility_layout(x.world,ward.bed_id),"lying")
+	x.world.facts.actors[relative_id].relative_of=actor_id
+	x.world.facts.visitors.stays["relative"]={"id":"relative","visit_id":visit_id,"actor_id":relative_id,"purpose":"companion","phase":phase,"remaining_ticks":0,"waiting_floor":1,"waiting_cell":[44,90],"life_task":{},"return_ward_first":false,"yielding":false,"next_need_tick":x.world.sim_tick+1800,"next_purpose":"toilet","public_use":{"id":"relative","actor_id":relative_id,"public_purpose":"seat","mode":"auto","area":{},"facility_id":"","arrived_tick":-1,"phase":"away","started_tick":x.world.sim_tick}}
