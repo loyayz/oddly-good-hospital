@@ -570,11 +570,6 @@ func _queue_context(world: WorldState, desk_id: String) -> Dictionary:
 	_queue_contexts[desk_id]=result
 	return result
 
-func _queue_slots(_world: WorldState, _desk_id: String, _span: int) -> Array:
-	# No precomputed capacity or column circulation. Ordinary navigation owns
-	# the journey to the recorded endpoint; snake slots exist only for members.
-	return []
-
 func _desk_queue(world: WorldState, desk_id: String) -> Array:
 	var desk: Dictionary=world.facts.get("floor_guidance",{}).get("desks",{}).get(desk_id,{})
 	if desk.has("queue"):return desk.queue

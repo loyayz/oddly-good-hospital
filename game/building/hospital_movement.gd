@@ -770,9 +770,7 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		var floor_id: int = int(movement.target_floor) if waypoint.is_empty() else int(waypoint.floor_id)
 		var cell: Array = movement.target_cell if waypoint.is_empty() else waypoint.cell
 		var quote: Dictionary={}
-		if waypoint.is_empty():quote=preload("res://game/operations/guidance_queue_routes.gd").quote(space,world,movement,floor_id,cell)
-		if not quote.is_empty():pass
-		elif not waypoint.is_empty() and movement.has("convoy"):
+		if not waypoint.is_empty() and movement.has("convoy"):
 			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
 		elif waypoint.is_empty() and not movement.get("floor_only",false):
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
