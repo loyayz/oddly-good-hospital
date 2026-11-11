@@ -1,0 +1,2390 @@
+{
+  "schema": "movement-contacts-candidates-v1",
+  "date": "2026-11-12",
+  "scope": "Only _movement_contacts single-sided already-sorted candidate reuse. Two-sided merge/sort, strict region filtering, every candidate, reservation query, exact sweep, first-contact semantics and original gameplay remain. Functional and readonly micro evidence only; no 160-person whole-step acceptance claim.",
+  "baseline_commit": "9e3a1e0faeb2f2425ee1d6d5821c96b019cfb57d",
+  "production": {
+    "baseline_file_sha256": "d4ccd806fd0004bdd67c67346c7097a7e96ca363d03579c013aef86e80ec5773",
+    "candidate_file_sha256": "23dc3c909630556aadee34be6921d93af50e631f7eccd4dd1562a4f4ddf7f1fa",
+    "baseline_function_sha256": "491337ecfcccea0674c26a60a1e33035136d6ebe958d7899e4a87c71aeca0d49",
+    "candidate_function_sha256": "5361a8df78c8fa6b7d90f1121945e5a56036b7ee2906e68cb6f4a2e1078a90ec",
+    "method_only_reverse_exact": true,
+    "plain_sources_have_no_counter_hooks": true
+  },
+  "final_source_sha256": {
+    "game/building/hospital_movement.gd": "23dc3c909630556aadee34be6921d93af50e631f7eccd4dd1562a4f4ddf7f1fa",
+    "tests/acceptance/movement_contacts_oracle.gd": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+    "tests/acceptance/movement_contacts_candidates.gd": "8cfe53cfe6cfc1f2a7105c520ca9ab17d4134740f7048a7f6ae807fdee60434b",
+    "tests/acceptance/movement_contacts_candidates_runner.gd": "984aa6e21f44e78634b0389f9946f4f84c3555dfff93929ad05fa266615bf9d0",
+    "tools/performance/current/movement_contacts_probe.gd": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+    "tests/acceptance/movement_contacts_candidates.md": "1533b0c1e37f0388019ae3e1a73f5d960ced611568e4db9b045af675314b8cf2",
+    "tools/performance/current/prepare_movement_contacts_probe.py": "280250cb80f3851ee1ea9d6a7379104657ced4109a60602bd38fb82ad78f0ab9",
+    "tests/acceptance/movement_contacts_oracle.gd.uid": "d3635f625870457946df863345188ac49e6e74de1da2aa46460c76805d7e0ab5",
+    "tests/acceptance/movement_contacts_candidates.gd.uid": "a237f86925cfab7bf36f7316fe99d0e8fb2a51ac3bf85d3535307d2cbc2760e5",
+    "tests/acceptance/movement_contacts_candidates_runner.gd.uid": "9168fe5fbfcc0f578890f7faa36503db4e781e1742b875b925730ada6d73b6db",
+    "tools/performance/current/movement_contacts_probe.gd.uid": "d5e1b4b7dc34d81f3e637e4e48b702c9103d92a2a3789b5cf1a78b025c54133d"
+  },
+  "input": {
+    "path": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+    "sha256": "0afa344f973e4ce8b12ce46a034f3dc754f43e42e446938e94f4ed47163aaf74",
+    "tick": 7633,
+    "population": {
+      "actor_records": 179,
+      "facilities": 1361,
+      "moves": 152,
+      "present": 169,
+      "reservations": 2
+    },
+    "source_queries": {
+      "current_body": 151,
+      "goal": 151,
+      "local": 137
+    },
+    "source_move_ids": {
+      "current_body": [
+        "bench_patient_0000",
+        "bench_patient_0001",
+        "bench_patient_0002",
+        "bench_patient_0003",
+        "bench_patient_0004",
+        "bench_patient_0005",
+        "bench_patient_0006",
+        "bench_patient_0007",
+        "bench_patient_0008",
+        "bench_patient_0009",
+        "bench_patient_0010",
+        "bench_patient_0011",
+        "bench_patient_0013",
+        "bench_patient_0014",
+        "bench_patient_0015",
+        "bench_patient_0016",
+        "bench_patient_0017",
+        "bench_patient_0018",
+        "bench_patient_0019",
+        "bench_patient_0020",
+        "bench_patient_0021",
+        "bench_patient_0022",
+        "bench_patient_0023",
+        "bench_patient_0024",
+        "bench_patient_0025",
+        "bench_patient_0026",
+        "bench_patient_0027",
+        "bench_patient_0028",
+        "bench_patient_0029",
+        "bench_patient_0030",
+        "bench_patient_0031",
+        "bench_patient_0032",
+        "bench_patient_0033",
+        "bench_patient_0034",
+        "bench_patient_0035",
+        "bench_patient_0036",
+        "bench_patient_0037",
+        "bench_patient_0038",
+        "bench_patient_0039",
+        "bench_patient_0040",
+        "bench_patient_0041",
+        "bench_patient_0042",
+        "bench_patient_0043",
+        "bench_patient_0044",
+        "bench_patient_0045",
+        "bench_patient_0046",
+        "bench_patient_0047",
+        "bench_patient_0049",
+        "bench_patient_0050",
+        "bench_patient_0051",
+        "bench_patient_0052",
+        "bench_patient_0053",
+        "bench_patient_0054",
+        "bench_patient_0055",
+        "bench_patient_0056",
+        "bench_patient_0057",
+        "bench_patient_0058",
+        "bench_patient_0059",
+        "bench_patient_0060",
+        "bench_patient_0061",
+        "bench_patient_0062",
+        "bench_patient_0063",
+        "bench_patient_0064",
+        "bench_patient_0065",
+        "bench_patient_0066",
+        "bench_patient_0068",
+        "bench_patient_0069",
+        "bench_patient_0070",
+        "bench_patient_0071",
+        "bench_patient_0072",
+        "bench_patient_0073",
+        "bench_patient_0074",
+        "bench_patient_0075",
+        "bench_patient_0076",
+        "bench_patient_0077",
+        "bench_patient_0078",
+        "bench_patient_0079",
+        "bench_patient_0080",
+        "bench_patient_0081",
+        "bench_patient_0082",
+        "bench_patient_0083",
+        "bench_patient_0084",
+        "bench_patient_0085",
+        "bench_patient_0086",
+        "bench_patient_0087",
+        "bench_patient_0088",
+        "bench_patient_0089",
+        "bench_patient_0090",
+        "bench_patient_0091",
+        "bench_patient_0092",
+        "bench_patient_0093",
+        "bench_patient_0094",
+        "bench_patient_0095",
+        "bench_patient_0096",
+        "bench_patient_0097",
+        "bench_patient_0098",
+        "bench_patient_0099",
+        "bench_patient_0100",
+        "bench_patient_0101",
+        "bench_patient_0102",
+        "bench_patient_0103",
+        "bench_patient_0104",
+        "bench_patient_0105",
+        "bench_patient_0106",
+        "bench_patient_0107",
+        "bench_patient_0108",
+        "bench_patient_0109",
+        "bench_patient_0110",
+        "bench_patient_0111",
+        "bench_patient_0112",
+        "bench_patient_0113",
+        "bench_patient_0114",
+        "bench_patient_0115",
+        "bench_patient_0116",
+        "bench_patient_0117",
+        "bench_patient_0118",
+        "bench_patient_0119",
+        "bench_patient_0120",
+        "bench_patient_0121",
+        "bench_patient_0122",
+        "bench_patient_0123",
+        "bench_patient_0125",
+        "bench_patient_0126",
+        "bench_patient_0127",
+        "bench_staff_0008",
+        "bench_staff_0010",
+        "bench_staff_0012",
+        "bench_staff_0014",
+        "bench_staff_0016",
+        "bench_staff_0017",
+        "bench_staff_0018",
+        "bench_staff_0019",
+        "bench_staff_0020",
+        "bench_staff_0021",
+        "bench_staff_0023",
+        "bench_staff_0027",
+        "bench_staff_0028",
+        "bench_staff_0029",
+        "bench_staff_0030",
+        "bench_staff_0031",
+        "maintenance_contractor_00000181",
+        "maintenance_contractor_00000220",
+        "maintenance_contractor_00000221",
+        "maintenance_contractor_00000246",
+        "maintenance_contractor_00000256",
+        "maintenance_contractor_00000257",
+        "patient_00000204",
+        "patient_00000229",
+        "patient_00000249",
+        "relative_00000191",
+        "relative_00000198"
+      ],
+      "goal": [
+        "bench_patient_0000",
+        "bench_patient_0001",
+        "bench_patient_0002",
+        "bench_patient_0003",
+        "bench_patient_0004",
+        "bench_patient_0005",
+        "bench_patient_0006",
+        "bench_patient_0007",
+        "bench_patient_0008",
+        "bench_patient_0009",
+        "bench_patient_0010",
+        "bench_patient_0011",
+        "bench_patient_0013",
+        "bench_patient_0014",
+        "bench_patient_0015",
+        "bench_patient_0016",
+        "bench_patient_0017",
+        "bench_patient_0018",
+        "bench_patient_0019",
+        "bench_patient_0020",
+        "bench_patient_0021",
+        "bench_patient_0022",
+        "bench_patient_0023",
+        "bench_patient_0024",
+        "bench_patient_0025",
+        "bench_patient_0026",
+        "bench_patient_0027",
+        "bench_patient_0028",
+        "bench_patient_0029",
+        "bench_patient_0030",
+        "bench_patient_0031",
+        "bench_patient_0032",
+        "bench_patient_0033",
+        "bench_patient_0034",
+        "bench_patient_0035",
+        "bench_patient_0036",
+        "bench_patient_0037",
+        "bench_patient_0038",
+        "bench_patient_0039",
+        "bench_patient_0040",
+        "bench_patient_0041",
+        "bench_patient_0042",
+        "bench_patient_0043",
+        "bench_patient_0044",
+        "bench_patient_0045",
+        "bench_patient_0046",
+        "bench_patient_0047",
+        "bench_patient_0049",
+        "bench_patient_0050",
+        "bench_patient_0051",
+        "bench_patient_0052",
+        "bench_patient_0053",
+        "bench_patient_0054",
+        "bench_patient_0055",
+        "bench_patient_0056",
+        "bench_patient_0057",
+        "bench_patient_0058",
+        "bench_patient_0059",
+        "bench_patient_0060",
+        "bench_patient_0061",
+        "bench_patient_0062",
+        "bench_patient_0063",
+        "bench_patient_0064",
+        "bench_patient_0065",
+        "bench_patient_0066",
+        "bench_patient_0068",
+        "bench_patient_0069",
+        "bench_patient_0070",
+        "bench_patient_0071",
+        "bench_patient_0072",
+        "bench_patient_0073",
+        "bench_patient_0074",
+        "bench_patient_0075",
+        "bench_patient_0076",
+        "bench_patient_0077",
+        "bench_patient_0078",
+        "bench_patient_0079",
+        "bench_patient_0080",
+        "bench_patient_0081",
+        "bench_patient_0082",
+        "bench_patient_0083",
+        "bench_patient_0084",
+        "bench_patient_0085",
+        "bench_patient_0086",
+        "bench_patient_0087",
+        "bench_patient_0088",
+        "bench_patient_0089",
+        "bench_patient_0090",
+        "bench_patient_0091",
+        "bench_patient_0092",
+        "bench_patient_0093",
+        "bench_patient_0094",
+        "bench_patient_0095",
+        "bench_patient_0096",
+        "bench_patient_0097",
+        "bench_patient_0098",
+        "bench_patient_0099",
+        "bench_patient_0100",
+        "bench_patient_0101",
+        "bench_patient_0102",
+        "bench_patient_0103",
+        "bench_patient_0104",
+        "bench_patient_0105",
+        "bench_patient_0106",
+        "bench_patient_0107",
+        "bench_patient_0108",
+        "bench_patient_0109",
+        "bench_patient_0110",
+        "bench_patient_0111",
+        "bench_patient_0112",
+        "bench_patient_0113",
+        "bench_patient_0114",
+        "bench_patient_0115",
+        "bench_patient_0116",
+        "bench_patient_0117",
+        "bench_patient_0118",
+        "bench_patient_0119",
+        "bench_patient_0120",
+        "bench_patient_0121",
+        "bench_patient_0122",
+        "bench_patient_0123",
+        "bench_patient_0125",
+        "bench_patient_0126",
+        "bench_patient_0127",
+        "bench_staff_0008",
+        "bench_staff_0010",
+        "bench_staff_0012",
+        "bench_staff_0014",
+        "bench_staff_0016",
+        "bench_staff_0017",
+        "bench_staff_0018",
+        "bench_staff_0019",
+        "bench_staff_0020",
+        "bench_staff_0021",
+        "bench_staff_0023",
+        "bench_staff_0027",
+        "bench_staff_0028",
+        "bench_staff_0029",
+        "bench_staff_0030",
+        "bench_staff_0031",
+        "maintenance_contractor_00000181",
+        "maintenance_contractor_00000220",
+        "maintenance_contractor_00000221",
+        "maintenance_contractor_00000246",
+        "maintenance_contractor_00000256",
+        "maintenance_contractor_00000257",
+        "patient_00000204",
+        "patient_00000229",
+        "patient_00000249",
+        "relative_00000191",
+        "relative_00000198"
+      ],
+      "local": [
+        "bench_patient_0000",
+        "bench_patient_0001",
+        "bench_patient_0002",
+        "bench_patient_0003",
+        "bench_patient_0004",
+        "bench_patient_0005",
+        "bench_patient_0006",
+        "bench_patient_0007",
+        "bench_patient_0008",
+        "bench_patient_0009",
+        "bench_patient_0010",
+        "bench_patient_0011",
+        "bench_patient_0013",
+        "bench_patient_0014",
+        "bench_patient_0015",
+        "bench_patient_0016",
+        "bench_patient_0017",
+        "bench_patient_0018",
+        "bench_patient_0019",
+        "bench_patient_0020",
+        "bench_patient_0021",
+        "bench_patient_0023",
+        "bench_patient_0024",
+        "bench_patient_0025",
+        "bench_patient_0026",
+        "bench_patient_0027",
+        "bench_patient_0028",
+        "bench_patient_0029",
+        "bench_patient_0030",
+        "bench_patient_0031",
+        "bench_patient_0032",
+        "bench_patient_0033",
+        "bench_patient_0034",
+        "bench_patient_0035",
+        "bench_patient_0036",
+        "bench_patient_0037",
+        "bench_patient_0038",
+        "bench_patient_0039",
+        "bench_patient_0040",
+        "bench_patient_0042",
+        "bench_patient_0043",
+        "bench_patient_0044",
+        "bench_patient_0045",
+        "bench_patient_0046",
+        "bench_patient_0049",
+        "bench_patient_0050",
+        "bench_patient_0051",
+        "bench_patient_0052",
+        "bench_patient_0053",
+        "bench_patient_0054",
+        "bench_patient_0055",
+        "bench_patient_0056",
+        "bench_patient_0057",
+        "bench_patient_0058",
+        "bench_patient_0059",
+        "bench_patient_0060",
+        "bench_patient_0061",
+        "bench_patient_0062",
+        "bench_patient_0063",
+        "bench_patient_0064",
+        "bench_patient_0065",
+        "bench_patient_0066",
+        "bench_patient_0068",
+        "bench_patient_0069",
+        "bench_patient_0070",
+        "bench_patient_0071",
+        "bench_patient_0072",
+        "bench_patient_0073",
+        "bench_patient_0074",
+        "bench_patient_0075",
+        "bench_patient_0076",
+        "bench_patient_0077",
+        "bench_patient_0078",
+        "bench_patient_0079",
+        "bench_patient_0080",
+        "bench_patient_0081",
+        "bench_patient_0082",
+        "bench_patient_0083",
+        "bench_patient_0084",
+        "bench_patient_0085",
+        "bench_patient_0086",
+        "bench_patient_0087",
+        "bench_patient_0088",
+        "bench_patient_0089",
+        "bench_patient_0090",
+        "bench_patient_0091",
+        "bench_patient_0092",
+        "bench_patient_0093",
+        "bench_patient_0094",
+        "bench_patient_0095",
+        "bench_patient_0096",
+        "bench_patient_0097",
+        "bench_patient_0098",
+        "bench_patient_0099",
+        "bench_patient_0100",
+        "bench_patient_0101",
+        "bench_patient_0102",
+        "bench_patient_0103",
+        "bench_patient_0104",
+        "bench_patient_0105",
+        "bench_patient_0106",
+        "bench_patient_0107",
+        "bench_patient_0108",
+        "bench_patient_0109",
+        "bench_patient_0110",
+        "bench_patient_0111",
+        "bench_patient_0112",
+        "bench_patient_0113",
+        "bench_patient_0114",
+        "bench_patient_0115",
+        "bench_patient_0116",
+        "bench_patient_0117",
+        "bench_patient_0118",
+        "bench_patient_0119",
+        "bench_patient_0120",
+        "bench_patient_0121",
+        "bench_patient_0122",
+        "bench_patient_0123",
+        "bench_patient_0125",
+        "bench_patient_0126",
+        "bench_patient_0127",
+        "bench_staff_0016",
+        "bench_staff_0018",
+        "bench_staff_0019",
+        "bench_staff_0021",
+        "bench_staff_0023",
+        "bench_staff_0028",
+        "bench_staff_0029",
+        "bench_staff_0030",
+        "bench_staff_0031",
+        "maintenance_contractor_00000246",
+        "maintenance_contractor_00000256",
+        "maintenance_contractor_00000257",
+        "patient_00000204",
+        "patient_00000249",
+        "relative_00000191",
+        "relative_00000198"
+      ]
+    },
+    "contact_queries": {
+      "current_body": 151,
+      "goal": 151,
+      "local": 266
+    },
+    "non_cardinal_original_local_legs": [],
+    "accepted_history": "Empty at the real complete boundary; no synthetic sweep was added to the performance corpus."
+  },
+  "functional": [
+    {
+      "label": "a-correctness-r2",
+      "raw_path": ".cache/contact-candidates-20261112-run01/a-correctness-r2.json",
+      "raw_sha256": "b122314ae48ad9b5bdef99b1d6aede462f10901f0c94d1a3067abbe080a49cc4",
+      "execution": {
+        "label": "a-correctness-r2",
+        "started_utc": "2026-11-11T21:57:40.928872+00:00",
+        "ended_utc": "2026-11-11T21:57:46.353364+00:00",
+        "elapsed_seconds": 5.424828699993668,
+        "exit_code": 1,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tests/acceptance/movement_contacts_candidates_runner.gd",
+          "--",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\a-correctness-r2.json",
+          "current_only,accepted_only,both_duplicate_distinct,empty_with_reservation,order_first_contact,compound_gap,strict_edge,first_contact,regions_exact,regions_permissions"
+        ]
+      },
+      "ok": false,
+      "rows": [
+        {
+          "id": "current_only",
+          "ok": true,
+          "elapsed_us": 1817492,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "accepted_only",
+          "ok": true,
+          "elapsed_us": 2623,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "both_duplicate_distinct",
+          "ok": true,
+          "elapsed_us": 3952,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "empty_with_reservation",
+          "ok": true,
+          "elapsed_us": 5337,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "real_facility": true,
+            "real_reservation": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "order_first_contact",
+          "ok": true,
+          "elapsed_us": 2599,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "compound_gap",
+          "ok": false,
+          "elapsed_us": 1631,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_candidates_1_cached_first": true,
+            "complete_candidates_1_cached_full": true,
+            "complete_candidates_1_first": true,
+            "complete_candidates_1_full": true,
+            "complete_candidates_2_cached_first": true,
+            "complete_candidates_2_cached_full": true,
+            "complete_candidates_2_first": true,
+            "complete_candidates_2_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "complete_typed_result_1_cached_first": true,
+            "complete_typed_result_1_cached_full": true,
+            "complete_typed_result_1_first": true,
+            "complete_typed_result_1_full": true,
+            "complete_typed_result_2_cached_first": true,
+            "complete_typed_result_2_cached_full": true,
+            "complete_typed_result_2_first": true,
+            "complete_typed_result_2_full": true,
+            "full_world_readonly": true,
+            "legal_world": false,
+            "target_branch": true
+          },
+          "world_validation": "实体记录类型无效：moves"
+        },
+        {
+          "id": "strict_edge",
+          "ok": true,
+          "elapsed_us": 2342,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_candidates_1_cached_first": true,
+            "complete_candidates_1_cached_full": true,
+            "complete_candidates_1_first": true,
+            "complete_candidates_1_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "complete_typed_result_1_cached_first": true,
+            "complete_typed_result_1_cached_full": true,
+            "complete_typed_result_1_first": true,
+            "complete_typed_result_1_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "first_contact",
+          "ok": true,
+          "elapsed_us": 2854
+        },
+        {
+          "id": "regions_exact",
+          "ok": true,
+          "elapsed_us": 6825
+        },
+        {
+          "id": "regions_permissions",
+          "ok": true,
+          "elapsed_us": 2769
+        }
+      ]
+    },
+    {
+      "label": "a-compound-r3",
+      "raw_path": ".cache/contact-candidates-20261112-run01/a-compound-r3.json",
+      "raw_sha256": "35a2dfc67fb299e09cb2cf749adabde794df666bdb820016018d20047f957e57",
+      "execution": {
+        "label": "a-compound-r3",
+        "started_utc": "2026-11-11T21:59:12.777889+00:00",
+        "ended_utc": "2026-11-11T21:59:18.202499+00:00",
+        "elapsed_seconds": 5.424947299994528,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tests/acceptance/movement_contacts_candidates_runner.gd",
+          "--",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\a-compound-r3.json",
+          "compound_gap"
+        ]
+      },
+      "ok": true,
+      "rows": [
+        {
+          "id": "compound_gap",
+          "ok": true,
+          "elapsed_us": 1873312,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_candidates_1_cached_first": true,
+            "complete_candidates_1_cached_full": true,
+            "complete_candidates_1_first": true,
+            "complete_candidates_1_full": true,
+            "complete_candidates_2_cached_first": true,
+            "complete_candidates_2_cached_full": true,
+            "complete_candidates_2_first": true,
+            "complete_candidates_2_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "complete_typed_result_1_cached_first": true,
+            "complete_typed_result_1_cached_full": true,
+            "complete_typed_result_1_first": true,
+            "complete_typed_result_1_full": true,
+            "complete_typed_result_2_cached_first": true,
+            "complete_typed_result_2_cached_full": true,
+            "complete_typed_result_2_first": true,
+            "complete_typed_result_2_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        }
+      ]
+    },
+    {
+      "label": "b-correctness",
+      "raw_path": ".cache/contact-candidates-20261112-run01/b-correctness.json",
+      "raw_sha256": "af50b8962963983933db00c279519172a4d49949e95690da268e28773c3a8f40",
+      "execution": {
+        "label": "b-correctness",
+        "started_utc": "2026-11-11T21:59:23.266638+00:00",
+        "ended_utc": "2026-11-11T21:59:28.689535+00:00",
+        "elapsed_seconds": 5.423235399997793,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tests/acceptance/movement_contacts_candidates_runner.gd",
+          "--",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\b-correctness.json",
+          "current_only,accepted_only,both_duplicate_distinct,empty_with_reservation,order_first_contact,compound_gap,strict_edge,first_contact,regions_exact,regions_permissions"
+        ]
+      },
+      "ok": true,
+      "rows": [
+        {
+          "id": "current_only",
+          "ok": true,
+          "elapsed_us": 1833455,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "accepted_only",
+          "ok": true,
+          "elapsed_us": 2694,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "both_duplicate_distinct",
+          "ok": true,
+          "elapsed_us": 2649,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "empty_with_reservation",
+          "ok": true,
+          "elapsed_us": 4883,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "real_facility": true,
+            "real_reservation": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "order_first_contact",
+          "ok": true,
+          "elapsed_us": 2566,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "compound_gap",
+          "ok": true,
+          "elapsed_us": 4066,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_candidates_1_cached_first": true,
+            "complete_candidates_1_cached_full": true,
+            "complete_candidates_1_first": true,
+            "complete_candidates_1_full": true,
+            "complete_candidates_2_cached_first": true,
+            "complete_candidates_2_cached_full": true,
+            "complete_candidates_2_first": true,
+            "complete_candidates_2_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "complete_typed_result_1_cached_first": true,
+            "complete_typed_result_1_cached_full": true,
+            "complete_typed_result_1_first": true,
+            "complete_typed_result_1_full": true,
+            "complete_typed_result_2_cached_first": true,
+            "complete_typed_result_2_cached_full": true,
+            "complete_typed_result_2_first": true,
+            "complete_typed_result_2_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "strict_edge",
+          "ok": true,
+          "elapsed_us": 2323,
+          "checks": {
+            "complete_candidates_0_cached_first": true,
+            "complete_candidates_0_cached_full": true,
+            "complete_candidates_0_first": true,
+            "complete_candidates_0_full": true,
+            "complete_candidates_1_cached_first": true,
+            "complete_candidates_1_cached_full": true,
+            "complete_candidates_1_first": true,
+            "complete_candidates_1_full": true,
+            "complete_typed_result_0_cached_first": true,
+            "complete_typed_result_0_cached_full": true,
+            "complete_typed_result_0_first": true,
+            "complete_typed_result_0_full": true,
+            "complete_typed_result_1_cached_first": true,
+            "complete_typed_result_1_cached_full": true,
+            "complete_typed_result_1_first": true,
+            "complete_typed_result_1_full": true,
+            "full_world_readonly": true,
+            "legal_world": true,
+            "target_branch": true
+          },
+          "world_validation": ""
+        },
+        {
+          "id": "first_contact",
+          "ok": true,
+          "elapsed_us": 2106
+        },
+        {
+          "id": "regions_exact",
+          "ok": true,
+          "elapsed_us": 6404
+        },
+        {
+          "id": "regions_permissions",
+          "ok": true,
+          "elapsed_us": 3219
+        }
+      ]
+    }
+  ],
+  "functional_reuse": "After a-correctness-r2 only compound_gap StringName key input changed; its A narrow rerun passed. B then ran all seven new and three related selectors. Later edits only changed the probe, not correctness inputs/production.",
+  "verification": {
+    "passed": true,
+    "checks": 81,
+    "raw": {
+      "path": "docs/reports/evidence/2026-11-12-clinical-performance/movement-contacts-verification.json",
+      "sha256": "69f91271ef69c6f7403d7a34babb9fde5e29140e2f5c3f18308871430b8c70a5"
+    }
+  },
+  "pairs": [
+    {
+      "a_elapsed_us": 19209097,
+      "b_elapsed_us": 18728900,
+      "b_over_a": 0.9750015838849687
+    },
+    {
+      "a_elapsed_us": 19156121,
+      "b_elapsed_us": 18561592,
+      "b_over_a": 0.9689640193857618
+    },
+    {
+      "a_elapsed_us": 19340506,
+      "b_elapsed_us": 19138380,
+      "b_over_a": 0.9895490841863186
+    }
+  ],
+  "paired_median_reduction_percent": 2.4998416115031286,
+  "third_current_body_first": {
+    "a_elapsed_us": 1903969,
+    "b_elapsed_us": 2229876,
+    "b_over_a": 1.1711724298032162,
+    "cause": "Not measured; no attribution to scheduling, GC or other causes."
+  },
+  "raw_measurement_field_extractions": [
+    {
+      "label": "a-counted",
+      "raw_path": ".cache/contact-candidates-20261112-run01/a-counted.json",
+      "raw_sha256": "1c1770abc3c2347306704fc30f66ab1ebbb967a21e6e0bda15a83b5d2ff4f756",
+      "execution": {
+        "label": "a-counted",
+        "started_utc": "2026-11-11T22:00:32.594121+00:00",
+        "ended_utc": "2026-11-11T22:00:37.016366+00:00",
+        "elapsed_seconds": 4.422521000000415,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\a-counted.json",
+          "--mode=counted",
+          "--iterations=1",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "36560961ceab7fa74c91a573ec2c2eaf0de0ee657327683886e5761b055650f4",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "counted",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "contacts_probe_calls": 1136,
+        "contacts_probe_dictionaries": 1136,
+        "contacts_probe_sorts": 1136,
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "contacts_probe_calls": 1136,
+        "contacts_probe_dictionaries": 1136,
+        "contacts_probe_sorts": 1136,
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "b-counted",
+      "raw_path": ".cache/contact-candidates-20261112-run01/b-counted.json",
+      "raw_sha256": "abb2ac5ad349b46925047b0e48a8fce9471064a3c469fbbf296e96494ca9aa0b",
+      "execution": {
+        "label": "b-counted",
+        "started_utc": "2026-11-11T22:00:43.594885+00:00",
+        "ended_utc": "2026-11-11T22:00:48.015015+00:00",
+        "elapsed_seconds": 4.4204094000015175,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\b-counted.json",
+          "--mode=counted",
+          "--iterations=1",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "95154bce523c4da0a8b7c2d708f1f59e6483f57d10999f34f86d9af1f0ade37b",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "counted",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "contacts_probe_calls": 1136,
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "contacts_probe_calls": 1136,
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266,
+            "elapsed_us": null,
+            "iterations": 1,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "plain-a1",
+      "raw_path": ".cache/contact-candidates-20261112-run01/plain-a1.json",
+      "raw_sha256": "7c47464b07f95be0c61fd1120b355b8855f7d7f12779ae7071217f50a1ccde00",
+      "execution": {
+        "label": "plain-a1",
+        "started_utc": "2026-11-11T22:01:32.085575+00:00",
+        "ended_utc": "2026-11-11T22:01:55.578641+00:00",
+        "elapsed_seconds": 23.494441300004837,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\plain-a1.json",
+          "--mode=plain",
+          "--iterations=1000",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "d4ccd806fd0004bdd67c67346c7097a7e96ca363d03579c013aef86e80ec5773",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "plain",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "movement_candidates": 1842000,
+        "reservation_candidate_queries": 1136000
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 1901882,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 1892707,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2650084,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 3373757,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266000,
+            "elapsed_us": 4485927,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266000,
+            "elapsed_us": 4904740,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "plain-b1",
+      "raw_path": ".cache/contact-candidates-20261112-run01/plain-b1.json",
+      "raw_sha256": "0b3fef3c5949a273efd13deb12752ff0c6450a5a5dce9bdce4c4af14d9456748",
+      "execution": {
+        "label": "plain-b1",
+        "started_utc": "2026-11-11T22:01:55.898328+00:00",
+        "ended_utc": "2026-11-11T22:02:18.983846+00:00",
+        "elapsed_seconds": 23.086865100005525,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\plain-b1.json",
+          "--mode=plain",
+          "--iterations=1000",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "23dc3c909630556aadee34be6921d93af50e631f7eccd4dd1562a4f4ddf7f1fa",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "plain",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "movement_candidates": 1842000,
+        "reservation_candidate_queries": 1136000
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 1905937,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 1903909,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2533705,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 3251249,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266000,
+            "elapsed_us": 4361881,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266000,
+            "elapsed_us": 4772219,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "plain-b2",
+      "raw_path": ".cache/contact-candidates-20261112-run01/plain-b2.json",
+      "raw_sha256": "a827835cc68c5ba073783c4317ffc1f63ee0d7b77d1666b2a31136273f3213ff",
+      "execution": {
+        "label": "plain-b2",
+        "started_utc": "2026-11-11T22:02:19.311618+00:00",
+        "ended_utc": "2026-11-11T22:02:42.198970+00:00",
+        "elapsed_seconds": 22.888695800007554,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\plain-b2.json",
+          "--mode=plain",
+          "--iterations=1000",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "23dc3c909630556aadee34be6921d93af50e631f7eccd4dd1562a4f4ddf7f1fa",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "plain",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "movement_candidates": 1842000,
+        "reservation_candidate_queries": 1136000
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 1886177,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 1891889,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2504984,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 3215661,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266000,
+            "elapsed_us": 4310300,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266000,
+            "elapsed_us": 4752581,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "plain-a2",
+      "raw_path": ".cache/contact-candidates-20261112-run01/plain-a2.json",
+      "raw_sha256": "98de14256b2fda370e7872bd2dd0091176f302275492c2e230586f0edd668308",
+      "execution": {
+        "label": "plain-a2",
+        "started_utc": "2026-11-11T22:02:42.518329+00:00",
+        "ended_utc": "2026-11-11T22:03:06.009250+00:00",
+        "elapsed_seconds": 23.492297699995106,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\plain-a2.json",
+          "--mode=plain",
+          "--iterations=1000",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "d4ccd806fd0004bdd67c67346c7097a7e96ca363d03579c013aef86e80ec5773",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "plain",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "movement_candidates": 1842000,
+        "reservation_candidate_queries": 1136000
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 1894749,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 1880468,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2649012,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 3392165,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266000,
+            "elapsed_us": 4428640,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266000,
+            "elapsed_us": 4911087,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "plain-a3",
+      "raw_path": ".cache/contact-candidates-20261112-run01/plain-a3.json",
+      "raw_sha256": "6d2c77c4f92b4e2b8b677797aca9fe703f72e6046f2c343c9c120ac597c3dba1",
+      "execution": {
+        "label": "plain-a3",
+        "started_utc": "2026-11-11T22:03:06.321977+00:00",
+        "ended_utc": "2026-11-11T22:03:30.010809+00:00",
+        "elapsed_seconds": 23.690217499999562,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\plain-a3.json",
+          "--mode=plain",
+          "--iterations=1000",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "d4ccd806fd0004bdd67c67346c7097a7e96ca363d03579c013aef86e80ec5773",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "plain",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "movement_candidates": 1842000,
+        "reservation_candidate_queries": 1136000
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 1903969,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 1905780,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2656121,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 3400383,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266000,
+            "elapsed_us": 4536808,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266000,
+            "elapsed_us": 4937445,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "label": "plain-b3",
+      "raw_path": ".cache/contact-candidates-20261112-run01/plain-b3.json",
+      "raw_sha256": "8b918a2c123f40ef5060bd982134875177a1e725e3c92f18cfb578453136161b",
+      "execution": {
+        "label": "plain-b3",
+        "started_utc": "2026-11-11T22:03:30.330797+00:00",
+        "ended_utc": "2026-11-11T22:03:53.822971+00:00",
+        "elapsed_seconds": 23.493548800004646,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+          "--script",
+          "res://tools/performance/current/movement_contacts_probe.gd",
+          "--",
+          "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-candidate01\\qualification-r1\\r1.json.final.bin",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\plain-b3.json",
+          "--mode=plain",
+          "--iterations=1000",
+          "--expected-actors=179"
+        ]
+      },
+      "source_sha256": {
+        "movement": "23dc3c909630556aadee34be6921d93af50e631f7eccd4dd1562a4f4ddf7f1fa",
+        "oracle": "b90edabff43798472ade38e3842b80d9167fd0c7803421c1236c79bc89e5e1de",
+        "probe": "f0e143c06064ae867dab570047e9431b0c797fcd530141610e20c489cafaeb3a",
+        "space": "10b28f9dad002dd14fea805b0cb8a791d99134cbb2652e5c443d947b27690971"
+      },
+      "mode": "plain",
+      "oracle_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "actual_typed_sha256": "2951870685ae7f44eef9a067722b68819579404daa6104228759a23740931aa3",
+      "whole_world_sha256": "0b72990481071af5fb30da72a24a165baa1a5b28f321c538566de9a93ba458ee",
+      "correctness_counter_delta": {
+        "movement_candidates": 1842,
+        "reservation_candidate_queries": 1136,
+        "reservation_index_builds": 1,
+        "reservation_index_updates": 2
+      },
+      "measured_counter_delta": {
+        "movement_candidates": 1842000,
+        "reservation_candidate_queries": 1136000
+      },
+      "measurements": {
+        "current_body": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2229876,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 1898585,
+            "iterations": 1000,
+            "last": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": false,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "goal": {
+          "first": {
+            "calls": 151000,
+            "elapsed_us": 2545789,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          },
+          "full": {
+            "calls": 151000,
+            "elapsed_us": 3282059,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0104",
+                "bench_patient_0112",
+                "maintenance_contractor_00000246",
+                "maintenance_contractor_00000256"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 151
+          }
+        },
+        "local": {
+          "first": {
+            "calls": 266000,
+            "elapsed_us": 4364284,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": true,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          },
+          "full": {
+            "calls": 266000,
+            "elapsed_us": 4817787,
+            "iterations": 1000,
+            "last": {
+              "actors": [
+                "bench_patient_0020",
+                "bench_patient_0040",
+                "bench_patient_0123"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door_id": "",
+              "first_contact_only": false,
+              "requested": "(0.0, 0.0)",
+              "reservations": [],
+              "static_reason": ""
+            },
+            "queries": 266
+          }
+        }
+      },
+      "errors": []
+    }
+  ],
+  "raw_extraction_scope": "The measurements, counters, execution and source identity fields above are copied unchanged from original small JSON files. Complete typed outputs remain in .cache with their hashes; no full world or large raw archive is copied into the repository.",
+  "failures_retained": [
+    {
+      "classification": "tool",
+      "path": ".cache/contact-candidates-20261112-run01/a-correctness.log",
+      "sha256": "81f633c78589813f0522ddb13510e00c94d060f4aa531c068a94e894ddcc7c8f",
+      "business_cases_executed": 0,
+      "reason": "Nonexistent ConvoyTrail.poses call; correct positions API used afterward. Original wrapper wait failure retained; later runs use campaign160.stop_owned_process_tree."
+    },
+    {
+      "classification": "prerequisite",
+      "path": ".cache/contact-candidates-20261112-run01/a-correctness-r2.json",
+      "sha256": "b122314ae48ad9b5bdef99b1d6aede462f10901f0c94d1a3067abbe080a49cc4",
+      "reason": "Only compound legal_world failed: dot syntax inserted StringName move key; explicit String index repaired. All contact assertions had passed; strong world validation retained."
+    }
+  ],
+  "copied_small_raw": [
+    {
+      "path": "docs/reports/evidence/2026-11-12-clinical-performance/movement-contacts-verification.json",
+      "sha256": "69f91271ef69c6f7403d7a34babb9fde5e29140e2f5c3f18308871430b8c70a5"
+    },
+    {
+      "path": "docs/reports/evidence/2026-11-12-clinical-performance/movement-contacts-original-tool-error.log",
+      "sha256": "81f633c78589813f0522ddb13510e00c94d060f4aa531c068a94e894ddcc7c8f"
+    },
+    {
+      "path": "docs/reports/evidence/2026-11-12-clinical-performance/movement-contacts-original-tool-error.json",
+      "sha256": "0118a80248b640460f49bb1ac3312d1a8761c17560c41d915a888720bd707942"
+    }
+  ],
+  "preparation": {
+    "import": {
+      "label": "import",
+      "started_utc": "2026-11-11T21:53:39.878812+00:00",
+      "ended_utc": "2026-11-11T21:53:58.562679+00:00",
+      "elapsed_seconds": 18.68540149999899,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--editor",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\contact-candidates-20261112-run01\\project",
+        "--import",
+        "--quit"
+      ]
+    },
+    "shared_project_preparations": 1,
+    "engine_imports": 1,
+    "overlay": ".cache/contact-candidates-20261112-overlay04",
+    "overlay_identity_sha256": "ba6a59ac95cb36155b80949a2392a1caa77a6988bc0719edb9040decfa2394de",
+    "older_overlays_retained": [
+      ".cache/contact-candidates-20261112-overlay01",
+      ".cache/contact-candidates-20261112-overlay02",
+      ".cache/contact-candidates-20261112-overlay03"
+    ]
+  },
+  "not_verified": [
+    "160-person complete simulation steps after this 21-line change",
+    "Rendering/GPU and long stability"
+  ],
+  "unresolved_related_correctness_issues": []
+}

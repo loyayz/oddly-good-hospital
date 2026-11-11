@@ -941,23 +941,34 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 	if not cached.is_empty() and cached.actors.is_empty() and cached.accepted.is_empty() and cached.reservations.is_empty():
 		result.reservation_ids.sort()
 		return
-	var candidates: Dictionary = {}
+	var ids: Array = []
 	var reservations: Array = []
 	if cached.is_empty():
-		for id: String in space._actor_index.candidates(floor_id,broad,members): candidates[id] = true
-		for id: String in _sweep_index.candidates(floor_id,broad,members): candidates[id] = true
+		var current_ids: Array[String] = space._actor_index.candidates(floor_id,broad,members)
+		var accepted_ids: Array[String] = _sweep_index.candidates(floor_id,broad,members)
 		reservations = space._reservation_regions(world,floor_id,broad)
+		# Both indexes return complete sorted identities. A single nonempty
+		# side needs neither another set nor another sort.
+		if current_ids.is_empty(): ids = accepted_ids
+		elif accepted_ids.is_empty(): ids = current_ids
+		else:
+			var candidates: Dictionary = {}
+			for id: String in current_ids: candidates[id] = true
+			for id: String in accepted_ids: candidates[id] = true
+			ids = candidates.keys()
+			ids.sort()
 	else:
 		# The enclosing box only supplies complete candidates. Reapply the
 		# original strict overlap before the original exact sweep predicates.
+		var candidates: Dictionary = {}
 		for id: String in cached.actors:
 			if space._actor_index._overlap(space._actor_index._records[id],broad): candidates[id] = true
 		for id: String in cached.accepted:
 			if _sweep_index._overlap(_sweep_index._records[id],broad): candidates[id] = true
 		for region: Dictionary in cached.reservations:
 			if broad.intersects(region.rect,false): reservations.append(region)
-	var ids: Array = candidates.keys()
-	ids.sort()
+		ids = candidates.keys()
+		ids.sort()
 	space.query_counts.movement_candidates += ids.size()
 	# The cached region is complete before narrow-phase first-hit exits.
 	# Ordinary movement still retains all contacts; actor IDs confer no priority.

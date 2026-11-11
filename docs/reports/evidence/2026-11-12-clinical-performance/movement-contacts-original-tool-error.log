@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Static function "poses()" not found in base "ConvoyTrail".
+   at: GDScript::reload (res://tests/acceptance/movement_contacts_candidates.gd:56)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/acceptance/movement_contacts_candidates_runner.gd:0)
+ERROR: Failed to load script "res://tests/acceptance/movement_contacts_candidates_runner.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: run (res://tests/acceptance/movement_contacts_candidates_runner.gd:25)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/acceptance/movement_contacts_candidates_runner.gd:25)
