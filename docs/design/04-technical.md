@@ -159,7 +159,7 @@ preview_computation服务既有建造、搬移、蓝图与“试试看”的原�
 | RecruitmentState / Candidate | 有界简历池、关注、寻访进度、标准招聘种子/录用序号；员工内容引用与冻结候选能力 |
 | WorldState | schema_version、sim_tick、revision、next_entity_sequence、rng_streams、content_fingerprint、实体集合、系统进度；actor/pair/zone冷静期映射、装修与社区效果、评分窗口和休假、next_global_incident_tick、到访/故障扫描时钟、任务板刷新期必须保存 |
 | Resident | id、species_id、appearance_id、profession_id、social_personality_id、quirk_id、name、regular、story_role_ids、last_departure_tick、pending_release；患者与访客共用身份，实际离院更新回访间隔 |
-| VisitorStay | id、resident_id、arrived_tick、left_tick(实际未离院为空)、purpose(companion/ward_visit/activity)、related_visit_id或activity_instance_id、探视起止tick/原陪诊理由、major_event_participated；同居民不能同时拥有Visit和访客停留，普通访客关联另一位患者的Visit；陪诊随关联就诊结束离院，探视在床边30秒结束后离开或回陪诊等候，活动由散场驱动，不套固定停留钟 |
+| VisitorStay | id、resident_id、arrived_tick、left_tick（未实际离院为空）、purpose（住院陪同/探视/activity）、related_visit_id或activity_instance_id、有效探视已用量/余量、major_event_participated；两类家属使用不同身份与停留实例。陪同者每天结束当次停留但保留住院关系；探视只累计真实病房内有效时间，中断保留余量。患者出院终止家属业务，真实离院后才释放空间；不复制临床恢复或收费 |
 | Actor | id、resident_id或staff_id、location_kind(floor/transit)、cell:CellRef或transit_session_id（二者互斥）、edge_to、edge_progress(0…1023)、route_cells、route_index、navigation_request、goal、pose_state；可在两格之间保存 |
 | Visit | id、resident_id、disease_id、stage、evidence_by_source、attempts、affect_id、experience_id、communication_state、consultation_behavior_id、preparation_cues(所选来源、原工作引用、完成事实，不复制工时)、need_state、current_ticket_id、session_id、interruption、outburst_consumed、major_event_participated、initial_consultation_charge_id、arrived_tick、complexity(normal/complex)、plan_decision_id、participating_doctor_ids、final_settlement_id |
 | Staff | id、species_id、appearance_id、role、social_personality_id、work_style_id、biography_id、五非医护岗位的job_skill/job_experience、research_practice_remainder_ticks、practice_fact_cursor、first_job_shown、doctor_profile_id或nurse_profile_id、energy_milli、stress_milli、awake_ticks、sleep_remaining_ticks、sleep_phase、sleep_bed_ref、offsite_rest_started_tick、offsite_sleep_satisfied、work_block_id、护士适用的base_preparation_remaining_ticks/base_preparation_done、休闲/分配/任务与工资字段；医护不再保存通用岗位等级或资格集合，天赋由种族引用派生 |
@@ -176,7 +176,7 @@ preview_computation服务既有建造、搬移、蓝图与“试试看”的原�
 | BedReservation | id、preparation_id、attempt_id(开术前为空)、bed_id、expires_tick、committed；开始前30秒过期，开术后到转床/转诊才释放 |
 | BedSlot | bed_object_id、ward_room_id；床内监护和照护卡由同一设备定义提供，无外部组件实例或第二份等级/状态 |
 | WardStay | id、attempt_id、bed_id、标准恢复余量（定点工作量）、当前覆盖段冻结的护士/床等级/工作率与不足一工作tick余数、主动护理唯一任务与贡献、nursing_visit_done、assigned_nurse_id、no_progress_since_tick；不复制总量/效果/收费 |
-| 陪诊/探视请求 | 关联Visit、目的、创建tick、窗口、Visit持有的当前探视日/早中窗口评估与消耗位、已抽意向、暂不接待、已绑定亲友引用或临时模板；每活跃Visit至多一份院外请求，Actor实际入院才创建，患者终结取消请求但不删除在途家属 |
+| 住院家属关系与请求 | 关联Visit及住院资格、陪同资格已评估与80%结果、固定陪同resident_id、当前每日探视已评估日及30%结果、另一位探视身份、暂不接待探视、各类请求与当前行程；每类至多一份请求，普通门诊不建立请求。夜间离院保留陪同身份，返院不再抽签；换床/读档不重抽，出院取消待入院与返院但不删除在途Actor。最终字段与保存迁移随实现核对，目标见患者复诊与住院家属规格 |
 | GuidanceRoute | visit_id、target_room_id、target_facility_id、guidance_task_id、original_ticket_sequence；候选来自当前楼层用途/设施索引，随机选可用目标，繁忙可排队；无候选暂停整个导诊队列并保留顺序，候选变化或队首离开时再评估 |
 | InteractionContext | id、predicate_id、producer_id、source_fact_sequence、actor_ids、target_ids、created_tick、expires_tick、consumed；最多160条，10秒过期，无物种即触发规则 |
 | ComedyState | scan_cursor_actor_id、recent_scene_starts≤144、major_starts≤7、last_consumed_fact_sequence；冷却与最近三场只读派生，见熟客记忆规格 |
@@ -451,7 +451,7 @@ pathfinding.local_updates使用同层8×8格的逻辑分桶索引真实几何与
 
 同行队列只有一个行程拥有者，成员唯一归属；重复请求只有当前任务和目标确实相同时才复用。队长新前端接受通行后，成员沿真实受保护尾迹同步，转角不生成额外行走时间，其他队伍不被重复更新。门占用保持到队尾真实离开；取消、重组和离院在同一安全提交边界清理旧移动所有权。电梯票只属于实际在梯口等待的当前行程，离开后退出队列，回来重新取号；已登乘的安全段先完成落地。
 
-环境覆盖、设施类别、访客探视窗口和员工日统计按实际依赖建立派生查询：无有效探视窗口不构建病房映射，统计日期变化时切换当日容器，环境缓存按固定容量与稳定淘汰规则回收。相同来源的完整区域观察只登记一份，消费者的资格与预约仍独立；当前事实变化使对应观察失效，不为无人使用的诊断信息建立完整签名。单个纯计算任务直接执行，多任务才提交工作池，失败返回完整原因或沿原计算路径重算，不把任务提交成功当作业务完成。
+环境覆盖、设施类别、访客每日探视资格和员工日统计按实际依赖建立派生查询：无待处理住院家属业务不构建病房映射（已经在等待手术或恢复探视的家属不能因入夜被跳过），统计日期变化时切换当日容器，环境缓存按固定容量与稳定淘汰规则回收。相同来源的完整区域观察只登记一份，消费者的资格与预约仍独立；当前事实变化使对应观察失效，不为无人使用的诊断信息建立完整签名。单个纯计算任务直接执行，多任务才提交工作池，失败返回完整原因或沿原计算路径重算，不把任务提交成功当作业务完成。
 
 路线编码、曼哈顿下界、预约掩码和精确碰撞计算复用同次查询中的尺寸与整数坐标，减少临时容器，不改变成本、平局、双精度和严格边界。小数位置沿完整精度路径处理；活动任务只在真实需要重新规划时报价，不每步重算有效行程。同一次表现更新复用当前逻辑位置、尺寸与骨矩阵求值，仍按完整角色身份和可见批次发布，视图复用不能遗漏超过单页容量的角色。
 
