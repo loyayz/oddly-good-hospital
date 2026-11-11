@@ -4,6 +4,8 @@ const Operations = preload("res://tools/performance/current/comprehensive_operat
 const ClinicalInputs = preload("res://tools/performance/current/comprehensive_clinical_inputs.gd")
 const SCENARIO: String = "comprehensive160-clinical-family-v2"
 var _setup: Dictionary = {"commands":[],"initial_cohorts":[],"added_facilities":[],"moved_facilities":[],"errors":[],"limitations":[]}
+var _failure_boundary_path: String=""
+var _preparation_events: Array=[]
 
 func _run() -> void:
 	var output_dir: String = ""
@@ -15,7 +17,9 @@ func _run() -> void:
 		push_error("Expected --output-dir and positive preparation watchdogs.");quit(2);return
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))!=OK: quit(2);return
 	var output: String=output_dir.path_join("comprehensive160.input.bin")
-	if FileAccess.file_exists(output): push_error("Preserve the existing fixed input; choose a new directory.");quit(2);return
+	_failure_boundary_path=output+".failed-boundary"
+	for existing: String in [output,output_dir.path_join("comprehensive160.manifest.json"),_failure_boundary_path+".bin",_failure_boundary_path+".json"]:
+		if FileAccess.file_exists(existing): push_error("Preserve the existing preparation evidence; choose a new directory: "+existing);quit(2);return
 	_started=Time.get_ticks_usec();_steps=0;_case_id="comprehensive160"
 	var content: HospitalContent=HospitalContent.new()
 	if not content.error.is_empty(): push_error(content.error);quit(2);return
@@ -327,13 +331,48 @@ func _prepare_inpatient_family(sim: HospitalSimulation, preop_ids: Array) -> Dic
 		for id: String in preop_ids:
 			var visit: Dictionary=world.facts.visits.get(id,{})
 			all_patients_present=all_patients_present and not visit.is_empty() and not visit.get("phase","") in ["leaving","departed","continuation_leaving","continuation_outside"] and world.facts.actors.get(str(visit.get("actor_id","")),{}).get("location",{}).get("kind","outside")!="outside"
-		if not all_patients_present: return {"ok":false,"reason":"An initial preoperative patient left before the fixed population boundary; do not replace a participating patient","actual_steps":_steps-first_step,"population":population_of(world)}
+		if not all_patients_present: return _family_failure(sim,"An initial preoperative patient left before the fixed population boundary; do not replace a participating patient",preop_ids,{"actual_steps":_steps-first_step,"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()})
 		if int(roles.companion)>0 and int(roles.ward_visit)>0:
-			if actual_ids.size()>8: return {"ok":false,"reason":"Actual relatives exceed the retained 120-patient construction boundary; preserve this failed preparation without suppressing requests","population":population_of(world),"roles":roles}
+			if actual_ids.size()>8: return _family_failure(sim,"Actual relatives exceed the retained 120-patient construction boundary; preserve this failed preparation without suppressing requests",preop_ids,{"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()})
 			var validation: String=world.validate(sim.content)
 			return {"ok":validation.is_empty(),"start_tick":first_tick,"end_tick":world.sim_tick,"actual_steps":_steps-first_step,"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"roles":roles,"actor_ids":actual_ids,"actual_admissions":admissions.values(),"pending_requests":world.facts.visitors.requests.duplicate(true),"validation":validation,"scope":"Actual production admission, independent 80% and daily 30% decisions, and real entry. Freeze the first boundary with both roles present; no result, request, body, ward recovery or clinical work is supplied or cancelled to reach this boundary."}
 		var advanced: Dictionary=await _advance(sim)
-		if not advanced.ok: return advanced.merged({"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()})
+		if not advanced.ok: return _family_failure(sim,str(advanced.reason),preop_ids,advanced.merged({"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()}))
+	return {"ok":false,"reason":"Inpatient family preparation ended without a qualified boundary"}
+
+# The step and watchdog order matches the inherited preparer. Only the returned
+# completed events are copied after each actual step, outside simulated work.
+func _advance(simulation: HospitalSimulation) -> Dictionary:
+	if _steps>=_maximum_steps or Time.get_ticks_usec()-_started>=_maximum_us:
+		return {"ok":false,"reason":"Preparation watchdog reached before actual entry/route became available.","steps":_steps,"population":population_of(simulation.world)}
+	var result: TickResult=simulation.step_nonblocking()
+	while result==null:
+		if Time.get_ticks_usec()-_started>=_maximum_us: return {"ok":false,"reason":"Preparation boundary/solver watchdog reached.","steps":_steps}
+		await process_frame
+		result=simulation.step_nonblocking()
+	_steps+=1
+	if _steps%32==0: _progress("actual_steps",{"tick":simulation.world.sim_tick})
+	for event: SimEvent in result.facts:
+		if event.kind!="tick_completed": _preparation_events.append(event.to_record())
+	await process_frame
+	return {"ok":true}
+
+func _family_failure(sim: HospitalSimulation, reason: String, visit_ids: Array, context: Dictionary) -> Dictionary:
+	var world: WorldState=sim.world
+	var affected: Array=[]
+	for id: String in visit_ids:
+		var visit: Dictionary=world.facts.visits.get(id,{})
+		var actor: Dictionary=world.facts.actors.get(str(visit.get("actor_id","")),{})
+		affected.append({"visit_id":id,"phase":visit.get("phase","missing"),"result":visit.get("final_result",""),"waiting_reason":visit.get("waiting_reason",""),"diagnosis":visit.get("diagnosis",{}).duplicate(true),"actor_location":actor.get("location",{}).duplicate(true),"ticket":world.facts.tickets.get(str(visit.get("ticket_id","")),{}).duplicate(true)})
+	var visitor_ids: Array=[]
+	for family: Dictionary in world.facts.visitors.stays.values(): visitor_ids.append(str(family.actor_id))
+	var boundary: Dictionary={"scenario":SCENARIO+"-failed-preparation","content_fingerprint":sim.content.content_fingerprint,"facts":world.freeze(),"events":_preparation_events.duplicate(true),"floors":[1,2,3,4],"visitor_ids":visitor_ids,"reason":reason,"tick":world.sim_tick,"context":context.duplicate(true),"visits":affected}
+	var binary: FileAccess=FileAccess.open(_failure_boundary_path+".bin",FileAccess.WRITE)
+	if binary!=null: binary.store_var(boundary);binary.close()
+	var json: FileAccess=FileAccess.open(_failure_boundary_path+".json",FileAccess.WRITE)
+	if json!=null: json.store_string(JSON.stringify(boundary,"\t"));json.close()
+	_progress("failed_business_boundary",{"tick":world.sim_tick,"reason":reason,"file":_failure_boundary_path,"event_count":_preparation_events.size(),"visits":affected})
+	return context.merged({"ok":false,"reason":reason,"tick":world.sim_tick,"complete_preparation_steps":_steps,"affected_visits":affected,"family_requests":world.facts.visitors.requests.duplicate(true),"ward_stays":world.facts.ward_stays.duplicate(true),"failure_boundary_json":_failure_boundary_path+".json","failure_boundary_bin":_failure_boundary_path+".bin"},true)
 
 func _family_identity(world: WorldState, actor_ids: Array) -> Dictionary:
 	var roles: Dictionary={"companion":0,"ward_visit":0}

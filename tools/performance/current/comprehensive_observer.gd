@@ -102,12 +102,23 @@ func _overlaps(world: WorldState, actor_id: String, ward: Dictionary) -> bool:
 	return not room.is_empty() and BuildGeometry.intersects_room(_geometry.body_rectangle(actor),room)
 
 func _medical(world: WorldState, ward: Dictionary) -> bool:
-	if ward.phase=="recovery" and not ward.care_completed: return true
 	var bed: Dictionary=world.facts.facilities[ward.bed_id]
 	for session: Dictionary in world.facts.sessions.values():
 		var facility: Dictionary=world.facts.facilities[session.facility_id]
 		if session.visit_id==ward.visit_id and session.kind in ["care","outpatient"] and int(facility.floor_id)==int(bed.floor_id) and facility.get("room_id","")==bed.get("room_id",""): return true
+	for family: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
+		var requested: int=int(family.get("yield_requested_tick",-2))
+		if family.visit_id==ward.visit_id and family.get("yielding",false) and requested>=world.sim_tick-1 and requested<=world.sim_tick: return true
 	return false
+
+func _terminal_visit(world: WorldState, visit_id: String) -> bool:
+	return world.facts.visits.get(visit_id,{}).get("phase","") in ["leaving","departed","ward_referral"]
+
+func _terminal_companion_retired(world: WorldState, ward: Dictionary, actor_id: String) -> bool:
+	if not _terminal_visit(world,str(ward.visit_id)) or world.facts.actors.has(actor_id): return false
+	for family: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
+		if family.actor_id==actor_id or family.visit_id==ward.visit_id and family.purpose=="companion": return false
+	return true
 
 func _progress(state: Dictionary, id: String, kind: String, remaining: int, total: int) -> void:
 	state.progress[id]={"kind":kind,"remaining":remaining,"total":total}
@@ -204,7 +215,8 @@ func _observe_clinical(before: Dictionary, after: Dictionary, world: WorldState,
 			if int(old.admitted_tick)<0 and int(ward.admitted_tick)>=0: _work(bucket,"actual_ward_admission")
 			if old.bed_id!=ward.bed_id and ward.transfer_from_bed_id!=old.bed_id: _error("Reserved ward bed changed without an actual transfer for "+id)
 			if old.companion_evaluated and (not ward.companion_evaluated or old.companion_qualified!=ward.companion_qualified): _error("Companion qualification changed during stay "+id)
-			if not str(old.companion_actor_id).is_empty() and old.companion_actor_id!=ward.companion_actor_id: _error("Fixed companion identity changed during stay "+id)
+			if not str(old.companion_actor_id).is_empty() and old.companion_actor_id!=ward.companion_actor_id:
+				if not str(ward.companion_actor_id).is_empty() or not _terminal_companion_retired(world,ward,str(old.companion_actor_id)): _error("Fixed companion identity changed during stay "+id)
 			if old.phase=="transfer" and ward.phase=="recovery" and ward.patient_in_ward: _work(bucket,"actual_surgical_ward_return")
 		if int(ward.visitor_day)>=0:
 			var key: String=id+":"+str(ward.visitor_day)
@@ -234,7 +246,7 @@ func _observe_clinical(before: Dictionary, after: Dictionary, world: WorldState,
 		if before.actors.get(actor_id,[])!=after.actors.get(actor_id,[]): _work(bucket,"family_movement:"+str(family.purpose))
 		if family.purpose=="ward_visit" and int(family.remaining_ticks)<int(old.remaining_ticks):
 			if not family.inside_ward or not family.patient_in_ward or family.medical or family.yielding or family.ward_phase in ["to_surgery","reserved","transfer","return_preop"]: _error("Effective visit time advanced outside its legal ward interval for "+id)
-		if old.return_ward_first and not family.return_ward_first and not family.inside_ward: _error("Companion skipped real ward return after life service for "+id)
+		if old.return_ward_first and not family.return_ward_first and not family.inside_ward and not _terminal_visit(world,str(family.visit_id)): _error("Companion skipped real ward return after life service for "+id)
 		if old.return_ward_first and family.return_ward_first and str(family.life_phase).is_empty() and family.own_family_move and family.destination.get("kind","")=="surgery_outside": _error("Companion selected OR before its required post-life ward return for "+id)
 		if family.destination.get("kind","")=="surgery_outside" and not family.inside_ward and before.actors.get(actor_id,[])==after.actors.get(actor_id,[]) and family.phase=="waiting": _work(bucket,"family_surgery_wait:"+str(family.purpose))
 		for session: Dictionary in world.facts.sessions.values():

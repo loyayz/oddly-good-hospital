@@ -40,6 +40,31 @@ def native_identity(root):
     return {p.name: digest(p) for p in (root / "game/platform/windows/bin").glob("*.dll")}
 
 
+def engine_identity(engine):
+    executables = [engine]
+    # The Windows console launcher executes its sibling engine binary.
+    if engine.stem.endswith("_console"):
+        actual = engine.with_name(engine.stem.removesuffix("_console") + engine.suffix)
+        assert actual.is_file(), f"Missing console launcher's engine: {actual}"
+        executables.append(actual)
+    return {str(path): digest(path) for path in executables}
+
+
+def stop_owned_process_tree(process):
+    if process.poll() is not None:
+        return
+    if os.name == "nt":
+        # Limit termination to this run's Popen identity and its descendants.
+        script = (f"$ownedProcess=[System.Diagnostics.Process]::GetProcessById({process.pid}); "
+                  "$ownedProcess.Kill($true); $ownedProcess.WaitForExit()")
+        subprocess.run(["pwsh", "-NoProfile", "-Command", script],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                       creationflags=subprocess.CREATE_NO_WINDOW, check=True)
+    if process.poll() is None:
+        process.kill()
+    process.wait(timeout=10)
+
+
 def processes():
     script = ("@(Get-Process | Where-Object {$_.ProcessName -match "
               "'^(Godot.*|zig|clang.*|gcc|g\\+\\+|ninja|cmake)$'} | "
@@ -89,6 +114,7 @@ def main():
                 "tracked_diff": git(root, "diff", "HEAD", "--"),
                 "input_sha256": digest(input_path), "input": str(input_path),
                 "engine": str(engine), "engine_sha256": digest(engine),
+                "engine_executables": engine_identity(engine),
                 "runner_sha256": digest(root / "tools/performance/current/plain_v4.gd"),
                 "native": native_identity(root),
                 "prefix_steps": prefix, "sample_steps": steps, "repeats": repeats,
@@ -98,6 +124,7 @@ def main():
                 "cpu_targets": {key: targets[key] for key in (
                     "sim_step_p95_ms", "sim_step_p99_ms", "sim_step_ordinary_max_ms", "sim_speed_ratio_min")},
                 "source_inventory_sha256": digest(root / "source-inventory.json") if (root / "source-inventory.json").is_file() else None,
+                "git_metadata_scope": "Enclosing Git checkout; frozen source identity is source-identity.json and its preparation record" if (root / "source-inventory.json").is_file() else "Measured Git worktree",
                 "paired_repeat": args.repeat_number,
                 "outcome_reference": str(args.outcome_reference.resolve()) if args.outcome_reference else None,
                 "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -110,6 +137,7 @@ def main():
         assert source_identity(root) == source, "Source changed during the series"
         assert native_identity(root) == protocol["native"], "Native libraries changed during the series"
         assert digest(engine) == protocol["engine_sha256"], "Engine changed during the series"
+        assert engine_identity(engine) == protocol["engine_executables"], "Executed engine changed during the series"
         assert digest(input_path) == protocol["input_sha256"], "Input changed"
         before = processes()
         write(output / f"r{repeat}.processes-before.json", before)
@@ -136,15 +164,14 @@ def main():
                     time.sleep(2)
                     messages = log_path.read_text(encoding="utf-8")
                     if "SCRIPT ERROR:" in messages or any(l.startswith("ERROR:") for l in messages.splitlines()):
-                        process.terminate()
+                        stop_owned_process_tree(process)
                         break
                     if time.perf_counter() - started > 1800:
                         raise TimeoutError("Engine exceeded 1800 seconds")
                 process.wait(timeout=10)
             finally:
                 if process.poll() is None:
-                    process.terminate()
-                    process.wait(timeout=10)
+                    stop_owned_process_tree(process)
         elapsed = time.perf_counter() - started
         data = read(result_path) if result_path.exists() else {}
         raw = (output / f"r{repeat}.log").read_text(encoding="utf-8")
@@ -181,6 +208,7 @@ def main():
         assert native_identity(root) == protocol["native"], "Native libraries changed during execution"
         assert digest(input_path) == protocol["input_sha256"], "Input changed during execution"
         assert digest(engine) == protocol["engine_sha256"], "Engine changed during execution"
+        assert engine_identity(engine) == protocol["engine_executables"], "Executed engine changed during execution"
         row = {"repeat": repeat, "returncode": process.returncode, "wall_seconds": elapsed,
                "metrics": data["metrics"], "business": data["sample_business"],
                "cpu_target_checks": checks, "cpu_targets_pass": all(checks.values()) if not args.smoke else None,
