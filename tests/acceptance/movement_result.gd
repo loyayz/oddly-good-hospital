@@ -51,7 +51,8 @@ func run(suite: RefCounted) -> Dictionary:
 	var group: Dictionary = _actual_group(suite)
 	var door: Dictionary = _door_wait(suite)
 	var real_next: Dictionary = _real_next_step_geometry(suite)
-	return {"ok":contacts.ok and courtesy.ok and movement.ok and group.ok and door.ok and real_next.ok,"real_next_step_geometry":real_next,"literal_contacts":contacts,"courtesy_handoff":courtesy,"actual_movement":movement,"actual_group":group,"door_wait":door}
+	var departure: Dictionary = preload("res://tests/acceptance/owner_departure.gd").new().run(suite)
+	return {"ok":contacts.ok and courtesy.ok and movement.ok and group.ok and door.ok and real_next.ok and departure.ok,"owner_departure":departure,"real_next_step_geometry":real_next,"literal_contacts":contacts,"courtesy_handoff":courtesy,"actual_movement":movement,"actual_group":group,"door_wait":door}
 
 func _literal_contacts(suite: RefCounted) -> Dictionary:
 	var cases: Array[Dictionary] = [

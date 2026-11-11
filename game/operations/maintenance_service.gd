@@ -614,6 +614,9 @@ func _dispatch_departures(world: WorldState) -> void:
 		if actor.location.kind=="transit": continue
 		var exit: Array = space.exit_cell(world,actor)
 		if space.at(world,id,1,exit):
+			# A real local return can reach the exit before its original cursor
+			# is retired. End that safe ground journey before publishing outside.
+			if not space.cancel_ground_move(world,id): continue
 			actor.location = {"kind":"outside"}
 			worker.phase = "departed"
 			space.sync_actor(world,id)

@@ -128,6 +128,9 @@ func _dispatch_waiting(world: WorldState) -> void:
 			_leave_public_seat(world,stay)
 			var exit: Array = space.exit_cell(world,actor)
 			if space.at(world,actor.id,1,exit):
+				# The visitor owner retires a safely reached ground journey before
+				# removing the floor body, including a pending local rejoin.
+				if not space.cancel_ground_move(world,actor.id): continue
 				actor.location = {"kind":"outside"}
 				space.sync_actor(world,actor.id)
 				world.facts.visitors.stays.erase(stay_id)
