@@ -4,6 +4,7 @@ extends AStar2D
 const SIDE: int = 96
 const LIMIT: int = SIDE*SIDE
 const NEIGHBOURS: Array[Vector2i] = [Vector2i.UP,Vector2i.LEFT,Vector2i.RIGHT,Vector2i.DOWN]
+static var _mask_native_available: bool = ClassDB.class_has_method("PlatformArrivalMath","grid_first_disabled")
 
 var geometry: RouteClearance
 var _enabled: PackedByteArray = PackedByteArray()
@@ -13,13 +14,28 @@ var _people: Callable
 var _bases: Array[FloorNavigation] = []
 var _shifts: Array[Vector2i] = []
 var _overlay: bool = false
+var _mask_ready: bool = false
 
 func _init(projection: RouteClearance) -> void:
 	geometry = projection
 	_enabled.resize(LIMIT)
 	_edges.resize(LIMIT)
 	_build()
+	_publish_static_mask()
 	neighbor_filter_enabled = true
+
+func _publish_static_mask() -> void:
+	geometry._mask_owner = weakref(self)
+	geometry._mask_geometry_id = geometry.get_instance_id()
+	_mask_ready = true
+
+# The caller obtained this geometry through current-source/body validation.
+# Only a complete, unchanged owner may lend its existing mask for this call.
+func resident_first_disabled(geometry_id: int, first: int, last: int) -> int:
+	if not _mask_ready or not _mask_native_available or geometry.get_instance_id()!=geometry_id or _enabled.size()!=LIMIT: return -2
+	var result: Dictionary = ClassDB.class_call_static("PlatformArrivalMath","grid_first_disabled",_enabled,first,last)
+	if not result.get("ok",false): return -2
+	return int(result.get("blocked_id",-2))
 
 func _build() -> void:
 	var ids: Array[int] = []
@@ -76,8 +92,10 @@ func _populate_script(ids: Array[int]) -> void:
 
 func refresh(projection: RouteClearance) -> void:
 	var regions: Array[Rect2i] = projection.dirty_regions(geometry)
+	_mask_ready = false
 	geometry = projection
 	_repair(regions)
+	_publish_static_mask()
 
 func _repair(regions: Array[Rect2i]) -> void:
 	var affected: Dictionary = {}

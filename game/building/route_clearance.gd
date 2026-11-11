@@ -1,6 +1,10 @@
 class_name RouteClearance
 extends RefCounted
 
+# Actual rectangle measurements favour the native bridge from five origins.
+# Smaller rectangles retain complete script checks, including all candidates.
+const MIN_RESIDENT_MASK_ORIGINS: int = 5
+
 # Immutable geometry for one floor and traversal envelope. Reservations are query-local.
 var _size: int
 var source: Dictionary
@@ -22,6 +26,8 @@ var _open_door_cells: Dictionary = {}
 var _closed_door_cells: Dictionary = {}
 var _horizontal_walls: Dictionary = {}
 var _vertical_walls: Dictionary = {}
+var _mask_owner: WeakRef
+var _mask_geometry_id: int = 0
 
 # Only these original reservation exceptions change query-level clearance.
 # Sorted facility identities preserve sharing between equally authorized actors.
@@ -82,8 +88,11 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		# The graph owns immutable geometry for this complete body envelope.
 		# Only reservations depend on the current actor's identity.
 		_indexed_static = static_geometry._indexed_static
-		for field: String in ["_plots","_blocked","_doors","_facilities","_connectors","_walls","_dependencies","_facility_cells","_connector_cells","_open_door_cells","_closed_door_cells","_horizontal_walls","_vertical_walls"]:
+		for field: String in ["_plots","_blocked","_doors","_facilities","_connectors","_walls","_dependencies","_facility_cells","_connector_cells","_open_door_cells","_closed_door_cells","_horizontal_walls","_vertical_walls","_mask_owner","_mask_geometry_id"]:
 			set(field,static_geometry.get(field))
+		if _size!=static_geometry._size or _height_m!=static_geometry._height_m or float(source.height)!=float(static_geometry.source.height):
+			_mask_owner = null
+			_mask_geometry_id = 0
 	if include_reservations:
 		_reservations = capture_reservation_regions(world,actor.id,floor_id,members)
 	_plain = _plain_geometry()
@@ -221,16 +230,36 @@ func sweep_reason(from: Vector2, to: Vector2) -> String:
 				if not _plots.has(Vector2i(x,y)):
 					return "身体超出已取得地块"
 		return ""
-	for y: int in range(floori(minf(from.y,to.y)),ceili(maxf(from.y,to.y))+1):
-		for x: int in range(floori(minf(from.x,to.x)),ceili(maxf(from.x,to.x))+1):
-			var result: String = reason(Vector2i(x,y))
-			if not result.is_empty():
-				return result
+	var x0: int = floori(minf(from.x,to.x))
+	var y0: int = floori(minf(from.y,to.y))
+	var x1: int = ceili(maxf(from.x,to.x))
+	var y1: int = ceili(maxf(from.y,to.y))
+	var blocked: int = -2
+	if x0>=0 and y0>=0 and x1<FloorNavigation.SIDE and y1<FloorNavigation.SIDE and (x1-x0+1)*(y1-y0+1)>=MIN_RESIDENT_MASK_ORIGINS:
+		blocked = _resident_first_disabled(Vector2i(x0,y0),Vector2i(x1,y1))
+	if blocked>=0:
+		var result: String = reason(FloorNavigation._cell(blocked))
+		if not result.is_empty(): return result
+	if blocked!=-1:
+		for y: int in range(y0,y1+1):
+			for x: int in range(x0,x1+1):
+				var result: String = reason(Vector2i(x,y))
+				if not result.is_empty():
+					return result
 	for member: Dictionary in _members:
 		var result: String = member.query.sweep_reason(from+member.offset,to+member.offset)
 		if not result.is_empty():
 			return result
 	return _wall_reason(Rect2(from,Vector2.ONE*_size).merge(Rect2(to,Vector2.ONE*_size)))
+
+# This is an origin rectangle, not the physical body rectangle. The existing
+# graph already accounts for the complete integer body at every origin.
+func _resident_first_disabled(low: Vector2i, high: Vector2i) -> int:
+	if _mask_owner==null or not _indexed_static or _plain or not _members.is_empty() or not _reservations.is_empty() or low.x<0 or low.y<0 or high.x>=FloorNavigation.SIDE or high.y>=FloorNavigation.SIDE or low.x>high.x or low.y>high.y: return -2
+	if (high.x-low.x+1)*(high.y-low.y+1)<MIN_RESIDENT_MASK_ORIGINS: return -2
+	var owner: FloorNavigation = _mask_owner.get_ref() as FloorNavigation
+	if owner==null: return -2
+	return owner.resident_first_disabled(_mask_geometry_id,low.y*FloorNavigation.SIDE+low.x,high.y*FloorNavigation.SIDE+high.x)
 
 func reservation_reason(origin: Vector2i) -> String:
 	return _reservation_at(Vector2(origin))

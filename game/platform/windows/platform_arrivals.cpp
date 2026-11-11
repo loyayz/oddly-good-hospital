@@ -1853,9 +1853,10 @@ void free_model(void*, GDExtensionClassInstancePtr instance) {
     std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
     delete static_cast<CapacityInstance*>(instance);
 }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, GRID_DISTANCE_FIELD, FLOOR_GRAPH_BUILD, UNIT_STATIC_MASKS, ENTRY_ORDER, PUBLIC_REGION_COMPONENTS, ENVIRONMENT_COVERAGE_MASKS, ENVIRONMENT_COVERAGE, GRID_STRUCTURAL_FIELDS, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, GRID_DISTANCE_FIELD, FLOOR_GRAPH_BUILD, UNIT_STATIC_MASKS, ENTRY_ORDER, PUBLIC_REGION_COMPONENTS, ENVIRONMENT_COVERAGE_MASKS, ENVIRONMENT_COVERAGE, GRID_STRUCTURAL_FIELDS, GRID_FIRST_DISABLED, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
+    {"grid_first_disabled", GRID_FIRST_DISABLED, {GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_INT}},
     {"grid_structural_fields", GRID_STRUCTURAL_FIELDS, {GDEXTENSION_VARIANT_TYPE_ARRAY}},
     {"environment_coverage_masks", ENVIRONMENT_COVERAGE_MASKS, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"environment_coverage", ENVIRONMENT_COVERAGE, {GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
@@ -1882,6 +1883,7 @@ MethodInfo methods[] = {
 };
 V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr instance) {
     try {
+        if (method == GRID_FIRST_DISABLED) return first_disabled_grid_origin(args[0], args[1], args[2]);
         if (method == GRID_STRUCTURAL_FIELDS) return solve_grid_structural_fields(args[0]);
         if (method == ENVIRONMENT_COVERAGE_MASKS) return build_environment_coverage_masks(args[0]);
         if (method == ENVIRONMENT_COVERAGE) return solve_environment_coverage(args[0], args[1]);

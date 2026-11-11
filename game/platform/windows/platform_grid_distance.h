@@ -110,6 +110,37 @@ struct GridDistanceInts {
     int32_t* data() { return grid_distance_int_index(raw, 0); }
     V value() const { return V::typed(GDEXTENSION_VARIANT_TYPE_PACKED_INT32_ARRAY, raw); }
 };
+
+// Read the already-built mask only. Origins retain y/x order, including the
+// last row/column; no graph, clipped candidate list or second mask is created.
+V first_disabled_grid_origin(const V& raw_enabled, const V& raw_first, const V& raw_last) {
+    constexpr int SIDE = 96, LIMIT = SIDE * SIDE;
+    if (!grid_distance_bytes_size || !grid_distance_byte_index)
+        throw std::runtime_error("静态原点掩码接口不可用");
+    if (type(&raw_first.raw) != GDEXTENSION_VARIANT_TYPE_INT || type(&raw_last.raw) != GDEXTENSION_VARIANT_TYPE_INT)
+        throw std::runtime_error("静态原点矩形需要整数边界");
+    const int64_t first = raw_first.number(), last = raw_last.number();
+    GridDistanceBytes enabled(raw_enabled);
+    if (enabled.size() != LIMIT || first < 0 || last < 0 || first >= LIMIT || last >= LIMIT ||
+        first / SIDE > last / SIDE || first % SIDE > last % SIDE)
+        throw std::runtime_error("静态原点矩形超出完整96×96掩码");
+    const uint8_t* data = enabled.data();
+    int64_t blocked = -1;
+    for (int64_t y = first / SIDE; y <= last / SIDE; ++y) {
+        const uint8_t* begin = data + y * SIDE + first % SIDE;
+        const uint8_t* end = data + y * SIDE + last % SIDE + 1;
+        const uint8_t* found = std::find_if(begin, end, [](uint8_t value) { return value != 1; });
+        if (found == end) continue;
+        if (*found != 0) throw std::runtime_error("静态原点掩码值无效");
+        blocked = found - data;
+        break;
+    }
+    D result; GDExtensionBool yes = true;
+    result.set("ok", V::typed(GDEXTENSION_VARIANT_TYPE_BOOL, &yes));
+    result.set("blocked_id", V::number(blocked));
+    return result.value();
+}
+
 V solve_grid_distance_field(const V& raw_enabled, const V& raw_edges, const V& raw_reservations, const V& raw_options) {
     using namespace grid_distance_backend;
     if (!grid_distance_bytes_size || !grid_distance_ints_resize || !grid_distance_byte_index || !grid_distance_int_index)
