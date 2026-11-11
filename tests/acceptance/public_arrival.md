@@ -9,7 +9,7 @@
 - `run_need_budget_gate.gd <json>`：入口行程加在用设施剩余服务时间的估计，在剩余额度少1、相等、多1 tick边界上分别兜底、允许出发、允许出发。保留原45秒预判，不刷新需求时钟，允许出发者执行真实有界移动且不提前占用设施。
 - `run_arrival_deadline.gd <prefix>`：先真实走到设施入用前边界，再生成449/450/451合法临界输入，执行原11项期限验收。到区域不等于到设施，不伪造此前449 tick历史。
 - `arrival_ownership_staff_visitors.gd <json>`：员工/访客真实入口、当前保存恢复、自动/手动双人娱乐及所有权交接，共35项。拥堵输入按全部安全点放置合法身体，直到确实没有候选，再释放一个邻近身体并真实走动恢复；不以任意40个身体假定满员。
-- `waiting_need_scan_runner.gd <json>`：既有原始事实与索引刷新、临床票、原时钟、明确准备及原生失败原子性。
+- `run_prepared_waiting_failure.gd <json>`：显式准备的两种原生失败原子性、完整A*退路及事实只读。已退役的普通如厕公共区域分派与预热对照不再执行。
 - `runner.gd space --case=SPACE-51`：安全驻足查询仍与完整参考求解一致，显式距离场、越界、权限、失效与驱逐契约。测试的全集投影在读取cells前显式准备，不要求普通入口查询提前展开。
 - `visitor_seat_competition_runner.gd <prefix> --case=VISITOR-SEAT-LOST`：真实到椅子的竞争与输者安全停步。
 - `run_guidance_need_return.gd <json> [case...]`（6项，含饮水中拆除最后导诊台与诊室设备，真实走到安全点后才恢复原票据）与 `waiting_adoption_runner.gd <json> --case=A30 --case=A35`：生活需求返回、临床叫号、第三方移动及结构变化的实际交接。

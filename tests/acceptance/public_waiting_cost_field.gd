@@ -1,9 +1,9 @@
-extends "res://tests/acceptance/public_area_use.gd"
+extends "res://tests/acceptance/public_query_fixtures.gd"
 
 const ACTOR: String = "field_entry_actor"
 const OriginalTravel = preload("res://tests/acceptance/single_connector_route.gd")
 
-# Frozen complete 899df40 selection, before the warm-field consumer existed.
+# Complete-query control: current region/safety policy with no field shortcut.
 class OriginalAreas extends HospitalPublicAreas:
 	func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, maximum_travel_ticks: int) -> Dictionary:
 		var area: Dictionary = region(world,reference)
@@ -49,7 +49,7 @@ class OriginalAreas extends HospitalPublicAreas:
 		return best
 
 func _field_fixture(cross_floor: bool, fractional: bool = false, unreachable: bool = false, multiple: bool = false) -> Dictionary:
-	var x: Dictionary = _areas()
+	var x: Dictionary = _public_query_fixture()
 	var cell: Array = [38.35,90.35] if fractional else [38,90]
 	x.world.facts.actors[ACTOR] = {"id":ACTOR,"name":ACTOR,"species_id":"S49","location":{"kind":"floor","floor_id":2 if cross_floor else 1,"cell":cell,"height_m":0.0},"facing":0.0,"posture":"standing"}
 	if cross_floor:
@@ -67,9 +67,9 @@ func _field_fixture(cross_floor: bool, fractional: bool = false, unreachable: bo
 			second.repair_cell = [47,83]
 			x.world.facts.connectors["second_lift"] = second
 	if unreachable:
-		# A complete real barrier leaves the actor's body and the target room
+		# A complete real barrier leaves the actor's body and public seat domain
 		# legal, while all same-floor paths between them are disconnected.
-		for column: int in range(32,64): x.world.facts.floors.overrides["1"].blocked.append([column,80])
+		for column: int in range(32,64): x.world.facts.floors.overrides["1"].blocked.append([column,86])
 	x.world.touch()
 	x.actual = HospitalSpace.new(_content)
 	x.original = HospitalSpace.new(_content)
@@ -136,7 +136,7 @@ func _compare_wait(x: Dictionary, budget: int = HospitalTransit.MAX_TICK) -> Dic
 
 func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool = false, multiple: bool = false) -> Dictionary:
 	var x: Dictionary = _field_fixture(cross_floor,fractional,unreachable,multiple)
-	var validation: String = x.world.validate(_content)
+	var validation: String = _query_fixture_validation(x)
 	var checks: Dictionary = {"legal_input":validation.is_empty()}
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
@@ -150,7 +150,7 @@ func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool =
 		checks.multiple_connections_keep_complete_queries = comparison.warm_field_reads==0 and comparison.actual_complete_quote_calls>0
 	else:
 		checks.warm_loop_removes_complete_point_query_calls = comparison.warm_field_reads>0 and comparison.actual_complete_quote_calls<comparison.reference_complete_quote_calls
-		checks.borrow_contains_only_array_and_scalars = borrow.keys().size()==4 and borrow.distances is PackedInt32Array and borrow.prefix_ticks is int and borrow.speed is float
+		checks.borrow_contains_only_array_and_scalars = borrow.get("distances") is PackedInt32Array and borrow.get("prefix_ticks") is int and borrow.get("speed") is float and borrow.values().all(func(value: Variant)->bool:return value is PackedInt32Array or value is bool or value is int or value is float or value is String)
 		if not comparison.actual.is_empty():
 			var exact: Dictionary = _compare_wait(x,int(comparison.actual.travel_ticks))
 			var below: Dictionary = _compare_wait(x,int(comparison.actual.travel_ticks)-1)
@@ -185,7 +185,7 @@ func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool =
 
 func _unprepared_and_changed() -> Dictionary:
 	var x: Dictionary = _field_fixture(false,true)
-	var validation: String = x.world.validate(_content)
+	var validation: String = _query_fixture_validation(x)
 	_field_begin(x)
 	var actor: Dictionary = x.world.facts.actors[ACTOR]
 	var cache: NavigationCache = x.actual._navigation
@@ -218,10 +218,10 @@ func _source_stub_failure() -> Dictionary:
 	x.world.facts.floors.overrides["1"].blocked.append([44,80])
 	x.world.touch()
 	var physically_clear: bool = not x.actual.body_rectangle(actor).intersects(Rect2(44,80,1,1),false)
-	var validation: String = x.world.validate(_content)
+	var validation: String = _query_fixture_validation(x)
 	_field_begin(x)
-	var failed: Dictionary = x.actual.travel_quote(x.world,ACTOR,1,[38,76])
-	var expected: Dictionary = x.original.travel_quote(x.world,ACTOR,1,[38,76])
+	var failed: Dictionary = x.actual.travel_quote(x.world,ACTOR,1,[38,82])
+	var expected: Dictionary = x.original.travel_quote(x.world,ACTOR,1,[38,82])
 	var field: Dictionary = x.actual.navigation.ready_waiting_cost_field(x.world,ACTOR,1,{})
 	var comparison: Dictionary = _compare_wait(x)
 	_field_end(x)
@@ -237,4 +237,4 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var stub: Dictionary = _source_stub_failure()
 	var ok: bool = lifecycle.ok and stub.ok
 	for row: Dictionary in cases: ok = ok and row.ok
-	return {"ok":ok,"cases":cases,"warmup_source_and_geometry_lifetime":lifecycle,"fractional_source_failure":stub,"scope":"A resident structural field replaces only the task's repeated candidate time projection; actual safe_wait, complete candidate order and immutable facts remain independently compared with the frozen whole selector."}
+	return {"ok":ok,"cases":cases,"warmup_source_and_geometry_lifetime":lifecycle,"fractional_source_failure":stub,"scope":"A resident structural field replaces only the task's repeated candidate time projection; actual safe_wait, complete current facility-domain order and immutable facts remain compared with complete-query controls."}

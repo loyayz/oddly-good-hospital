@@ -23,7 +23,7 @@ $GODOT --headless --path <project> --script res://tests/acceptance/<runner> -- <
 | 患者入口、临时拥堵、无椅、当前保存恢复、预算拒绝、外来移动 | 6/6通过 | `run_public_area_arrival_integration.gd <json>` |
 | 入口70 tick + 在用服务80 tick，剩余149/150/151 tick | 3/3通过 | `run_need_budget_gate.gd <json>` |
 | 真实导诊后的生活返回，含双拆除反例 | 6/6通过 | `run_guidance_need_return.gd <json>` |
-| 到期需求事实/索引、原票据与时钟、设施队列、原生失败原子性 | 6/6通过 | `waiting_need_scan_runner.gd <json>` |
+| 到期需求事实/索引、原票据与时钟、设施队列、原生失败原子性 | 当时6/6通过；普通如厕分派/预热对照现已退役 | 历史入口已删除；现行显式失败专项为 `run_prepared_waiting_failure.gd <json>` |
 | 449/450/451 tick和实际入区、到设施边界 | 11/11通过 | `run_arrival_deadline.gd <prefix>` |
 | 体型/分数坐标/紧凑房间/无房大堂/真实乘梯/承托退出/所有权/兜底80 tick | 5个检查组通过 | `run_arrival_boundaries.gd <json>` |
 | 完整安全驻足参考契约 | 通过 | `runner.gd space --case=SPACE-51` |

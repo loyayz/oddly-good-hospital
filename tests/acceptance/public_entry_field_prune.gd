@@ -1,7 +1,6 @@
 extends "res://tests/acceptance/public_waiting_cost_field.gd"
 
 const Baseline = preload("public_entry_field_original.gd")
-const PhaseUse = preload("res://tests/acceptance/public_phase_use.gd")
 
 # Observe actual predicates only. Neither probe substitutes safety or costs.
 class ActualAreas extends HospitalPublicAreas:
@@ -137,32 +136,47 @@ func _observe(x: Dictionary, budget: int = HospitalTransit.MAX_TICK) -> Dictiona
 		"winner_received_real_safety_check":actual.is_empty() or _safes(trace).any(func(row: Dictionary)->bool:return row.safe and [row.point.x,row.point.y]==actual.cell)}
 	return {"ok":not checks.values().has(false),"checks":checks,"actual":actual,"budget":budget,"audit":audit,"trace":trace,"field_ready":not x.actual.navigation.observed_field.is_empty(),"field_prefix_ticks":int(x.actual.navigation.observed_field.get("prefix_ticks",-1)),"real_quotes":int(x.actual.query_counts.routes)+int(x.actual.query_counts.get("public_entry_leg_quotes",0))-routes}
 
-# Published STAFF-75 rectangle enumeration is independent of region/entry lists.
-# Cross-floor costs use complete real routes; lower ordering uses complete landing
-# quotes and the declared S49 2 cells/s rate, not candidate fields.
+# Enumerate the complete published three-cell facility domain independently of
+# region/entry lists. Costs use real full routes; ordering retains the separate
+# fractional stub and integer leg ceilings at S49's published 2 cells/s rate.
 func _literal(x: Dictionary) -> Dictionary:
-	var helper: RefCounted = PhaseUse.new()
-	helper._content = _content
-	if int(x.world.facts.actors[ACTOR].location.floor_id)==1:
-		return helper._complete_entry_reference({"world":x.world,"space":x.literal},{"actor_id":ACTOR},1)
 	var before: Dictionary = x.world.freeze()
+	var actor: Dictionary = x.world.facts.actors[ACTOR]
+	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var rounded: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
+	var speed: float = float(_content.balance.movement_speeds["1"])
+	var stub: int = ceili(origin.distance_to(Vector2(rounded))/speed/WorldState.TICK_SECONDS)
 	x.literal.begin_dynamic_route_query(x.world)
 	var bounds: Dictionary = x.literal.public_areas._entry_landings(x.world,ACTOR,1)
 	var best: Dictionary = {}
 	var rows: Array = []
-	for y: int in range(66,78):
-		for px: int in range(34,44):
-			var cell: Array = [px,y]
-			if not x.literal.public_areas.safe_wait(x.world,ACTOR,1,cell): continue
-			var quote: Dictionary = x.literal.route(x.world,ACTOR,1,cell,[],{},true)
-			if not quote.get("ok",false) or not quote.has("travel_ticks"): continue
-			var lower: int = HospitalTransit.MAX_TICK
-			for landing: Dictionary in bounds.landings: lower = mini(lower,int(landing.ticks)+5*(absi(int(landing.cell.x)-px)+absi(int(landing.cell.y)-y)))
-			var row: Dictionary = {"cell":cell,"lower":lower,"travel_ticks":int(quote.travel_ticks)}
-			rows.append(row)
-			if best.is_empty() or row.travel_ticks<best.travel_ticks or row.travel_ticks==best.travel_ticks and helper._entry_order_before(row,best): best = row
+	var candidates: Array[Vector2i] = _public_query_candidates()
+	for point: Vector2i in candidates:
+		var cell: Array = [point.x,point.y]
+		if not x.literal.public_areas.safe_wait(x.world,ACTOR,1,cell): continue
+		var quote: Dictionary = x.literal.route(x.world,ACTOR,1,cell,[],{},true)
+		if not quote.get("ok",false) or not quote.has("travel_ticks"): continue
+		var lower: int = HospitalTransit.MAX_TICK
+		if int(actor.location.floor_id)==1:
+			lower = stub+ceili(float(absi(rounded.x-point.x)+absi(rounded.y-point.y))/speed/WorldState.TICK_SECONDS)
+		else:
+			for landing: Dictionary in bounds.landings:
+				lower = mini(lower,int(landing.ticks)+ceili(float(absi(int(landing.cell.x)-point.x)+absi(int(landing.cell.y)-point.y))/speed/WorldState.TICK_SECONDS))
+		var row: Dictionary = {"cell":cell,"lower":lower,"travel_ticks":int(quote.travel_ticks)}
+		rows.append(row)
+		if best.is_empty() or row.travel_ticks<best.travel_ticks or row.travel_ticks==best.travel_ticks and _literal_before(row,best): best = row
 	x.literal.end_route_query()
-	return {"rows":rows,"best":best,"readonly":before==x.world.freeze(),"complete_landings":bounds}
+	var cost_ties: int = 0
+	var order_ties: int = 0
+	for row: Dictionary in rows:
+		if row.travel_ticks==best.travel_ticks:
+			cost_ties += 1
+			if row.lower==best.lower: order_ties += 1
+	return {"rows":rows,"best":best,"candidate_count":candidates.size(),"cost_ties":cost_ties,"order_ties":order_ties,"readonly":before==x.world.freeze(),"complete_landings":bounds}
+
+func _literal_before(a: Dictionary, b: Dictionary) -> bool:
+	if int(a.lower)!=int(b.lower): return int(a.lower)<int(b.lower)
+	return int(a.cell[1])<int(b.cell[1]) or a.cell[1]==b.cell[1] and int(a.cell[0])<int(b.cell[0])
 
 func _expected(literal: Dictionary, budget: int = HospitalTransit.MAX_TICK) -> Dictionary:
 	if literal.best.is_empty() or int(literal.best.travel_ticks)>budget: return {}
@@ -173,13 +187,13 @@ func _row(name: String, checks: Dictionary, observations: Array) -> Dictionary:
 
 func _resident(cross_floor: bool, fractional: bool, unreachable: bool = false) -> Dictionary:
 	var x: Dictionary = _setup(cross_floor,fractional,unreachable)
-	var checks: Dictionary = {"legal_calculation_input":x.world.validate(_content).is_empty()}
+	var checks: Dictionary = {"legal_calculation_input":_query_fixture_validation(x).is_empty()}
 	var literal: Dictionary = _literal(x)
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
 	checks.explicit_preparation_and_real_quotes = warm.ok
 	var first: Dictionary = _observe(x)
-	checks.independent_complete_result = literal.readonly and first.actual==_expected(literal)
+	checks.independent_complete_result = literal.candidate_count==25 and literal.readonly and first.actual==_expected(literal)
 	checks.resident_field_really_consumed = not x.actual.navigation.observed_field.is_empty()
 	var observations: Array = [first]
 	if not literal.best.is_empty():
@@ -199,7 +213,7 @@ func _resident(cross_floor: bool, fractional: bool, unreachable: bool = false) -
 
 func _cold_evicted() -> Dictionary:
 	var x: Dictionary = _setup()
-	var checks: Dictionary = {"legal_input":x.world.validate(_content).is_empty()}
+	var checks: Dictionary = {"legal_input":_query_fixture_validation(x).is_empty()}
 	_field_begin(x)
 	var cold: Dictionary = _observe(x)
 	checks.cold_first_borrow_unavailable = not cold.audit.borrows.is_empty() and not cold.audit.borrows[0].ready and cold.real_quotes>0
@@ -221,17 +235,21 @@ func _cold_evicted() -> Dictionary:
 func _dynamic_body() -> Dictionary:
 	var x: Dictionary = _setup()
 	var literal: Dictionary = _literal(x)
+	if literal.best.is_empty():
+		var missing: Dictionary = {"case":"dynamic_body_ties_and_next_query","ok":false,"checks":{"independent_initial_winner_exists":false},"input_validation":_query_fixture_validation(x),"literal":literal}
+		_field_dispose(x)
+		return missing
 	var winner: Array = literal.best.cell.duplicate()
 	var blocker: Dictionary = _visit(x,"field_blocker",winner)
 	x.world.touch(false)
 	var blocked_literal: Dictionary = _literal(x)
-	var checks: Dictionary = {"legal_blocked_input":x.world.validate(_content).is_empty(),"tie_after_occupied_minimum":int(blocked_literal.order_ties)>1}
+	var checks: Dictionary = {"legal_blocked_input":_query_fixture_validation(x).is_empty(),"tie_after_occupied_minimum":int(blocked_literal.order_ties)>1}
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
 	var blocked: Dictionary = _observe(x)
 	checks.explicit_preparation = warm.ok
 	checks.occupied_candidate_checked_and_rejected = _safes(blocked.trace).any(func(row: Dictionary)->bool:return [row.point.x,row.point.y]==winner and not row.safe)
-	checks.independent_tie_winner = blocked.actual==_expected(blocked_literal) and blocked.actual.cell!=winner
+	checks.independent_tie_winner = not blocked.actual.is_empty() and blocked.actual==_expected(blocked_literal) and blocked.actual.cell!=winner
 	_field_end(x)
 	# This is a new legal calculation boundary, not claimed movement/arrival.
 	# Keep the actor, visit and ticket identities. Only the independent input
@@ -243,7 +261,7 @@ func _dynamic_body() -> Dictionary:
 	var released: Dictionary = _observe(x)
 	checks.next_query_rechecks_released_body = warm.ok and released.actual==_expected(literal)
 	_field_end(x)
-	checks.legal_released_input = x.world.validate(_content).is_empty()
+	checks.legal_released_input = _query_fixture_validation(x).is_empty()
 	var result: Dictionary = _row("dynamic_body_ties_and_next_query",checks,[blocked,released])
 	_field_dispose(x)
 	return result
@@ -252,7 +270,7 @@ func _outside_projection() -> Dictionary:
 	var x: Dictionary = _setup(false,false,true)
 	x.actual.public_areas = OutsideActual.new(x.actual)
 	x.original.public_areas = OutsideBaseline.new(x.original)
-	var checks: Dictionary = {"legal_unchanged_world":x.world.validate(_content).is_empty()}
+	var checks: Dictionary = {"legal_unchanged_world":_query_fixture_validation(x).is_empty()}
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
 	var observed: Dictionary = _observe(x)

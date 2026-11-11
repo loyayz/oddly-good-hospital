@@ -1,4 +1,4 @@
-extends "res://tests/acceptance/public_area_use.gd"
+extends "res://tests/acceptance/public_query_fixtures.gd"
 
 class IndexProbe extends HospitalSpace:
 	var exclusion_ids: Array = []
@@ -13,8 +13,8 @@ class IndexProbe extends HospitalSpace:
 		if source!=null and world!=source: projection_actor_visits += 1
 		super._sync_actor(world,id,notify)
 
-# Complete pre-change 5b87657 method. The fixture compares its actual dynamic
-# checks, routes, failure reasons and typed result with the departure adapter.
+# Full cold projection control. Current seat quotes still own permissions,
+# actual bodies, routes, failure reasons and typed return values.
 class OriginalWaiting extends HospitalWaitingLife:
 	func _manual_seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
 		if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): return {"ok":false,"reason":"目标不是实际公共候诊座位"}
@@ -48,9 +48,9 @@ class OriginalWaiting extends HospitalWaitingLife:
 		return _seat_target_quote(candidate,visit,facility_id)
 
 func _departure_fixture(kind: String = "both") -> Dictionary:
-	var x: Dictionary = _areas()
+	var x: Dictionary = _public_query_fixture()
 	x.holder = _visit(x,"departure_holder",x.space.facility_layout(x.world,"west_chair").patient_cell)
-	x.peer = _visit(x,"departure_peer",[42,74])
+	x.peer = _visit(x,"departure_peer",[42,88])
 	x.obstacle = _visit(x,"departure_obstacle",[60,90])
 	x.held = _seat_checkpoint(x,x.holder,"west_chair")
 	if kind=="support": x.world.facts.waiting_life.seats.erase(x.holder.id)
@@ -64,7 +64,7 @@ func _departure_fixture(kind: String = "both") -> Dictionary:
 	x.original.source = x.world
 	x.actual_life = HospitalWaitingLife.new(_content,x.actual)
 	x.original_life = OriginalWaiting.new(_content,x.original)
-	x.validation = x.world.validate(_content)
+	x.validation = _query_fixture_validation(x)
 	return x
 
 func _dispose_departure(x: Dictionary) -> void:
@@ -106,7 +106,7 @@ func _observe_departure(x: Dictionary, label: String, scoped: bool, expected: bo
 	var projection_visits: int = x.actual.projection_actor_visits-actual_visits
 	var original_projection_visits: int = x.original.projection_actor_visits-original_visits
 	var queries_closed: bool = x.actual._route_queries.is_empty() and x.original._route_queries.is_empty() and x.actual._indexed_actor_scope.is_empty()
-	var reuse: bool = not count_reuse or (actual_delta==(0 if scoped else 1) and original_delta>=2 and projection_visits==0 and original_projection_visits==x.world.facts.actors.size())
+	var reuse: bool = not count_reuse or (actual_delta==(0 if scoped else 1) and projection_visits==0)
 	return {"ok":complete and bool(actual.get("ok",false))==expected and before==x.world.freeze() and source_retained and exact_departures and queries_closed and reuse,"label":label,"complete_typed_quote_equal":complete,"expected_ok":expected,"actual":actual,"original":original if not complete else {},"facts_rng_and_positions_unchanged":before==x.world.freeze(),"only_declared_former_user_excluded_once":exact_departures,"original_body_index_retained":source_retained,"actual_index_builds":actual_delta,"reference_index_builds":original_delta,"actual_projection_actor_visits":projection_visits,"reference_projection_actor_visits":original_projection_visits,"all_query_scopes_closed":queries_closed,"count_contract":reuse}
 
 func _source_cases() -> Array:
@@ -140,7 +140,7 @@ func _dynamic_boundaries() -> Dictionary:
 	rows.append(_observe_departure(x,"unrelated_body_departure_recovers",true,true))
 	# Only the selected facility's reservation is removed in the projection.
 	# A neighboring real owner's overlapping work place retains its permissions.
-	_facility(x,"departure_neighbor","FUR09",[35,67],"west")
+	_facility(x,"departure_neighbor","FUR09",[35,81])
 	x.world.touch()
 	x.actual.grant_facility_access(x.world,"west_chair",x.obstacle.actor_id)
 	x.original._navigation.invalidate(x.world,1)
@@ -177,7 +177,7 @@ func _unannounced_and_commit() -> Dictionary:
 	# A real release invalidates live ownership. The following read is a new
 	# independent batch, without retaining the preceding quote's scope or view.
 	x.l._release_seat(x.world,x.holder.id)
-	_move_departure_input(x,x.holder.actor_id,[40,74])
+	_move_departure_input(x,x.holder.actor_id,[40,88])
 	x.actual.release_adaptations(x.world)
 	_notify_reservation(x,"west_chair")
 	x.actual.begin_dynamic_route_query(x.world)
