@@ -23,7 +23,6 @@ func _unreachable_alternative(after_move: bool = false, occupy_queue: bool = fal
 	var build: BuildService = BuildService.new(_content,x.space)
 	var room: CommandResult = build.execute(x.world,"build_room",{"id":"lower","room_type_id":"gp","floor_id":1,"origin":[34,66],"size":[10,12],"door":{"definition_id":"DR04","edge":"south","offset":3}})
 	var asset: CommandResult = build.execute(x.world,"build_facility",{"id":"lower_diagnosis","definition_id":"FUR02","floor_id":1,"cell":[39,69],"room_id":"lower"})
-	x.world.facts.patient_experience.units.general.room_ids.append("lower")
 	# Legal failure boundary: elevator has not boarded this patient. No
 	# body or job progress is changed; actual recovery movement is tested.
 	if occupy_queue:
@@ -92,7 +91,6 @@ func _closed_or_removed(remove: bool) -> Dictionary:
 	var build: BuildService = BuildService.new(_content,x.space)
 	var room: CommandResult = build.execute(x.world,"build_room",{"id":"alternate_room","room_type_id":"gp","floor_id":1,"origin":[51,66],"size":[10,12],"door":{"definition_id":"DR04","edge":"south","offset":3}})
 	var asset: CommandResult = build.execute(x.world,"build_facility",{"id":"alternate_diagnosis","definition_id":"FUR02","floor_id":1,"cell":[56,69],"room_id":"alternate_room"})
-	x.world.facts.patient_experience.units.general.room_ids.append("alternate_room")
 	var changed: CommandResult
 	if remove: changed = build.execute(x.world,"build_demolish",{"target_id":"diagnosis"})
 	else:

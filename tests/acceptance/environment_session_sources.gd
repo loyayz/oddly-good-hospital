@@ -114,11 +114,9 @@ func _session_resume() -> Dictionary:
 	var item: Dictionary = f.w.facts.facilities[old.facility_id]
 	# A second ordinary same-kind treatment room is legal fixture input. The
 	# paused patient's actual exit, new reservation and arrival are never moved.
-	HospitalFactory._add_room(f.w,{"id":"resume_room","type":f.w.facts.rooms[item.room_id].room_type_id,"anchor":[34,66],"size":[10,10],"door":{"definition_id":"DR06","offset":5}},_content)
+	HospitalFactory._add_room(f.w,{"id":"resume_room","type":f.w.facts.rooms[item.room_id].kind,"anchor":[34,66],"size":[10,10],"door":{"definition_id":"DR06","offset":5}},_content)
 	_facility(x,"resume_machine",str(item.definition_id),[39,69],"resume_room")
 	f.w.touch()
-	var department_id: String = f.w.facts.visits[old.visit_id].get("department_id","")
-	if f.w.facts.patient_experience.units.has(department_id): f.w.facts.patient_experience.units[department_id].room_ids.append("resume_room")
 	var initial_valid: String = f.w.validate(_content)
 	_compare_direct(x,reference,[51,88])
 	var builds: int = _count(x.space,"session_source_builds")

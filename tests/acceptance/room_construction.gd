@@ -12,7 +12,8 @@ const CASES: Dictionary={
 	"ROOM-BUILD-06":"房间规格§9；独立墙、读档与失败原子性",
 	"ROOM-BUILD-07":"房间规格§2.3；实际移动与身体保护",
 	"ROOM-BUILD-08":"房间规格§2、§9；原生路径掩码与独立墙参考逐边一致",
-	"ROOM-BUILD-09":"房间规格§2.3、§9；用途失效清排班、失败不泄漏与撤销恢复"
+	"ROOM-BUILD-09":"房间规格§2.3、§9；用途失效清排班、失败不泄漏与撤销恢复",
+	"ROOM-BUILD-10":"房间规格§1～2；墙不得穿过跨层交通设施的任何实际停靠层"
 }
 
 func run(t) -> void:
@@ -24,7 +25,7 @@ func run(t) -> void:
 
 func run_cases(database: HospitalContent, selected: Array = []) -> Dictionary:
 	content = database
-	var cases: Dictionary = {"ROOM-BUILD-01":_formation,"ROOM-BUILD-02":_geometry,"ROOM-BUILD-03":_removal,"ROOM-BUILD-04":_purposes,"ROOM-BUILD-05":_placement,"ROOM-BUILD-06":_walls_and_recovery,"ROOM-BUILD-07":_movement_safety,"ROOM-BUILD-08":_static_masks,"ROOM-BUILD-09":_schedule_cleanup}
+	var cases: Dictionary = {"ROOM-BUILD-01":_formation,"ROOM-BUILD-02":_geometry,"ROOM-BUILD-03":_removal,"ROOM-BUILD-04":_purposes,"ROOM-BUILD-05":_placement,"ROOM-BUILD-06":_walls_and_recovery,"ROOM-BUILD-07":_movement_safety,"ROOM-BUILD-08":_static_masks,"ROOM-BUILD-09":_schedule_cleanup,"ROOM-BUILD-10":_connector_walls}
 	var rows: Array = []
 	var ok: bool = true
 	for id: String in (cases.keys() if selected.is_empty() else selected):
@@ -249,4 +250,31 @@ func _schedule_cleanup() -> Dictionary:
 	x.checks.changed_purpose_clears_both = _do(x,"build_room_use",{"target_id":"duty","room_type_id":"ward"}).accepted and x.world.facts.staff.doctor.schedule[0].pools.is_empty() and x.world.facts.staff.doctor.schedule_overrides["0"].pools.is_empty()
 	x.checks.undo_restores_schedule = _do(x,"build_undo",{}).accepted and x.world.facts.rooms.duty.kind=="gp" and x.world.facts.staff.doctor.schedule[0].pools==["duty"] and x.world.facts.staff.doctor.schedule_overrides["0"].pools==["duty"]
 	x.checks.invalidated_room_clears_both = _do(x,"build_remove_wall",{"edges":[{"axis":"y","line":38,"low":67,"high":68}]}).accepted and x.world.facts.staff.doctor.schedule[0].pools.is_empty() and x.world.facts.staff.doctor.schedule_overrides["0"].pools.is_empty()
+	return _finish(x)
+
+func _connector_walls() -> Dictionary:
+	var x: Dictionary = _base()
+	# A declared, completed three-floor hospital before the tested wall edit.
+	# The connector itself is bought and extended through its normal owner.
+	x.world.facts.floors.height_intervals = [{"first":1,"last":3,"height_m":float(content.balance.floors.clear_height_m)}]
+	x.world.facts.floors.completed_top_floor = {HospitalSpace.plot_key([1,2]):3}
+	for floor_id: int in [2,3]:
+		x.world.facts.floors.overrides[str(floor_id)] = {"plots":[[1,2]],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
+	x.world.touch()
+	var connector := HospitalConnectors.new(content,x.builder.space)
+	var bought: CommandResult = connector.execute(x.world,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[50,70]})
+	x.checks.connector_bought = bought.accepted
+	if not bought.accepted: return _finish(x)
+	var id: String = str(bought.changed_ids[0])
+	for floor_id: int in [2,3]:
+		x.checks["extended_"+str(floor_id)] = connector.execute(x.world,"connector_extend",{"connection_id":id,"floor_id":floor_id}).accepted
+	x.checks.legal_input = x.world.validate(content).is_empty()
+	for floor_id: int in [1,2,3]:
+		var request: Dictionary = {"floor_id":floor_id,"edges":[{"axis":"x","line":72,"low":50,"high":54}]}
+		var before: Dictionary = x.world.freeze()
+		var quote: Dictionary = x.builder.preview(x.world,request.merged({"kind":"build_wall"}))
+		x.checks["stop_"+str(floor_id)+"_preview_rejected_readonly"] = not quote.ok and x.world.freeze()==before
+		x.checks["stop_"+str(floor_id)+"_confirmation_atomic"] = not _do(x,"build_wall",request).accepted and x.world.freeze()==before
+	var cash: int = HospitalLedger.balance(x.world)
+	x.checks.nearby_wall_still_legal = _do(x,"build_wall",{"floor_id":2,"edges":[{"axis":"x","line":80,"low":50,"high":54}]}).accepted and HospitalLedger.balance(x.world)==cash-80
 	return _finish(x)

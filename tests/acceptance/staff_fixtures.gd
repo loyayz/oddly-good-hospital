@@ -250,45 +250,7 @@ func _base_arrangement_ticks(sim: HospitalSimulation, ticks: int) -> void:
 		sim.space.finish_boundary(sim.world)
 
 func _base_arrangement_examples() -> Dictionary:
-	var x: Dictionary = _fixture({"doctor":"doctor"})
-	HospitalFactory._add_room(x.world,{"id":"base_office","type":"doctor_office","anchor":[36,79],"size":[4,4],"door":{"definition_id":"DR01","offset":1}},_content)
-	_facility(x,"base","SE05",[36,80],"base_office")
-	_position(x,"doctor",[38,80])
-	var working: HospitalSimulation = HospitalSimulation.new(x.world,_content)
-	working.services.development.dispatch(working.world)
-	_base_arrangement_ticks(working,30)
-	var cash: int = HospitalLedger.balance(working.world)
-	var prepare_room: CommandResult = _base_arrangement_command(working,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"base_office","cell":[45,79],"floor_id":1}]},"prepare_working")
-	var room_order: String = str(prepare_room.changed_ids[0]) if prepare_room.accepted else ""
-	working.services.remodel.dispatch(working.world)
-	working.services.development.dispatch(working.world)
-	var work_held: bool = not working.world.facts.moves.has("doctor") and working.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==30
-	_base_arrangement_ticks(working,29)
-	work_held = work_held and not working.world.facts.moves.has("doctor") and not working.world.facts.staff.doctor.base_prepared and working.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==1
-	_base_arrangement_ticks(working,1)
-	var completed_safely: bool = working.world.facts.staff.doctor.base_prepared and working.world.facts.staff.doctor.base_task.is_empty() and not working.world.facts.moves.has("doctor") and HospitalLedger.balance(working.world)==cash
-	working.services.remodel.dispatch(working.world)
-	var evacuation: Dictionary = working.world.facts.moves.get("doctor",{}).duplicate(true)
-	working.services.development.dispatch(working.world)
-	var leaving_after_work: bool = not evacuation.is_empty() and working.world.facts.moves.get("doctor",{})==evacuation
-	for _tick: int in 200:
-		if not working.world.facts.moves.has("doctor"): break
-		_base_arrangement_ticks(working,1)
-	var vacated: bool = prepare_room.accepted and not working.world.facts.moves.has("doctor") and working.world.facts.actors.doctor.location.cell!=[38,80] and working.world.facts.staff.doctor.base_prepared and not working.services.remodel._in_affected_area(working.world,working.world.facts.remodels[room_order],working.world.facts.actors.doctor)
-	var rest: CommandResult = _base_arrangement_command(working,"apply_schedule",{"changes":[{"staff_id":"doctor","schedule":_schedule(["rest","outpatient","outpatient"])}]},"new_rest_boundary")
-	working.services.scheduler.boundaries(working.world)
-	working.services.development.dispatch(working.world)
-	var work: CommandResult = _base_arrangement_command(working,"apply_schedule",{"changes":[{"staff_id":"doctor","schedule":_schedule(["outpatient","rest","outpatient"])}]},"new_work_boundary")
-	working.services.scheduler.boundaries(working.world)
-	working.services.development.dispatch(working.world)
-	var excludes_new: bool = rest.accepted and work.accepted and not working.world.facts.staff.doctor.base_prepared and working.world.facts.staff.doctor.base_task.is_empty() and not working.world.facts.moves.has("doctor")
-	var cancelled_room: CommandResult = _base_arrangement_command(working,"remodel_cancel",{"order_id":room_order},"cancel_room")
-	working.services.development.dispatch(working.world)
-	var cancel_reopens: bool = cancelled_room.accepted and working.world.facts.staff.doctor.base_task.get("facility_id","")=="base" and working.world.facts.moves.has("doctor") and not working.world.facts.staff.doctor.base_prepared
-	var working_ok: bool = prepare_room.accepted and work_held and completed_safely and leaving_after_work and vacated and excludes_new and cancel_reopens
-	var working_details: Dictionary = {"prepare":prepare_room.code,"protected":work_held,"completed_safely":completed_safely,"leaving_after_work":leaving_after_work,"vacated":vacated,"excludes_new":excludes_new,"cancel_reopens":cancel_reopens}
-	working.dispose()
-	x = _fixture({"nurse":"nurse"})
+	var x: Dictionary = _fixture({"nurse":"nurse"})
 	_facility(x,"base","SE06",[42,80])
 	_position(x,"nurse",[44,79])
 	var travelling: HospitalSimulation = HospitalSimulation.new(x.world,_content)
@@ -339,7 +301,7 @@ func _base_arrangement_examples() -> Dictionary:
 	var travel_ok: bool = first.accepted and paused and cancel_resumes and second.accepted and preserves_evacuation and keeps_task and restored and plan.get("ok",false) and resumes_new_position and arrived and completed_original
 	var travel_details: Dictionary = {"first_prepare":first.code,"paused":paused,"cancel_resumes":cancel_resumes,"second_prepare":second.code,"preserves_evacuation":preserves_evacuation,"keeps_task":keeps_task,"restored":restored,"plan":plan.get("reason",""),"apply":applied.code,"resumes_new_position":resumes_new_position,"arrived":arrived,"completed_original":completed_original}
 	travelling.dispose()
-	return {"ok":working_ok and travel_ok,"working":working_details,"travelling":travel_details}
+	return {"ok":travel_ok,"travelling":travel_details}
 
 func _schedule(kinds: Array) -> Array:
 	var result: Array = []

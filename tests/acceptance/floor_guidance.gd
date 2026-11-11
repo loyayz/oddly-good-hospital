@@ -29,7 +29,6 @@ func _base(doctor: bool = false, upper: bool = false) -> Dictionary:
 	HospitalFactory._add_room(world,{"id":"clinic","type":"gp","anchor":[34,66],"size":[10,12],"door":{"definition_id":"DR04","offset":3}},_content)
 	_facility(x,"diagnosis","FUR02",[39,69],"clinic")
 	_facility(x,"guide","SE01",[47,83])
-	world.facts.patient_experience.units.general.room_ids = ["clinic"]
 	if doctor:
 		HospitalFactory._add_staff(world,"doctor","医生","doctor",[43,87],_content)
 		x.d.ensure(world);x.s.ensure(world);x.w.ensure(world);x.r.ensure(world);x.f.ensure(world)

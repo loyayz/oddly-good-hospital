@@ -248,11 +248,6 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 			if staff.has(field): record[field] = staff[field]
 		facts.staff[id] = record
 	facts.arrivals = {"disease_weights":world.facts.arrivals.disease_weights,"next_preset":world.facts.arrivals.next_preset}
-	facts.patient_experience = {"units":world.department_records()}
-	for unit: Dictionary in facts.patient_experience.units.values():
-		if not str(unit.get("focus_id","")).is_empty():
-			facts.patient_experience.cases = world.facts.get("patient_experience",{}).get("cases",[])
-			break
 	facts.maintenance = {"jobs":{},"upgrades":{}}
 	for collection: String in facts.maintenance:
 		for id: String in world.facts.get("maintenance",{}).get(collection,{}):

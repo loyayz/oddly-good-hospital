@@ -69,10 +69,10 @@ func _run() -> void:
 	service.boundaries(world)
 	_check("hold_uses_current_open_desks",held.accepted and world.facts.arrivals.plan.scale_numerator==1 and service.outpatient_allowance(world.facts.arrivals.plan)==16,world.facts.arrivals.plan)
 	world.facts.facilities.demand_desk2.open = true
-	world.facts.patient_experience.units.general.open = false
+	world.facts.rooms.room_gp.open_intent = false
 	world.touch()
-	_check("closed_department_excluded",service.demand_desks(world)==1,service.capacity(world))
-	world.facts.rooms.demand_gp2.open = false
+	_check("closed_first_room_excluded",service.demand_desks(world)==1,service.capacity(world))
+	world.facts.rooms.demand_gp2.open_intent = false
 	world.touch()
 	_check("closed_room_excluded",service.demand_desks(world)==0,service.capacity(world))
 	var hold_preview: Array = service.daystats(world).tomorrow_range

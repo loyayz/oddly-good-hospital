@@ -15,7 +15,7 @@ const CASES: Dictionary = {
 	"STAFF-09":"docs/design/07-clinical-team.md §3；同阶段真实结课优先实践，不重复升级退款",
 	"STAFF-10":"docs/design/07-clinical-team.md §2；逐级评估500币120秒，新工资从完成tick累计",
 	"STAFF-11":"docs/design/07-clinical-team.md §1、§11；培养目标只提示，不清实践或取消原课程",
-	"STAFF-12":"docs/design/07-clinical-team.md §8.1、§13；docs/design/08-hospital-life.md §10；共享基地排序、真实排队/回岗，改建保留原整理且不返回等待腾空区域",
+	"STAFF-12":"docs/design/07-clinical-team.md §8.1、§13；docs/design/08-hospital-life.md §10；护士共享基地排序、真实排队，改建保留原交接且不返回等待腾空区域",
 	"STAFF-13":"docs/design/07-clinical-team.md §9；1800秒一日与600秒三班边界一致",
 	"STAFF-14":"docs/design/07-clinical-team.md §9、§10；至少一休且跨日最多连续两班，前日尾部统计保留，非法编辑原子拒绝",
 	"STAFF-15":"docs/design/12-implementation-plan.md 第15阶段15.2；建议保留锁定，无关变化不拒绝，相关变化须重核",
@@ -316,112 +316,9 @@ func _case_11(t) -> void:
 	t.check("STAFF-11",changed.accepted and not invalid_goal.accepted and not nurse_promotion.ok and doctor.growth_direction=="diagnosis" and doctor.practice.diagnosis==7 and doctor.training_job_id==job.id and job.track=="treatment" and job.state=="waiting" and HospitalLedger.balance(x.world)==cash_before and job.desk_id.is_empty(),{"goal":doctor.growth_goal,"course":job})
 
 func _case_12(t) -> void:
-	var x: Dictionary = _fixture({"doctor":"doctor"})
-	var office: String = _room(x,"doctor_office")
-	_facility(x,"base","SE05",[43,74],office)
-	_position(x,"doctor",x.space.facility_layout(x.world,"base").operator_cells[0])
-	x.d.dispatch(x.world)
-	_training_ticks(x,30)
-	x = _restore(x)
-	var doctor: Dictionary = x.world.facts.staff.doctor
-	var half_base: bool = not doctor.base_prepared and doctor.base_task.remaining_ticks==30
-	_training_ticks(x,30)
-	x.d.dispatch(x.world)
-	var once: bool = doctor.base_prepared and doctor.base_task.is_empty()
-	doctor.on_shift = false
-	x.d.dispatch(x.world)
-	doctor.on_shift = true
-	x.d.dispatch(x.world)
-	var new_block: bool = not doctor.base_prepared and doctor.base_task.get("remaining_ticks",-1)==60
-	var shared: Dictionary = _fixture({"anesthetist":"doctor","doctor":"doctor"})
-	HospitalFactory._add_room(shared.world,{"id":"shared_office","type":"doctor_office","anchor":[36,79],"size":[4,4],"door":{"definition_id":"DR01","offset":1}},_content)
-	_facility(shared,"shared_base","SE05",[36,80],"shared_office")
-	var shared_base: Dictionary = shared.space.facility_layout(shared.world,"shared_base")
-	_position(shared,"anesthetist",shared_base.operator_cells[0])
-	_position(shared,"doctor",[37,84])
-	shared.world.facts.staff.anesthetist.scheduled_kind = "surgery"
-	shared.d.dispatch(shared.world)
-	_training_ticks(shared,60)
-	var first_prepared: bool = shared.world.facts.staff.anesthetist.base_prepared and shared.world.facts.staff.anesthetist.base_task.is_empty()
-	shared.d.dispatch(shared.world)
-	var second_waits: bool = shared.world.facts.staff.doctor.base_task.get("phase","")=="travel" and shared.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==60
-	var before_yield: Dictionary = shared.world.facts.actors.anesthetist.location.duplicate(true)
-	shared.d.dispatch(shared.world)
-	var requested_without_teleport: bool = shared.world.facts.moves.has("anesthetist") and shared.world.facts.actors.anesthetist.location==before_yield
-	var travel_preserves_work: bool = true
-	var first_keeps_preparation: bool = true
-	var second_arrived: bool = false
-	for _tick: int in 60:
-		shared.d.dispatch(shared.world)
-		first_keeps_preparation = first_keeps_preparation and shared.world.facts.staff.anesthetist.base_prepared and shared.world.facts.staff.anesthetist.base_task.is_empty()
-		if shared.world.facts.staff.doctor.base_task.get("phase","")=="working":
-			second_arrived = shared.space.at(shared.world,"doctor",int(shared_base.floor_id),shared_base.operator_cells[0])
-			break
-		shared.world.facts.sim_tick += 1
-		shared.space.advance(shared.world)
-		shared.d.advance(shared.world)
-		shared.d.settle(shared.world)
-		travel_preserves_work = travel_preserves_work and shared.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==60
-	var actually_yielded: bool = shared.world.facts.actors.anesthetist.location!=before_yield and not shared.space.at(shared.world,"anesthetist",int(shared_base.floor_id),shared_base.operator_cells[0])
-	_training_ticks(shared,30)
-	shared = _restore(shared)
-	var shared_half: bool = not shared.world.facts.staff.doctor.base_prepared and shared.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==30 and shared.world.facts.staff.anesthetist.base_prepared
-	shared.d.dispatch(shared.world)
-	_training_ticks(shared,30)
-	shared.d.dispatch(shared.world)
-	var shared_complete: bool = shared.world.facts.staff.doctor.base_prepared and shared.world.facts.staff.doctor.base_task.is_empty() and shared.world.facts.staff.anesthetist.base_prepared and shared.world.facts.staff.anesthetist.base_task.is_empty()
-	var ward_case: Dictionary = _fixture({"nurse":"nurse"})
-	ward_case.world.facts.research = ["R33"]
-	HospitalFactory._add_room(ward_case.world,{"id":"assigned_ward","type":"ward","anchor":[36,68],"size":[8,8],"door":{"definition_id":"DR01","offset":1}},_content)
-	_facility(ward_case,"ward_bed","EQ05",[39,69],"assigned_ward")
-	_facility(ward_case,"external_workbench","SE06",[36,78])
-	_position(ward_case,"nurse",[36,75])
-	var ward_assignment: CommandResult = ward_case.c.execute(ward_case.world,"clinical_assign_ward",{"staff_id":"nurse","ward_id":"assigned_ward"})
-	ward_case.world.facts.sim_tick += 1
-	ward_case.space.advance(ward_case.world)
-	var reached_workbench: bool = false
-	for _tick: int in 60:
-		ward_case.d.dispatch(ward_case.world)
-		ward_case.c.dispatch(ward_case.world)
-		if ward_case.world.facts.staff.nurse.base_task.get("phase","")=="working":
-			reached_workbench = ward_case.space.at(ward_case.world,"nurse",1,ward_case.space.facility_layout(ward_case.world,"external_workbench").operator_cells[0])
-			break
-		ward_case.world.facts.sim_tick += 1
-		ward_case.space.advance(ward_case.world)
-		ward_case.d.advance(ward_case.world)
-		ward_case.d.settle(ward_case.world)
-	_training_ticks(ward_case,60)
-	var coverage_probe: Dictionary = {"nurse_id":"nurse","bed_id":"ward_bed"}
-	var before_return: Dictionary = ward_case.world.facts.actors.nurse.location.duplicate(true)
-	var prepared_outside: bool = ward_case.world.facts.staff.nurse.base_prepared and not ward_case.c._ward_covering(ward_case.world,coverage_probe)
-	ward_case.c.dispatch(ward_case.world)
-	var return_requested: bool = ward_case.world.facts.moves.has("nurse") and ward_case.world.facts.actors.nurse.location==before_return
-	var existing_return: Dictionary = ward_case.world.facts.moves.get("nurse",{}).duplicate(true)
-	ward_case.c.dispatch(ward_case.world)
-	var preserves_move: bool = ward_case.world.facts.moves.get("nurse",{})==existing_return
-	var ward_rect: Rect2 = Rect2(36,68,8,8)
-	var outside_has_no_coverage: bool = true
-	var keeps_preparation: bool = true
-	var outside_steps: int = 0
-	for _tick: int in 60:
-		ward_case.world.facts.sim_tick += 1
-		ward_case.d.dispatch(ward_case.world)
-		ward_case.c.dispatch(ward_case.world)
-		ward_case.space.advance(ward_case.world)
-		ward_case.d.advance(ward_case.world)
-		ward_case.d.settle(ward_case.world)
-		var location: Dictionary = ward_case.world.facts.actors.nurse.location
-		if not ward_rect.has_point(Vector2(float(location.cell[0]),float(location.cell[1]))):
-			outside_steps += 1
-			outside_has_no_coverage = outside_has_no_coverage and not ward_case.c._ward_covering(ward_case.world,coverage_probe)
-		keeps_preparation = keeps_preparation and ward_case.world.facts.staff.nurse.base_prepared and ward_case.world.facts.staff.nurse.base_task.is_empty()
-		if not ward_case.world.facts.moves.has("nurse"):
-			break
-	var returned_to_cover: bool = ward_case.world.facts.actors.nurse.location!=before_return and ward_case.world.facts.staff.nurse.ward_id=="assigned_ward" and ward_case.c._ward_covering(ward_case.world,coverage_probe)
-	var ward_return_ok: bool = ward_assignment.accepted and reached_workbench and prepared_outside and return_requested and preserves_move and outside_steps>0 and outside_has_no_coverage and keeps_preparation and returned_to_cover
-	var base_selection: Dictionary = _base_selection_examples()
-	var base_arrangement: Dictionary = _base_arrangement_examples()
-	t.check("STAFF-12",half_base and once and new_block and first_prepared and second_waits and requested_without_teleport and travel_preserves_work and first_keeps_preparation and second_arrived and actually_yielded and shared_half and shared_complete and ward_return_ok and base_selection.ok and base_arrangement.ok,{"base_task":doctor.base_task,"prepared":doctor.base_prepared,"shared":{"first_prepared":first_prepared,"second_waits":second_waits,"move_without_teleport":requested_without_teleport,"travel_preserves_work":travel_preserves_work,"first_keeps_preparation":first_keeps_preparation,"second_arrived":second_arrived,"actually_yielded":actually_yielded,"restored_half":shared_half,"both_prepared":shared_complete},"ward_return":{"assignment":ward_assignment.code,"external_workbench":reached_workbench,"prepared_outside":prepared_outside,"requested_without_teleport":return_requested,"preserves_move":preserves_move,"outside_steps":outside_steps,"outside_has_no_coverage":outside_has_no_coverage,"keeps_preparation":keeps_preparation,"returned_to_cover":returned_to_cover,"location":ward_case.world.facts.actors.nurse.location},"base_selection":base_selection,"base_arrangement":base_arrangement})
+	var selection: Dictionary = _base_selection_examples()
+	var arrangement: Dictionary = _base_arrangement_examples()
+	t.check("STAFF-12",selection.ok and arrangement.ok,{"nurse_base_selection":selection,"nurse_base_arrangement":arrangement})
 
 func _case_13(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor"})

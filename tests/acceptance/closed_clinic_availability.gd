@@ -107,7 +107,6 @@ func multiple_candidates(raw: Dictionary, content: HospitalContent) -> void:
   return
  # Explicit legal department-scope input: the added treatment room belongs
  # to this visit's general department, rather than an unrelated destination.
- sim.world.facts.patient_experience.units.general.room_ids.append("room_alternative")
  # Initialize legitimate new-equipment defaults before freezing the fixture.
  sim.services.maintenance.ensure(sim.world)
  var input: Dictionary = sim.world.freeze()

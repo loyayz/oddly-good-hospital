@@ -324,15 +324,7 @@ func _reference_basis(world: WorldState, shift: int) -> Dictionary:
 		result.transport_layout[id] = layout
 	result.floors = {}
 	for field: String in ["overrides","completed_top_floor","height_intervals"]: result.floors[field] = world.facts.floors.get(field)
-	result.departments = _reference_geometry_basis("departments",world.facts.get("patient_experience",{}).get("units",{}),["id","room_ids","shared_room_ids","public_cells","entry","focus_id","intake_disease_ids","open"])
-	result.focus_active = {}
-	result.focus_ratings = {}
-	var clock: int = world.sim_tick/WorldState.TICKS_PER_DAY*WorldState.TICKS_PER_DAY+shift*_ticks(content.balance.schedule.shift_seconds)
-	for id: String in result.departments:
-		result.focus_active[id] = clock>=int(world.facts.patient_experience.units[id].get("focus_ready_tick",0))
-		if experience!=null and not str(result.departments[id].get("focus_id","")).is_empty(): result.focus_ratings[id] = experience.call("aggregate_rating",world,id)
 	result.talents = clinic.recruitment!=null
-	result.department_effects = clinic.experience!=null
 	var scheduler: RefCounted = clinic.scheduler
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
@@ -483,23 +475,8 @@ func _stage_facilities(resources: Dictionary) -> Array:
 			result.append(resource_id.substr(9))
 	return result
 
-func _schedule_visit_contexts(world: WorldState, bundle: Dictionary, facility_id: String) -> Array:
-	var binding_id: String = str(bundle.get("binding_id",""))
-	var visit: Dictionary = {"binding_id":binding_id,"department_id":str(bundle.get("department_id",""))}
-	var contexts: Array = [visit]
-	if not visit.department_id.is_empty():
-		return contexts
-	var room_id: String = str(world.facts.facilities.get(facility_id,{}).get("room_id",""))
-	var disease_id: String = str(content.definition("treatment_bindings",binding_id).get("disease_id",""))
-	for department_id: String in world.facts.get("patient_experience",{}).get("units",{}):
-		var department: Dictionary = world.facts.patient_experience.units[department_id]
-		if not department.get("open",true) or not room_id in department.get("room_ids",[])+department.get("shared_room_ids",[]):
-			continue
-		var scope: Array = department.get("intake_disease_ids",[])
-		if not scope.is_empty() and not disease_id in scope:
-			continue
-		contexts.append({"binding_id":binding_id,"department_id":department_id})
-	return contexts
+func _schedule_visit_contexts(_world: WorldState, bundle: Dictionary, _facility_id: String) -> Array:
+	return [{"binding_id":str(bundle.get("binding_id",""))}]
 
 func _normalize_bundle(world: WorldState, source: Dictionary, query: Variant = null) -> Dictionary:
 	if query==null: query = {}

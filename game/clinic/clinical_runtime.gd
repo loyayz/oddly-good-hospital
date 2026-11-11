@@ -1209,7 +1209,7 @@ func _outpatient_work_ticks(world: WorldState, visit: Dictionary, staff: Diction
 	var seconds: float = float(routine.service_seconds)*float(protocol.work_multiplier)/(1.0+0.05*(int(staff.abilities.treatment)-1)+0.2*effective)*(1.0+0.003*float(staff.fatigue))
 	return ceili(seconds*10)
 
-func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, structural_only: bool = false, preferred_bed: String = "", reference_schedule: bool = false, alternatives: Variant = null) -> Dictionary:
+func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, structural_only: bool = false, preferred_bed: String = "", reference_schedule: bool = false, alternatives: Variant = null, continuing_stay: Dictionary = {}) -> Dictionary:
 	var nurses: Dictionary = {}
 	var loads: Dictionary = {}
 	var availability: Dictionary = {} if structural_only else _availability(world)
@@ -1245,7 +1245,8 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 				continue
 			if reference_schedule and not _reference_assignment_allows(world,nurse_id,"care",visit,bed_id):
 				continue
-			if not structural_only and (not nurse.on_shift or not _can_start(world,nurse)):
+			var continuing_amenity: bool = continuing_stay.get("nurse_id","")==nurse_id and continuing_stay.get("phase","")=="recovery" and nurse.get("life_task",{}).get("kind","")=="amenity" and nurse.life_task.phase=="wait_safe" and _ward_nurse_covering(world,nurse_id,str(ward.id),floor_id)
+			if not structural_only and (not nurse.on_shift or not _can_start(world,nurse,continuing_amenity)):
 				continue
 			if not structural_only and _staff_busy(world,nurse_id,"",availability):
 				var unrelated_work: bool = false
@@ -2344,7 +2345,7 @@ func _transfer_stay(world: WorldState, visit: Dictionary, stay: Dictionary, pref
 	actor.posture = "standing"
 	actor.location.cell = old_bed.patient_cell.duplicate()
 	actor.location.height_m = 0.0
-	var quote: Dictionary = _compatible_bed(candidate,visit,int(old_bed.floor_id),[],false,preferred_bed)
+	var quote: Dictionary = _compatible_bed(candidate,visit,int(old_bed.floor_id),[],false,preferred_bed,false,null,stay)
 	if not quote.ok or quote.get("bed_id","")==stay.bed_id or (not preferred_bed.is_empty() and quote.get("bed_id","")!=preferred_bed):
 		return "暂无具备真实覆盖与路线的兼容替代床"
 	var reason: String = space.reserve_facility(world,quote.bed_id,visit.actor_id,stay.id,[quote.nurse_id])
@@ -2688,34 +2689,30 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 		return {"ok":false,"reason":"缺少实际初诊资源","bundles":[]}
 	if shared.is_empty(): outpatient = _reference_candidates(candidate,visit,"outpatient",query)
 	var terminal_quotes: Array = []
+	var consulting_doctors: Dictionary = {}
+	for pair: Dictionary in consultations:
+		consulting_doctors[pair.staff_id] = true
 	for pair: Dictionary in outpatient:
-		# A retry remains with the first treating doctor. Other doctors' scores
-		# cannot affect that doctor's independent plan selection.
-		if not prior_quote.is_empty() and pair.staff_id!=prior_quote.get("consulting_doctor_id",prior_quote.staff_ids[0]):
-			continue
-		if not _reference_assignment_allows(candidate,pair.staff_id,"outpatient",visit,pair.facility_id):
-			continue
+		if not _reference_assignment_allows(candidate,pair.staff_id,"outpatient",visit,pair.facility_id): continue
 		for plan: Dictionary in query.plans[visit.disease_id].outpatient:
 			var allowed: bool = true
 			for research_id: String in plan.requires_research:
 				allowed = allowed and research_id in candidate.facts.research
-			if not allowed:
-				continue
+			if not allowed: continue
 			var physical_key: Array = [not prior_quote.is_empty(),pair.staff_id,pair.facility_id,plan.id]
 			if not physical.outpatient.has(physical_key):
 				physical.outpatient[physical_key] = _outpatient_quote(candidate,visit,candidate.facts.staff[pair.staff_id],candidate.facts.facilities[pair.facility_id],plan.id,true,true,true,bed_quotes)
-			var quote: Dictionary = physical.outpatient[physical_key].duplicate()
-			if not quote.ok:
-				continue
-			quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
-			quote.score = _reference_score(candidate,visit,quote,pair.staff_id)
-			quote.consulting_doctor_id = pair.staff_id
-			terminal_quotes.append(quote)
-	var consulting_doctors: Dictionary = {}
-	for pair: Dictionary in consultations:
-		if int(candidate.facts.staff[pair.staff_id].abilities.treatment)<2: continue
-		if not prior_quote.is_empty() and pair.staff_id!=prior_quote.get("consulting_doctor_id",prior_quote.staff_ids[0]): continue
-		consulting_doctors[pair.staff_id] = true
+			var quote: Dictionary = physical.outpatient[physical_key]
+			if not quote.ok: continue
+			# Consultation recommends; the room-assigned operator performs the
+			# treatment. Keep every legal operator and consulting-doctor pairing.
+			for doctor_id: String in consulting_doctors:
+				if int(candidate.facts.staff[doctor_id].abilities.treatment)<2: continue
+				var recommended: Dictionary = quote.duplicate()
+				recommended.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
+				recommended.score = _reference_score(candidate,visit,recommended,doctor_id)
+				recommended.consulting_doctor_id = doctor_id
+				terminal_quotes.append(recommended)
 	for plan: Dictionary in ([] if consulting_doctors.is_empty() else query.plans[visit.disease_id].surgery):
 		var physical_key: Array = [not prior_quote.is_empty(),plan.id]
 		if not physical.surgery.has(physical_key):
@@ -2872,7 +2869,6 @@ func _reference_diagnostics(options: Dictionary, terminal: Dictionary) -> Array:
 	if not options.query.diagnostics.has(key):
 		var prefixes: Array = []
 		for diagnostic: Dictionary in options.diagnostics:
-			if diagnostic.staff_id in terminal.staff_ids: continue
 			var initial: Dictionary = _reference_diagnostic_stages(options.world,options.visit,diagnostic,options.query)
 			if not initial.ok: continue
 			var full: Dictionary = {"staff_ids":terminal.staff_ids,"stage_resources":initial.gp_stages}
@@ -3040,7 +3036,7 @@ func reference_component_observation(query: Variant = null) -> Dictionary:
 	return result
 
 func _reference_retry_context(terminal: Dictionary) -> Array:
-	return [terminal.plan_id,terminal.consulting_doctor_id,terminal.consulting_doctor_id in terminal.staff_ids]
+	return [terminal.plan_id,terminal.consulting_doctor_id,terminal.staff_ids]
 
 func _reference_retry_group(terminal: Dictionary) -> String:
 	return "retry:"+JSON.stringify([_reference_retry_context(terminal),terminal.probability_bp])
@@ -3263,8 +3259,10 @@ func settle_practice(world: WorldState) -> void:
 					staff.abilities[award.track] = maxi(level,int(staff.abilities[award.track]))
 	_practice_awards.clear()
 
-func _can_start(world: WorldState, staff: Dictionary) -> bool:
-	return not staff.has("clinical_release") and (staff.role=="doctor" or bool(staff.get("base_prepared",true))) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and world.sim_tick>=int(staff.get("supply_return_tick",-1)) and HospitalStaffWellbeing.work_window(staff) and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
+func _can_start(world: WorldState, staff: Dictionary, continuing_ward_transfer: bool = false) -> bool:
+	# A pending amenity does not revoke the original ward's safe transfer duty.
+	var window: bool = continuing_ward_transfer or (not bool(staff.get("block_new_work",false)) and HospitalStaffWellbeing.work_window(staff))
+	return not staff.has("clinical_release") and (staff.role=="doctor" or bool(staff.get("base_prepared",true))) and window and not bool(staff.get("supply_strike",false)) and world.sim_tick>=int(staff.get("supply_return_tick",-1)) and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
 
 func _use(world: WorldState, facility: Dictionary, receipt_id: String) -> void:
 	facility = world.facts.facilities[facility.id]

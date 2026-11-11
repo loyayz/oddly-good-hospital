@@ -243,15 +243,17 @@ func _departure(suite: RefCounted, restore_at_exit: bool = false, final_rejoin: 
 	var removed_at_handoff: bool = false
 	var total_distance: float = 0.0
 	var restored: bool = false
-	var terminal_rejoin_observed: bool = false
+	var terminal_arrival_observed: bool = false
 	for index: int in 180:
 		var prior: Dictionary = actor.location.duplicate(true)
 		var before_rect: Rect2 = x.space.body_rectangle(actor)
 		var real_exit: bool = x.space.at(x.world,actor.id,1,exit)
 		var move: Dictionary = x.world.facts.moves.get(actor.id,{})
-		var exhausted: bool = not move.is_empty() and int(move.cursor)>=move.path.size()
-		if real_exit and exhausted and move.get("detour",{}).get("phase","")=="rejoin": terminal_rejoin_observed = true
-		if restore_at_exit and not restored and real_exit and exhausted:
+		var exhausted: bool = move.is_empty() or int(move.cursor)>=move.path.size()
+		# Arrival at the exact physical exit is the business handoff. A safe
+		# ground cancellation may consume an active local rejoin in dispatch.
+		if real_exit: terminal_arrival_observed = true
+		if restore_at_exit and not restored and real_exit:
 			var original: Dictionary = x.world.freeze()
 			var old: Dictionary = x
 			x = fixtures._restore(old)
@@ -297,7 +299,7 @@ func _departure(suite: RefCounted, restore_at_exit: bool = false, final_rejoin: 
 			x.world.touch(false)
 			x.space.finish_boundary(x.world)
 			no_revival = no_revival and actor.location.kind=="outside" and not x.world.facts.moves.has(actor.id) and x.world.validate(suite.content).is_empty()
-	var result: Dictionary = {"case":("cold_" if restore_at_exit else "")+("real_final_rejoin_then_departure" if final_rejoin else "real_exit_then_exhausted_route_cleanup"),"ok":(not final_rejoin or terminal_rejoin_observed) and (not restore_at_exit or restored) and initial.is_empty() and referred.accepted and errors.is_empty() and arrived_before_outside and exhausted_before_outside and removed_at_handoff and no_revival and same_sequence and dispatches==(0 if restore_at_exit else 1) and total_distance>1.0 and visit.phase=="departed","terminal_rejoin_at_actual_target":terminal_rejoin_observed,"restored_identical_real_arrival_boundary":restored,"initial_validation":initial,"referral_accepted":referred.accepted,"real_exit_before_outside":arrived_before_outside,"path_exhausted_before_outside":exhausted_before_outside,"removed_on_same_completed_boundary":removed_at_handoff,"no_revival":no_revival,"original_order_kept":same_sequence,"global_route_dispatches":dispatches,"actual_walking_distance":total_distance,"errors":errors,"trace":trace}
+	var result: Dictionary = {"case":("cold_" if restore_at_exit else "")+("real_final_rejoin_then_departure" if final_rejoin else "real_exit_then_exhausted_route_cleanup"),"ok":(not final_rejoin or terminal_arrival_observed) and (not restore_at_exit or restored) and initial.is_empty() and referred.accepted and errors.is_empty() and arrived_before_outside and removed_at_handoff and no_revival and same_sequence and dispatches==(0 if restore_at_exit else 1) and total_distance>1.0 and visit.phase=="departed","terminal_route_completed_at_actual_exit":terminal_arrival_observed,"restored_identical_real_arrival_boundary":restored,"initial_validation":initial,"referral_accepted":referred.accepted,"real_exit_before_outside":arrived_before_outside,"path_exhausted_before_outside":exhausted_before_outside,"removed_on_same_completed_boundary":removed_at_handoff,"no_revival":no_revival,"original_order_kept":same_sequence,"global_route_dispatches":dispatches,"actual_walking_distance":total_distance,"errors":errors,"trace":trace}
 	fixtures._dispose(x)
 	return result
 

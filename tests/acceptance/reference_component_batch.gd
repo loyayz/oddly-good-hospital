@@ -1,5 +1,7 @@
 extends "res://tests/acceptance/growth_fixtures.gd"
 
+const ClinicalFixtures = preload("res://tests/acceptance/clinical_fixtures.gd")
+
 class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
 		return super._reference_component(full,stages,weight)
@@ -221,7 +223,7 @@ func _configure(service: LegacyArrivalProjection) -> void:
 	service.clinic.scheduler = HospitalShiftScheduler.new(_content,service.space)
 	service.clinic.recruitment = RecruitmentService.new(_content,service.space)
 	service.clinic.experience = HospitalExperience.new(_content,service.space)
-	service.departments = service.clinic.experience
+	service.experience = service.clinic.experience
 
 func _capacity_failure() -> Dictionary:
 	var ctx: Dictionary = _context()
@@ -256,9 +258,23 @@ func _capacity_failure() -> Dictionary:
 	return {"passed":new_atomic and old_atomic,"new_case_failure_not_cached":new_atomic,"old_queue_failure_discards_workload":old_atomic,"new_failure":failed,"old_failure":failed_old}
 
 func _complete_models() -> Dictionary:
-	var ctx: Dictionary = _context()
-	_add_room(ctx.world,"component_terminal","T01",[42,70],[6,6])
+	var fixtures: RefCounted = ClinicalFixtures.new()
+	fixtures._content = _content
+	var clinical: Dictionary = fixtures._context(false,true)
+	_simulations.append(clinical.sim)
+	var ctx: Dictionary = {"world":clinical.world,"clinic":clinical.sim.clinic,"space":clinical.sim.space,"simulation":clinical.sim}
+	_add_room(ctx.world,"component_terminal","treatment",[42,70],[6,6])
 	_add_facility(ctx.world,"component_treatment","M09","component_terminal",[44,71])
+	HospitalFactory._add_staff(ctx.world,"component_doctor","诊疗医生","doctor",[47,76],_content)
+	ctx.world.facts.staff.component_doctor.schedule = [{"kind":"outpatient","pools":["component_terminal"],"locked":false},{"kind":"outpatient","pools":["component_terminal"],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+	_add_room(ctx.world,"component_gp","gp",[50,65],[10,7])
+	_add_facility(ctx.world,"component_desk","FUR02","component_gp",[51,66])
+	_add_facility(ctx.world,"component_gp_treatment","M09","component_gp",[55,66])
+	HospitalFactory._add_staff(ctx.world,"component_consultant","门诊医生","doctor",[52,76],_content)
+	ctx.world.facts.staff.component_consultant.abilities.diagnosis = 2
+	ctx.world.facts.staff.component_consultant.abilities.treatment = 2
+	ctx.world.facts.staff.component_consultant.schedule = [{"kind":"outpatient","pools":["component_gp"],"locked":false},{"kind":"outpatient","pools":["component_gp"],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+	ctx.simulation._ensure_services()
 	var scalar: ScalarComponents = ScalarComponents.new(_content,ctx.space)
 	for property: Dictionary in ctx.clinic.get_property_list():
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0 and str(property.name)!="reference_component_counts": scalar.set(property.name,ctx.clinic.get(property.name))
@@ -274,10 +290,18 @@ func _complete_models() -> Dictionary:
 		var batch: Dictionary = ctx.clinic.reference_demand(nominal,input[0],input[1],0,query)
 		var single: Dictionary = scalar.reference_demand(nominal,input[0],input[1],0)
 		var equal: bool = batch.ok and batch==single and not query.has("component_batch") and ctx.space._route_queries.is_empty()
+		var consultants: Dictionary = {}
+		var retry_consultants: Dictionary = {}
+		for group_id: String in batch.get("model",{}).get("choice_groups",{}):
+			for part: Dictionary in batch.model.choice_groups[group_id]:
+				if not part.has("consultation"): continue
+				if group_id.begins_with("consult:"): consultants[str(part.consultation.staff_id)] = true
+				elif ":consult:" in group_id: retry_consultants[str(part.consultation.staff_id)] = true
+		equal = equal and consultants.has("starter_doctor_a") and consultants.has("component_consultant") and retry_consultants.has("starter_doctor_a") and retry_consultants.has("component_consultant")
 		for index: int in retained.size(): equal = equal and retained[index]==snapshots[index]
 		retained.append(batch)
 		snapshots.append(batch.duplicate(true))
 		correct = correct and equal
-		observations.append({"binding":input[0],"complex":input[1],"complete_scalar_equal":equal})
+		observations.append({"binding":input[0],"complex":input[1],"complete_scalar_equal":equal,"consultants":consultants.keys(),"retry_consultants":retry_consultants.keys(),"batch_if_different":batch if not equal else {},"scalar_if_different":single if not equal else {}})
 	var readonly: bool = ctx.world.freeze()==before and nominal.freeze()==nominal_before
 	return {"passed":correct and readonly,"cases":observations,"readonly":readonly,"counts":ctx.clinic.reference_component_observation()}

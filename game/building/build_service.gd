@@ -277,7 +277,9 @@ func _wall_crossing(world: WorldState, floor_id: int, edge: Dictionary) -> Strin
 		if _edge_crosses(edge,protected_entry) or edge.axis=="x" and int(edge.line)==int(entry[1])+3 and int(edge.low)<int(entry[0])+3 and int(edge.high)>int(entry[0]): return "医院入口缓冲区和通向外界的边界不能阻断"
 	for collection: String in ["facilities","connectors"]:
 		for record: Dictionary in world.facts[collection].values():
-			if int(record.floor_id)!=floor_id: continue
+			if collection=="connectors":
+				if not HospitalTransit.has_stop(record,floor_id): continue
+			elif int(record.floor_id)!=floor_id: continue
 			var rect: Rect2 = BuildGeometry.rectangle(record)
 			if _edge_crosses(edge,rect): return "墙不能穿过实际设备或交通设施："+str(record.id)
 	for reservation: Dictionary in world.facts.adaptations.values():

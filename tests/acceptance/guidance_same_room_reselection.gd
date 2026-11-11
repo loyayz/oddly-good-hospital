@@ -23,7 +23,6 @@ func _actual_ready_case(mode: String)->Dictionary:
 	var room: String="clinic"
 	if mode=="other_room":
 		HospitalFactory._add_room(x.world,{"id":"other_clinic","type":"gp","anchor":[47,66],"size":[8,12],"door":{"definition_id":"DR04","offset":3}},_content)
-		x.world.facts.patient_experience.units.general.room_ids.append("other_clinic")
 		room="other_clinic"
 	_facility(x,"second_table","FUR02",[50,69] if mode=="other_room" else [40,74],room)
 	x.world.facts.staff.doctor.on_shift=mode!="doctor_unavailable"
