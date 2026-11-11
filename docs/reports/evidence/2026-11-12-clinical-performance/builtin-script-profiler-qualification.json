@@ -1,0 +1,606 @@
+{
+  "verified_utc": "2026-11-11T23:29:29.892826+00:00",
+  "ok": true,
+  "check_count": 36,
+  "source": {
+    "tools/performance/current/prepare_builtin_script_profile.py": {
+      "sha256": "1a71f259b558c760c5e5f56ffc2b8b6d1a18e02595c55a0731229de2896ab85e",
+      "bytes": 24094
+    },
+    "tools/performance/current/parse_builtin_script_profile.py": {
+      "sha256": "635c7840023a86b2997d8fa1f3976f31f5b686c7e9635ac18b600c668df64412",
+      "bytes": 5576
+    },
+    "tools/performance/current/builtin_script_profile.md": {
+      "sha256": "27f85dfccaa32c4ab7055ad32fe65a345c84dddcc00f5a29199b87ef95ebbdb5",
+      "bytes": 6325
+    }
+  },
+  "base_project": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\resident-mask-source-hybrid01",
+  "base_identity_sha256": "68336e5fb2c1b14e352119adcd69cd996628e433a26051f8e8592cd8a39fea4b",
+  "original_source_file_count": 2312,
+  "driver_original_sha256": "32033839f9cfe1643cccaa16de7cab5e1292a516d3b75f45a2373f232c0d2903",
+  "driver_overlay_sha256": "d17aaaa78d31bae753ccef4100305b660c52e8afe0e29ebfa03b5331665d9ef3",
+  "driver_inverse_exact": true,
+  "native": {
+    "libgcc_s_seh-1.dll": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+    "libgmp-10.dll": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+    "libmpfr-6.dll": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+    "libwinpthread-1.dll": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5",
+    "oddly_good_platform.windows.x86_64.dll": "89d4e1db54ca8a52ee2ed7da5b5fdcc1917c0667d172ab89d2fe683bc1767af2"
+  },
+  "engine_executables": {
+    "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643",
+    "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64.exe": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424"
+  },
+  "input": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-prep01\\input01\\comprehensive160.input.bin",
+  "input_sha256": "752924c562f275804cee40cbd2a8760f8f0780cab3276a04330db63a2866e780",
+  "prefix_steps": 0,
+  "sample_steps": 2,
+  "expected_full_world_ordered_events_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+  "marker_rows": [
+    {
+      "index": 628,
+      "signature": "res://tools/performance/current/plain_v4.gd::256::_builtin_profile_marker",
+      "source": "res://tools/performance/current/plain_v4.gd",
+      "line": "256",
+      "function": "_builtin_profile_marker",
+      "calls": 2,
+      "total_seconds": 1e-06,
+      "self_seconds": 1e-06,
+      "category": "tool_or_observer"
+    },
+    {
+      "index": 776,
+      "signature": "res://tools/performance/current/plain_v4.gd::258::_builtin_profile_prefix_marker",
+      "source": "res://tools/performance/current/plain_v4.gd",
+      "line": "258",
+      "function": "_builtin_profile_prefix_marker",
+      "calls": 0,
+      "total_seconds": 0.0,
+      "self_seconds": 0.0,
+      "category": "tool_or_observer"
+    }
+  ],
+  "results": {
+    "ok": true,
+    "completed_modes": [
+      {
+        "mode": "plain",
+        "ok": true,
+        "checks": {
+          "complete_window": true,
+          "same_complete_input": true,
+          "world_and_ordered_events_witness": true,
+          "mode_entry_state": true,
+          "sample_and_prefix_markers": true,
+          "native_start_stop": true,
+          "worker_configuration": true,
+          "main_thread_policy": true,
+          "profiler_not_started": true,
+          "complete_root_stage_window": true
+        },
+        "process": {
+          "command": [
+            "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+            "--headless",
+            "--path",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\project",
+            "--script",
+            "res://tools/performance/current/plain_v4.gd",
+            "--",
+            "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-prep01\\input01\\comprehensive160.input.bin",
+            "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json",
+            "--prefix-steps=0",
+            "--steps=2",
+            "--observed-floor=1",
+            "--main-thread-policy=app",
+            "--worker-tasks=4",
+            "--builtin-script-profile=plain",
+            "--profile-stages"
+          ],
+          "cwd": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\project",
+          "started_utc": "2026-11-11T23:27:46.771100+00:00",
+          "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+          "environment_overrides": {
+            "OMP_NUM_THREADS": "1",
+            "PYTHONUTF8": "1",
+            "APPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\appdata",
+            "LOCALAPPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\localappdata",
+            "TEMP": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\temp",
+            "TMP": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\temp"
+          },
+          "owned_launcher_pid": 26848,
+          "returncode": 0,
+          "ended_utc": "2026-11-11T23:27:51.995840+00:00",
+          "process_wall_seconds": 5.224510400003055,
+          "log_sha256": "183ffd3690ca146d5e72a86fae4403b1c018ff9da77a9e930c246e642f4b005d"
+        },
+        "metrics_diagnostic_only": {
+          "count": 2,
+          "dense_intervals": {
+            "dense_sample_count": 2,
+            "has_qualified_segment": false,
+            "minimum_qualified_samples": 1000,
+            "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+            "segments": [
+              {
+                "first_index": 0,
+                "first_tick": 634,
+                "last_index": 1,
+                "last_tick": 635,
+                "metrics": {
+                  "count": 2,
+                  "max_us": 301141,
+                  "mean_step_us": 178451.5,
+                  "observation_logging_and_loop_wall_us": 10348,
+                  "p50_us": 55762,
+                  "p95_us": 301141,
+                  "p99_us": 301141,
+                  "present_population": {
+                    "maximum": 161,
+                    "median": 161,
+                    "minimum": 161
+                  },
+                  "real_window_us_including_observation": 367251,
+                  "simulated_seconds": 0.2,
+                  "simulation_seconds_per_wall_second": 0.544586672330368,
+                  "sum_step_us": 356903
+                },
+                "sample_count_qualified": false
+              }
+            ],
+            "threshold_present": 144
+          },
+          "first_sample_step_us": 301141,
+          "fresh_runtime_first_prefix_or_sample_step_us": 301141,
+          "max_us": 301141,
+          "mean_step_us": 178451.5,
+          "observation_logging_and_loop_wall_us": 9832,
+          "p50_us": 55762,
+          "p95_us": 301141,
+          "p99_us": 301141,
+          "present_population": {
+            "maximum": 161,
+            "median": 161,
+            "minimum": 161
+          },
+          "real_window_us_including_observation": 366735,
+          "simulated_seconds": 0.2,
+          "simulation_seconds_per_wall_second": 0.545352911502856,
+          "sum_step_us": 356903
+        },
+        "status": {
+          "before": {
+            "debugger_active": false,
+            "has_scripts": false,
+            "mode": "plain",
+            "profiling": false
+          },
+          "boundary_control_frame": "_run excluded",
+          "ended_tick": 635,
+          "prefix_marker_calls": 0,
+          "profile_stop_and_print_us": 0,
+          "profiling_after": false,
+          "sample_marker_calls": 2,
+          "sample_window_wall_us": 366735,
+          "scope": "Flat elapsed merges threads/callers, includes observers and waits; not pure Simulation.step CPU.",
+          "started": false,
+          "started_tick": -1
+        },
+        "function_table": null,
+        "final_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7"
+      },
+      {
+        "mode": "debug-off",
+        "ok": true,
+        "checks": {
+          "complete_window": true,
+          "same_complete_input": true,
+          "world_and_ordered_events_witness": true,
+          "mode_entry_state": true,
+          "sample_and_prefix_markers": true,
+          "native_start_stop": true,
+          "worker_configuration": true,
+          "main_thread_policy": true,
+          "profiler_not_started": true,
+          "complete_root_stage_window": true
+        },
+        "process": {
+          "command": [
+            "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+            "--headless",
+            "--path",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\project",
+            "--debug",
+            "--ignore-error-breaks",
+            "--script",
+            "res://tools/performance/current/plain_v4.gd",
+            "--",
+            "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-prep01\\input01\\comprehensive160.input.bin",
+            "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json",
+            "--prefix-steps=0",
+            "--steps=2",
+            "--observed-floor=1",
+            "--main-thread-policy=app",
+            "--worker-tasks=4",
+            "--builtin-script-profile=debug-off",
+            "--profile-stages"
+          ],
+          "cwd": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\project",
+          "started_utc": "2026-11-11T23:27:54.335812+00:00",
+          "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+          "environment_overrides": {
+            "OMP_NUM_THREADS": "1",
+            "PYTHONUTF8": "1",
+            "APPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\appdata",
+            "LOCALAPPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\localappdata",
+            "TEMP": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\temp",
+            "TMP": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\temp"
+          },
+          "owned_launcher_pid": 22420,
+          "returncode": 0,
+          "ended_utc": "2026-11-11T23:27:59.766575+00:00",
+          "process_wall_seconds": 5.430432100009057,
+          "log_sha256": "72c56467e1a6c764f9f007fd076ab4d86d8d61d92d1bf1ff724b392b3a6745bc"
+        },
+        "metrics_diagnostic_only": {
+          "count": 2,
+          "dense_intervals": {
+            "dense_sample_count": 2,
+            "has_qualified_segment": false,
+            "minimum_qualified_samples": 1000,
+            "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+            "segments": [
+              {
+                "first_index": 0,
+                "first_tick": 634,
+                "last_index": 1,
+                "last_tick": 635,
+                "metrics": {
+                  "count": 2,
+                  "max_us": 304296,
+                  "mean_step_us": 179891.5,
+                  "observation_logging_and_loop_wall_us": 9683,
+                  "p50_us": 55487,
+                  "p95_us": 304296,
+                  "p99_us": 304296,
+                  "present_population": {
+                    "maximum": 161,
+                    "median": 161,
+                    "minimum": 161
+                  },
+                  "real_window_us_including_observation": 369466,
+                  "simulated_seconds": 0.2,
+                  "simulation_seconds_per_wall_second": 0.54132179957019,
+                  "sum_step_us": 359783
+                },
+                "sample_count_qualified": false
+              }
+            ],
+            "threshold_present": 144
+          },
+          "first_sample_step_us": 304296,
+          "fresh_runtime_first_prefix_or_sample_step_us": 304296,
+          "max_us": 304296,
+          "mean_step_us": 179891.5,
+          "observation_logging_and_loop_wall_us": 9257,
+          "p50_us": 55487,
+          "p95_us": 304296,
+          "p99_us": 304296,
+          "present_population": {
+            "maximum": 161,
+            "median": 161,
+            "minimum": 161
+          },
+          "real_window_us_including_observation": 369040,
+          "simulated_seconds": 0.2,
+          "simulation_seconds_per_wall_second": 0.541946672447431,
+          "sum_step_us": 359783
+        },
+        "status": {
+          "before": {
+            "debugger_active": true,
+            "has_scripts": true,
+            "mode": "debug-off",
+            "profiling": false
+          },
+          "boundary_control_frame": "_run excluded",
+          "ended_tick": 635,
+          "prefix_marker_calls": 0,
+          "profile_stop_and_print_us": 1,
+          "profiling_after": false,
+          "sample_marker_calls": 2,
+          "sample_window_wall_us": 369040,
+          "scope": "Flat elapsed merges threads/callers, includes observers and waits; not pure Simulation.step CPU.",
+          "started": false,
+          "started_tick": -1
+        },
+        "function_table": null,
+        "final_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7"
+      },
+      {
+        "mode": "scripts",
+        "ok": true,
+        "checks": {
+          "complete_window": true,
+          "same_complete_input": true,
+          "world_and_ordered_events_witness": true,
+          "mode_entry_state": true,
+          "sample_and_prefix_markers": true,
+          "native_start_stop": true,
+          "worker_configuration": true,
+          "main_thread_policy": true,
+          "marker_unique": true,
+          "marker_calls": true,
+          "marker_elapsed_healthy": true,
+          "prefix_not_profiled": true,
+          "capacity_not_reached": true,
+          "start_boundary_tick": true,
+          "stop_boundary_tick": true,
+          "complete_root_stage_window": true
+        },
+        "process": {
+          "command": [
+            "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+            "--headless",
+            "--path",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\project",
+            "--debug",
+            "--ignore-error-breaks",
+            "--script",
+            "res://tools/performance/current/plain_v4.gd",
+            "--",
+            "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-v3-prep01\\input01\\comprehensive160.input.bin",
+            "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json",
+            "--prefix-steps=0",
+            "--steps=2",
+            "--observed-floor=1",
+            "--main-thread-policy=app",
+            "--worker-tasks=4",
+            "--builtin-script-profile=scripts",
+            "--profile-stages"
+          ],
+          "cwd": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\project",
+          "started_utc": "2026-11-11T23:28:02.151884+00:00",
+          "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+          "environment_overrides": {
+            "OMP_NUM_THREADS": "1",
+            "PYTHONUTF8": "1",
+            "APPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\appdata",
+            "LOCALAPPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\localappdata",
+            "TEMP": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\temp",
+            "TMP": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\temp"
+          },
+          "owned_launcher_pid": 32748,
+          "returncode": 0,
+          "ended_utc": "2026-11-11T23:28:08.991332+00:00",
+          "process_wall_seconds": 6.839223000002676,
+          "log_sha256": "00968aa8acb62a8f26abae78bac0c4209dfcabd5253f5e11486044033aa7bdfa"
+        },
+        "metrics_diagnostic_only": {
+          "count": 2,
+          "dense_intervals": {
+            "dense_sample_count": 2,
+            "has_qualified_segment": false,
+            "minimum_qualified_samples": 1000,
+            "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+            "segments": [
+              {
+                "first_index": 0,
+                "first_tick": 634,
+                "last_index": 1,
+                "last_tick": 635,
+                "metrics": {
+                  "count": 2,
+                  "max_us": 354279,
+                  "mean_step_us": 210121.0,
+                  "observation_logging_and_loop_wall_us": 14134,
+                  "p50_us": 65963,
+                  "p95_us": 354279,
+                  "p99_us": 354279,
+                  "present_population": {
+                    "maximum": 161,
+                    "median": 161,
+                    "minimum": 161
+                  },
+                  "real_window_us_including_observation": 434376,
+                  "simulated_seconds": 0.2,
+                  "simulation_seconds_per_wall_second": 0.460430594692156,
+                  "sum_step_us": 420242
+                },
+                "sample_count_qualified": false
+              }
+            ],
+            "threshold_present": 144
+          },
+          "first_sample_step_us": 354279,
+          "fresh_runtime_first_prefix_or_sample_step_us": 354279,
+          "max_us": 354279,
+          "mean_step_us": 210121.0,
+          "observation_logging_and_loop_wall_us": 12207,
+          "p50_us": 65963,
+          "p95_us": 354279,
+          "p99_us": 354279,
+          "present_population": {
+            "maximum": 161,
+            "median": 161,
+            "minimum": 161
+          },
+          "real_window_us_including_observation": 432449,
+          "simulated_seconds": 0.2,
+          "simulation_seconds_per_wall_second": 0.462482281147604,
+          "sum_step_us": 420242
+        },
+        "status": {
+          "before": {
+            "debugger_active": true,
+            "has_scripts": true,
+            "mode": "scripts",
+            "profiling": false
+          },
+          "boundary_control_frame": "_run excluded",
+          "ended_tick": 635,
+          "prefix_marker_calls": 0,
+          "profile_stop_and_print_us": 1150894,
+          "profiling_after": false,
+          "sample_marker_calls": 2,
+          "sample_window_wall_us": 432449,
+          "scope": "Flat elapsed merges threads/callers, includes observers and waits; not pure Simulation.step CPU.",
+          "started": true,
+          "started_tick": 633
+        },
+        "function_table": {
+          "function_rows": 1959,
+          "active_function_rows": 641,
+          "possible_truncation": false,
+          "periodic_frame_headers": 0,
+          "log_sha256": "00968aa8acb62a8f26abae78bac0c4209dfcabd5253f5e11486044033aa7bdfa"
+        },
+        "final_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7"
+      }
+    ],
+    "diagnostic_only": true,
+    "scope": "Diagnostic elapsed only; all original gameplay steps, candidates and observers remain. The local scripts profiler merges threads/callers and includes observer/tool functions. Its self/inclusive output is not pure step CPU. Debug line polling, profiling and stdout have unmeasured overhead until compared with the same-input plain mode.",
+    "short_observed_overhead_not_a_full_window_estimate": {
+      "debug_off_step_us_minus_plain": 2880,
+      "scripts_step_us_minus_debug_off": 60459,
+      "scripts_step_us_minus_plain": 63339
+    }
+  },
+  "raw_evidence": {
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\engine.log": {
+      "sha256": "183ffd3690ca146d5e72a86fae4403b1c018ff9da77a9e930c246e642f4b005d",
+      "bytes": 354
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\process.json": {
+      "sha256": "ba083eca410dd142ed1c51982b3c96d82e2d3de9626ea1ecc10a6484e6fa51e0",
+      "bytes": 1981
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json": {
+      "sha256": "d7c39dfedc3380d21ee16869d904c7ca1cfe02719923e42b32174c6f3ccef7db",
+      "bytes": 171646
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json.builtin-profile.json": {
+      "sha256": "342a62f29cee1cb449978b87804cb61e4ea6c1be74309c77a458599802b9d356",
+      "bytes": 473
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json.execution.json": {
+      "sha256": "ec40f8e99e6c85fd8b213a990adcba3c80d838c47a44144d426d2ae95bfd2bb1",
+      "bytes": 2340
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json.final.bin": {
+      "sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+      "bytes": 1835104
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json.initial.json": {
+      "sha256": "265d0d06e692e2028689470cbc9ff74bab1c1485c2e4e0f2fb16618d793dc012",
+      "bytes": 10726
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json.stages.json": {
+      "sha256": "7bc469b6dede0a7e2d7b2de17242c7d3964bf1ca6c712f74ff3e4098131a4fde",
+      "bytes": 27197
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\plain\\result.json.steps.ndjson": {
+      "sha256": "089592c49a31bc577681638bb596a32d4f06c6cddaa98388c945e07fb3a85d8d",
+      "bytes": 345
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\engine.log": {
+      "sha256": "72c56467e1a6c764f9f007fd076ab4d86d8d61d92d1bf1ff724b392b3a6745bc",
+      "bytes": 43629
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\process.json": {
+      "sha256": "a3f11d3e1bfc9e9e4bcd4e2703761db7913e1e1f74d9b9df456be9a82f7c014c",
+      "bytes": 2051
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json": {
+      "sha256": "f817f2d8c74c94b2df2b550ef364e04b0b3a9eca5addea6ac95ce1ac2f87c113",
+      "bytes": 171644
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json.builtin-profile.json": {
+      "sha256": "f6fa26759eaf415da550fc62e090ec056931593379ffa00cf016bfcb57ad4023",
+      "bytes": 475
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json.execution.json": {
+      "sha256": "fe2cf1c0569f1c23a0ec9a50c28902ee7ea22a5a4cae2cf7b9920086e5a904e9",
+      "bytes": 2328
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json.final.bin": {
+      "sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+      "bytes": 1835104
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json.initial.json": {
+      "sha256": "265d0d06e692e2028689470cbc9ff74bab1c1485c2e4e0f2fb16618d793dc012",
+      "bytes": 10726
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json.stages.json": {
+      "sha256": "3a0e517d2f3762ea1a7fc47ad3b6259aa3e568ddc5f5361f42bae1a0339d4421",
+      "bytes": 27186
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\debug-off\\result.json.steps.ndjson": {
+      "sha256": "ab7d8921ce15d43e5b2e4b9250b5fb8ec9e59cafabdc94e55bf673c3bb7b579b",
+      "bytes": 345
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\engine.log": {
+      "sha256": "00968aa8acb62a8f26abae78bac0c4209dfcabd5253f5e11486044033aa7bdfa",
+      "bytes": 291215
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\functions.csv": {
+      "sha256": "fa7025498e8aaab333a09185bce629c83a05b5e48e7458351b4bed17b3a201b0",
+      "bytes": 362579
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\functions.json": {
+      "sha256": "853740f4ffcc45e97d972cdae5bdd8fef2909e99d80bd6bf6fe48010b918346d",
+      "bytes": 757049
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\process.json": {
+      "sha256": "411855c723ff83535a054c86b5069d9def5380736cf6897eb0d37b371c2e7562",
+      "bytes": 2039
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json": {
+      "sha256": "7c9d81e763a0ea80e39826b9df3d868d55e9bbbc38375f1b7ec3c3ca93ac7360",
+      "bytes": 171648
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json.builtin-profile.json": {
+      "sha256": "6c1744a0dd02cff05868510e019a5c23e292647f33859c2f90c213d38950db86",
+      "bytes": 479
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json.execution.json": {
+      "sha256": "11c23bbd09604e33d258e34df2b3bc574e6c7f837d6df195c40f4934b2d4b5ee",
+      "bytes": 2340
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json.final.bin": {
+      "sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+      "bytes": 1835104
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json.initial.json": {
+      "sha256": "265d0d06e692e2028689470cbc9ff74bab1c1485c2e4e0f2fb16618d793dc012",
+      "bytes": 10726
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json.stages.json": {
+      "sha256": "743e778181a892fa680fcd893f7f9c320f9e2165004d70033b463a58f2eec2a2",
+      "bytes": 27195
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\scripts\\result.json.steps.ndjson": {
+      "sha256": "8d1a5aacc80013036177eda76b7721efd6aff70043ca36840d9cab0955621292",
+      "bytes": 345
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\project\\builtin-script-profile-identity.json": {
+      "sha256": "4ef80e8b18e0e637b315b978e37286253ab7c3792ecf5c315858a6370dcfb43f",
+      "bytes": 613036
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\static-checks.json": {
+      "sha256": "8b62db50be83f1fa216e3427ce006d60e3f9ed811e8921f495ce69cd964ecfcb",
+      "bytes": 961
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\protocol.json": {
+      "sha256": "30e109ca052bb5a4d96c4e1b2c82cfdc62edc04d1990fc3d796f90ac34d57cee",
+      "bytes": 1812
+    },
+    ".cache\\builtin-script-profile-20261112-qualification01\\qualification\\summary.json": {
+      "sha256": "6bb6c14c6e62b1ba7d635b73d1fd7589858979af1f32eb47fcc1efb5c5b883e4",
+      "bytes": 17847
+    }
+  },
+  "scope": "Three fresh serial 0+2-step tool-qualification processes with root-only StageTimer, app main-thread policy and four workers; no import or production/shared-tool edits. Cold two-step timing differences are observations only and do not estimate 6000-step overhead, hotspots or 160-person compliance. Raw evidence remains in .cache; no long-window diagnostic has run."
+}
