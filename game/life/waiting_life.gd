@@ -666,39 +666,52 @@ func facility_availability(world: WorldState, actor_id: String, facility_id: Str
 
 func _facility_availability(world: WorldState, actor_id: String, facility_id: String) -> Dictionary:
 	var candidate: WorldState = world
+	var departing: Array = []
 	var using: Dictionary = space.read_view(world,"waiting_using_facilities",_using_facilities.bind(world))
 	for need: Dictionary in using.get(facility_id,[]):
 		var user_id: String=str(need.get("actor_id",world.facts.visits.get(str(need.get("visit_id","")),{}).get("actor_id","")))
 		if need.get("facility_id","")!=facility_id or need.phase!="using" or user_id==actor_id: continue
-		var facts: Dictionary = world.facts.duplicate()
-		facts.actors = world.facts.actors.duplicate()
-		facts.actors[user_id] = world.facts.actors[user_id].duplicate()
-		if need.get("owner_kind","")=="visitor":
-			facts.visitors=world.facts.visitors.duplicate()
-			facts.visitors.stays=world.facts.visitors.stays.duplicate()
-			for stay_id: String in world.facts.visitors.stays:
-				if world.facts.visitors.stays[stay_id].actor_id!=user_id: continue
-				facts.visitors.stays[stay_id]=world.facts.visitors.stays[stay_id].duplicate()
-				facts.visitors.stays[stay_id].life_task=need.duplicate()
-				facts.visitors.stays[stay_id].life_task.facility_id=""
-		elif world.facts.staff.has(user_id):
-			facts.staff=world.facts.staff.duplicate()
-			facts.staff[user_id]=world.facts.staff[user_id].duplicate()
-			facts.staff[user_id].life_task=need.duplicate()
-			facts.staff[user_id].life_task.facility_id=""
-		else:
-			facts.waiting_life = world.facts.waiting_life.duplicate()
-			facts.waiting_life.needs = world.facts.waiting_life.needs.duplicate()
-			facts.waiting_life.needs[need.visit_id] = need.duplicate()
-			facts.waiting_life.needs[need.visit_id].facility_id=""
-		facts.adaptations = world.facts.adaptations.duplicate()
-		candidate = WorldState.new(facts)
-		candidate.facts.actors[user_id].location = {"kind":"outside"}
-		candidate.facts.adaptations.erase(facility_id)
+		# Every requester except the actual user sees this same eventual world.
+		# The source's sealed scope owns its lifetime, not the actor/quote cache.
+		var source_floor: int = int(world.facts.actors[actor_id].location.get("floor_id",world.facts.facilities[facility_id].floor_id))
+		var projection: Dictionary = space.read_view(world,"waiting_availability_projection:"+JSON.stringify([facility_id,user_id]),_availability_projection.bind(world,facility_id,user_id,need,source_floor))
+		candidate = projection.world
+		departing = [user_id]
 		break
+	if candidate!=world: space.begin_actor_exclusion_query(world,candidate,departing)
 	var quote: Dictionary = _facility_quote(candidate,{"actor_id":actor_id},facility_id)
+	if candidate!=world: space.end_route_query()
 	if quote.ok: quote.cell = quote.patient_cell.duplicate()
 	return quote
+
+func _availability_projection(world: WorldState, facility_id: String, user_id: String, need: Dictionary, source_floor: int) -> Dictionary:
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	facts.actors[user_id] = world.facts.actors[user_id].duplicate()
+	if need.get("owner_kind","")=="visitor":
+		facts.visitors=world.facts.visitors.duplicate()
+		facts.visitors.stays=world.facts.visitors.stays.duplicate()
+		for stay_id: String in world.facts.visitors.stays:
+			if world.facts.visitors.stays[stay_id].actor_id!=user_id: continue
+			facts.visitors.stays[stay_id]=world.facts.visitors.stays[stay_id].duplicate()
+			facts.visitors.stays[stay_id].life_task=need.duplicate()
+			facts.visitors.stays[stay_id].life_task.facility_id=""
+	elif world.facts.staff.has(user_id):
+		facts.staff=world.facts.staff.duplicate()
+		facts.staff[user_id]=world.facts.staff[user_id].duplicate()
+		facts.staff[user_id].life_task=need.duplicate()
+		facts.staff[user_id].life_task.facility_id=""
+	else:
+		facts.waiting_life = world.facts.waiting_life.duplicate()
+		facts.waiting_life.needs = world.facts.waiting_life.needs.duplicate()
+		facts.waiting_life.needs[need.visit_id] = need.duplicate()
+		facts.waiting_life.needs[need.visit_id].facility_id=""
+	facts.adaptations = world.facts.adaptations.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
+	candidate.facts.actors[user_id].location = {"kind":"outside"}
+	candidate.facts.adaptations.erase(facility_id)
+	space.prepare_projection(world,candidate,[facility_id],[source_floor,int(world.facts.facilities[facility_id].floor_id)])
+	return {"world":candidate}
 
 func validate(world: WorldState) -> String:
 	var state: Variant = world.facts.get("waiting_life")
