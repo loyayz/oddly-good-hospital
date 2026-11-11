@@ -31,6 +31,10 @@ python -X utf8 tools/performance/current/prepare_builtin_script_profile.py quali
 
 完整诊断使用 `run --project ... --output ... --outcome-reference <同输入plain的r1.json> --profile-stages`，固定 1000+6000 步。每次升级生产源都从新的明确冻结工程重新 prepare，不能把旧源与最新 DLL 或共享工具混合。执行器为每个进程隔离 APPDATA、LOCALAPPDATA、TEMP/TMP，记录命令、引擎、源、DLL、线程策略和 worker 配置。超时或脚本错误只终止当前 Popen 拥有的进程树，使用 `.NET Process.Kill(true)` 和有界等待；失败日志和未完成结果保留，不覆盖成通过。
 
+完整见证必须实际完成 7000 步、采样计数为 6000、窗口为 1000+6000，输入和首尾 tick 一致，相邻 `.final.bin` 存在且 SHA256 与原结果相同。允许完整通过，或唯一顶层错误严格为 `Comprehensive workload did not satisfy its business coverage contract` 的覆盖不足结果用于诊断。后一种情况还要求 `coverage_pass=false`、空业务不变量失败集合，`uncovered` 与完整 coverage 表中未覆盖项一致，观察器错误恰好逐项为 `No measured activity: <uncovered>`，无额外错误。步数不足、其他错误、业务不变量失败及缺失或变化的最终二进制全部拒绝。
+
+完整 `run` 显式保留 `--require-coverage`，进程退出 1 仅在上述完整覆盖不足结构通过严格验真后可作为诊断结果；不因此改写原结果。protocol 和每个模式的 result 原样记录覆盖状态、未覆盖项及原始错误，`acceptance_pass=null`。诊断工具成功不代表玩法覆盖或性能验收通过。离线验真使用 `python -X utf8 -m unittest discover -s tools/performance/current -p test_builtin_script_profile.py -v`；不启动 Godot，临时文件只是 SHA/报告结构输入，不充当游戏前置状态。
+
 每个模式保存完整 `.final.bin`、原 driver 结果、`.builtin-profile.json` 和 engine.log。脚本模式另保存 `functions.json/csv`；解析器仅接受显式括起的最终 `ACCUMULATED` 表，忽略周期 FRAME 表。函数表达到 32768 项标为可能截断，不能声称完整。只读离线转换也可独立执行 `parse_builtin_script_profile.py --log ... --output ... --csv ...`。
 
 现有 root-only StageTimer 覆盖全部采样步，`nested=false`；不启用高频手工调用栈 wrapper。标准 profiler 是跨线程、跨调用者的平面累计表，包含观察器及工具，工具函数单列；被工具和生产共享的 callee 无法据此拆成纯 step CPU。总耗时包含后代，不能相加；自身耗时仍可能包含未拆开的原生调用、等待与诊断扰动，也不能相加为主线程 wall。

@@ -7,6 +7,7 @@ import argparse
 import datetime
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -23,6 +24,7 @@ SCOPE = ("Diagnostic elapsed only; all original gameplay steps, candidates and o
          "The local scripts profiler merges threads/callers and includes observer/tool functions. "
          "Its self/inclusive output is not pure step CPU. Debug line polling, profiling and stdout "
          "have unmeasured overhead until compared with the same-input plain mode.")
+COVERAGE_FAILURE = "Comprehensive workload did not satisfy its business coverage contract"
 
 
 def digest(path):
@@ -40,6 +42,49 @@ def read(path):
 
 def write(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def validate_diagnostic_witness(result_path, input_sha256):
+    """A complete full-window fact witness may retain only explicit coverage failure."""
+    data = read(result_path)
+    assert data["source_input_sha256"] == input_sha256, "Witness used another complete input"
+    assert type(data["requested_prefix_steps"]) is int and data["requested_prefix_steps"] == 1000
+    assert type(data["requested_sample_steps"]) is int and data["requested_sample_steps"] == 6000
+    assert type(data["all_completed_steps"]) is int and data["all_completed_steps"] == 7000
+    assert type(data["metrics"]["count"]) is int and data["metrics"]["count"] == 6000
+    initial_tick, final_tick = data["initial"]["tick"], data["final"]["tick"]
+    assert type(initial_tick) is int and type(final_tick) is int and final_tick == initial_tick + 7000
+    final_bin = Path(str(result_path) + ".final.bin")
+    assert final_bin.is_file() and digest(final_bin) == data["final_sha256"], "Missing or mismatching full facts/events binary"
+    comprehensive = data["sample_business"]["comprehensive"]
+    assert comprehensive["invariant_failure_counts"] == {}, "Business invariant failure is not coverage insufficiency"
+    coverage, uncovered = comprehensive["coverage"], comprehensive["uncovered"]
+    assert isinstance(coverage, dict) and coverage
+    assert isinstance(uncovered, list) and all(isinstance(key, str) and key for key in uncovered)
+    assert len(uncovered) == len(set(uncovered)), "Duplicate uncovered identities"
+    missing = set()
+    for key, row in coverage.items():
+        assert isinstance(key, str) and key and type(row["covered"]) is bool
+        actual, minimum = row["actual"], row["lower_bound"]
+        assert type(actual) in (int, float) and type(minimum) in (int, float)
+        assert math.isfinite(actual) and math.isfinite(minimum)
+        assert row["covered"] == (actual >= minimum), "Coverage row contradicts its declared observation"
+        if not row["covered"]:
+            missing.add(key)
+    assert set(uncovered) == missing, "Uncovered identities differ from the full coverage table"
+    assert type(data["complete"]) is bool and type(comprehensive["coverage_pass"]) is bool
+    if data["complete"]:
+        assert data["errors"] == [] and comprehensive["coverage_pass"] and uncovered == [] and comprehensive["errors"] == []
+    else:
+        assert data["errors"] == [COVERAGE_FAILURE], "Only the exact top-level coverage failure is diagnostic"
+        assert comprehensive["coverage_pass"] is False and uncovered
+        assert comprehensive["errors"] == ["No measured activity: " + key for key in uncovered], "Additional or inconsistent observer error"
+    return {"complete_execution_witness": True, "source_result_complete": data["complete"],
+            "coverage_pass": comprehensive["coverage_pass"], "uncovered": uncovered,
+            "errors": data["errors"], "comprehensive_errors": comprehensive["errors"],
+            "invariant_failure_counts": comprehensive["invariant_failure_counts"],
+            "final_sha256": data["final_sha256"], "result_sha256": digest(result_path),
+            "acceptance_pass": None, "scope": "Full facts/events diagnostic witness only; original coverage failure is retained, never accepted as a gameplay or performance pass."}
 
 
 def utc():
@@ -209,7 +254,7 @@ def stop_owned_process_tree(process):
     process.wait(timeout=10)
 
 
-def run_process(command, project, directory, timeout):
+def run_process(command, project, directory, timeout, allowed_returncodes=(0,)):
     """One owned process; append logs/evidence only, never reopen old outputs."""
     active = processes()
     assert not active, f"Another engine/compiler owns the slot: {active}"
@@ -251,7 +296,7 @@ def run_process(command, project, directory, timeout):
                            "process_wall_seconds": time.perf_counter() - started})
             write(directory / "process.json", record)
     raw = log_path.read_text(encoding="utf-8-sig")
-    assert process.returncode == 0 and "SCRIPT ERROR:" not in raw and not any(line.startswith("ERROR:") for line in raw.splitlines()), "Engine/tool failure; preserve engine.log"
+    assert process.returncode in allowed_returncodes and "SCRIPT ERROR:" not in raw and not any(line.startswith("ERROR:") for line in raw.splitlines()), "Engine/tool failure; preserve engine.log"
     record["log_sha256"] = digest(log_path)
     write(directory / "process.json", record)
     return record
@@ -269,18 +314,18 @@ def execute(args):
     modes = MODES if args.action == "qualify" else (args.mode,)
     prefix, steps = (0, 2) if args.action == "qualify" else (1000, 6000)
     expected = identity["short_expected_final_sha256"] if args.action == "qualify" else None
+    reference_validation = None
     if args.action == "run":
         reference = read(args.outcome_reference)
-        assert reference["source_input_sha256"] == identity["input_sha256"]
-        assert reference["requested_prefix_steps"] == prefix and reference["requested_sample_steps"] == steps
-        assert reference["complete"] and not reference["errors"]
+        reference_validation = validate_diagnostic_witness(args.outcome_reference, identity["input_sha256"])
         expected = reference["final_sha256"]
     protocol = {"project": str(project), "identity_sha256": digest(project / MANIFEST),
                 "input_sha256": identity["input_sha256"], "native": identity["native"],
                 "engine_executables": identity["engine_executables"], "prefix_steps": prefix,
                 "sample_steps": steps, "modes": list(modes), "profile_stages": args.profile_stages,
                 "main_thread_policy": args.main_thread_policy, "worker_tasks": args.worker_tasks,
-                "expected_complete_world_events_sha256": expected, "started_utc": utc(), "scope": SCOPE}
+                "expected_complete_world_events_sha256": expected, "reference_validation": reference_validation,
+                "started_utc": utc(), "scope": SCOPE}
     write(output / "protocol.json", protocol)
     if args.import_project:
         run_process([engine, "--headless", "--path", str(project), "--editor", "--import"], project, output / "import", 120)
@@ -299,11 +344,15 @@ def execute(args):
                     f"--worker-tasks={args.worker_tasks}", f"--builtin-script-profile={mode}"]
         if args.profile_stages:
             command.append("--profile-stages")
-        process = run_process(command, project, folder, 120 if args.action == "qualify" else 2400)
+        if args.action == "run":
+            command.append("--require-coverage")
+        process = run_process(command, project, folder, 120 if args.action == "qualify" else 2400,
+                              (0,) if args.action == "qualify" else (0, 1))
         result, status = read(result_path), read(Path(str(result_path) + ".builtin-profile.json"))
         execution = read(Path(str(result_path) + ".execution.json"))
+        actual_validation = validate_diagnostic_witness(result_path, identity["input_sha256"]) if args.action == "run" else None
         checks = {
-            "complete_window": result["complete"] and not result["errors"] and result["all_completed_steps"] == prefix + steps and result["metrics"]["count"] == steps,
+            "complete_window": (actual_validation is not None or (result["complete"] and not result["errors"])) and result["all_completed_steps"] == prefix + steps and result["metrics"]["count"] == steps,
             "same_complete_input": result["source_input_sha256"] == identity["input_sha256"],
             "world_and_ordered_events_witness": digest(Path(str(result_path) + ".final.bin")) == result["final_sha256"] == expected,
             "mode_entry_state": status["before"]["mode"] == mode and not status["before"]["profiling"] and status["before"]["debugger_active"] == (mode != "plain") and status["before"]["has_scripts"] == (mode != "plain"),
@@ -312,6 +361,8 @@ def execute(args):
             "worker_configuration": execution["worker_tasks"] == args.worker_tasks,
             "main_thread_policy": args.main_thread_policy != "app" or execution["main_thread_policy"]["applied"],
         }
+        if args.action == "run":
+            checks["exit_matches_original_coverage_result"] = process["returncode"] == (0 if result["complete"] else 1)
         parsed_summary = None
         if mode == "scripts":
             profile = parse_log(folder / "engine.log", folder / "functions.json", folder / "functions.csv")
@@ -328,6 +379,7 @@ def execute(args):
         verify_sources(project, identity)
         row = {"mode": mode, "ok": all(checks.values()), "checks": checks, "process": process,
                "metrics_diagnostic_only": result["metrics"], "status": status, "function_table": parsed_summary,
+               "coverage_validation": actual_validation, "acceptance_pass": None,
                "final_sha256": result["final_sha256"]}
         results.append(row)
         write(output / "summary.json", {"ok": all(row["ok"] for row in results), "completed_modes": results, "scope": SCOPE})
