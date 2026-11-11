@@ -870,7 +870,7 @@ func _treatment_parallel() -> Dictionary:
 	return _finish(x,{"maximum_simultaneous_sessions":maximum,"sessions":x.world.facts.sessions.duplicate(true)})
 
 func _amenity_handoffs() -> Dictionary:
-	var runs: Array=[_nurse_amenity_handoff(),_doctor_amenity_handoff()]
+	var runs: Array=[_nurse_amenity_handoff(),_doctor_amenity_handoff(),load("res://tests/acceptance/guidance_nurse_local_release.gd").new().run_case(content)]
 	return {"ok":runs.all(func(row:Dictionary)->bool:return row.ok),"runs":runs}
 
 func _nurse_amenity_handoff() -> Dictionary:

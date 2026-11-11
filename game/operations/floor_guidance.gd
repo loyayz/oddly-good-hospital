@@ -1079,7 +1079,11 @@ func _release_nurses(world: WorldState) -> void:
 				if not space.cancel_ground_move(world,id): continue
 			else: continue
 		var prior: Rect2 = Rect2(Vector2(float(release.cell[0]),float(release.cell[1])),Vector2.ONE*int(release.clearance))
-		if (not world.facts.facilities.has(str(release.desk_id)) or not space.body_rectangle(actor).intersects(prior,false)) and space.public_areas.safe_wait(world,id,int(actor.location.floor_id),actor.location.cell):
+		var floor_id: int=int(actor.location.floor_id)
+		var desk: Dictionary=world.facts.facilities.get(str(release.desk_id),{})
+		var desk_here: bool=not desk.is_empty() and int(desk.floor_id)==floor_id
+		var prior_here: bool=int(release.floor_id)==floor_id
+		if (not desk_here or not prior_here or not space.body_rectangle(actor).intersects(prior,false)) and space.public_areas.safe_wait(world,id,floor_id,actor.location.cell):
 			var staff: Dictionary = world.facts.staff[id]
 			if staff.get("active_job_id","")=="floor_desk_release:"+str(release.desk_id):
 				staff.active_job_id = ""
@@ -1092,11 +1096,27 @@ func _release_nurses(world: WorldState) -> void:
 					life.return_location = actor.location.duplicate(true)
 			world.facts.floor_guidance.releases.erase(id)
 			continue
-		var point: Dictionary = scope.point(world,id,str(release.desk_id),prior)
+		var point: Dictionary
+		if desk_here:
+			point=scope.point(world,id,str(release.desk_id),prior if prior_here else Rect2())
+		else:
+			point=_nurse_local_release_point(world,id)
 		if point.is_empty():
 			world.facts.staff[id].life_reason = "等待导诊岗位的真实安全离位空间"
 			continue
-		space.request_floor_move(world,id,int(point.floor_id),point.cell)
+		var reason: String=space.request_floor_move(world,id,int(point.floor_id),point.cell)
+		if not reason.is_empty(): world.facts.staff[id].life_reason=reason
+
+func _nurse_local_release_point(world: WorldState, id: String) -> Dictionary:
+	# A cancelled cross-floor approach never owned a work slot on this floor.
+	# Clear its actual landing/body safely instead of returning to the old desk.
+	var floor_id: int=int(world.facts.actors[id].location.floor_id)
+	var area: Dictionary=space.public_areas.current_area(world,id)
+	var point: Dictionary=space.public_areas.waiting_point(world,id,area)
+	if point.is_empty():
+		var arrival: Dictionary=space.public_areas.select(world,id,[],HospitalWaitingLife.WAITING_ROOM_KINDS,"waiting",[],9223372036854775807,{},true)
+		if not arrival.is_empty(): point=space.public_areas.waiting_point(world,id,arrival.area)
+	return point if not point.is_empty() and int(point.floor_id)==floor_id else {}
 
 static func validate_state(world: WorldState) -> String:
 	if not world.facts.has("floor_guidance"): return ""
