@@ -286,6 +286,7 @@ func _change_walls(world: WorldState, payload: Dictionary, remove: bool) -> Dict
 	var pieces: Dictionary = Structure.units(layout.get("wall_edges",[]))
 	var count: int = 0
 	var additions: Dictionary = Structure.units(request.edges)
+	var crossing_view: Variant = null
 	for key: String in additions:
 		var edge: Dictionary = additions[key]
 		var first: Vector2i = Vector2i(int(edge.low),int(edge.line)-1) if edge.axis=="x" else Vector2i(int(edge.line)-1,int(edge.low))
@@ -294,7 +295,8 @@ func _change_walls(world: WorldState, payload: Dictionary, remove: bool) -> Dict
 		if remove:
 			if pieces.erase(key): count += 1
 		elif not pieces.has(key):
-			var crossing: String = _wall_crossing(world,floor_id,edge)
+			if crossing_view==null: crossing_view={}
+			var crossing: String = _wall_crossing(world,floor_id,edge,crossing_view)
 			if not crossing.is_empty(): return BuildGeometry.failure(crossing)
 			pieces[key] = edge
 			count += 1
@@ -303,23 +305,35 @@ func _change_walls(world: WorldState, payload: Dictionary, remove: bool) -> Dict
 	result.structure_seeds = {str(floor_id):Structure.seeds(request.edges)}
 	return result
 
-func _wall_crossing(world: WorldState, floor_id: int, edge: Dictionary) -> String:
+func _wall_crossing(world: WorldState, floor_id: int, edge: Dictionary, view: Dictionary) -> String:
 	if floor_id==1:
 		var entry: Array = world.facts.entry.cell
 		var protected_entry: Rect2 = Rect2(float(entry[0]),float(entry[1]),3,3)
 		if _edge_crosses(edge,protected_entry) or edge.axis=="x" and int(edge.line)==int(entry[1])+3 and int(edge.low)<int(entry[0])+3 and int(edge.high)>int(entry[0]): return "医院入口缓冲区和通向外界的边界不能阻断"
+	if view.is_empty(): view.merge(_wall_crossing_view(world,floor_id))
+	for obstacle: Dictionary in view.objects:
+		if _edge_crosses(edge,obstacle.rect): return "墙不能穿过实际设备或交通设施："+str(obstacle.id)
+	for region: Rect2 in view.reservations:
+		if _edge_crosses(edge,region): return "墙不能穿过正在使用或安全交接的真实预约"
+	return ""
+
+func _wall_crossing_view(world: WorldState, floor_id: int) -> Dictionary:
+	# Facilities and claims cannot change inside one synchronous wall edit.
+	# Keep the original collection/record/region order for exact first errors;
+	# the caller owns this view only until its current _change_walls returns.
+	var objects: Array = []
+	var reservations: Array[Rect2] = []
 	for collection: String in ["facilities","connectors"]:
 		for record: Dictionary in world.facts[collection].values():
 			if collection=="connectors":
 				if not HospitalTransit.has_stop(record,floor_id): continue
 			elif int(record.floor_id)!=floor_id: continue
-			var rect: Rect2 = BuildGeometry.rectangle(record)
-			if _edge_crosses(edge,rect): return "墙不能穿过实际设备或交通设施："+str(record.id)
+			objects.append({"id":record.id,"rect":BuildGeometry.rectangle(record)})
 	for reservation: Dictionary in world.facts.adaptations.values():
 		if int(reservation.floor_id)!=floor_id: continue
 		for region: Array in reservation.regions:
-			if _edge_crosses(edge,Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3]))): return "墙不能穿过正在使用或安全交接的真实预约"
-	return ""
+			reservations.append(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])))
+	return {"objects":objects,"reservations":reservations}
 
 func _edge_crosses(edge: Dictionary, rect: Rect2) -> bool:
 	var before: float = rect.position.y if edge.axis=="x" else rect.position.x

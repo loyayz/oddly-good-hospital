@@ -1,0 +1,76 @@
+{
+  "baseline": "dc5cbf5a6764102a46efe93aab561168575dd548",
+  "completed": true,
+  "checks": 7,
+  "failed": 0,
+  "selected_cases": [
+    {
+      "id": "PERF-06",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 458,
+      "elapsed_ms": 458
+    },
+    {
+      "id": "PERF-09",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 510,
+      "elapsed_ms": 510
+    },
+    {
+      "id": "ROOM-BUILD-01",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 482,
+      "elapsed_ms": 482
+    },
+    {
+      "id": "ROOM-BUILD-06",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 461,
+      "elapsed_ms": 461
+    },
+    {
+      "id": "ROOM-BUILD-07",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 413,
+      "elapsed_ms": 413
+    },
+    {
+      "id": "ROOM-BUILD-10",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 410,
+      "elapsed_ms": 410
+    },
+    {
+      "id": "SPACE-52",
+      "passed": true,
+      "setup_ms": 0,
+      "body_ms": 36352,
+      "elapsed_ms": 36352
+    }
+  ],
+  "timing": {
+    "started_at_utc": "2026-11-12T01:58:09.450906+08:00",
+    "ended_at_utc": "2026-11-12T01:59:27.7023437+08:00",
+    "phase": "finished",
+    "completed": true,
+    "preparation_ms": 11729,
+    "import_ms": 21952,
+    "tests_ms": 44557,
+    "total_ms": 78250
+  },
+  "source": {
+    "game/building/build_service.gd": "76f535e9aee5c7b69b5ee4a0cab61ca4bd42e44231a311bd9a1c2e24dc4298ae",
+    "tests/acceptance/performance_contracts.gd": "c20e9b11b381d56823e78d6dd35246c306db1c632d7a96e35a8cc2c109abc80c",
+    "tests/acceptance/wall_batch_view.gd": "dec4acd974343192857f75bc1bf5cb67bd0460d64b35a8fb07ea4066c5104122",
+    "tools/performance/wall_batch_probe.gd": "dc2c7a6f9c7c9149b83ce1c8781051b5c898de1d6cc6a98d7dd73ad0ae9e07f7"
+  },
+  "raw_directory": ".cache/acceptance/00a352d75b8d4693a925e78891bd6e4a",
+  "local_probe_sha256": "5192656b5dffab79838d06c3032edf84f9d9b8cb99444902e9ed029a63c34607",
+  "scope": "Selected functional cases and local wall planning only; no complete 160-person performance acceptance."
+}

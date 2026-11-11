@@ -1,0 +1,196 @@
+{
+	"actors": 640,
+	"cases": [
+		{
+			"floor_id": 2,
+			"height": 95,
+			"identical_results_and_complete_candidate_facts": true,
+			"ok": true,
+			"samples": [
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 79312,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 1,
+					"variant": "full",
+					"wall_price": 7200
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 8740,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 1,
+					"variant": "view",
+					"wall_price": 7200
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 8104,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 2,
+					"variant": "view",
+					"wall_price": 7200
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 76479,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 2,
+					"variant": "full",
+					"wall_price": 7200
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 76698,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 3,
+					"variant": "full",
+					"wall_price": 7200
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 8896,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 3,
+					"variant": "view",
+					"wall_price": 7200
+				}
+			],
+			"scope": "Synchronous wall planning on complete unchanged hospital input; includes original request/seed/layout work, excludes cloning and observation. This is not a simulation-step or displayed-frame result.",
+			"width": 85,
+			"work": {
+				"crossing_calls": 360,
+				"full_enumerated_records": 478440,
+				"full_rectangles": 360,
+				"successful_batch": true,
+				"view_builds": 1,
+				"view_enumerated_records": 1329,
+				"view_object_rectangles": 1,
+				"view_reservation_rectangles": 0
+			}
+		},
+		{
+			"floor_id": 2,
+			"height": 95,
+			"identical_results_and_complete_candidate_facts": true,
+			"ok": true,
+			"samples": [
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 84510,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 1,
+					"variant": "full",
+					"wall_price": 7640
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 8707,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 1,
+					"variant": "view",
+					"wall_price": 7640
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 8840,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 2,
+					"variant": "view",
+					"wall_price": 7640
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 80821,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 2,
+					"variant": "full",
+					"wall_price": 7640
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 84354,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 3,
+					"variant": "full",
+					"wall_price": 7640
+				},
+				{
+					"accepted": true,
+					"actors": 640,
+					"elapsed_usec": 8761,
+					"facilities": 1328,
+					"reason": "",
+					"repeat": 3,
+					"variant": "view",
+					"wall_price": 7640
+				}
+			],
+			"scope": "Synchronous wall planning on complete unchanged hospital input; includes original request/seed/layout work, excludes cloning and observation. This is not a simulation-step or displayed-frame result.",
+			"width": 96,
+			"work": {
+				"crossing_calls": 382,
+				"full_enumerated_records": 507678,
+				"full_rectangles": 382,
+				"successful_batch": true,
+				"view_builds": 1,
+				"view_enumerated_records": 1329,
+				"view_object_rectangles": 1,
+				"view_reservation_rectangles": 0
+			}
+		}
+	],
+	"complete": true,
+	"content_fingerprint": "a8b72a7ac6d698873e714e4afaf069552cc73c2600869ba69ded936c543be0cd",
+	"facilities": 1328,
+	"fixture": "geometry640",
+	"input": "",
+	"main_thread_policy": {
+		"applied": true,
+		"error": 0,
+		"group": 0,
+		"hybrid": true,
+		"mask_hex": "fc03",
+		"reason": "performance_cores"
+	},
+	"ok": true,
+	"preparation": {
+		"actor_count_unchanged": true,
+		"completed_plots": 9,
+		"facility_count_unchanged": true,
+		"floor_id": 2,
+		"layout_materialized": true,
+		"ledger_unchanged": true,
+		"ordinary_services_initialized": true,
+		"rng_unchanged": true,
+		"tick_unchanged": true
+	},
+	"prepared_input_facts_unchanged": true,
+	"repeats_per_variant": 3,
+	"scope": "Local wall planning only. geometry640 retains the complete SPACE-52 geometry load and ordinary initialization; a supplied input retains every current 160-person hospital fact. Neither is a full simulation performance acceptance.",
+	"staff": 128,
+	"tick": 0,
+	"world_revision": 2
+}
