@@ -506,7 +506,7 @@ func _dispatch_safety_wait(world: WorldState, visit: Dictionary) -> bool:
 	_wait_safely(world,visit,world.facts.waiting_life.seats.get(visit.id,{"area":{}}))
 	return world.facts.moves.has(visit.actor_id)
 
-func _wait_safely(world: WorldState, visit: Dictionary, intent: Dictionary) -> void:
+func _wait_safely(world: WorldState, visit: Dictionary, intent: Dictionary, fallback: Callable = Callable()) -> void:
 	var actor_id: String = str(visit.actor_id)
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if space.public_areas.safe_wait(world,actor_id,int(actor.location.floor_id),actor.location.cell): return
@@ -515,6 +515,7 @@ func _wait_safely(world: WorldState, visit: Dictionary, intent: Dictionary) -> v
 	var point: Dictionary = space.public_areas.waiting_point(world,actor_id,current if local else intent.area)
 	# A crowded local neighborhood is pending, not proof against this region.
 	if point.is_empty() and not local: point = space.public_areas.select(world,actor_id,[],WAITING_ROOM_KINDS,"waiting",[],9223372036854775807,{},true)
+	if point.is_empty() and fallback.is_valid(): point=fallback.call()
 	if point.is_empty(): return
 	space.request_move(world,actor_id,int(point.floor_id),point.cell)
 	var movement: Dictionary = world.facts.moves.get(actor_id,{})

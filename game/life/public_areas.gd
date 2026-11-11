@@ -252,9 +252,10 @@ func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions:
 		route_dependent = true
 		# Observe only the work places consumed here, with the same adaptation
 		# overrides as facility_layout; the remaining facility state is above.
-		var patient_cell: Array = adaptation.get("patient_cell",facility.patient_cell)
-		var operator_cells: Array = adaptation.get("operator_cells",facility.get("operator_cells",[]))
-		var repair_cell: Array = adaptation.get("repair_cell",facility.get("repair_cell",patient_cell))
+		var layout: Dictionary=space.facility_layout(world,facility_id)
+		var patient_cell: Array = layout.patient_cell
+		var operator_cells: Array = layout.get("operator_cells",[])
+		var repair_cell: Array = layout.get("repair_cell",patient_cell)
 		for point: Array in [patient_cell]+operator_cells+[repair_cell]:
 			# This synchronous observation consumes a set union around identical
 			# points. Patient/repair/operator aliases do not create new facts.
@@ -341,7 +342,8 @@ func _wait_facility_value(world: WorldState, view: Dictionary, id: String) -> Ar
 	if facility.is_empty(): return []
 	var reservation: Dictionary = world.facts.get("staff_life",{}).get("reservations",{}).get(id,{})
 	var adaptation: Dictionary = world.facts.adaptations.get(id,{})
-	return [id,facility.definition_id,facility.cell,facility.footprint,facility.get("rotation",0),facility.get("patient_cell",[]),facility.get("operator_cells",[]),facility.get("repair_cell",[]),facility.get("failed",false),HospitalRemodel.blocked(world,id),view.users.get(id,[]),reservation.get("id",""),reservation.get("staff_ids",[]),adaptation.get("actor_id",""),adaptation.get("staff_ids",[]),adaptation.get("regions",[])]
+	var layout: Dictionary=space.facility_layout(world,id)
+	return [id,facility.definition_id,facility.cell,layout.footprint,facility.get("rotation",0),layout.get("patient_cell",[]),layout.get("operator_cells",[]),layout.get("repair_cell",[]),layout.get("operator_clearances",[]),facility.get("failed",false),HospitalRemodel.blocked(world,id),view.users.get(id,[]),reservation.get("id",""),reservation.get("staff_ids",[]),adaptation.get("actor_id",""),adaptation.get("staff_ids",[]),adaptation.get("regions",[])]
 
 func _wait_queue_value(world: WorldState, queue: Array) -> Array:
 	var result: Array = []
@@ -445,12 +447,17 @@ func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Array[R
 	space.query_counts["public_wait_dependency_rectangles"] = int(space.query_counts.get("public_wait_dependency_rectangles",0))+bounds.size()
 
 func facility_changed(before: Dictionary, after: Dictionary) -> void:
-	if before.get("footprint")!=after.get("footprint") or before.get("patient_cell")!=after.get("patient_cell") or before.get("operator_cells")!=after.get("operator_cells") or before.get("repair_cell")!=after.get("repair_cell"):
+	var posts_changed: bool=before.get("operator_cells")!=after.get("operator_cells") or before.get("operator_clearances")!=after.get("operator_clearances")
+	if before.get("footprint")!=after.get("footprint") or before.get("patient_cell")!=after.get("patient_cell") or posts_changed or before.get("repair_cell")!=after.get("repair_cell"):
 		_geometry_fits.clear()
 		_entry_geometry.clear()
+	if posts_changed:
+		_wait_results.clear()
+		_wait_dependencies.clear()
+		_decision_tick=-1
 	if before.get("footprint")!=after.get("footprint") or before.get("patient_cell")!=after.get("patient_cell"):
 		invalidate()
-	elif before.get("operator_cells")!=after.get("operator_cells") or before.get("repair_cell")!=after.get("repair_cell"):
+	if posts_changed or before.get("repair_cell")!=after.get("repair_cell"):
 		_wait_geometry = {}
 
 func for_facility(world: WorldState, facility_id: String) -> Dictionary:
@@ -1118,6 +1125,8 @@ func _safe_wait_geometry(world: WorldState, actor: Dictionary, floor_id: int, or
 		for y: int in range(floori(bounds.position.y/8.0),floori(bounds.end.y/8.0)+1):
 			for work: Vector2 in constraints.points.get(floor_id,{}).get(Vector2i(x,y),[]):
 				if bounds.intersects(Rect2(work,Vector2.ONE),false): return false
+			for post: Rect2 in constraints.get("posts",{}).get(floor_id,{}).get(Vector2i(x,y),[]):
+				if bounds.intersects(post,false): return false
 	return true
 
 func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary) -> Dictionary:
@@ -1163,7 +1172,7 @@ func _wait_door_view(world: WorldState, floor_id: int, spans: Array) -> Dictiona
 
 func _wait_constraints(world: WorldState) -> Dictionary:
 	if not _wait_geometry.is_empty(): return _wait_geometry
-	var result: Dictionary = {"points":{},"doors":{}}
+	var result: Dictionary = {"points":{},"doors":{},"posts":{}}
 	for floor_key: String in world.facts.floors.overrides:
 		var floor_id: int = int(floor_key)
 		result.doors[floor_id] = []
@@ -1176,7 +1185,16 @@ func _wait_constraints(world: WorldState) -> Dictionary:
 		var floor_id: int = int(facility.floor_id)
 		if not result.points.has(floor_id): result.points[floor_id] = {}
 		var layout: Dictionary = space.facility_layout(world,facility.id)
-		for work: Array in [layout.get("patient_cell",[])]+layout.get("operator_cells",[])+[layout.get("repair_cell",[])]:
+		var operators: Array=layout.get("operator_cells",[])
+		if facility.definition_id=="SE01":
+			var buckets: Dictionary=result.posts.get_or_add(floor_id,{})
+			for index: int in operators.size():
+				var point: Array=operators[index]
+				var post: Rect2=Rect2(float(point[0]),float(point[1]),int(layout.operator_clearances[index]),int(layout.operator_clearances[index]))
+				for x: int in range(floori(post.position.x/8.0),floori(post.end.x/8.0)+1):
+					for y: int in range(floori(post.position.y/8.0),floori(post.end.y/8.0)+1): buckets.get_or_add(Vector2i(x,y),[]).append(post)
+			operators=[]
+		for work: Array in [layout.get("patient_cell",[])]+operators+[layout.get("repair_cell",[])]:
 			if work.is_empty(): continue
 			var point: Vector2 = Vector2(float(work[0]),float(work[1]))
 			var bucket: Vector2i = Vector2i(floori(point.x/8.0),floori(point.y/8.0))

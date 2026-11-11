@@ -23,7 +23,10 @@ func layout(world: WorldState, space: HospitalSpace, floor_id: int) -> Dictionar
 			if int(facility.get("floor_id",-1))!=floor_id or facility.get("location","floor")=="inventory": continue
 			var rect: Rect2 = Rect2(_point(facility.cell),_point(facility.get("footprint",[1,1])))
 			view.index.update(id,floor_id,rect)
-			for cell: Array in facility.get("operator_cells",[]): view.points[_point(cell)] = true
+			# SE01's current/frozen nurse determines its live operating region.
+			# Keep that projection out of this stable built-layout index.
+			if facility.definition_id!="SE01":
+				for cell: Array in facility.get("operator_cells",[]): view.points[_point(cell)] = true
 			for field: String in ["patient_cell","repair_cell"]:
 				if not facility.get(field,[]).is_empty(): view.points[_point(facility[field])] = true
 		_count(space,"layout_builds")

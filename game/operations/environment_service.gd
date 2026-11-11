@@ -344,9 +344,18 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 func _ground_spawn_view(world: WorldState, floor_id: int) -> Dictionary:
 	var layout: Dictionary = _spawn_index.layout(world,space,floor_id)
 	var dirt: Dictionary = _spawn_index.dirt(world,space)
+	var guidance_posts: Array[Rect2]=[]
+	for id: String in world.facility_ids("SE01"):
+		var facility: Dictionary=world.facts.facilities[id]
+		if int(facility.floor_id)!=floor_id or facility.get("location","floor")=="inventory": continue
+		var current: Dictionary=space.facility_layout(world,id)
+		for index: int in current.operator_cells.size():
+			var cell: Array=current.operator_cells[index]
+			var size: int=int(current.operator_clearances[index])
+			guidance_posts.append(Rect2(float(cell[0]),float(cell[1]),size,size))
 	# Reuse sparse layout and current dirt lookups. Reservations are borrowed
 	# afresh from their owner for this synchronous spawn, including same-tick edits.
-	return {"points":layout.points,"index":layout.index,"dirt":dirt.points.get(floor_id,{}),"reservations":space.reservation_view(world).index}
+	return {"points":layout.points,"index":layout.index,"dirt":dirt.points.get(floor_id,{}),"reservations":space.reservation_view(world).index,"guidance_posts":guidance_posts}
 
 func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array, view: Dictionary = {}) -> bool:
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
@@ -354,6 +363,8 @@ func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array, view: Di
 	if view.is_empty(): view = _ground_spawn_view(world,floor_id)
 	var point: Vector2 = Vector2(float(cell[0]),float(cell[1]))
 	if view.points.has(point) or view.dirt.has(point): return false
+	for post: Rect2 in view.get("guidance_posts",[]):
+		if post.intersects(Rect2(point,Vector2.ONE),false): return false
 	for id: String in view.index.candidates(floor_id,Rect2(point,Vector2(0.001,0.001))):
 		if (view.index as BodyIndex).rectangle(id).has_point(point): return false
 	return not (view.reservations as BodyIndex).intersects(floor_id,Rect2(point,Vector2.ONE),"")

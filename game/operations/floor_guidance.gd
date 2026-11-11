@@ -172,7 +172,9 @@ func _assign_desks(world: WorldState) -> void:
 				world.facts.staff[nurse].active_job_id = "floor_desk_release:"+id
 				_retain_departing_nurse_access(world,id,nurse)
 				world.facts.floor_guidance.releases[nurse] = {"desk_id":id,"floor_id":int(world.facts.actors[nurse].location.get("floor_id",world.facts.facilities.get(id,{}).get("floor_id",1))),"cell":world.facts.actors[nurse].location.get("cell",[0,0]).duplicate(),"clearance":space.clearance(world.facts.actors[nurse])}
+			var before: Dictionary=space.facility_layout(world,id) if world.facts.facilities.has(id) else {}
 			desk.nurse_id = ""
+			if not before.is_empty(): space.public_areas.facility_changed(before,space.facility_layout(world,id))
 		if not world.facts.facilities.has(id): desks.erase(id)
 	for id: String in world.facility_ids("SE01"):
 		var desk: Dictionary = desks.get_or_add(id,{"id":id,"nurse_id":"","reason":""})
@@ -191,6 +193,7 @@ func _assign_desks(world: WorldState) -> void:
 				if HospitalStaffWellbeing.yield_for_work(world,content,space,[nurse]): continue
 				desk.nurse_id = nurse
 				staff.active_job_id = "floor_desk:"+id
+				space.public_areas.facility_changed(layout,space.facility_layout(world,id))
 				break
 		if str(desk.nurse_id).is_empty():
 			desk.reason = "缺少可安全到岗的导诊护士"
@@ -575,6 +578,24 @@ func _queue_blocked(world: WorldState, visit: Dictionary, current: Dictionary) -
 		current.blocked_queue_revision=int(world.facts.floor_guidance.desks.get(current.desk_id,{}).get("queue_revision",0))
 		visit.waiting_reason="只有一个可用导诊台，等待队伍前进"
 
+func _unattended_desk_safe_point(world: WorldState, actor_id: String, floor_id: int) -> Dictionary:
+	# Safety preference only: do not select a desk, join a queue or draw RNG.
+	# A hospital with no life-facility region still has real public desk approaches.
+	var actor: Dictionary=world.facts.actors[actor_id]
+	if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id: return {}
+	var origin: Vector2=Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var best: Dictionary={}
+	var distance: float=INF
+	for id: String in world.facility_ids("SE01"):
+		var facility: Dictionary=world.facts.facilities[id]
+		if int(facility.floor_id)!=floor_id or not _desk_open(world,id): continue
+		var point: Dictionary=scope.point(world,actor_id,id)
+		if point.is_empty(): continue
+		var next: float=origin.distance_squared_to(Vector2(float(point.cell[0]),float(point.cell[1])))
+		if best.is_empty() or next<distance:
+			best=point;distance=next
+	return best
+
 func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, current: Dictionary) -> bool:
 	_observe_queue_departure(world,current)
 	var floor_id: int = int(current.guide_floor)
@@ -588,6 +609,8 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 		var options: Array=_available_desks(world,floor_id)
 		if options.is_empty():
 			visit.waiting_reason="本层暂无护士在岗的导诊台，在附近等待"
+			if waiting!=null and not world.facts.moves.has(visit.actor_id) and not space.public_areas.safe_wait(world,visit.actor_id,floor_id,world.facts.actors[visit.actor_id].location.cell):
+				waiting._wait_safely(world,visit,{"area":{}},_unattended_desk_safe_point.bind(world,visit.actor_id,floor_id))
 			return false
 		_change_desk(world,visit,current,str(options[world.draw("guidance",options.size())]))
 

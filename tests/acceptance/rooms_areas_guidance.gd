@@ -25,6 +25,7 @@ const CASES: Dictionary = {
 	"GUIDE-08":"房间规格§7.3、§9；代表设备移往别室或拆除后保留原房间，原行程与冷恢复不改派",
 	"GUIDE-09":"房间规格§7.3、§9；手术原全院选择、患者真实跨层导诊、原目标与实际到场票序及冷恢复",
 	"GUIDE-10":"房间规格§7.4、§9；排票逐次读取当前到场序号，未到场、移除、重排与冷恢复顺序保持",
+	"GUIDE-11":"房间规格§7.1、§9；导诊真实操作位统一派生，完整护士岗位及堵岗真实撤离与冷恢复",
 	"LIFE-01":"房间规格§8.1；门外唯一队伍、多洁具实际并行、不重置原期限",
 	"LIFE-02":"房间规格§8.2；重叠饮水区域共享实际先后，远处不锁位",
 	"LIFE-03":"房间规格§8；员工患者真实共用饮水/卫生间，按到场先后且完整使用后安全退出",
@@ -85,6 +86,7 @@ func _case(id: String) -> Dictionary:
 		"GUIDE-08": return _arranged_room_identity()
 		"GUIDE-09": return load("res://tests/acceptance/surgery_guidance_contract.gd").new().run_case(content)
 		"GUIDE-10": return _ticket_order_keys()
+		"GUIDE-11": return load("res://tests/acceptance/guidance_operator_wait.gd").new().run_case(content)
 		"LIFE-01": return _toilets()
 		"LIFE-02": return _water_order()
 		"LIFE-03": return _shared_amenities()

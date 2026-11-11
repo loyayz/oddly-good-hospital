@@ -1,8 +1,9 @@
-"""Freeze a project and wrap selected methods for diagnostic inclusive/self time.
+"""Freeze a project and wrap selected methods for inclusive/exclusive wall spans.
 
 Business method bodies remain byte-identical after removing the wrappers.
 The frozen project's normal campaign160.py runs the diagnostic; its wall times
 must never be presented as uninstrumented performance.
+Exclusive spans subtract only other probed descendants, not all child CPU time.
 """
 import argparse
 import hashlib

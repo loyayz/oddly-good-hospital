@@ -615,6 +615,19 @@ func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
 	for field: String in ["footprint","patient_cell","operator_cells","repair_cell"]:
 		if reservation.has(field):
 			layout[field] = reservation[field]
+	if facility.definition_id=="SE01":
+		var nurses: Array=reservation.get("staff_ids",[]).duplicate()
+		if not reservation.has("operator_cells"):
+			var nurse: String=str(world.facts.get("floor_guidance",{}).get("desks",{}).get(facility_id,{}).get("nurse_id",""))
+			if not world.facts.actors.has(nurse): nurse=""
+			nurses=[] if nurse.is_empty() else [nurse]
+			layout.operator_cells=[guidance_operator_cell(world,facility_id,nurse)]
+		layout.operator_clearances=[]
+		for index: int in layout.operator_cells.size():
+			var size: int=clearance(world.facts.actors[nurses[index]]) if index<nurses.size() and world.facts.actors.has(nurses[index]) else 1
+			# The frozen quote remains authoritative after its nurse is released.
+			if reservation.has("operator_cells") and index+3<reservation.get("regions",[]).size(): size=int(reservation.regions[index+3][2])
+			layout.operator_clearances.append(size)
 	return layout
 
 func facility_travel_lower_bound_ticks(world: WorldState, facility_id: String, actor_id: String) -> int:
@@ -690,9 +703,9 @@ func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bo
 		if not body_rectangle(moving).intersects(rectangle,false): return elapsed
 	return ticks
 
-func guidance_operator_cell(world: WorldState, facility_id: String, nurse_id: String) -> Array:
+func guidance_operator_cell(world: WorldState, facility_id: String, nurse_id: String = "") -> Array:
 	var facility: Dictionary = world.facts.facilities[facility_id]
-	var k: int = clearance(world.facts.actors[nurse_id])
+	var k: int = 1 if nurse_id.is_empty() else clearance(world.facts.actors[nurse_id])
 	var x: int = int(facility.cell[0]); var y: int = int(facility.cell[1])
 	var w: int = int(facility.footprint[0]); var h: int = int(facility.footprint[1])
 	match posmod(int(facility.get("rotation",0)),4):
@@ -801,7 +814,8 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 				operators.append([x-staff_size,y+1] if index==0 else [x+w,y if index==1 else y+h-staff_size])
 	if facility.definition_id=="SE01":
 		patient_cell = _adapted_front(facility,footprint,actor_clearance)
-		if not staff_ids.is_empty(): operators[0] = guidance_operator_cell(world,facility_id,str(staff_ids[0]))
+		if staff_ids.is_empty(): operators=[guidance_operator_cell(world,facility_id)]
+		else: operators[0]=guidance_operator_cell(world,facility_id,str(staff_ids[0]))
 	var regions: Array = [[x,y,w,h],[patient_cell[0],patient_cell[1],actor_clearance,actor_clearance],[repair[0],repair[1],1,1]]
 	for index: int in staff_ids.size():
 		var k: int = clearance(world.facts.actors[staff_ids[index]])
@@ -1081,7 +1095,7 @@ func reserve_facility(world: WorldState, facility_id: String, actor_id: String, 
 	world.facts.adaptations[facility_id] = quote
 	reservation_changed(world,facility_id)
 	_navigation.invalidate(world,int(quote.floor_id))
-	_facility_layout_changed(world,before,quote)
+	_facility_layout_changed(world,before,facility_layout(world,facility_id))
 	return ""
 
 func _facility_layout_changed(world: WorldState, before: Dictionary, after: Dictionary) -> void:
@@ -1099,7 +1113,7 @@ func commit_facility_reservations(world: WorldState, validated: Dictionary, faci
 			world.facts.adaptations[facility_id] = validated[facility_id].duplicate(true)
 			reservation_changed(world,facility_id)
 			_navigation.invalidate(world,int(validated[facility_id].floor_id))
-			_facility_layout_changed(world,before,validated[facility_id])
+			_facility_layout_changed(world,before,facility_layout(world,facility_id))
 
 func grant_facility_access(world: WorldState, facility_id: String, staff_id: String) -> void:
 	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
@@ -1160,12 +1174,13 @@ func release_adaptations(world: WorldState) -> void:
 				for area: Array in reservation.regions:
 					if region.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false): inside = true
 		if not inside:
+			var before: Dictionary=facility_layout(world,id) if reservation.kind=="facility" and world.facts.facilities.has(id) else reservation
 			world.facts.adaptations.erase(id)
 			reservation_changed(world,id)
 			# Static navigation sources contain facility occupancy/footprints, not
 			# temporary door spans. Door release uses the same live path as acquire.
 			if reservation.kind=="facility": _navigation.invalidate(world,int(reservation.floor_id))
-			if reservation.kind=="facility" and world.facts.facilities.has(id): _facility_layout_changed(world,reservation,world.facts.facilities[id])
+			if reservation.kind=="facility" and world.facts.facilities.has(id): _facility_layout_changed(world,before,facility_layout(world,id))
 
 func _door_span(actor: Dictionary, door: Dictionary) -> int:
 	var dimensions: Dictionary = body(actor)
