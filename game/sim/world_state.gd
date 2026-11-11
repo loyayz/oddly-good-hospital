@@ -14,9 +14,6 @@ var facts: Dictionary:
 		_active_visits.clear()
 		_active_visit_count = -1
 		_layout_projection.clear()
-		_department_versions.clear()
-		_department_records.clear()
-		_department_snapshot = {}
 		_pending_ledger = null
 		_ledger_owners.clear()
 		_pending_sources.clear()
@@ -37,9 +34,6 @@ var _active_visits: Dictionary = {}
 var _active_visit_count: int = -1
 var _layout_projection: Dictionary = {}
 var _layout_revision: int = -1
-var _department_versions: Dictionary = {}
-var _department_records: Dictionary = {}
-var _department_snapshot: Dictionary = {}
 var _pending_ledger: Variant = null
 var _ledger_entries: Dictionary = {}
 var _ledger_entry_count: int = -1
@@ -279,27 +273,6 @@ func capacity_layout() -> Dictionary:
 		_layout_revision = geometry_revision
 	return _layout_projection
 
-func department_changed(id: String, initialize: bool = false) -> void:
-	if initialize and _department_versions.has(id): return
-	_department_versions[id] = int(_department_versions.get(id,0))+1
-
-func department_records() -> Dictionary:
-	var records: Dictionary = facts.get("departments",{}).get("units",{})
-	var result: Dictionary = {}
-	var unchanged: bool = records.size()==_department_snapshot.size()
-	var retained: Dictionary = {}
-	for id: String in records:
-		var version: int = int(_department_versions.get(id,-1))
-		var cached: Dictionary = _department_records.get(id,{})
-		if cached.is_empty() or cached.geometry!=geometry_revision or cached.version!=version or version<0 and cached.value!=records[id]:
-			cached = {"value":records[id].duplicate(true),"version":version,"geometry":geometry_revision}
-			unchanged = false
-		retained[id] = cached
-		result[id] = cached.value
-	_department_records = retained
-	if not unchanged: _department_snapshot = result
-	return _department_snapshot
-
 func draw(stream: String, modulus: int) -> int:
 	var record: Dictionary = facts.rng[stream]
 	var generator: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -420,17 +393,11 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：maintenance.upgrades"
 		if not facts.maintenance.get("receipts") is Dictionary:
 			return "经营状态集合无效：maintenance.receipts"
-	if facts.has("departments"):
-		if not facts.departments is Dictionary:
-			return "经营状态结构无效：departments"
-		if not facts.departments.get("units") is Dictionary:
-			return "经营状态集合无效：departments.units"
-		if not facts.departments.get("routes") is Dictionary:
-			return "经营状态集合无效：departments.routes"
-		if not facts.departments.get("guidance") is Dictionary:
-			return "经营状态集合无效：departments.guidance"
-		if not facts.departments.get("experience") is Dictionary:
-			return "经营状态集合无效：departments.experience"
+	if facts.has("patient_experience"):
+		if not facts.patient_experience is Dictionary:
+			return "经营状态结构无效：patient_experience"
+		if not facts.patient_experience.get("experience") is Dictionary:
+			return "经营状态集合无效：patient_experience.experience"
 	if facts.has("economy"):
 		if not facts.economy is Dictionary:
 			return "经营状态结构无效：economy"
@@ -685,7 +652,7 @@ func validate(content: HospitalContent) -> String:
 	var doors: Dictionary = {}
 	for floor_key: String in facts.floors.overrides:
 		for door: Dictionary in facts.floors.overrides[floor_key].doors:
-			if content.definition("doors",door.definition_id).is_empty() or doors.has(door.id) or facts.facilities.has(door.id) or int(facts.rooms[door.room_id].floor_id)!=int(floor_key):
+			if content.definition("doors",door.definition_id).is_empty() or doors.has(door.id) or facts.facilities.has(door.id) or not str(door.room_id).is_empty() and (not facts.rooms.has(door.room_id) or int(facts.rooms[door.room_id].floor_id)!=int(floor_key)):
 				return "门的定义、原墙楼层或唯一身份无效"
 			doors[door.id] = door
 	for id: String in facts.adaptations:
@@ -767,8 +734,8 @@ func validate(content: HospitalContent) -> String:
 		var error: String = HospitalMaintenance.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
-	if facts.has("departments"):
-		var error: String = HospitalDepartments.new(content,geometry).validate(self)
+	if facts.has("patient_experience"):
+		var error: String = HospitalExperience.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
 	if facts.has("economy"):
@@ -863,8 +830,6 @@ func _ledger_owner_exists(id: String, unit_owners: Dictionary) -> bool:
 		return true
 	if facts.get("maintenance",{}).get("upgrades",{}) is Dictionary and facts.get("maintenance",{}).get("upgrades",{}).has(id):
 		return true
-	if facts.get("departments",{}).get("units",{}) is Dictionary and facts.get("departments",{}).get("units",{}).has(id):
-		return true
 	if facts.get("recruitment",{}).get("searches",{}) is Dictionary and facts.get("recruitment",{}).get("searches",{}).has(id):
 		return true
 	return unit_owners.has(id)
@@ -910,14 +875,14 @@ func _validate_shapes() -> String:
 				if not _grid_point(point):
 					return "楼层坐标类型无效"
 		for door: Variant in layout.doors:
-			if not door is Dictionary or not door.get("id") is String or not door.get("definition_id") is String or not _grid_point(door.get("cell")) or not _natural(door.get("span",-1)) or int(door.span)<1 or not door.get("axis") in ["x","y"] or not facts.rooms.has(door.get("room_id","")):
+			if not door is Dictionary or not door.get("id") is String or not door.get("definition_id") is String or not _grid_point(door.get("cell")) or not _natural(door.get("span",-1)) or int(door.span)<1 or not door.get("axis") in ["x","y"] or not door.get("room_id","") is String or not str(door.room_id).is_empty() and not facts.rooms.has(door.room_id):
 				return "门与原墙段的引用无效"
 	var schemas: Dictionary = {
 		"staff":{"id":TYPE_STRING,"role":TYPE_STRING,"title_id":TYPE_STRING,"abilities":TYPE_DICTIONARY,"energy":TYPE_FLOAT,"fatigue":TYPE_FLOAT,"stress_milli":TYPE_INT,"on_shift":TYPE_BOOL,"certificates":TYPE_ARRAY,"practice":TYPE_DICTIONARY,"completed_jobs":TYPE_DICTIONARY},
 		"tickets":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"kind":TYPE_STRING,"enqueued_tick":TYPE_INT},
 		"attempts":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"plan_id":TYPE_STRING,"result":TYPE_BOOL,"start_tick":TYPE_INT,"probability_bp":TYPE_INT,"work_ticks":TYPE_INT,"recovery_ticks":TYPE_INT,"supply_units":TYPE_INT,"cure_fee":TYPE_INT,"facility_fee":TYPE_INT,"staff_ids":TYPE_ARRAY,"effective_level":TYPE_FLOAT},
 		"preparations":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"bed_id":TYPE_STRING,"facility_id":TYPE_STRING,"staff_ids":TYPE_ARRAY,"deadline_tick":TYPE_INT,"setup_remaining_ticks":TYPE_INT},
-		"ward_stays":{"id":TYPE_STRING,"attempt_id":TYPE_STRING,"bed_id":TYPE_STRING,"phase":TYPE_STRING,"remaining_ticks":TYPE_INT,"work_credit_milli":TYPE_INT,"care_completed":TYPE_BOOL,"nurse_id":TYPE_STRING,"round_doctor_id":TYPE_STRING,"escort_id":TYPE_STRING},
+		"ward_stays":{"id":TYPE_STRING,"attempt_id":TYPE_STRING,"bed_id":TYPE_STRING,"phase":TYPE_STRING,"remaining_ticks":TYPE_INT,"work_credit_milli":TYPE_INT,"care_completed":TYPE_BOOL,"nurse_id":TYPE_STRING,"escort_id":TYPE_STRING},
 		"facilities":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"floor_id":TYPE_INT,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"patient_cell":TYPE_ARRAY,"operator_cells":TYPE_ARRAY,"repair_cell":TYPE_ARRAY,"grade":TYPE_INT,"condition":TYPE_FLOAT,"failed":TYPE_BOOL,"pending_failure":TYPE_BOOL,"use_receipts":TYPE_DICTIONARY},
 		"rooms":{"id":TYPE_STRING,"kind":TYPE_STRING,"floor_id":TYPE_INT,"origin":TYPE_ARRAY,"size":TYPE_ARRAY},
 		"connectors":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"anchor":TYPE_ARRAY,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"floor_id":TYPE_INT,"phase":TYPE_STRING,"riders":TYPE_ARRAY,"remaining_ticks":TYPE_INT},
@@ -986,17 +951,17 @@ func _validate_shapes() -> String:
 				return "执行会话资源引用类型无效"
 		if not _natural(session.get("total_ticks",-1)) or not _natural(session.get("remaining_ticks",-1)) or int(session.remaining_ticks)>int(session.total_ticks):
 			return "服务工作量无效"
-		if not session.get("kind") is String or not session.kind in ["gp","spectrum","resonance","consult","outpatient","surgery","wake","care","round"]:
+		if not session.get("kind") is String or not session.kind in ["gp","spectrum","resonance","consult","outpatient","surgery","wake","care"]:
 			return "执行服务类型无效"
 		if session.kind in ["outpatient","surgery","wake"] and not facts.attempts.has(session.get("attempt_id","")):
 			return "执行会话承诺尝试缺失"
-		if session.kind in ["care","round"] and not facts.ward_stays.has(session.get("stay_id","")):
+		if session.kind in ["care"] and not facts.ward_stays.has(session.get("stay_id","")):
 			return "床边会话住院引用缺失"
 	for issue: Variant in facts.inventory.issues.values():
 		if not issue is Dictionary or not issue.get("attempt_id") is String or not _natural(issue.get("units",-1)) or not facts.attempts.has(issue.attempt_id):
 			return "耗材领用凭据无效"
 	for stay: Dictionary in facts.ward_stays.values():
-		if not _natural(stay.remaining_ticks) or not _natural(stay.work_credit_milli) or int(stay.work_credit_milli)>=1000 or not facts.staff.has(stay.nurse_id) or not facts.staff.has(stay.round_doctor_id) or not facts.staff.has(stay.escort_id):
+		if not _natural(stay.remaining_ticks) or not _natural(stay.work_credit_milli) or int(stay.work_credit_milli)>=1000 or not facts.staff.has(stay.nurse_id) or not facts.staff.has(stay.escort_id):
 			return "住院工作量或医护引用无效"
 	for facility: Dictionary in facts.facilities.values():
 		if not _grid_point(facility.cell) or not _extent(facility.footprint) or not _grid_point(facility.patient_cell) or not _grid_point(facility.repair_cell) or int(facility.grade)<0 or int(facility.grade)>2 or float(facility.condition)<0 or float(facility.condition)>100 or not facts.floors.overrides.has(str(int(facility.floor_id))):

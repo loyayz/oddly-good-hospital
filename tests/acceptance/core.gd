@@ -2,7 +2,7 @@ extends RefCounted
 
 const CASES: Dictionary = {
 	"CORE-01":"模拟规格§8：空院24800、60包、单地块且无员工房间",
-	"CORE-02":"模拟规格§8：预设10430、7员工、实际采购与预算及合法初始布局",
+	"CORE-02":"房间规格§2、模拟规格§8：预设13570、6员工、实际墙门采购与合法初始布局",
 	"CORE-03":"阶段02至03规格§2：冻结副本与世界/会话事实分离",
 	"CORE-04":"阶段02至03规格§4：初始暂停及0.1秒固定步",
 	"CORE-05":"阶段02至03规格§4：独立来源暂停令牌",
@@ -55,7 +55,7 @@ const CASES: Dictionary = {
 	"CORE-52":"资源发布：同批一次包围盒、独立及批量绑定、迟到票与当前模型句柄",
 	"CORE-53":"管理界面：方案完整比较、提交复核、窄招聘状态与预览发布",
 	"CORE-54":"导入与预览：复合员工身份最长前缀及不规则阻挡颜色保持",
-	"CORE-55":"默认双床休息室：普通建造锚点一致、真实两床/沙发往返、固定归属及原预算",
+	"CORE-55":"默认宿舍与休息室：普通建造锚点一致、真实两床/沙发往返、固定归属与墙门预算",
 	"CORE-56":"Windows主线程性能核：按系统核型选择、重复调用及工作线程拒绝，其他平台保留默认调度"
 }
 
@@ -117,7 +117,7 @@ func _case_02(t, content: HospitalContent) -> void:
 	var office: Dictionary = initial_space.facility_layout(preset,"doctor_office_desk")
 	var office_route: Dictionary = initial_space.route(preset,"starter_doctor_a",1,office.operator_cells[0])
 	var budget: Dictionary = preload("res://tests/acceptance/starter_economy.gd").new().run_case(preset,content)
-	t.check("CORE-02",HospitalLedger.balance(preset)==11050 and preset.facts.staff.size()==6 and preset.validate(content).is_empty() and office_route.ok and budget.ok,{"validation":preset.validate(content),"office_route":office_route,"budget":budget})
+	t.check("CORE-02",HospitalLedger.balance(preset)==13570 and preset.facts.staff.size()==6 and preset.validate(content).is_empty() and office_route.ok and budget.ok,{"validation":preset.validate(content),"office_route":office_route,"budget":budget})
 
 func _case_03(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
@@ -301,7 +301,7 @@ func _case_14(t, content: HospitalContent) -> void:
 	t.check("CORE-14",independent)
 
 func _case_15(t, content: HospitalContent) -> void:
-	t.check("CORE-15",content.error.is_empty() and content.catalog.species.size()==80 and content.catalog.diseases.size()==154 and content.catalog.research.size()==38 and content.catalog.build_room_types.size()==17,content.error)
+	t.check("CORE-15",content.error.is_empty() and content.catalog.species.size()==80 and content.catalog.diseases.size()==154 and content.catalog.research.size()==38 and content.catalog.build_room_types.size()==9,content.error)
 
 func _case_16(t, content: HospitalContent) -> void:
 	var species: Dictionary = content.definition("species","S49")
@@ -477,7 +477,7 @@ func _case_26(t, content: HospitalContent) -> void:
 	var library: HospitalLibrary = x.library
 	var original: Dictionary = x.original
 	var first_id: String = x.first_id
-	var backup_path: String = "user://acceptance.oghbackup"
+	var backup_path: String = "user://acceptance-"+HospitalSnapshots.uuid()+".oghbackup"
 	var exported: Dictionary = library.export_backup(world.hospital_id,first_id,backup_path)
 	var imported: Dictionary = library.import_backup(backup_path) if exported.ok else exported
 	t.check("CORE-26",imported.ok and imported.world.hospital_id!=world.hospital_id and imported.world.facts.display_name==original.display_name and HospitalLedger.balance(imported.world)==24800 and _same(imported.world.facts.rng,original.rng) and store.load_commit(world.hospital_id,first_id).ok,imported.get("error",""))
@@ -486,7 +486,7 @@ func _case_26(t, content: HospitalContent) -> void:
 func _case_27(t, content: HospitalContent) -> void:
 	var x: Dictionary = _storage_fixture(content)
 	if x.is_empty(): return
-	var backup_path: String = "user://acceptance.oghbackup"
+	var backup_path: String = "user://acceptance-"+HospitalSnapshots.uuid()+".oghbackup"
 	x.library.export_backup(x.world.hospital_id,x.first_id,backup_path)
 	var rejected: bool = true
 	var source_zip: ZIPReader = ZIPReader.new()

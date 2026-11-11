@@ -57,12 +57,6 @@
       },
       {
         "grace_seconds": 0,
-        "id": "wrong_department",
-        "one_shot": 12,
-        "per_update": 0
-      },
-      {
-        "grace_seconds": 0,
         "id": "broken_promise",
         "one_shot": 8,
         "per_update": 0
@@ -158,7 +152,7 @@
       "reference_shift_pairs": 3,
       "slot_tie_order": "slot_index",
       "source": "scheduled_complete_clinical_pairs",
-      "support_readiness": "doctor_office_and_required_nurse_base",
+      "support_readiness": "required_nurse_base_without_doctor_preparation_gate",
       "ward_support": "per_nurse_beds_in_one_ward",
       "zero_capacity_opportunities": 0
     },
@@ -172,7 +166,7 @@
       "zero_capacity": "zero_count_no_count_or_seed_draw"
     },
     "load_projection": {
-      "bed_clock": "preparation_reservation_operation_wake_transfer_recovery_rounds_safe_release",
+      "bed_clock": "preparation_reservation_operation_wake_transfer_recovery_safe_release",
       "case_weights": "current_disease_weights_then_equal_ready_species_then_original_complexity_ratio",
       "definition": "maximum_feasible_expected_visit_flow_per_shift",
       "empty_floor_models": 0,
@@ -607,15 +601,6 @@
     "snapshot_state": false,
     "yaw_step_degrees": 90
   },
-  "care_departments": {
-    "focus_change_cost": 200,
-    "focus_change_seconds": 600,
-    "focus_min_ability": 2,
-    "focus_min_cases": 5,
-    "focus_min_score": 75,
-    "focus_work_multiplier": 0.95,
-    "max_count": null
-  },
   "case_body": {
     "active_until": "actual_cure_or_actor_departure",
     "mid_visit_growth": false,
@@ -669,7 +654,6 @@
     "clinic_guard_seconds": 10,
     "complex_probability": 0.25,
     "consult_seconds": 8,
-    "discharge_round_seconds": 10,
     "equipment_no_progress_referral_seconds": 120,
     "max_beds_per_room": 8,
     "max_ward_beds": null,
@@ -1010,6 +994,12 @@
     "nurse_or_seconds": 120,
     "surgical_research": "R34"
   },
+  "doctor_visits": {
+    "bedside_radius_cells": 3,
+    "interaction_seconds": 6,
+    "probability_bp": 2500,
+    "scan_seconds": 60
+  },
   "door_safety_margin_m": 0.1,
   "environment": {
     "anger_buffer": [
@@ -1267,7 +1257,6 @@
     "reserve_cash": false,
     "saving_notes": 1
   },
-  "floor_cost_cell": 20,
   "floors": {
     "capacity_policy": "actual_services_across_all_floors",
     "clear_height_m": 7.5,
@@ -2035,12 +2024,6 @@
     "staff_job_limit": 50,
     "staff_rest_coverage_weight": 0.5,
     "weights": {
-      "care_department": {
-        "clinical": 25,
-        "environment": 20,
-        "flow": 20,
-        "patient": 35
-      },
       "doctor": {
         "duty": 15,
         "handoff": 20,
@@ -2067,8 +2050,7 @@
         "quality": 35
       }
     },
-    "window_days": 3,
-    "wrong_department_penalty": 8
+    "window_days": 3
   },
   "recruitment": {
     "daily_referral_probability": 0.25,
@@ -2159,7 +2141,6 @@
     ],
     "source": "loaded_hospital_current_facts"
   },
-  "room_fitout_cost_cell": 20,
   "save": {
     "autosave_real_seconds": 180,
     "autosave_slots": 5,
@@ -2484,19 +2465,18 @@
     "bed_definition_id": "SE04",
     "daily_counter": false,
     "doctor_fatigue_per_second": 0.08,
-    "early_missing_bed": "continue_current_schedule",
+    "early_missing_bed": "try_rest_room_sofa",
     "early_requires_free_bed": true,
     "early_sleep_after_seconds": 900,
     "energy_per_second": 1.25,
     "interrupt_policy": "safe_wake_keep_remaining",
     "leave_sleep_credit": "continuous_offsite_rest_for_sleep_seconds",
-    "mandatory_wait_only": true,
+    "mandatory_wait_only": false,
     "manual_wakeup": "safe_relocation_only",
-    "missing_bed_fallback": "actual_exit_paid_rest",
-    "missing_bed_wait_seconds": 45,
+    "missing_bed_fallback": "rest_room_sofa_or_end_attempt",
     "player_meter": false,
-    "room_type": "rest",
-    "sharing": "automatic_no_personal_assignment",
+    "room_type": "dormitory",
+    "sharing": "one_stable_personal_owner",
     "sleep_seconds": 450,
     "stress_per_second": 0.05
   },
@@ -2515,10 +2495,9 @@
     "targeted_species_filter": "exact_optional"
   },
   "staff_work_bases": {
-    "assignment": "nearest_compatible_shared_base",
-    "doctor_equipment_id": "SE05",
+    "assignment": "personal_doctor_desk_and_shared_nurse_base",
     "emergency_care_preempts": true,
-    "individual_office_assignment": false,
+    "individual_office_assignment": true,
     "maintenance": false,
     "nurse_equipment_id": "SE06",
     "operator_area": "separate_real_body_area",
@@ -2540,28 +2519,12 @@
   },
   "starter_purchase": [
     {
-      "amount": 640,
-      "item": "GP room interior 4x4"
-    },
-    {
-      "amount": 1440,
-      "item": "Physical room interior 6x6"
-    },
-    {
-      "amount": 1000,
-      "item": "Daily care room interior 5x5"
-    },
-    {
-      "amount": 640,
-      "item": "Rest room interior 4x4"
+      "amount": 2320,
+      "item": "Structure walls 116 edges"
     },
     {
       "amount": 480,
-      "item": "Toilet interior 3x4"
-    },
-    {
-      "amount": 480,
-      "item": "Doors 4 regular and 2 tall-wide"
+      "item": "Six chosen doors"
     },
     {
       "amount": 1400,
@@ -2594,10 +2557,6 @@
     {
       "amount": 200,
       "item": "Bin and water dispenser"
-    },
-    {
-      "amount": 640,
-      "item": "Doctor office interior 4x4"
     },
     {
       "amount": 800,
@@ -2986,6 +2945,7 @@
     "probability_min": 0.01,
     "rng_stream": "patience"
   },
+  "wall_cost_edge": 20,
   "ward_care": {
     "companion_probability": 0.25,
     "coverage": "physically_in_assigned_ward",

@@ -40,11 +40,11 @@ func _ready() -> void:
 	heading.add_theme_font_size_override("font_size",22)
 	add_child(heading)
 	var hint: Label = Label.new()
-	hint.text = "选择用途后，在院区点击定位。新房间可以拖动画框，也可填写位置与大小。草案不会扣款。"
+	hint.text = "先画墙，再安装门；闭合且有朝内的门后形成空房间，再选择用途。墙按新增长度收费，地砖可另外装修。"
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(hint)
 	_mode = OptionButton.new()
-	for entry: Array in [["新建房间","build_room"],["放置设施","build_facility"],["移动对象","build_move"],["旋转对象","build_rotate"],["更换房门","build_door"],["设施收入库存","build_store"],["拆除与退款","build_demolish"],["撤销上次建造","build_undo"]]:
+	for entry: Array in [["画墙","build_wall"],["安装或更换门","build_door"],["选择房间用途","build_room_use"],["启用或关闭房间","build_room_open"],["放置设施","build_facility"],["移动对象","build_move"],["旋转对象","build_rotate"],["设施收入库存","build_store"],["拆除墙（不退款）","build_remove_wall"],["拆除设施或门","build_demolish"],["撤销上次建造","build_undo"]]:
 		_mode.add_item(entry[0])
 		_mode.set_item_metadata(_mode.item_count-1,entry[1])
 	_mode.item_selected.connect(func(_index: int) -> void: _populate())
@@ -56,8 +56,8 @@ func _ready() -> void:
 	_target = OptionButton.new()
 	_target_row = _field("现有对象",_target)
 	var position: HBoxContainer = HBoxContainer.new()
-	_x = _number(0,95,34)
-	_y = _number(0,95,67)
+	_x = _number(0,96,34)
+	_y = _number(0,96,67)
 	position.add_child(_x)
 	position.add_child(_y)
 	_field("位置 · 横向 / 纵向",position)
@@ -66,12 +66,12 @@ func _ready() -> void:
 	_height = _number(1,96,4)
 	dimensions.add_child(_width)
 	dimensions.add_child(_height)
-	_size_row = _field("房间内部 · 宽 / 深",dimensions)
+	_size_row = _field("墙长（格） / 深度",dimensions)
 	_door = OptionButton.new()
 	_door_row = _field("房门",_door)
 	_rotation = OptionButton.new()
-	for turns: int in 4:
-		_rotation.add_item("朝向 %d°" % (turns*90))
+	for direction: String in ["北（横墙 / 门后朝北）","东（竖墙 / 门后朝东）","南（横墙 / 门后朝南）","西（竖墙 / 门后朝西）"]:
+		_rotation.add_item(direction)
 	_field("朝向",_rotation)
 	_reason = Label.new()
 	_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -125,8 +125,9 @@ func _populate() -> void:
 		_inventory.add_item(str(database.facility_definition(item.definition_id).get("name",item.definition_id))+" · 库存")
 		_inventory.set_item_metadata(_inventory.item_count-1,id)
 	var definitions: Array = []
-	if kind=="build_room":
-		definitions = database.catalog.get("build_room_types",[])
+	if kind=="build_room_use":
+		definitions = [{"id":"","name":"空房间"}]+database.catalog.get("build_room_types",[])
+	elif kind=="build_room_open": definitions = [{"id":"open","name":"启用"},{"id":"closed","name":"关闭"}]
 	elif kind=="build_facility":
 		var seen: Dictionary = {}
 		for collection: String in ["machines","clinical_equipment","furniture_equipment","service_equipment","accessibility_equipment","staff_recreation_equipment"]:
@@ -144,27 +145,35 @@ func _populate() -> void:
 		_definition.add_item(str(definition.get("name",identifier)))
 		_definition.set_item_metadata(_definition.item_count-1,identifier)
 	for collection: String in ["rooms","facilities"]:
+		if kind in ["build_room_use","build_room_open"] and collection!="rooms": continue
+		if kind=="build_door": continue
 		for id: String in simulation.world.ids(collection):
 			var record: Dictionary = simulation.world.facts[collection][id]
-			if int(record.floor_id)!=floor_id:
+			if int(record.floor_id)!=floor_id or collection=="rooms" and not record.get("structure_valid",true):
 				continue
 			var label: String = str(record.get("name",id))
 			if collection=="facilities":
 				label = str(database.facility_definition(record.definition_id).get("name",id))+" · "+id
+			else: label = str(database.definition("build_room_types",str(record.kind)).get("name","空房间"))+" · "+id
 			_target.add_item(label)
 			_target.set_item_metadata(_target.item_count-1,id)
-	for door: Dictionary in simulation.world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
-		_target.add_item("房门 · "+str(door.id))
-		_target.set_item_metadata(_target.item_count-1,door.id)
+	if kind=="build_door":
+		_target.add_item("安装新门")
+		_target.set_item_metadata(_target.item_count-1,"")
+	if not kind in ["build_room_use","build_room_open"]:
+		for door: Dictionary in simulation.world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+			_target.add_item("房门 · "+str(door.id))
+			_target.set_item_metadata(_target.item_count-1,door.id)
 	for definition: Dictionary in database.catalog.doors:
 		_door.add_item(str(definition.get("name",definition.id)))
 		_door.set_item_metadata(_door.item_count-1,definition.id)
-	_definition_row.visible = kind in ["build_room","build_facility"]
+	_definition_row.visible = kind in ["build_room_use","build_room_open","build_facility"]
 	_inventory_row.visible = kind=="build_facility"
-	_target_row.visible = kind in ["build_move","build_rotate","build_door","build_demolish","build_store"]
-	_size_row.visible = kind=="build_room"
-	_door_row.visible = kind in ["build_room","build_door"]
-	_confirm.text = {"build_store":"确认收入库存","build_demolish":"确认拆除与退款","build_undo":"撤销上次建造","build_move":"确认移动","build_rotate":"确认旋转","build_door":"确认换门"}.get(kind,"确认建造")
+	_target_row.visible = kind in ["build_room_use","build_room_open","build_move","build_rotate","build_door","build_demolish","build_store"]
+	_size_row.visible = kind in ["build_wall","build_remove_wall"]
+	_height.visible = false
+	_door_row.visible = kind=="build_door"
+	_confirm.text = {"build_store":"确认收入库存","build_demolish":"确认拆除","build_remove_wall":"确认拆墙（不退款）","build_room_use":"确认用途","build_room_open":"确认启停","build_undo":"撤销上次建造","build_move":"确认移动","build_rotate":"确认旋转","build_door":"确认安装或更换门"}.get(kind,"确认建造")
 	_request()
 
 func _request() -> void:
@@ -173,12 +182,15 @@ func _request() -> void:
 	var kind: String = _mode.get_item_metadata(_mode.selected)
 	_draft = {"kind":kind,"floor_id":floor_id,"origin":[int(_x.value),int(_y.value)],"cell":[int(_x.value),int(_y.value)],"rotation":_rotation.selected,"turns":1}
 	match kind:
-		"build_room":
-			if _definition.item_count==0 or _door.item_count==0:
-				return
-			_draft.room_type_id = _definition.get_item_metadata(_definition.selected)
-			_draft.size = [int(_width.value),int(_height.value)]
-			_draft.door = {"definition_id":_door.get_item_metadata(_door.selected),"edge":"south","offset":1}
+		"build_wall","build_remove_wall":
+			var horizontal: bool = _rotation.selected%2==0
+			var low: int = int(_x.value if horizontal else _y.value)
+			_draft.edges = [{"axis":"x" if horizontal else "y","line":int(_y.value if horizontal else _x.value),"low":low,"high":low+int(_width.value)}]
+		"build_room_use","build_room_open":
+			if _target.item_count==0: return
+			_draft.target_id = _target.get_item_metadata(_target.selected)
+			if kind=="build_room_use": _draft.room_type_id = _definition.get_item_metadata(_definition.selected)
+			else: _draft.open_intent = _definition.get_item_metadata(_definition.selected)=="open"
 		"build_facility":
 			if _definition.item_count==0:
 				return
@@ -195,6 +207,10 @@ func _request() -> void:
 			_draft.target_id = _target.get_item_metadata(_target.selected)
 			if kind=="build_door":
 				_draft.definition_id = _door.get_item_metadata(_door.selected)
+				_draft.edge = ["south","west","north","east"][_rotation.selected]
+				_draft.interior_side = -1 if _rotation.selected in [0,3] else 1
+				var span: int = int(simulation.content.definition("doors",_draft.definition_id).span_cells)
+				_draft.size = [span,1] if _rotation.selected%2==0 else [1,span]
 	_preview.request(_draft,_binding())
 	_result = {}
 	_command_id = HospitalSnapshots.uuid()
@@ -251,13 +267,14 @@ func set_map_cell(cell: Array) -> void:
 	_request()
 
 func draw_room(first: Array, last: Array) -> void:
-	if _mode.get_item_metadata(_mode.selected)!="build_room":
+	if not _mode.get_item_metadata(_mode.selected) in ["build_wall","build_remove_wall"]:
 		set_map_cell(last)
 		return
 	_x.value = mini(int(first[0]),int(last[0]))
 	_y.value = mini(int(first[1]),int(last[1]))
-	_width.value = absi(int(first[0])-int(last[0]))+1
-	_height.value = absi(int(first[1])-int(last[1]))+1
+	var horizontal: bool = absi(int(first[0])-int(last[0]))>=absi(int(first[1])-int(last[1]))
+	_rotation.select(0 if horizontal else 1)
+	_width.value = absi(int(first[0 if horizontal else 1])-int(last[0 if horizontal else 1]))+1
 	_request()
 
 func cancel_draft() -> void:

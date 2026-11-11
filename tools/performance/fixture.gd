@@ -7,12 +7,19 @@ var content: HospitalContent
 var floors: Array[int] = []
 var visitor_ids: Array[String] = []
 var errors: Array[String] = []
+var migration: Dictionary = {"room_uses":[],"staff_schedules":[],"capacity_limits":[
+	"Original generic work pools do not represent simultaneous coverage of all rooms. Each clinical worker now has one real room per shift.",
+	"Two existing guidance desks per floor retain priority for the first two nurses; remaining nurses cannot also staff guidance.",
+	"The former guidance-only gp rooms still lack a diagnostic table. Personal-bed rooms become dormitories; the original load has no lounge seats."
+]}
 var _positions: Dictionary = {}
 var _position_next: Dictionary = {}
 var _space: HospitalSpace
+var _balanced_four: bool = false
 
 func _init(database: HospitalContent, count: int, layout: String = "four_floors", input: String = "") -> void:
 	content = database
+	_balanced_four = count==160 and layout=="four_floors"
 	if not input.is_empty():
 		var file: FileAccess = FileAccess.open(input,FileAccess.READ)
 		var saved: Dictionary = file.get_var()
@@ -20,6 +27,7 @@ func _init(database: HospitalContent, count: int, layout: String = "four_floors"
 		world = WorldState.new(saved.facts)
 		floors.assign(saved.floors)
 		visitor_ids.assign(saved.visitor_ids)
+		migration = saved.get("fixture_migration",migration).duplicate(true)
 		return
 	floors.assign([1] if layout=="wide" else ([1,10,1000,10000] if layout=="tall" else [1,2,3,4]))
 	world = HospitalFactory.create("00000000-0000-4000-8000-%012d"%count,"固定负载%d"%count,false,content)
@@ -32,7 +40,7 @@ func _init(database: HospitalContent, count: int, layout: String = "four_floors"
 	world.facts.floors.completed_top_floor = {}
 	for plot: Array in plots: world.facts.floors.completed_top_floor[HospitalSpace.plot_key(plot)] = floors.back()
 	for floor_id: int in floors:
-		world.facts.floors.overrides[str(floor_id)] = {"plots":plots.duplicate(true),"blocked":[],"doors":[],"paths":[]}
+		world.facts.floors.overrides[str(floor_id)] = {"plots":plots.duplicate(true),"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
 	for definition: Dictionary in content.catalog.research: world.facts.research.append(definition.id)
 	for floor_id: int in floors:
 		_build_floor(floor_id,64 if floors.size()==1 else 16,1200/floors.size())
@@ -53,14 +61,16 @@ func _init(database: HospitalContent, count: int, layout: String = "four_floors"
 		actor.location = _location(floor_id,_next_position(floor_id,actor))
 		_space.sync_actor(world,id)
 		var staff: Dictionary = world.facts.staff[id]
-		staff.base_prepared = true
+		# Only nursing retains the original real base-handoff responsibility.
+		# Its initial unprepared state must be resolved by production work.
+		if role=="nurse": staff.base_prepared = false
 		staff.personality_id = "DP05"
 		staff.abilities = {"diagnosis":2,"treatment":2,"care":2,"surgery":2}
 		staff.title_id = "DT02" if role=="doctor" else ""
 		staff.certificates = ["q_or","q_ward"] if role=="nurse" else []
 		var slot: int = index/floors.size()%8
-		var duty: String = "surgery" if slot in [2,3] else ("outpatient" if role=="doctor" else "work")
-		staff.schedule = [{"kind":duty,"pools":[],"locked":false},{"kind":duty,"pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+		staff.schedule = _schedule(floor_id,role,slot,index/(floors.size()*8))
+		migration.staff_schedules.append({"staff_id":id,"floor_id":floor_id,"role":role,"original_work_pools":[],"schedule":staff.schedule.duplicate(true)})
 	var visitors: int = count/20
 	for index: int in count-staff_count-visitors:
 		var floor_id: int = floors[index%floors.size()]
@@ -89,17 +99,15 @@ func _build_floor(floor_id: int, room_count: int, props: int) -> void:
 		var side: int = 8 if room_count==64 else 4
 		var pitch: int = 11 if room_count==64 else 22
 		var origin: Array = [5+index%side*pitch,5+index/side*pitch]
-		var kind: String = kinds[index%16]
+		var source_kind: String = kinds[index%16]
+		var kind: String = "treatment" if source_kind in ["T01","T10"] else ("dormitory" if source_kind=="rest" else source_kind)
 		var id: String = "bench_room_%d_%02d"%[floor_id,index]
-		var original: Dictionary = world.facts.floors.overrides["1"]
-		world.facts.floors.overrides["1"] = world.facts.floors.overrides[str(floor_id)]
-		HospitalFactory._add_room(world,{"id":id,"type":kind,"anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
-		world.facts.floors.overrides["1"] = original
-		world.facts.rooms[id].floor_id = floor_id
+		HospitalFactory._add_room(world,{"id":id,"type":kind,"floor_id":floor_id,"anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
+		migration.room_uses.append({"room_id":id,"floor_id":floor_id,"from":source_kind,"to":kind,"original_cells_and_facilities_preserved":true})
 		if kind in ["operating_room","ward"]:
 			_add_layout(floor_id,id,origin,"or_standard" if kind=="operating_room" else "ward_two_beds")
 		elif index%16!=14:
-			var definition_id: String = {"gp":"FUR02","T01":"M09","T10":"M37","doctor_office":"SE05","rest":"SE04","toilet":"FUR07"}[kind]
+			var definition_id: String = {"gp":"FUR02","T01":"M09","T10":"M37","doctor_office":"SE05","rest":"SE04","toilet":"FUR07"}[source_kind]
 			var n: int = 1 if index%16 in [10,11] else 2
 			for slot: int in n: _facility(id+"_"+str(slot),definition_id,floor_id,[int(origin[0])+1+slot*3,int(origin[1])+1+slot*3],id)
 		else:
@@ -112,6 +120,48 @@ func _build_floor(floor_id: int, room_count: int, props: int) -> void:
 			if x>=4 and x<92 and y>=4 and y<92: continue
 			_facility("bench_prop_%d_%04d"%[floor_id,placed],"FUR18",floor_id,[x,y],"")
 			placed += 1
+
+func _schedule(floor_id: int, role: String, slot: int, cohort: int) -> Array:
+	if _balanced_four: return _four_floor_schedule(floor_id,role,slot)
+	var groups: int = 4 if floors.size()==1 else 1
+	var group: int = cohort%groups
+	var first: String = ""
+	var second: String = ""
+	var duty: String = "outpatient" if role=="doctor" else "work"
+	if role=="doctor":
+		var room_index: int = 0 if slot==0 and cohort<groups else 1
+		if slot in [2,3]: room_index = 2; duty = "surgery"
+		first = "bench_room_%d_%02d"%[floor_id,group*16+room_index]
+		second = first
+	elif role=="nurse":
+		var nurse_index: int = cohort*3+slot-4
+		if nurse_index>=groups+1:
+			var clinical_index: int = nurse_index-groups-1
+			# In the 160-person load the one remaining nurse alternates real
+			# OR/ward rooms by floor and shift. No nurse is counted twice.
+			var first_index: int = 2+(clinical_index+floors.find(floor_id)%2)%4
+			var second_index: int = 3 if first_index==2 else 2
+			first = "bench_room_%d_%02d"%[floor_id,group*16+first_index]
+			second = "bench_room_%d_%02d"%[floor_id,group*16+second_index]
+	return [{"kind":duty,"pools":[] if first.is_empty() else [first],"locked":false},
+		{"kind":duty,"pools":[] if second.is_empty() else [second],"locked":false},
+		{"kind":"rest","pools":[],"locked":false}]
+
+func _four_floor_schedule(floor_id: int, role: String, slot: int) -> Array:
+	var room_id: String=""
+	var duty: String="outpatient" if role=="doctor" else "work"
+	if role=="doctor":
+		var index: int=0 if slot==0 else 1
+		if slot in [2,3]:
+			if floor_id%2==1: index=2; duty="surgery"
+			else: index=12 if slot==2 else 15
+		room_id="bench_room_%d_%02d"%[floor_id,index]
+	elif role=="nurse" and slot==6:
+		# Keep all original bodies at their original floor. The ward nurses
+		# commute through the real lift; neither handoff nor care is prefilled.
+		room_id="bench_room_%d_%02d"%[floor_id if floor_id%2==1 else floor_id-1,2 if floor_id%2==1 else 3]
+	var entry: Dictionary={"kind":duty,"pools":[] if room_id.is_empty() else [room_id],"locked":false}
+	return [entry.duplicate(true),entry.duplicate(true),{"kind":"rest","pools":[],"locked":false}]
 
 func _facility(id: String, definition_id: String, floor_id: int, cell: Array, room_id: String) -> Dictionary:
 	var definition: Dictionary = content.facility_definition(definition_id)
@@ -172,4 +222,5 @@ func describe() -> Dictionary:
 
 func store_input(path: String) -> void:
 	var file: FileAccess = FileAccess.open(path,FileAccess.WRITE)
-	file.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":floors,"visitor_ids":visitor_ids})
+	file.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":floors,"visitor_ids":visitor_ids,"fixture_migration":migration})
+	file.close()

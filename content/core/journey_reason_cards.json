@@ -55,8 +55,8 @@
     "evidence": "@zh:core.journey_reason_cards.JC08.evidence",
     "id": "JC08",
     "name": "@zh:core.journey_reason_cards.JC08.name",
-    "source": "discharge_round",
-    "target_panel": "schedule"
+    "source": "safe_bed_release",
+    "target_panel": "clinical"
   },
   {
     "evidence": "@zh:core.journey_reason_cards.JC09.evidence",

@@ -114,6 +114,19 @@ func _prepare(id: String, definition: Dictionary, output_dir: String, content: H
 	if not chair_result.ok:
 		simulation.dispose()
 		return chair_result.merged({"id":id})
+	var guidance: Dictionary = _add_guidance(simulation,fixture.floors)
+	if not guidance.ok:
+		simulation.dispose()
+		return guidance.merged({"id":id})
+	var initial_validation: String = world.validate(content)
+	var initial_rules: Dictionary = _room_rules(simulation)
+	_progress("current_input_preflight",{"validation":initial_validation,"room_rules_ok":initial_rules.ok,"guidance":guidance})
+	var before_file: FileAccess = FileAccess.open(output_dir.path_join(id+".preflight.bin"),FileAccess.WRITE)
+	before_file.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":fixture.floors,"visitor_ids":fixture.visitor_ids})
+	before_file.close()
+	if not initial_validation.is_empty() or not initial_rules.ok:
+		simulation.dispose()
+		return {"ok":false,"id":id,"reason":"Current initial world or room-rule validation failed","validation":initial_validation,"room_rules":initial_rules}
 	var visitors: HospitalVisitors = simulation.clinic.visitors
 	# A fresh initial boundary can specify known intention facts before any real
 	# scan. A reused real step retains every original intention, RNG and request;
@@ -155,29 +168,31 @@ func _prepare(id: String, definition: Dictionary, output_dir: String, content: H
 	for stay: Dictionary in world.facts.visitors.stays.values(): fixture.visitor_ids.append(str(stay.actor_id))
 	var opened: CommandResult = _intake(simulation,true,"prepare-open-"+id)
 	var validation: String = world.validate(content)
+	var room_rules: Dictionary = _room_rules(simulation)
 	var profiles_valid: bool = _companion_profiles_valid(world,fixture.visitor_ids)
 	var population: Dictionary = population_of(world)
 	var final_layout: Dictionary = _layout_counts(world)
-	var layout_preserved: bool = final_layout.rooms==64 and final_layout.props==1200 and final_layout.service_objects==128+chair_result.seat_ids.size()
+	var layout_preserved: bool = final_layout.rooms==64 and final_layout.props==1200 and final_layout.service_objects==128+chair_result.seat_ids.size()+guidance.desk_ids.size()
 	for room_id: String in original_room_ids: layout_preserved = layout_preserved and world.facts.rooms.has(room_id)
 	for facility_id: String in original_facility_definitions:
 		layout_preserved = layout_preserved and world.facts.facilities.has(facility_id) and world.facts.facilities[facility_id].definition_id==original_facility_definitions[facility_id]
 	var matches: bool = population.present==int(definition.actors) and population.staff==int(definition.actors)/5 \
 		and population.patients==int(definition.actors)*3/4 and population.visitors==wanted_visitors and population.unowned.is_empty()
-	if not opened.accepted or not validation.is_empty() or not matches or not profiles_valid or not layout_preserved:
+	if not opened.accepted or not validation.is_empty() or not matches or not profiles_valid or not layout_preserved or not room_rules.ok:
 		simulation.dispose()
 		return {"ok":false,"id":id,"reason":"Exact legal workload failed; do not remove, replace or hold actors to make it pass.",
-			"population":population,"validation":validation,"companion_profiles_valid":profiles_valid,"actual_layout":final_layout,"layout_preserved":layout_preserved,"command":opened.to_record(),"steps":_steps}
+			"population":population,"validation":validation,"room_rules":room_rules,"companion_profiles_valid":profiles_valid,"actual_layout":final_layout,"layout_preserved":layout_preserved,"command":opened.to_record(),"steps":_steps}
 	_progress("write_input_start",{"tick":world.sim_tick,"population":population,"actual_layout":final_layout})
 	fixture.store_input(output)
 	var result: Dictionary = {"ok":true,"id":id,"input_file":id+".input.bin","hospital_id":world.hospital_id,
 		"actors":int(definition.actors),"layout":definition.layout,"floors":fixture.floors,"population":population,
 		"boundary":"original_companion_admissions_and_complete_steps","actual_steps":_steps,"source_tick":world.sim_tick,
-		"added_public_seat_ids":chair_result.seat_ids,"original_prop_count":1200,"original_rooms":64,"original_service_objects":128,
+		"added_guidance_desks":guidance,"added_public_seat_ids":chair_result.seat_ids,"original_prop_count":1200,"original_rooms":64,"original_service_objects":128,
 		"actual_layout_before":original_layout,"actual_layout_after":final_layout,"original_object_ids_and_definitions_preserved":layout_preserved,
 		"visitor_profile":"HospitalVisitors companion; original admission owner, actual entrance and public waiting route",
 		"companion_intention_origin":intention_origin,"pending_visitor_requests_before":pending_before,"pending_visitor_requests_after":world.facts.visitors.requests.size(),
 		"companion_profiles_valid":profiles_valid,"source_input":_source_input,"source_input_sha256":FileAccess.get_sha256(_source_input) if not _source_input.is_empty() else "",
+		"fixture_migration":fixture.migration,"room_rules":room_rules,"initial_room_rules":initial_rules,"identity":_identity(),
 		"validation":validation,"preparation_us":Time.get_ticks_usec()-_started,"input_sha256":FileAccess.get_sha256(output),
 		"content_fingerprint":content.content_fingerprint,"engine":Engine.get_version_info().string}
 	var metadata: FileAccess = FileAccess.open(output_dir.path_join(id+".manifest.json"),FileAccess.WRITE)
@@ -188,6 +203,107 @@ func _prepare(id: String, definition: Dictionary, output_dir: String, content: H
 	metadata.close()
 	simulation.dispose()
 	return result
+
+func _identity() -> Dictionary:
+	var sources: Dictionary = {}
+	for path: String in ["res://tools/performance/fixture.gd","res://tools/performance/current/prepare_inputs.gd","res://tools/performance/acceptance/fixtures/prepare_inputs.gd","res://game/building/room_structure.gd","res://game/building/room_use.gd","res://game/staff/shift_scheduler.gd","res://game/staff/clinical_development.gd","res://game/clinic/clinical_runtime.gd","res://game/operations/floor_guidance.gd"]:
+		sources[path] = FileAccess.get_sha256(path)
+	return {"sources":sources,"engine_path":OS.get_executable_path(),"engine_sha256":FileAccess.get_sha256(OS.get_executable_path()),
+		"native_dll_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll")}
+
+func _room_rules(simulation: HospitalSimulation) -> Dictionary:
+	var world: WorldState = simulation.world
+	var content: HospitalContent = simulation.content
+	var failures: Array = []
+	var scheduler: HospitalShiftScheduler = simulation.clinic.scheduler
+	var building: String = simulation.services.building.validate(world)
+	if not building.is_empty(): failures.append(building)
+	var readiness: Array = []
+	var purposes: Dictionary = {}
+	for room: Dictionary in world.facts.rooms.values():
+		purposes[room.kind] = int(purposes.get(room.kind,0))+1
+		if not room.kind in ["gp","treatment","operating_room","ward","doctor_office","research","rest","dormitory","toilet"]: failures.append("Unknown room use: "+room.id)
+		var reason: String = simulation.space.room_use.reason(world,room.id)
+		if not reason.is_empty():
+			readiness.append({"room_id":room.id,"kind":room.kind,"reason":reason})
+			if room.kind!="gp" or int(str(room.id).get_slice("_",3))%16!=14: failures.append("Unexpected unusable room: "+room.id)
+	var beds: int = 0
+	var personal_beds: int = 0
+	var desks: int = 0
+	for facility: Dictionary in world.facts.facilities.values():
+		if facility.definition_id=="EQ05": beds += 1
+		if facility.definition_id=="SE01": desks += 1
+		if facility.definition_id=="SE04":
+			personal_beds += 1
+			if world.facts.rooms.get(facility.get("room_id",""),{}).get("kind","")!="dormitory": failures.append("Personal bed outside dormitory: "+facility.id)
+	var pending_handoffs: Array = []
+	for staff: Dictionary in world.facts.staff.values():
+		for error: String in [scheduler._template_error(staff.schedule),scheduler._room_template_error(world,staff,staff.schedule)]:
+			if not error.is_empty(): failures.append(staff.id+": "+error)
+		if staff.role=="doctor" and (staff.has("base_prepared") or staff.has("base_task")): failures.append("Doctor preparation field was reintroduced: "+staff.id)
+		if staff.role=="nurse" and not staff.get("base_prepared",false): pending_handoffs.append({"staff_id":staff.id,"task":staff.get("base_task",{}).duplicate(true)})
+	var capacity_error: String = scheduler._room_capacity_error(world,[])
+	if not capacity_error.is_empty(): failures.append(capacity_error)
+	var shifts: Array = []
+	var plan: Dictionary = content.definition("treatment_plans","P_D09_SURGERY")
+	var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
+	for slot: int in 3:
+		var assigned: Dictionary = {}
+		var guidance: Dictionary = {}
+		for staff: Dictionary in world.facts.staff.values():
+			var entry: Dictionary = staff.schedule[slot]
+			if entry.kind=="rest": continue
+			if entry.pools.is_empty():
+				if staff.role=="nurse":
+					var floor_id: int = int(world.facts.actors[staff.id].location.floor_id)
+					if not guidance.has(floor_id): guidance[floor_id] = []
+					guidance[floor_id].append(staff.id)
+				elif staff.role=="doctor": failures.append("Clinical doctor uses an empty wildcard pool: "+staff.id)
+				continue
+			var room_id: String = str(entry.pools[0])
+			if not assigned.has(room_id): assigned[room_id] = []
+			assigned[room_id].append(staff.id)
+		var uncovered: Array = []
+		var wards: Array = []
+		var operating: Array = []
+		for room: Dictionary in world.facts.rooms.values():
+			if not room.kind in ["gp","treatment","operating_room","ward"]: continue
+			var people: Array = assigned.get(room.id,[])
+			if room.kind=="ward":
+				var qualified: Array = []
+				for staff_id: String in people:
+					var nurse: Dictionary = world.facts.staff[staff_id]
+					if nurse.role=="nurse" and "q_ward" in nurse.certificates and int(nurse.abilities.care)>=1: qualified.append(staff_id)
+				if not qualified.is_empty(): wards.append({"room_id":room.id,"floor_id":room.floor_id,"nurse_ids":qualified})
+				else: uncovered.append(room.id)
+			elif room.kind=="operating_room":
+				var surgeons: Array = []
+				var anesthetists: Array = []
+				var nurses: Array = []
+				for staff_id: String in people:
+					var staff: Dictionary = world.facts.staff[staff_id]
+					if staff.role=="nurse" and "q_or" in staff.certificates and int(staff.abilities.surgery)>=int(protocol.min_nurse_surgery): nurses.append(staff_id)
+					if staff.role!="doctor": continue
+					var rank: int = int(content.definition("doctor_titles",staff.title_id).rank)
+					if rank>=int(content.definition("doctor_titles",protocol.min_surgeon_title_id).rank) and int(staff.abilities.surgery)>=int(protocol.min_surgeon_surgery): surgeons.append(staff_id)
+					if rank>=int(content.definition("doctor_titles",protocol.min_anesthetist_title_id).rank) and int(staff.abilities.surgery)>=int(protocol.min_anesthetist_surgery): anesthetists.append(staff_id)
+				var distinct: bool = false
+				for surgeon: String in surgeons:
+					for anesthetist: String in anesthetists:
+						if surgeon!=anesthetist: distinct = true
+				var team: bool = distinct and not nurses.is_empty()
+				operating.append({"room_id":room.id,"floor_id":room.floor_id,"qualified_distinct_team":team,"surgeon_ids":surgeons,"anesthetist_ids":anesthetists,"nurse_ids":nurses,"same_floor_ward_coverage":false})
+				if not team: uncovered.append(room.id)
+			elif people.is_empty(): uncovered.append(room.id)
+		var complete_surgery: int = 0
+		for room: Dictionary in operating:
+			for ward: Dictionary in wards:
+				if int(ward.floor_id)==int(room.floor_id): room.same_floor_ward_coverage = true
+			if room.qualified_distinct_team and room.same_floor_ward_coverage: complete_surgery += 1
+		shifts.append({"slot":slot,"room_assignments":assigned,"guidance_candidate_nurses_by_floor":guidance,"covered_wards":wards,"operating_teams":operating,"complete_surgery_rooms_before_live_travel_and_handoff":complete_surgery,"uncovered_clinical_rooms":uncovered})
+	return {"ok":failures.is_empty(),"failures":failures,"building_validation":building,"room_uses":purposes,"room_readiness_gaps":readiness,
+		"care_beds":beds,"personal_beds":personal_beds,"guidance_desks":desks,"shifts":shifts,"pending_real_nursing_handoffs":pending_handoffs,
+		"capacity_scope":"Static assignment and qualification audit only. Real attendance, six-second nursing handoff, reservations, operating-space fit and future availability still run in production."}
 
 func _companion_request_ids(world: WorldState) -> Array:
 	var ids: Array = []
@@ -313,3 +429,28 @@ static func population_of(world: WorldState) -> Dictionary:
 	for id: String in world.facts.actors:
 		if world.facts.actors[id].location.kind!="outside" and not owned.has(id): result.unowned.append(id)
 	return result
+
+func _add_guidance(simulation: HospitalSimulation, floors: Array) -> Dictionary:
+	var world: WorldState = simulation.world
+	var ids: Array = []
+	var rejected: Array = []
+	for floor_id: int in floors:
+		var placed: bool = false
+		for x: int in [8,16,24,32,40,56,64,72,80]:
+			var id: String = "performance_guidance_%d"%floor_id
+			var facts: Dictionary = world.facts.duplicate()
+			facts.facilities = world.facts.facilities.duplicate()
+			var probe: WorldState = WorldState.new(facts)
+			var item: Dictionary = {"id":id,"definition_id":"SE01","anchor":[x,84],"size":simulation.content.facility_definition("SE01").footprint,"room_id":null}
+			HospitalFactory._add_facility(probe,item,simulation.content)
+			probe.facts.facilities[id].floor_id = floor_id
+			var check: Dictionary = simulation.services.building._facility_position(probe,probe.facts.facilities[id],[id])
+			if not check.ok:
+				rejected.append({"floor":floor_id,"cell":[x,84],"reason":check});continue
+			HospitalFactory._add_facility(world,item,simulation.content)
+			world.facts.facilities[id].floor_id = floor_id
+			world.touch();ids.append(id);placed = true
+			_progress("current_guidance_desk",{"id":id,"floor":floor_id,"cell":[x,84]})
+			break
+		if not placed: return {"ok":false,"reason":"No lawful guidance desk candidate; no old object removed","floor":floor_id,"rejected":rejected}
+	return {"ok":true,"desk_ids":ids,"rejected":rejected,"boundary":"Declared initial built facilities, not measured construction"}

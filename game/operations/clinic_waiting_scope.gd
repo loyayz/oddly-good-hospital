@@ -1,9 +1,9 @@
 class_name HospitalClinicWaitingScope
 extends RefCounted
 
-# Reuse the department entrance's two-cell adjacency band. It is a connected
-# public approach outside the actual room, not a distance through its walls.
-const ADJACENT_CELLS: int = 2
+# A six-cell public approach outside actual room doors; walls and real
+# connectivity still constrain the legal waiting and chair access positions.
+const ADJACENT_CELLS: int = 6
 var space: HospitalSpace
 var _cache: Dictionary = {}
 var _world: WeakRef
@@ -54,17 +54,16 @@ func _build(world: WorldState, actor_id: String, facility: Dictionary, geometry:
 					var body: Rect2 = space._actor_rect(actor,Vector2(point))
 					if body.intersects(opening,false) or space.room_contains(room,body): continue
 					if Rect2(Vector2(point),Vector2.ONE*size).grow(0.01).intersects(opening,false): seeds.append(point)
-	for x: int in range(maxi(0,bounds.position.x),mini(FloorNavigation.SIDE,bounds.end.x)):
-		for y: int in range(maxi(0,bounds.position.y),mini(FloorNavigation.SIDE,bounds.end.y)):
-			var point: Vector2i = Vector2i(x,y)
-			var body: Rect2 = space._actor_rect(actor,Vector2(point))
-			if not room.is_empty() and (space.room_contains(room,body) or not _near_room(room,body)): continue
-			if not geometry.reason(point).is_empty(): continue
-			var public: Dictionary = space.public_areas._cell_region(floor_id,point)
-			if public.is_empty(): continue
-			var public_room: Dictionary = world.facts.rooms.get(public.get("ref",{}).get("room_id",""),{})
-			if not public_room.is_empty() and not str(public_room.get("kind",public_room.get("type",""))) in HospitalWaitingLife.WAITING_ROOM_KINDS: continue
-			candidates[point] = true
+	var indexed: Array=[]
+	if room.is_empty():
+		for x: int in range(maxi(0,bounds.position.x),mini(FloorNavigation.SIDE,bounds.end.x)):
+			for y: int in range(maxi(0,bounds.position.y),mini(FloorNavigation.SIDE,bounds.end.y)): indexed.append(Vector2i(x,y))
+	else: indexed=space.room_use.waiting_cells(world,str(room.id))
+	for point: Vector2i in indexed:
+		var body: Rect2=space._actor_rect(actor,Vector2(point))
+		if not room.is_empty() and space.room_contains(room,body): continue
+		if not geometry.reason(point).is_empty() or not space.room_use.public_point(world,floor_id,point): continue
+		candidates[point]=true
 	var queue: Array = []
 	for seed: Vector2i in seeds:
 		if candidates.has(seed) and not points.has(seed):
@@ -95,7 +94,7 @@ func _near_room(room: Dictionary, body: Rect2) -> bool:
 
 func allows(world: WorldState, actor_id: String, facility_id: String, floor_id: int, cell: Array) -> bool:
 	var scope: Dictionary = area(world,actor_id,facility_id)
-	return not scope.is_empty() and int(scope.floor_id)==floor_id and scope.points.has(Vector2i(roundi(cell[0]),roundi(cell[1]))) and _configured_allows(world,actor_id,facility_id,floor_id,cell)
+	return not scope.is_empty() and int(scope.floor_id)==floor_id and scope.points.has(Vector2i(roundi(cell[0]),roundi(cell[1])))
 
 func point(world: WorldState, actor_id: String, facility_id: String, avoid: Rect2 = Rect2()) -> Dictionary:
 	var scope: Dictionary = area(world,actor_id,facility_id)
@@ -111,34 +110,19 @@ func point(world: WorldState, actor_id: String, facility_id: String, avoid: Rect
 	for candidate: Vector2i in options:
 		var cell: Array = [candidate.x,candidate.y]
 		if avoid.has_area() and space._actor_rect(actor,Vector2(candidate)).intersects(avoid,false): continue
-		if not _configured_allows(world,actor_id,facility_id,int(scope.floor_id),cell): continue
 		if not space.public_areas.safe_wait(world,actor_id,int(scope.floor_id),cell): continue
 		if not space.can_reach(world,actor_id,int(scope.floor_id),cell): continue
 		return {"floor_id":int(scope.floor_id),"cell":cell}
 	return {}
 
-func _configured_allows(world: WorldState, actor_id: String, facility_id: String, floor_id: int, cell: Array) -> bool:
-	var facility: Dictionary = world.facts.facilities.get(facility_id,{})
-	if facility.get("definition_id","")=="SE01": return true
-	var department_id: String = ""
-	for id: String in world.active_visit_ids():
-		if world.facts.visits[id].actor_id==actor_id:
-			department_id = str(world.facts.visits[id].get("department_id",""))
-			break
-	var department: Dictionary = world.facts.get("departments",{}).get("units",{}).get(department_id,{})
-	var configured: Array = department.get("public_cells",[])
-	if configured.is_empty(): return true
-	if int(department.get("entry",{}).get("floor_id",0))!=floor_id: return false
-	if not facility.get("room_id","") in department.get("room_ids",[])+department.get("shared_room_ids",[]): return false
-	var body: Rect2 = space._actor_rect(world.facts.actors[actor_id],Vector2(float(cell[0]),float(cell[1])))
-	for point: Array in configured:
-		if body.intersects(Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE),false): return true
-	return false
-
 func allows_seat(world: WorldState, actor_id: String, destination_id: String, chair_id: String) -> bool:
 	var chair: Dictionary = world.facts.facilities.get(chair_id,{})
 	var scoped: Dictionary = area(world,actor_id,destination_id)
 	if chair.is_empty() or scoped.is_empty() or int(chair.floor_id)!=int(scoped.floor_id): return false
+	var indexed: Array=space.room_use.waiting_cells(world,str(scoped.room_id))
+	for x: int in range(int(chair.cell[0]),int(chair.cell[0])+int(chair.footprint[0])):
+		for y: int in range(int(chair.cell[1]),int(chair.cell[1])+int(chair.footprint[1])):
+			if not Vector2i(x,y) in indexed: return false
 	var layout: Dictionary = space.facility_layout(world,chair_id)
 	if allows(world,actor_id,destination_id,int(chair.floor_id),layout.patient_cell): return true
 	var base: Rect2 = Rect2(Vector2(float(chair.cell[0]),float(chair.cell[1])),Vector2(float(chair.footprint[0]),float(chair.footprint[1])))
@@ -146,7 +130,7 @@ func allows_seat(world: WorldState, actor_id: String, destination_id: String, ch
 	var actor: Dictionary = world.facts.actors[actor_id]
 	var limit: int = space.clearance(actor)+2*maxi(int(chair.footprint[0]),int(chair.footprint[1]))
 	for point: Vector2i in scoped.points:
-		if not base.grow(1.0).intersects(Rect2(Vector2(point),Vector2.ONE),false) or not _configured_allows(world,actor_id,destination_id,int(chair.floor_id),[point.x,point.y]): continue
+		if not base.grow(1.0).intersects(Rect2(Vector2(point),Vector2.ONE),false): continue
 		if absi(point.x-goal.x)+absi(point.y-goal.y)>limit: continue
 		var access: Dictionary = space.navigation._floor_route(world,actor,int(chair.floor_id),point,goal,[],{},true,{},true,true)
 		if access.get("ok",false) and float(access.walking_distance)<=limit: return true

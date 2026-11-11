@@ -31,7 +31,7 @@ func _restore(c: Dictionary, content: HospitalContent) -> Dictionary:
 	c.sim.dispose()
 	c.world = restored
 	c.sim = HospitalSimulation.new(c.world,content)
-	c.sim.clinic.departments = null
+	c.sim.clinic.experience = null
 	return {"ok":true,"stream_exact":true,"validation":validation}
 
 func _run(t, fixture, mode: String) -> Dictionary:

@@ -55,6 +55,7 @@ func _init(space: HospitalSpace, floor_id: int, static_source: Dictionary) -> vo
 		var room: Dictionary = source.rooms[id]
 		var rect: Rect2i = Rect2i(int(room.origin[0]),int(room.origin[1]),int(room.size[0]),int(room.size[1]))
 		_dependencies["room:"+id] = {"rect":rect.grow(1),"value":room}
+		if layout.has("wall_edges"): continue
 		if room.has("wall_edges"):
 			for edge: Dictionary in room.wall_edges:
 				_walls.append({"room_id":id,"axis":edge.axis,"line":edge.line,"low":edge.low,"high":edge.high})
@@ -63,6 +64,8 @@ func _init(space: HospitalSpace, floor_id: int, static_source: Dictionary) -> vo
 			_walls.append({"room_id":id,"axis":"x","line":y,"low":rect.position.x,"high":rect.end.x})
 		for x: int in [rect.position.x,rect.end.x]:
 			_walls.append({"room_id":id,"axis":"y","line":x,"low":rect.position.y,"high":rect.end.y})
+	for edge: Dictionary in layout.get("wall_edges",[]):
+		_walls.append({"room_id":"","axis":edge.axis,"line":edge.line,"low":edge.low,"high":edge.high})
 	for number: int in _walls.size():
 		var wall: Dictionary = _walls[number]
 		var lines: Dictionary = _horizontal_walls if wall.axis=="x" else _vertical_walls
@@ -75,6 +78,7 @@ func _init(space: HospitalSpace, floor_id: int, static_source: Dictionary) -> vo
 		var length: int = int(wall.high)-low
 		var rect: Rect2 = Rect2(low,line,length,1) if wall.axis=="x" else Rect2(line,low,1,length)
 		wall_index.update(str(number),floor_id,rect)
+		_dependencies["wall:%s:%d:%d:%d" % [wall.axis,line,low,int(wall.high)]] = {"rect":Rect2i(rect),"value":wall}
 	# Conservative ownership allowance, not a measurement of native RSS.
 	charge = 16384+var_to_bytes(source).size()*8+(_facility_cells.size()+_connector_cells.size())*128+_walls.size()*1024+(doors.size()+_facilities.size())*512
 

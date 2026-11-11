@@ -17,7 +17,7 @@ func run(t) -> void:
 
 func _natural_diagnosis(t) -> void:
 	var c: Dictionary = _context()
-	c.sim.clinic.departments = c.sim.services.departments
+	c.sim.clinic.experience = c.sim.services.experience
 	for id: String in c.world.facility_ids("M09"):
 		c.world.facts.facilities[id].failed = true
 	c.world.touch()
@@ -43,13 +43,13 @@ func _clone(c: Dictionary) -> Dictionary:
 	var copy: Dictionary = c.duplicate(true)
 	copy.world = WorldState.new(c.world.freeze())
 	copy.sim = HospitalSimulation.new(copy.world,_content)
-	copy.sim.clinic.departments = copy.sim.services.departments
+	copy.sim.clinic.experience = copy.sim.services.experience
 	_simulations.append(copy.sim)
 	return copy
 
 func _consultation_waits(t) -> void:
 	var base: Dictionary = _context()
-	base.sim.clinic.departments = base.sim.services.departments
+	base.sim.clinic.experience = base.sim.services.experience
 	var arrived: bool = _arrive(base)
 	var started: bool = arrived and await _until(t,base,func()->bool: return _visit(base).get("phase","")=="consult",1800)
 	if not started:
@@ -107,7 +107,7 @@ func _consultation_waits(t) -> void:
 
 func _no_doctor_wait(t) -> void:
 	var c: Dictionary = _context()
-	c.sim.clinic.departments = c.sim.services.departments
+	c.sim.clinic.experience = c.sim.services.experience
 	for id: String in c.doctors: c.world.facts.staff[id].schedule = _schedule("rest")
 	c.world.touch()
 	var arrived: bool = _arrive(c)
@@ -120,7 +120,7 @@ func _no_doctor_wait(t) -> void:
 
 func _bed_shortage(t) -> void:
 	var base: Dictionary = _context(true,true)
-	base.sim.clinic.departments = base.sim.services.departments
+	base.sim.clinic.experience = base.sim.services.experience
 	base.world.facts.staff[base.doctors[1]].abilities.treatment = 3
 	var arrived: bool = _arrive(base,"B_S22_D14_M14","P_D14_COMMON")
 	if arrived: _visit(base).complex = true
@@ -254,7 +254,7 @@ func _surgery_policy(t) -> void:
 
 func _mixed_treatment_pool(t) -> void:
 	var c: Dictionary = _context(false,true)
-	c.sim.clinic.departments = c.sim.services.departments
+	c.sim.clinic.experience = c.sim.services.experience
 	# First doctor can consult but cannot treat this C-profile plan. Both
 	# clinicians are in the same actual treatment pool, so dispatch must skip
 	# the unqualified first candidate rather than wait forever on that person.

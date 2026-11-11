@@ -23,6 +23,6 @@ godot --headless --path <隔离工程> --script res://tests/acceptance/random_ar
 
 扩建场景从合法已放置房间/诊桌的日边界输入开始，只验证计划交接，不把设施工厂调用算作建造流程验收。患者实际入院、初诊、治疗、暂缺资源及耐心离院由自然入院与临床专项验证。
 
-## 历史容量测试
+## 独立参考计算
 
-`legacy_arrival_projection.gd`、`legacy_arrival_preparation.gd`、`legacy_capacity_solver.gd` 只为保留独立临床参考模型、原生数值检查和旧测试的可读依据，实际游戏不创建它们。旧 GROW 精确C/K容量、容量等待、封闭求解输入测试不再定义当前产品行为；不能把运行这些旧夹具称为随机来客验收。引用这些历史对象的独立临床/数值检查仍须明确其范围。
+`legacy_arrival_projection.gd`、`legacy_arrival_preparation.gd`、`legacy_capacity_solver.gd` 仅供独立临床参考模型与原生数值检查使用，实际游戏不创建它们。这些参考计算不定义自然来客容量或入院限制，不能替代随机来客验收。

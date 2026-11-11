@@ -13,7 +13,7 @@ class UnknownTransferEstimate extends HospitalSpace:
 const CASES: Dictionary = {
 	"CLIN-01":"docs/design/12-implementation-plan.md §10.1–10.2；入院直接导诊后医生接诊，Actor/Visit只建一次",
 	"CLIN-02":"docs/design/07-clinical-team.md §9、§14、§17；诊断池与治疗池由不同实际医生安全交接，D09首试成功实收235",
-	"CLIN-03":"docs/design/01-simulation.md §4；C档证据42→77→102，检查各一次且不领包",
+	"CLIN-03":"docs/design/01-simulation.md §4；GP诊断2合法代检，C档证据44→81→108，检查各一次且不领包",
 	"CLIN-04":"docs/design/07-clinical-team.md §14；诊断3/奇想台49.2→93，省略共振全部副作用",
 	"CLIN-05":"docs/design/07-clinical-team.md §14；初诊按开工职称冻结，重复完成不重收25",
 	"CLIN-06":"docs/design/01-simulation.md §4；临床§6、§16；报价只读，常规/舒缓从同一未取整工时分别最终ceil一次",
@@ -34,12 +34,12 @@ const CASES: Dictionary = {
 	"CLIN-21":"docs/design/07-clinical-team.md §8；术中待故障安全完成，原结果/工时/领包不变",
 	"CLIN-22":"docs/design/07-clinical-team.md §8.1；实际病房覆盖才推进，缺员/故障/暂停为0",
 	"CLIN-23":"docs/design/07-clinical-team.md §8.1；同床双护士不加倍，每人不同时做两项主动护理",
-	"CLIN-24":"docs/design/07-clinical-team.md §8.1、§14；8秒护理和10秒合格查房全部完成才收床费/治愈费",
+	"CLIN-24":"docs/design/07-clinical-team.md §8.1、§14；真实护理与完整恢复后直接收床费/治愈费，无查房等待",
 	"CLIN-25":"docs/design/07-clinical-team.md §8.1、§10；安全换床保留标准余量/护理，回原床不重复磨损/收费",
 	"CLIN-26":"docs/design/07-clinical-team.md §8；床故障无备用120秒安全转诊，只保留已完成术台60",
 	"CLIN-27":"docs/design/07-clinical-team.md §8.1；缺员120秒提示/300秒转诊，改派走路不重置无进展",
-	"CLIN-28":"docs/design/07-clinical-team.md §10、§14；住院各边界流式恢复保留护理/查房/最终唯一结算",
-	"CLIN-29":"docs/design/07-clinical-team.md §5、§8、§14；C舒缓真实180秒恢复和查房后收60+660，领4包",
+	"CLIN-28":"docs/design/07-clinical-team.md §10、§14；真实入床/护理/恢复/结算边界冷恢复并唯一收费",
+	"CLIN-29":"docs/design/07-clinical-team.md §5、§8、§14；C舒缓真实180秒恢复与护理后收60+660，领4包，无查房等待",
 	"CLIN-30":"docs/design/07-clinical-team.md §8.2；无等候点仅有请求，条件齐备后独立亲友从入口真实到院",
 	"CLIN-31":"docs/design/07-clinical-team.md §8.2；每窗口意向一次，换床/恢复不重抽，实际床边才起30秒",
 	"CLIN-32":"docs/design/07-clinical-team.md §8.2；拒绝/医疗让位/出院安全退出，原停留不重启且空间不早释放",
@@ -125,8 +125,8 @@ const PREREQUISITES: Dictionary = {
 	"CLIN-28": [
 		"ward_entered",
 		"ward_care",
-		"ward_round_wait",
-		"ward_round",
+		"ward_after_care",
+		"ward_before_settlement",
 		"ward_settled"
 	],
 	"CLIN-29": [
@@ -652,76 +652,37 @@ func _case_23(t) -> void:
 	t.check("CLIN-23",int(_stay(two).remaining_ticks)==before_two-1 and str(_stay(two).nurse_id)==assigned and unique and int(_content.balance.clinical.beds_per_nurse)==8,{"remaining_before":before_two,"remaining_after":_stay(two).remaining_ticks,"active_jobs_by_staff":counts,"assigned_nurse":_stay(two).nurse_id})
 
 func _case_24(t) -> void:
-	if not _snapshots.has("ward_care"):
-		var partial: WorldState = _simulations.back().world if not _simulations.is_empty() else null
-		t.check("CLIN-24",false,{"missing_real_business_boundary":"ward_care","fixture_prerequisites":_fixture_failures,"failure_world":_failure_world("CLIN-24",partial)})
-		return
-	var rounding: Dictionary = _copy("ward_care")
-	# Input: recovery is one tick from its end while the first care visit is
-	# still active. Earlier recovery is not the operation under this assertion.
-	var care_input: Dictionary = _session(rounding,"care")
-	var delta: int = maxi(0,int(_stay(rounding).remaining_ticks)-1)
-	rounding.world.facts.sim_tick += delta
-	care_input.start_tick += delta
-	_stay(rounding).remaining_ticks = 1
-	_stay(rounding).last_progress_tick = rounding.world.sim_tick
-	if _stay(rounding).has("coverage_segment"): _stay(rounding).coverage_segment.start_tick = rounding.world.sim_tick
-	_visit(rounding).last_progress_tick = rounding.world.sim_tick
-	_visit(rounding).last_service_tick = rounding.world.sim_tick
-	rounding.world.touch()
-	print("CASE_INPUT CLIN-24 "+JSON.stringify({"care":"active","recovery_remaining_ticks":1,"prior_recovery":"input"}))
-	var input_validation: String = rounding.world.validate(_content)
-	if not input_validation.is_empty():
-		t.check("CLIN-24",false,{"boundary_input_validation":input_validation})
-		return
-	_all_rest(rounding.world,"doctor",true)
-	await _steps(t,rounding,1)
-	var blocked_until_care: bool = int(_stay(rounding).get("remaining_ticks",-1))==0 and not bool(_stay(rounding).get("care_completed",true)) and _stay(rounding).get("phase","")=="recovery" and _income(rounding,"ward")==0 and _income(rounding,"cure")==0
-	if not await _until(t,rounding,func()->bool: return bool(_stay(rounding).get("care_completed",false)),350):
-		t.check("CLIN-24",false,{"missing_real_business_boundary":"care_completed","state":_state(rounding)})
-		return
-	_all_rest(rounding.world,"doctor",true)
-	var ready: bool = await _until(t,rounding,func()->bool: return _stay(rounding).get("phase","")=="round_wait",2200)
-	var held: bool = ready and int(_stay(rounding).get("remaining_ticks",-1))==0 and bool(_stay(rounding).get("care_completed",false)) and _income(rounding,"ward")==0 and _income(rounding,"cure")==0 and _visit(rounding).get("final_result","").is_empty()
-	var care_ticks: int = -1
-	for source: Dictionary in _snapshots.get("ward_care",{}).get("facts",{}).get("sessions",{}).values():
-		if source.kind=="care": care_ticks = int(source.total_ticks)
-	var round_input: Dictionary = {}
-	var placement: Dictionary = {"qualification_blocked":false,"base_prepared":false,"bedside_reached":false}
-	if ready:
-		var candidate_doctor: Dictionary = rounding.world.facts.staff.clin_round
-		var diagnosis_input: int = int(candidate_doctor.abilities.diagnosis)
-		candidate_doctor.abilities.diagnosis = 1
-		candidate_doctor.schedule = _schedule("round")
-		placement.qualification_blocked = true
-		for staff: Dictionary in rounding.world.facts.staff.values():
-			if staff.role=="doctor" and staff.on_shift and int(staff.abilities.diagnosis)>=2 and int(staff.abilities.treatment)>=1:
-				placement.qualification_blocked = false
-		var bed: Dictionary = rounding.sim.space.facility_layout(rounding.world,str(_stay(rounding).bed_id))
-		var nurse_id: String = str(_stay(rounding).nurse_id)
-		placement.base_prepared = await _until(t,rounding,func()->bool:
-			return candidate_doctor.on_shift and bool(candidate_doctor.get("base_prepared",false)) and candidate_doctor.get("base_task",{}).is_empty() and not bool(candidate_doctor.get("block_new_work",false)) and not rounding.world.facts.moves.has("clin_round") and not rounding.sim.clinic.staff_busy(rounding.world,"clin_round") and not rounding.world.facts.moves.has(nurse_id) and not rounding.sim.clinic.staff_busy(rounding.world,nurse_id) and not rounding.sim.space.at(rounding.world,nurse_id,int(bed.floor_id),bed.operator_cells[1]),600)
-		placement.move_reason = rounding.sim.space.request_move(rounding.world,"clin_round",int(bed.floor_id),bed.operator_cells[1]) if placement.base_prepared else "医生基地整理或护士安全离位尚未完成"
-		placement.bedside_reached = placement.qualification_blocked and placement.move_reason.is_empty() and await _until(t,rounding,func()->bool:
-			return rounding.sim.space.at(rounding.world,"clin_round",int(bed.floor_id),bed.operator_cells[1]) and not rounding.world.facts.moves.has("clin_round"),400)
-		placement.no_round_before_qualification = _session(rounding,"round").is_empty()
-		if placement.bedside_reached and placement.no_round_before_qualification:
-			# Qualification remains insufficient throughout the real preparation and walk.
-			round_input = {"tick":rounding.world.sim_tick,"doctor_id":"clin_round","fatigue":float(candidate_doctor.fatigue),"treatment_level":int(candidate_doctor.abilities.treatment),"species_id":str(rounding.world.facts.actors.clin_round.species_id),"talent_rate":1.0,"diagnosis_before":int(candidate_doctor.abilities.diagnosis),"diagnosis_input":diagnosis_input}
-			candidate_doctor.abilities.diagnosis = diagnosis_input
-	var began_round: bool = not round_input.is_empty() and await _until(t,rounding,func()->bool: return not _session(rounding,"round").is_empty(),180)
-	var expected_round_ticks: int = -1
-	if not round_input.is_empty():
-		# Clinical 10 standard seconds; S49 has a course talent, no ward_visit bonus.
-		expected_round_ticks = ceili(10.0*10.0*(1.0+0.003*float(round_input.fatigue))/(1.0+0.05*(int(round_input.treatment_level)-1))/float(round_input.talent_rate))
-	var round_session: Dictionary = _session(rounding,"round").duplicate(true)
-	var doctor: Dictionary = rounding.world.facts.staff.get(str(round_session.get("staff_ids",[""])[0]),{})
-	var before_charge: bool = _income(rounding,"ward")==0 and _income(rounding,"cure")==0
-	var finished: bool = began_round and await _until(t,rounding,func()->bool: return _visit(rounding).get("final_result","")=="cured",180)
-	var departed: bool = finished and await _until(t,rounding,func()->bool: return _visit(rounding).get("phase","")=="departed",900)
-	var passed: bool = blocked_until_care and held and care_ticks==80 and began_round and placement.qualification_blocked and placement.base_prepared and placement.bedside_reached and placement.get("no_round_before_qualification",false) and round_input.get("species_id","")=="S49" and int(round_session.get("total_ticks",-1))==expected_round_ticks and int(doctor.get("abilities",{}).get("diagnosis",0))>=2 and int(doctor.get("abilities",{}).get("treatment",0))>=1 and before_charge and finished and departed and _income(rounding,"ward")==60 and _income(rounding,"cure")==360 and _income(rounding)==505
-	var failure: Dictionary = _failure_world("CLIN-24",rounding.world) if not passed else {}
-	t.check("CLIN-24",passed,{"recovery_alone_did_not_settle":blocked_until_care,"waited_for_qualified_round":held,"care_ticks":care_ticks,"round_placement":placement,"round_start_input":round_input,"expected_round_ticks":expected_round_ticks,"round":round_session,"actual_departure":departed,"failure_world":failure,"state":_state(rounding)})
+	if not _require(t,["CLIN-24"],"ward_care"): return
+	var c: Dictionary = _copy("ward_care")
+	var care_input: Dictionary = _session(c,"care").duplicate(true)
+	var initial_remaining: int = int(_stay(c).remaining_ticks)
+	var initial_tick: int = c.world.sim_tick
+	# The former round doctor remains a real worker, now on a legal rest
+	# schedule. No qualified doctor visit is required for discharge.
+	_all_rest(c.world,"doctor",true)
+	var observed: Dictionary = {"valid":true,"no_early_charges":true,"no_round":true,"care_completed_with_recovery_left":false,"recovery_work_ticks":0,"previous":initial_remaining,"care_at_bedside":true}
+	var finished: bool = await _until(t,c,func()->bool:
+		var error: String = c.world.validate(_content)
+		if not error.is_empty(): observed.valid = false; c.errors.append({"validation":error}); return true
+		var stay: Dictionary = _stay(c)
+		if not stay.is_empty():
+			var remaining: int = int(stay.remaining_ticks)
+			observed.recovery_work_ticks += maxi(0,int(observed.previous)-remaining)
+			observed.previous = remaining
+			if remaining>0 or not stay.care_completed: observed.no_early_charges = observed.no_early_charges and _income(c,"ward")==0 and _income(c,"cure")==0
+			if remaining>0 and stay.care_completed: observed.care_completed_with_recovery_left = true
+		var care: Dictionary = _session(c,"care")
+		if not care.is_empty():
+			var bed: Dictionary = c.sim.space.facility_layout(c.world,care.facility_id)
+			observed.care_at_bedside = observed.care_at_bedside and c.sim.space.at(c.world,str(care.staff_ids[0]),int(bed.floor_id),bed.operator_cells[0])
+		observed.no_round = observed.no_round and _session(c,"round").is_empty() and int(c.started.get("round",0))==0
+		return _visit(c).get("final_result","")=="cured",2500)
+	var departed: bool = finished and await _until(t,c,func()->bool:return _visit(c).phase=="departed",900)
+	var no_round_doctor: bool = true
+	for staff: Dictionary in c.world.facts.staff.values():
+		if staff.role=="doctor" and staff.on_shift and int(staff.abilities.diagnosis)>=2 and int(staff.abilities.treatment)>=1: no_round_doctor = false
+	var passed: bool = observed.valid and observed.no_early_charges and observed.no_round and observed.care_completed_with_recovery_left and observed.care_at_bedside and int(care_input.get("total_ticks",-1))==80 and int(observed.recovery_work_ticks)==initial_remaining and no_round_doctor and departed and c.world.validate(_content).is_empty() and _income(c,"ward")==60 and _income(c,"cure")==360 and _income(c)==505 and _units_used(c)==8
+	t.check("CLIN-24",passed,{"observed":observed,"initial_tick":initial_tick,"final_tick":c.world.sim_tick,"care_session":care_input,"remaining_recovery_at_input":initial_remaining,"recovery_progress_in_real_prefix":1800-initial_remaining,"doctor_visit_not_required":no_round_doctor,"actual_departure":departed,"income":_income(c),"failure_world":_failure_world("CLIN-24",c.world) if not passed else {}})
 
 func _case_25(t) -> void:
 	var transfer: Dictionary = _copy("ward_after_care")
@@ -817,82 +778,95 @@ func _case_27(t) -> void:
 	t.check("CLIN-27",no_early_prompt and prompt and did_not_reset and safe_referral and _units_used(shortage)==8 and _visit(shortage).attempt_ids.size()==1 and _income(shortage,"ward")==0 and _income(shortage,"cure")==0,{"initial_progress_tick":initial_progress,"actual_shortage_boundary_tick":shortage_tick,"last_actual_progress_tick":no_progress,"no_prompt_at_119_9_seconds":no_early_prompt,"reason_before_120_seconds":early_reason,"prompt_at_120_seconds":prompt,"prompt_reason":reason,"no_reset_by_controls_or_queries":did_not_reset,"state":_state(shortage)})
 
 func _case_28(t) -> void:
-	var boundaries: Array = ["ward_entered","ward_care","ward_round_wait","ward_round","ward_settled"]
+	var boundaries: Array = ["ward_entered","ward_care","ward_after_care","ward_before_settlement","ward_settled"]
 	var restored_all: bool = true
 	var observations: Dictionary = {}
 	for boundary: String in boundaries:
-		if not _snapshots.has(boundary):
-			restored_all = false
-			observations[boundary] = "实际链路未到达此边界"
-			continue
-		var copy: Dictionary = _copy(boundary)
-		var before: Dictionary = copy.world.freeze()
-		var roundtrip: Dictionary = _roundtrip(copy)
-		restored_all = restored_all and roundtrip.ok and copy.world.freeze()==before
-		observations[boundary] = roundtrip
-	var round_copy: Dictionary = _copy("ward_round")
-	var original_round: Dictionary = _session(round_copy,"round").duplicate(true)
-	var completed: bool = await _until(t,round_copy,func()->bool: return _visit(round_copy).get("final_result","")=="cured",180)
-	var previous: Dictionary = round_copy.world.facts.ledger.entries.duplicate(true)
-	round_copy.sim.clinic._complete_service(round_copy.world,original_round)
-	HospitalLedger.settle(round_copy.world)
-	var restored_end: Dictionary = _roundtrip(round_copy)
-	t.check("CLIN-28",restored_all and completed and restored_end.ok and round_copy.world.facts.ledger.entries==previous and _income(round_copy,"ward")==60 and _income(round_copy,"cure")==360 and _units_used(round_copy)==8,{"boundaries":observations,"final_restore":restored_end,"state":_state(round_copy)})
+		if not _snapshots.has(boundary): restored_all = false; observations[boundary] = "缺少真实生成的边界"; continue
+		var c: Dictionary = _copy(boundary)
+		var before: Dictionary = c.world.freeze()
+		var restored: Dictionary = _roundtrip(c)
+		restored_all = restored_all and restored.ok and c.world.freeze()==before
+		observations[boundary] = {"restore":restored,"tick":c.world.sim_tick,"stay":_stay(c).duplicate(true),"income":_income(c)}
+	var final: Dictionary = _copy("ward_before_settlement")
+	var real_completed_care: Dictionary = {}
+	for session: Dictionary in _snapshots.ward_care.facts.sessions.values():
+		if session.kind=="care": real_completed_care = session.duplicate(true)
+	var completed: bool = await _until(t,final,func()->bool:return _visit(final).get("final_result","")=="cured",20)
+	var positive_before: Dictionary = _positive_entries(final)
+	# A duplicate delivery uses the identity of the care session that actually
+	# completed in the shared prefix; the production session guard owns it.
+	final.sim.clinic._complete_service(final.world,real_completed_care)
+	HospitalLedger.settle(final.world)
+	var after_repeated_delivery: bool = _positive_entries(final)==positive_before
+	var restored_end: Dictionary = _roundtrip(final)
+	var departed: bool = completed and restored_end.ok and await _until(t,final,func()->bool:return _visit(final).phase=="departed",900)
+	var passed: bool = restored_all and completed and after_repeated_delivery and restored_end.ok and departed and _positive_entries(final)==positive_before and int(final.started.get("round",0))==0 and _income(final,"ward")==60 and _income(final,"cure")==360 and _income(final)==505 and _units_used(final)==8 and final.world.validate(_content).is_empty()
+	t.check("CLIN-28",passed,{"boundaries":observations,"late_real_care_delivery_unchanged":after_repeated_delivery,"final_restore":restored_end,"actual_departure":departed,"positive_entries":positive_before,"final_tick":final.world.sim_tick,"supply_units":_units_used(final),"failure_world":_failure_world("CLIN-28",final.world) if not passed else {}})
+
+func _positive_entries(c: Dictionary) -> Dictionary:
+	var entries: Dictionary = {}
+	for key: String in c.world.facts.ledger.entries:
+		var entry: Dictionary = c.world.facts.ledger.entries[key]
+		if int(entry.amount)>0: entries[key] = entry.duplicate(true)
+	return entries
 
 func _case_29(t) -> void:
 	var timing: RefCounted = ClinicalTiming.new()
 	var clock: int = Time.get_ticks_usec()
-	# Completed C-profile diagnostics are input. This case starts before choosing
-	# the gentle plan and still executes its full work, transfer and recovery.
 	var c: Dictionary = _copy("c_diagnosed_gentle")
-	# This gentle-plan hospital needs a ward, not an unrelated operating team.
-	# Keep the real completed diagnostic facts and add the legal nearby ward.
+	var original_actors: Dictionary = c.world.facts.actors.duplicate(true)
 	_add_layout(c.world,"ward_two_beds","clin_ward",[42,72])
-	_add_worker(c.world,"clin_cover","nurse",[43,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
-	c.world.facts.staff.clin_cover.ward_id = "clin_ward"
-	_add_worker(c.world,"clin_round","doctor",[51,79],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	_add_worker(c.world,"clin_cover","nurse",[43,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","clin_ward")
+	# Retain the original extra worker without a removed clinical round duty.
+	_add_worker(c.world,"clin_round","doctor",[51,79],"outpatient",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	c.world.facts.staff[c.doctors[1]].abilities.treatment = 3
 	c.world.touch()
 	c.sim._ensure_services()
-	c.clinical_scenario = true
-	_declare_call_ready(c,[c.visit_id])
+	var original_actors_unchanged: bool = true
+	for id: String in original_actors: original_actors_unchanged = original_actors_unchanged and c.world.facts.actors[id]==original_actors[id]
 	var input_validation: String = c.world.validate(_content)
-	timing.finish("diagnosed_input",clock)
-	if not input_validation.is_empty():
-		t.check("CLIN-29",false,{"input_validation":input_validation,"timing":timing.report()})
-		return
+	timing.finish("diagnosed_and_built_ward_input",clock)
+	if not input_validation.is_empty() or not original_actors_unchanged:
+		t.check("CLIN-29",false,{"input_validation":input_validation,"original_actors_unchanged":original_actors_unchanged,"timing":timing.report()});return
 	clock = Time.get_ticks_usec()
-	c.world.facts.staff[c.doctors[1]].abilities.treatment = 3
-	_seed_stream(c.world,"treatment",true,true,9700,9800)
-	var diagnosed: bool = _visit(c).get("phase","")=="wait_consult" and not _visit(c).evidence_by_source.is_empty()
+	var coverage_ready: bool = await _until(t,c,func()->bool:return bool(_ward_nurse_return_state(c).ready),900)
 	var coverage_at_selection: Dictionary = _ward_nurse_return_state(c)
-	var coverage_wait: Dictionary = {"ok":bool(coverage_at_selection.ready),"reason":"ready_ward_input"}
-	timing.finish("ward_coverage_input",clock)
+	timing.finish("actual_nursing_base_handoff",clock)
 	clock = Time.get_ticks_usec()
-	var selected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"}) if diagnosed and coverage_wait.ok else CommandResult.new(false,"ward_coverage_missing",str(coverage_wait.reason))
+	_seed_stream(c.world,"treatment",true,true,9700,9800)
+	var diagnosed: bool = not _visit(c).evidence_by_source.is_empty() and _visit(c).attempt_ids.is_empty()
+	var selected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"}) if diagnosed and coverage_ready else CommandResult.new(false,"ward_coverage_missing","真实护理交接尚未完成")
 	if not selected.accepted:
-		t.check("CLIN-29",false,{"selection":selected.to_record(),"coverage_at_selection":coverage_at_selection,"state":_state(c),"timing":timing.report()})
-		return
-	var began: bool = selected.accepted and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="outpatient",800)
+		t.check("CLIN-29",false,{"selection":selected.to_record(),"coverage_at_selection":coverage_at_selection,"state":_state(c),"timing":timing.report()});return
+	var began: bool = await _until(t,c,func()->bool:return _visit(c).phase=="outpatient",1800)
 	var attempt: Dictionary = c.world.facts.attempts.values()[0].duplicate(true) if began else {}
-	timing.finish("select_and_start_outpatient",clock)
+	timing.finish("select_and_actual_start_outpatient",clock)
 	clock = Time.get_ticks_usec()
-	var operated: bool = began and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="transfer",1300)
+	var operated: bool = began and await _until(t,c,func()->bool:return _visit(c).phase=="transfer",1300)
 	timing.finish("actual_outpatient_work",clock)
 	clock = Time.get_ticks_usec()
 	var unrevealed: bool = operated and _income(c,"ward")==0 and _income(c,"cure")==0 and _visit(c).get("final_result","").is_empty()
-	var recovery: Dictionary = {"previous":1800,"work_ticks":0,"advancing_steps":0}
+	var recovery: Dictionary = {"previous":1800,"work_ticks":0,"advancing_steps":0,"valid":true,"no_early_charge":true,"care_at_bedside":true}
 	var completed: bool = operated and await _until(t,c,func()->bool:
+		var error: String = c.world.validate(_content)
+		if not error.is_empty(): recovery.valid = false; c.errors.append({"validation":error}); return true
 		var stay: Dictionary = _stay(c)
 		if not stay.is_empty():
 			var remaining: int = int(stay.remaining_ticks)
 			var delta: int = int(recovery.previous)-remaining
-			if delta>0:
-				recovery.work_ticks += delta
-				recovery.advancing_steps += 1
+			if delta>0: recovery.work_ticks += delta; recovery.advancing_steps += 1
 			recovery.previous = remaining
-		return _visit(c).get("final_result","")=="cured",3000)
-	timing.finish("actual_transfer_recovery_and_round",clock)
-	t.check("CLIN-29",unrevealed and completed and recovery.work_ticks==1800 and recovery.advancing_steps==1800 and int(attempt.get("recovery_ticks",-1))==1800 and int(attempt.get("supply_units",-1))==4 and int(attempt.get("cure_fee",-1))==660 and int(c.started.get("wake",0))==0 and _income(c,"outpatient")==10 and _income(c,"ward")==60 and _income(c,"cure")==660 and _income(c)==790 and _units_used(c)==4 and _visit(c).attempt_ids.size()==1,{"recovery":recovery,"diagnosed":diagnosed,"selected":selected.to_record(),"coverage_wait":coverage_wait,"coverage_at_selection":coverage_at_selection,"result_hidden_after_operation":unrevealed,"attempt":attempt,"state":_state(c),"timing":timing.report()})
+			if remaining>0 or not stay.care_completed: recovery.no_early_charge = recovery.no_early_charge and _income(c,"ward")==0 and _income(c,"cure")==0
+		var care: Dictionary = _session(c,"care")
+		if not care.is_empty():
+			var bed: Dictionary = c.sim.space.facility_layout(c.world,care.facility_id)
+			recovery.care_at_bedside = recovery.care_at_bedside and c.sim.space.at(c.world,str(care.staff_ids[0]),int(bed.floor_id),bed.operator_cells[0])
+		return _visit(c).get("final_result","")=="cured",3500)
+	var departed: bool = completed and await _until(t,c,func()->bool:return _visit(c).phase=="departed",900)
+	timing.finish("actual_transfer_recovery_care_and_departure",clock)
+	var passed: bool = unrevealed and completed and departed and recovery.valid and recovery.no_early_charge and recovery.care_at_bedside and recovery.work_ticks==1800 and recovery.advancing_steps==1800 and int(attempt.get("recovery_ticks",-1))==1800 and int(attempt.get("supply_units",-1))==4 and int(attempt.get("cure_fee",-1))==660 and int(attempt.get("probability_bp",-1))==9700 and int(c.started.get("wake",0))==0 and int(c.started.get("round",0))==0 and _income(c,"outpatient")==10 and _income(c,"ward")==60 and _income(c,"cure")==660 and _income(c)==790 and _units_used(c)==4 and _visit(c).attempt_ids.size()==1 and c.world.validate(_content).is_empty()
+	t.check("CLIN-29",passed,{"recovery":recovery,"diagnosed":diagnosed,"selected":selected.to_record(),"coverage_at_selection":coverage_at_selection,"result_hidden_after_operation":unrevealed,"attempt":attempt,"actual_departure":departed,"supply_units":_units_used(c),"income":_income(c),"timing":timing.report(),"failure_world":_failure_world("CLIN-29",c.world) if not passed else {}})
 
 func _case_30(t) -> void:
 	await _companion_entry(t,true)
@@ -990,7 +964,7 @@ func _diagnosis_chain(t, upgraded: bool) -> void:
 	if upgraded:
 		t.check(id,third and is_equal_approx(gp_evidence,49.2) and is_equal_approx(after_spectrum,93.0) and not _visit(c).evidence_by_source.has("resonance") and int(c.started.get("resonance",0))==0 and _income(c,"resonance")==0 and _income(c)==40 and _units_used(c)==0 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"income":_income(c),"state":_state(c)})
 	else:
-		t.check(id,third and is_equal_approx(gp_evidence,42.0) and is_equal_approx(after_spectrum,77.0) and is_equal_approx(total,102.0) and int(c.started.get("spectrum",0))==1 and int(c.started.get("resonance",0))==1 and _units_used(c)==0 and _income(c)==60 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"total":total,"income":_income(c),"state":_state(c)})
+		t.check(id,third and is_equal_approx(gp_evidence,44.0) and is_equal_approx(after_spectrum,81.0) and is_equal_approx(total,108.0) and int(c.started.get("spectrum",0))==1 and int(c.started.get("resonance",0))==1 and _units_used(c)==0 and _income(c)==60 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"total":total,"income":_income(c),"state":_state(c)})
 
 func _case_36(t) -> void:
 	preload("res://tests/acceptance/clinical_handoff.gd").new().run_case(t,_content)

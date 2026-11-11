@@ -2,7 +2,7 @@ extends RefCounted
 
 # Finite observation inputs at the real standing and seated boundaries of STAFF-69.
 # These calculations do not replace travel, seat acquisition or elapsed work.
-func run(world: WorldState, visit: Dictionary, departments: HospitalDepartments, standing: bool) -> Dictionary:
+func run(world: WorldState, visit: Dictionary, departments: HospitalExperience, standing: bool) -> Dictionary:
 	var before: Dictionary = world.freeze()
 	var rows: Array = []
 	var ok: bool = true

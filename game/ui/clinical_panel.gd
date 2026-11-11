@@ -14,7 +14,7 @@ const PHASES: Dictionary = {
 	"wait_consult":"等待会诊", "consult":"会诊中", "wait_outpatient":"等待门诊治疗",
 	"outpatient":"门诊治疗中", "wait_surgery":"等待手术", "surgery":"手术中",
 	"wake":"苏醒中", "transfer":"转往病床", "recovery":"住院恢复",
-	"round_wait":"等待出院查房", "round":"出院查房中", "ward_referral":"安全转诊中",
+	"ward_referral":"安全转诊中",
 	"leaving":"正在离院", "departed":"已离院"
 }
 

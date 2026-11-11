@@ -1,6 +1,6 @@
 extends SceneTree
 
-const SUITES: Array[String] = ["core", "clinical", "staff", "operations", "growth", "space"]
+const SUITES: Array[String] = ["core", "clinical", "staff", "operations", "growth", "space", "room_construction", "rooms_areas_guidance"]
 const Checkpoints = preload("res://tests/acceptance/checkpoints.gd")
 var results: Dictionary = {}
 var declared: Dictionary = {}

@@ -18,28 +18,28 @@ func run_rules(database: HospitalContent) -> Dictionary:
 	var chosen: Dictionary={}
 	for index: int in 32:chosen[x.g._choose_target(x.world,visit,ticket)]=true
 	checks.random_multiple=chosen.has("diagnosis") and chosen.has("diagnosis_other")
-	var original_intake: Array=x.world.facts.departments.units.general.intake_disease_ids.duplicate()
-	var shared: Dictionary=x.world.facts.departments.units.general.duplicate(true)
+	var original_intake: Array=x.world.facts.patient_experience.units.general.intake_disease_ids.duplicate()
+	var shared: Dictionary=x.world.facts.patient_experience.units.general.duplicate(true)
 	shared.id="shared_accepts"
 	shared.room_ids=[]
 	shared.shared_room_ids=["clinic"]
 	shared.intake_disease_ids=[visit.disease_id]
-	x.world.facts.departments.units.general.intake_disease_ids=["not_this_case"]
-	x.world.facts.departments.units[shared.id]=shared
+	x.world.facts.patient_experience.units.general.intake_disease_ids=["not_this_case"]
+	x.world.facts.patient_experience.units[shared.id]=shared
 	checks.shared_owner_can_accept=x.g._target_ids(x.world,visit,"gp").size()==2 and x.g._destination_department(x.world,visit,x.world.facts.facilities.diagnosis).id==shared.id
 	shared.intake_disease_ids=["also_not_this_case"]
 	checks.all_owners_exclude=x.g._target_ids(x.world,visit,"gp").is_empty()
-	x.world.facts.departments.units.erase(shared.id)
-	x.world.facts.departments.units.general.intake_disease_ids=original_intake
+	x.world.facts.patient_experience.units.erase(shared.id)
+	x.world.facts.patient_experience.units.general.intake_disease_ids=original_intake
 	var current: Dictionary={"visit_id":visit.id,"request_key":x.g._key(ticket),"ticket_id":ticket.id,"phase":"destination","desk_id":"","target_id":"diagnosis","guide_floor":2,"initial_done":true,"receipts":[],"guided_target":"diagnosis","arrived_seq":-1}
 	x.world.facts.floor_guidance.visits[visit.id]=current
 	checks.unavailable_not_reassigned=not x.g._reselect_unreachable_target(x.world,visit,current) and current.target_id=="diagnosis"
 	current.phase="ready"
 	current.guide_floor=1
 	current.arrived_seq=17
-	x.world.facts.departments.units.general.open=false
+	x.world.facts.patient_experience.units.general.open=false
 	checks.closed_department_waits=not x.g.prepare(x.world,visit,ticket) and current.phase=="ready" and current.target_id=="diagnosis" and current.arrived_seq==17
-	x.world.facts.departments.units.general.open=true
+	x.world.facts.patient_experience.units.general.open=true
 	checks.reopened_department_keeps_assignment=x.g.prepare(x.world,visit,ticket) and current.target_id=="diagnosis" and current.arrived_seq==17
 
 	x.world.facts.facilities.erase("diagnosis")

@@ -28,7 +28,7 @@ func _continue(initial: Dictionary, save_mid: bool) -> Dictionary:
  var begun: int = Time.get_ticks_usec()
  var world: WorldState = WorldState.new(initial.facts.duplicate(true))
  var sim: HospitalSimulation = HospitalSimulation.new(world,content)
- sim.clinic.departments = null
+ sim.clinic.experience = null
  var visit_id: String = initial.visit_id
  var stay_id: String = ""
  for stay: Dictionary in world.facts.ward_stays.values():
@@ -100,7 +100,7 @@ func _continue(initial: Dictionary, save_mid: bool) -> Dictionary:
    sim.dispose()
    world=restored
    sim=HospitalSimulation.new(world,content)
-   sim.clinic.departments=null
+   sim.clinic.experience=null
    saved=true
   if not errors.is_empty() or stay.phase=="recovery": break
  var stay: Dictionary = world.facts.ward_stays[stay_id]

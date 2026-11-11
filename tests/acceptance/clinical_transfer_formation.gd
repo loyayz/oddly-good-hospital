@@ -24,7 +24,7 @@ func run() -> void:
 func _geometry(saved: Dictionary) -> Dictionary:
 	var world: WorldState=WorldState.new(saved.facts.duplicate(true))
 	var sim: HospitalSimulation=HospitalSimulation.new(world,content)
-	sim.clinic.departments=null
+	sim.clinic.experience=null
 	var stay: Dictionary=world.facts.ward_stays.values()[0]
 	var visit: Dictionary=world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id]
 	var bed: Dictionary=sim.space.facility_layout(world,stay.bed_id)
@@ -40,7 +40,7 @@ func _geometry(saved: Dictionary) -> Dictionary:
 func _continue(saved: Dictionary, restore: bool) -> Dictionary:
 	var world: WorldState=WorldState.new(saved.facts.duplicate(true))
 	var sim: HospitalSimulation=HospitalSimulation.new(world,content)
-	sim.clinic.departments=null
+	sim.clinic.experience=null
 	var stay_id: String=world.facts.ward_stays.keys()[0]
 	var stay: Dictionary=world.facts.ward_stays[stay_id]
 	var visit: Dictionary=world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id]
@@ -87,7 +87,7 @@ func _continue(saved: Dictionary, restore: bool) -> Dictionary:
 			sim.dispose()
 			world=WorldState.new(frozen)
 			sim=HospitalSimulation.new(world,content)
-			sim.clinic.departments=null
+			sim.clinic.experience=null
 			stay=world.facts.ward_stays[stay_id]
 			visit=world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id]
 			restored=world.validate(content).is_empty() and world.freeze()==frozen

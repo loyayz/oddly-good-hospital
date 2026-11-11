@@ -39,7 +39,7 @@ static func room_walls(room: Dictionary) -> Array:
 		occupied[Vector2i(int(cell[0]),int(cell[1]))] = true
 	return walls(occupied)
 
-static func shape(draft: Dictionary, minimum: Array) -> Dictionary:
+static func shape(draft: Dictionary, _minimum: Array = [1,1]) -> Dictionary:
 	var actual: Array = []
 	if draft.has("cells"):
 		if not draft.cells is Array or draft.cells.is_empty() or draft.cells.size()>9216:
@@ -71,13 +71,6 @@ static func shape(draft: Dictionary, minimum: Array) -> Dictionary:
 		for x: int in range(low.x,high.x+1):
 			if not occupied.has(Vector2i(x,y)) and not outside.has(Vector2i(x,y)):
 				return failure("房间不能包含内部孔洞",[[x,y]])
-	var fits: bool = false
-	for origin: Vector2i in occupied:
-		if _rectangle_inside(occupied,origin,Vector2i(int(minimum[0]),int(minimum[1]))) or _rectangle_inside(occupied,origin,Vector2i(int(minimum[1]),int(minimum[0]))):
-			fits = true
-			break
-	if not fits:
-		return failure("房型需要至少%d×%d的完整内接矩形" % [int(minimum[0]),int(minimum[1])])
 	actual.sort_custom(func(a: Array,b: Array) -> bool: return a[1]<b[1] or (a[1]==b[1] and a[0]<b[0]))
 	return {"ok":true,"cells":actual,"origin":[low.x,low.y],"size":[high.x-low.x+1,high.y-low.y+1],"wall_edges":walls(occupied)}
 

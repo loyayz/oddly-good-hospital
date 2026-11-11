@@ -17,7 +17,7 @@
     "description": "@zh:core.blueprint_presets.BP03.description",
     "id": "BP03",
     "name": "@zh:core.blueprint_presets.BP03.name",
-    "source_id": "room_daily",
+    "source_id": "room_physical",
     "source_type": "starter_room"
   },
   {
@@ -52,7 +52,7 @@
     "description": "@zh:core.blueprint_presets.BP08.description",
     "id": "BP08",
     "name": "@zh:core.blueprint_presets.BP08.name",
-    "source_id": "room_rest",
+    "source_id": "room_dormitory",
     "source_type": "starter_room"
   },
   {

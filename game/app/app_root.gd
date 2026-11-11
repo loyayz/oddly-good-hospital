@@ -255,7 +255,7 @@ func _build_ui() -> void:
 	environment_panel.heatmap_requested.connect(_show_environment_heatmap)
 	_add_management_panel("environment","环境与装修",environment_panel)
 	_add_management_panel("maintenance","维护与升级",HospitalMaintenancePanel.new())
-	_add_management_panel("departments","科室与体验",HospitalDepartmentsPanel.new())
+	_add_management_panel("experience","就诊体验",HospitalExperiencePanel.new())
 	_add_management_panel("finance","经营账目",HospitalFinancePanel.new())
 	_add_management_panel("recruitment","招聘与履历",HospitalRecruitmentPanel.new())
 	_add_management_panel("arrivals","来院与熟客",HospitalArrivalsPanel.new())
@@ -999,4 +999,4 @@ static func _phase_name(phase: String) -> String:
 		"wait_spectrum":"等候光谱检查","spectrum":"光谱检查中","wait_resonance":"等候共振检查","resonance":"共振检查中",
 		"wait_consult":"等候方案会诊","consult":"方案会诊中","wait_outpatient":"等候门诊治疗","outpatient":"治疗中",
 		"wait_surgery":"手术准备","surgery":"手术进行中","wake":"治疗完成，苏醒中","transfer":"正在转床",
-		"recovery":"住院恢复与护理","round_wait":"等待出院查房","round":"出院查房","leaving":"正在离院","departed":"已离院"}.get(phase,phase)
+		"recovery":"住院恢复与护理","leaving":"正在离院","departed":"已离院"}.get(phase,phase)

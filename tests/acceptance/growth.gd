@@ -1,9 +1,5 @@
 extends "res://tests/acceptance/growth_fixtures.gd"
 
-# Superseded by random_arrival_demand.gd. Keep old bodies as historical
-# numerical inputs, not registered requirements or runnable product cases.
-const RETIRED_CASES: Array[String] = ["GROW-02","GROW-05","GROW-39","GROW-40","GROW-41","GROW-42","GROW-43","GROW-44","GROW-45","GROW-47","GROW-49","GROW-50","GROW-52","GROW-53","GROW-54","GROW-55","GROW-58","GROW-61","GROW-63","GROW-65","GROW-69","GROW-70","GROW-74","GROW-77","GROW-82"]
-
 const CASES: Dictionary = {
 	"GROW-01":"docs/design/11-growth-arrivals-recruitment.md §1.1/1.2；无诊桌零机会且不抽签",
 	"GROW-03":"docs/design/11-growth-arrivals-recruitment.md §1.1；诊桌需求查询只读且病症权重不重算兴趣",
@@ -43,14 +39,12 @@ const CASES: Dictionary = {
 	"GROW-38":"docs/design/04-technical.md §4研究进度；资料简报排序与任务恢复",
 	"GROW-46":"docs/design/07-clinical-team.md；必要检查保留全部合法资源及证据条件分支",
 	"GROW-48":"docs/design/07-clinical-team.md；同床不同护理护士的门诊转床需求保持各自身份",
-	"GROW-51":"docs/design/04-technical.md §6；查房授权即时失效，冷热几何与权限一致",
 	"GROW-56":"docs/design/07-clinical-team.md §10；同身体不同专业的会诊候选与遍历顺序无关",
 	"GROW-57":"docs/design/07-clinical-team.md §6；完整方案集上的三种策略与实际选择一致",
 	"GROW-59":"docs/design/07-clinical-team.md §14；足够证据省略后续检查，入口检查独立于完整诊疗链",
 	"GROW-60":"docs/design/07-clinical-team.md §5；候选使用已证明的适配站位且不修改实际预约",
 	"GROW-62":"docs/design/07-clinical-team.md；完整候选组件与按需队列代表分离",
 	"GROW-64":"docs/design/07-clinical-team.md；结构存在性短路不改变详细方案解释",
-	"GROW-66":"docs/design/04-technical.md §6；科室原所有者记录更新与旧快照隔离",
 	"GROW-67":"docs/design/07-clinical-team.md；活动病例索引、归档与恢复",
 	"GROW-68":"docs/design/07-clinical-team.md §5；只读占用视图边界与实际新预约可见",
 	"GROW-71":"docs/design/07-clinical-team.md；整批组件与逐组件的完整模型、概率和选择一致",
@@ -62,7 +56,7 @@ const CASES: Dictionary = {
 	"GROW-79":"docs/design/07-clinical-team.md；参考数值复用保留独立候选、有界批次与失败原子性",
 	"GROW-80":"docs/design/07-clinical-team.md；分层诊断保留完整合法分支、精确C和独立结构K",
 	"GROW-81":"docs/design/04-technical.md §6；名义相同适配布局的完整候选与独立预约世界一致",
-	"GROW-83":"docs/design/11-growth-arrivals-recruitment.md §1.3；居民保护批次及导诊结构查询保持身份、完整路由与随机流",
+	"GROW-83":"docs/design/11-growth-arrivals-recruitment.md §1.3；居民保护批次保持在院身份、完整原因与查询边界",
 	"GROW-84":"docs/design/07-clinical-team.md §6；参考手术预筛选保持完整候选及实际资格验证",
 	"GROW-85":"docs/design/01-simulation.md §9.2；研究历史索引及三班维修预算复用保留付款、暂停、取消、恢复与原序",
 	"GROW-86":"docs/design/11-growth-arrivals-recruitment.md §1.2.1；单次病例选择复用保留权重、解锁变更和病症抽签"
@@ -101,62 +95,6 @@ func _case_01(t) -> void:
 	var zero: Dictionary = empty.world.facts.arrivals.plan
 	t.check("GROW-01",not zero.is_empty() and zero.opportunity_count==0 and zero.shift_opportunity_counts==[0,0,0] and zero.schedule_seed==null and zero.shift_capacities==[F.make(),F.make(),F.make()] and empty.world.facts.rng==rng_before,zero)
 
-func _case_02(t) -> void:
-	var base: Dictionary = _context()
-	_single_case(base)
-	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
-	var no_team: Dictionary = _context()
-	_single_case(no_team)
-	for staff_id: String in ["starter_doctor_b","starter_doctor_c"]:
-		no_team.world.facts.staff.erase(staff_id)
-		no_team.world.facts.actors.erase(staff_id)
-	var absent: Dictionary = no_team.arrivals.capacity(no_team.world,false)
-	_add_room(no_team.world,"spare_terminal","T01",[42,70],[6,6])
-	_add_facility(no_team.world,"unmanned_terminal","M09","spare_terminal",[44,71])
-	_fresh_space(no_team)
-	var unmanned: Dictionary = no_team.arrivals.capacity(no_team.world,false)
-	var flow: bool = _shared_clock_contract()
-	t.check("GROW-02",flow and capacity.get("complete",false) and F.compare(capacity.get("capacity",F.make()),F.make())>0 and absent.get("capacity",{})==F.make() and unmanned.get("capacity",{})==F.make() and int(unmanned.get("scale_numerator",-1))==0,{"base":capacity,"missing_team":absent,"unmanned":unmanned,"shared_clocks":flow})
-
-func _shared_clock_contract() -> bool:
-	# Two doctors rotate 100-tick diagnostics and 200-tick treatment. A
-	# quarter-probability 100-tick retry adds 25 ticks, not another budget.
-	# Each complete visit uses 325 doctor-ticks: 12000/325 = 480/13.
-	var model: Dictionary = {"probability":F.make(1),"bundles":[
-		{"resources":{"doctor_a":F.make(200)},"choices":["diagnosis_a","guidance","retry_a"]},
-		{"resources":{"doctor_b":F.make(200)},"choices":["diagnosis_b","guidance","retry_b"]}],
-		"choice_groups":{
-			"diagnosis_a":[{"resources":{"doctor_b":F.make(100)}}],
-			"diagnosis_b":[{"resources":{"doctor_a":F.make(100)}}],
-			"guidance":[{"resources":{"guide":F.make(25)}}],
-			"retry_a":[{"resources":{"doctor_a":F.make(25)},"choices":["retry_round"]}],
-			"retry_b":[{"resources":{"doctor_b":F.make(25)},"choices":["retry_round"]}],
-			"retry_round":[{"resources":{"round":F.make(10)}}]}}
-	var budgets: Dictionary = {"doctor_a":F.make(6000),"doctor_b":F.make(6000),"guide":F.make(6000),"round":F.make(6000)}
-	var result: Dictionary = ArrivalCapacitySolver.solve([model],budgets)
-	if result.get("capacity",{})!=F.make(480,13): return false
-	budgets.guide = F.make(500)
-	result = ArrivalCapacitySolver.solve([model],budgets)
-	if result.get("capacity",{})!=F.make(20): return false
-	budgets.round = F.make(100)
-	result = ArrivalCapacitySolver.solve([model],budgets)
-	if result.get("capacity",{})!=F.make(10): return false
-	# One third of Visits use six ticks; two thirds use three. Both real
-	# resources have 180 ticks, so 360/(6/3+3*2/3) = 90 Visits exactly.
-	var mixed: Array = []
-	for index: int in 2:
-		var ticks: int = 6 if index==0 else 3
-		mixed.append({"probability":F.make(index+1,3),"bundles":[{"resources":{},"choices":["operator"]}],"choice_groups":{"operator":[{"resources":{"a":F.make(ticks)}},{"resources":{"b":F.make(ticks)}}]}})
-	result = ArrivalCapacitySolver.solve(mixed,{"a":F.make(180),"b":F.make(180)})
-	if result.get("capacity",{})!=F.make(90): return false
-	var visits: Array = [F.make(),F.make()]
-	var used: Dictionary = {"a":F.make(),"b":F.make()}
-	for assignment: Dictionary in result.assignments:
-		visits[assignment.case_index] = F.add(visits[assignment.case_index],assignment.amount)
-		for resource: String in assignment.resources:
-			used[resource] = F.add(used[resource],F.mul(assignment.amount,assignment.resources[resource]))
-	return visits==[F.make(30),F.make(60)] and used.a==F.make(180) and used.b==F.make(180)
-
 func _case_03(t) -> void:
 	var base: Dictionary = _context()
 	_single_case(base)
@@ -176,275 +114,6 @@ func _case_03(t) -> void:
 	base.arrivals.execute(base.world,"arrivals_weight",{"disease_id":"D09","weight":1})
 	var restored: Dictionary = base.arrivals.capacity(base.world,false)
 	t.check("GROW-03",capacity==repeated and unchanged and outside==capacity and outside_unchanged and no_cases==capacity and restored==capacity,{"same_projection":capacity==repeated,"world_unchanged":unchanged,"temporary_positions_independent":outside==capacity,"empty_weighted_pool":no_cases.get("capacity",{}),"restored_weights":restored==capacity})
-
-func _case_39(t) -> void:
-	# A legal calculation input; no patient movement or clinical work is skipped.
-	var ctx: Dictionary = _context()
-	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
-	builder._content = _content
-	builder._add_layout(ctx.world,"or_standard","parallel_or_a",[33,65])
-	builder._add_layout(ctx.world,"or_standard","parallel_or_b",[43,65])
-	builder._add_layout(ctx.world,"ward_two_beds","parallel_ward",[53,65])
-	_add_room(ctx.world,"parallel_gp","gp",[43,76],[4,4])
-	_add_facility(ctx.world,"parallel_gp_desk","FUR02","parallel_gp",[43,77])
-	for id: String in ["starter_doctor_a","starter_doctor_b"]:
-		ctx.world.facts.staff[id].abilities.treatment = 2
-		ctx.world.facts.staff[id].schedule = builder._schedule("outpatient")
-		for slot: int in 2: ctx.world.facts.staff[id].schedule[slot].pools = ["diagnosis"]
-	ctx.world.facts.staff.starter_doctor_c.schedule = builder._schedule("rest")
-	for index: int in 4:
-		builder._add_worker(ctx.world,"parallel_surgeon_"+str(index),"doctor",[34+index*4,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02")
-	ctx.world.facts.staff.parallel_surgeon_0.abilities.surgery = 3
-	for index: int in 2:
-		var id: String = "parallel_or_nurse_"+str(index)
-		builder._add_worker(ctx.world,id,"nurse",[50+index*2,75],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":1})
-		ctx.world.facts.staff[id].certificates = ["q_or","q_ward"]
-	builder._add_worker(ctx.world,"parallel_cover","nurse",[54,75],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
-	ctx.world.facts.staff.parallel_cover.ward_id = "parallel_ward"
-	for index: int in 2:
-		builder._add_worker(ctx.world,"parallel_round_"+str(index),"doctor",[58+index*2,75],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
-	for definition: Dictionary in _content.catalog.research:
-		if not definition.id in ctx.world.facts.research: ctx.world.facts.research.append(definition.id)
-	ctx.simulation._ensure_services()
-	ctx.world.touch()
-	_fresh_space(ctx)
-	var valid: String = ctx.world.validate(_content)
-	var frozen: Dictionary = ctx.world.freeze()
-	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
-	var query: Dictionary = {}
-	var binding: Dictionary = _content.definition("treatment_bindings","B_S13_D09_M09")
-	ctx.space._navigation = NavigationCache.new()
-	var quote: Dictionary = ctx.clinic.reference_demand(nominal,binding.id,false,0,query)
-	var options: Dictionary = ctx.clinic._reference_options(nominal,binding.id,false,0,{}, {},query)
-	var probabilities: Dictionary = {}
-	for terminal: Dictionary in options.get("terminals",[]):
-		var context: Array = ctx.clinic._reference_retry_context(terminal)
-		if not probabilities.has(context): probabilities[context] = {}
-		probabilities[context][terminal.probability_bp] = true
-	var distinct_weights: bool = false
-	for values: Dictionary in probabilities.values(): distinct_weights = distinct_weights or values.size()>1
-	var uncached: UncachedReference = UncachedReference.new(_content,ctx.space)
-	for property: Dictionary in ctx.clinic.get_property_list():
-		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: uncached.set(property.name,ctx.clinic.get(property.name))
-	ctx.space._navigation = NavigationCache.new()
-	var independent: Dictionary = uncached.reference_demand(nominal,binding.id,false,0)
-	var shared_groups: Dictionary = {}
-	var original_groups: Dictionary = {}
-	for pair: Array in [[quote,shared_groups],[independent,original_groups]]:
-		for root: Dictionary in pair[0].get("model",{}).get("bundles",[]):
-			for group: String in root.get("choices",[]):
-				if group.begins_with("retry:"): pair[1][group] = true
-	if _reference_observables(quote)!=_reference_observables(independent) or not distinct_weights or shared_groups.size()>=original_groups.size():
-		t.check("GROW-39",false,{"complete_uncached_model_equal":_reference_observables(quote)==_reference_observables(independent),"same_context_distinct_probabilities":distinct_weights,"shared_retry_groups":shared_groups.size(),"original_retry_groups":original_groups.size()})
-		return
-	var variant: Dictionary = ctx.arrivals._reference_variant(nominal,binding,false,0,quote,query)
-	variant.probability = F.make(1)
-	var tables: Dictionary = {}
-	var beds: Dictionary = {}
-	for bundle: Dictionary in quote.get("model",{}).get("bundles",[]):
-		for resource: String in bundle.resources:
-			if not resource.begins_with("facility:"): continue
-			var id: String = resource.trim_prefix("facility:")
-			if ctx.world.facts.facilities[id].definition_id=="EQ01": tables[id] = true
-			elif ctx.world.facts.facilities[id].definition_id=="EQ05": beds[id] = true
-	var structure: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
-	var budgets: Dictionary = ctx.arrivals._resource_budgets(nominal,[variant],0)
-	var model_key: Array = [JSON.stringify(variant).sha256_text()]
-	var capacity: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0,model_key)
-	# Exhausted care time removes new Visit capacity, while the independent
-	# built structural maximum still has both complete teams.
-	var coverage_budget: Dictionary = budgets["coverage:parallel_cover:parallel_ward"]
-	budgets["coverage:parallel_cover:parallel_ward"] = F.make()
-	var exhausted: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0,model_key)
-	budgets["coverage:parallel_cover:parallel_ward"] = coverage_budget
-	var restored: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0,model_key)
-	if restored.get("capacity",{})!=capacity.get("capacity",{}):
-		t.check("GROW-39",false,{"restored":restored,"capacity":capacity})
-		return
-	# Both independent teams fit. Removing the only independent cover removes
-	# every surgery group; the two operating nurses cannot cover their own work.
-	nominal.facts.staff = nominal.facts.staff.duplicate(true)
-	nominal.facts.staff.parallel_cover.schedule = builder._schedule("rest")
-	var uncovered: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
-	t.check("GROW-39",valid.is_empty() and ctx.world.freeze()==frozen and quote.get("ok",false) and tables.size()==2 and beds.size()==2 and int(structure.get("pairs",-1))==2 and int(uncovered.get("pairs",-1))==0 and not capacity.has("error") and F.compare(capacity.get("capacity",F.make()),F.make())>0 and exhausted.get("capacity",{})==F.make() and int(exhausted.get("structural_pairs",-1))==2,{"validation":valid,"tables":tables.keys(),"beds":beds.keys(),"structure":structure,"uncovered":uncovered,"capacity":capacity,"exhausted":exhausted,"reference_reason":quote.get("reason","")})
-
-func _case_42(t) -> void:
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	var visit: Dictionary = _patient(ctx,[45,76],"B_S13_D09_M09")
-	if visit.is_empty():
-		t.check("GROW-42",false,ctx.get("last_admission",{}))
-		return
-	_single_case(ctx,"D37")
-	var before: Dictionary = ctx.world.freeze()
-	var query: Dictionary = {}
-	ctx.arrivals._reference_classes(ctx.world,0,query)
-	var identity: Dictionary = query.duplicate(true)
-	var workload: Dictionary = ctx.arrivals._existing_workload(ctx.world,0,query)
-	var projection: Dictionary = ctx.arrivals.capacity(ctx.world)
-	t.check("GROW-42",query==identity and not workload.is_empty() and projection.get("complete",false) and ctx.world.freeze()==before,{"query_preserved":query==identity,"workload":workload,"projection":projection})
-
-func _commitment_context() -> Dictionary:
-	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
-	builder._content = _content
-	var ctx: Dictionary = builder._context(true)
-	_simulations.append(ctx.sim)
-	ctx.builder = builder
-	ctx.ready = builder._arrive(ctx,"B_S13_D09_M09","P_D09_SURGERY")
-	if ctx.ready:
-		ctx.visit = ctx.world.facts.visits[ctx.visit_id]
-		ctx.visit.plan_decision = {"plan_id":"P_D09_SURGERY","source":"director","revision":1}
-	return ctx
-
-func _case_43(t) -> void:
-	# Calculation inputs start at legal service boundaries; this case does not
-	# claim to verify the preceding travel, surgery or bedside execution.
-	var ctx: Dictionary = _commitment_context()
-	if not ctx.ready:
-		t.check("GROW-43",false,ctx.errors)
-		return
-	var clinic: HospitalClinic = ctx.sim.clinic
-	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["clin_surgeon","clin_anesthesia","clin_or_nurse"],{"structural_only":true,"ignore_supplies":true})
-	if not quote.ok:
-		t.check("GROW-43",false,quote)
-		return
-	var attempt: Dictionary = clinic._commit_attempt(ctx.world,ctx.visit,quote)
-	var stay: Dictionary = {"id":attempt.id,"attempt_id":attempt.id,"bed_id":quote.bed_id,"phase":"reserved","remaining_ticks":109,"work_credit_milli":0,"care_completed":false,"nurse_id":"clin_cover","round_doctor_id":"clin_round","escort_id":"clin_or_nurse","last_progress_tick":ctx.world.sim_tick}
-	ctx.world.facts.ward_stays[stay.id] = stay
-	ctx.world.facts.facilities[stay.bed_id].grade = 1
-	ctx.world.facts.staff.clin_round.fatigue = 0.0
-	var session: Dictionary = clinic._start(ctx.world,ctx.visit,"surgery",quote.facility_id,quote.staff_ids,50,{"attempt_id":attempt.id})
-	var before: Dictionary = ctx.world.freeze()
-	var surgery: Dictionary = clinic.remaining_commitments(ctx.world).resources
-	attempt.result = not attempt.result
-	var hidden_independent: bool = clinic.remaining_commitments(ctx.world).resources==surgery
-	attempt.result = not attempt.result
-	var readonly: bool = ctx.world.freeze()==before
-	session.kind = "wake"
-	var wake: Dictionary = clinic.remaining_commitments(ctx.world).resources
-	ctx.world.facts.sessions.clear()
-	stay.phase = "recovery"
-	clinic._start(ctx.world,ctx.visit,"care",stay.bed_id,[stay.nurse_id],50,{"stay_id":stay.id})
-	var care: Dictionary = clinic.remaining_commitments(ctx.world).resources
-	ctx.world.facts.sessions.clear()
-	stay.phase = "round"
-	stay.remaining_ticks = 0
-	stay.care_completed = true
-	clinic._start(ctx.world,ctx.visit,"round",stay.bed_id,[stay.round_doctor_id],50,{"stay_id":stay.id})
-	var round_work: Dictionary = clinic.remaining_commitments(ctx.world).resources
-	var bed_key: String = "facility:"+str(stay.bed_id)
-	# Grade 1 / care 1 gives rate 1090; 109 standard ticks need 100
-	# wall ticks. Care 50 overlaps recovery; a started round has only its 50.
-	t.check("GROW-43",readonly and hidden_independent and surgery.get("facility:"+str(quote.facility_id))-wake.get("facility:"+str(quote.facility_id))==150 and surgery.get("staff:clin_surgeon")==200 and surgery.get(bed_key)-wake.get(bed_key)==150 and wake.get(bed_key)>250 and care.get(bed_key)-round_work.get(bed_key)==150 and care.get("staff:clin_cover")==50 and round_work.get(bed_key)>50 and round_work.get("staff:clin_round")==50 and clinic._recovery_ticks(ctx.world,stay.bed_id,stay.nurse_id,12,500)==11,{"surgery":surgery,"wake":wake,"care":care,"round":round_work,"readonly":readonly,"hidden_independent":hidden_independent})
-
-func _case_44(t) -> void:
-	var ctx: Dictionary = _commitment_context()
-	if not ctx.ready:
-		t.check("GROW-44",false,ctx.errors)
-		return
-	ctx.builder._add_layout(ctx.world,"or_standard","second_committed_or",[55,65])
-	for index: int in 3:
-		ctx.builder._add_worker(ctx.world,"second_team_"+str(index),"nurse" if index==2 else "doctor",[54+index*3,75],"work" if index==2 else "surgery",{"diagnosis":1,"treatment":1,"care":1,"surgery":2},"DT02")
-	ctx.world.facts.staff.second_team_2.certificates = ["q_or","q_ward"]
-	var table_id: String = ""
-	for facility: Dictionary in ctx.world.facts.facilities.values():
-		if facility.get("room_id","")=="second_committed_or" and facility.definition_id=="EQ01": table_id = facility.id
-	var clinic: HospitalClinic = ctx.sim.clinic
-	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["second_team_0","second_team_1","second_team_2"],{"facility_id":table_id,"structural_only":true,"ignore_supplies":true})
-	if not quote.ok:
-		t.check("GROW-44",false,quote)
-		return
-	ctx.world.facts.preparations[ctx.visit.id] = {"id":ctx.visit.id,"visit_id":ctx.visit.id,"kind":"surgery","facility_id":table_id,"staff_ids":quote.staff_ids,"bed_id":quote.bed_id,"nurse_id":quote.nurse_id,"round_doctor_id":quote.round_doctor_id,"ward_id":quote.ward_id,"supply_units":quote.supply_units,"setup_remaining_ticks":7,"deadline_tick":ctx.world.sim_tick+300}
-	var before: Dictionary = ctx.world.freeze()
-	var projection: Dictionary = clinic.remaining_commitments(ctx.world).resources
-	var work: int = int(quote.work_ticks)+150
-	var doctor_ticks: int = int(projection.get("staff:second_team_0",0))
-	var nurse_ticks: int = int(projection.get("staff:second_team_2",0))
-	var readonly: bool = ctx.world.freeze()==before
-	ctx.world.facts.preparations[ctx.visit.id].setup_remaining_ticks = 0
-	var ready: Dictionary = clinic.remaining_commitments(ctx.world).resources
-	t.check("GROW-44",readonly and doctor_ticks>=work+7 and doctor_ticks-int(ready.get("staff:second_team_0",0))==7 and int(projection.get("facility:"+table_id,0))-int(ready.get("facility:"+table_id,0))==7 and nurse_ticks-int(ready.get("staff:second_team_2",0))==7 and nurse_ticks>doctor_ticks and not projection.has("staff:clin_surgeon"),{"projection":projection,"without_setup":ready,"expected_work":work,"original_table":table_id})
-
-func _case_45(t) -> void:
-	var ctx: Dictionary = _context()
-	var cases: Array = [{"probability":F.make(1),"bundles":[
-		{"resources":{"staff:n":F.make(1),"coverage:n:w1":F.make(1)},"coverage_roles":{"n":["w1"]}},
-		{"resources":{"staff:n":F.make(1),"coverage:n:w2":F.make(1)},"coverage_roles":{"n":["w2"]}},
-		{"resources":{"staff:n":F.make(1),"facility:or":F.make(1)}}]}]
-	var budgets: Dictionary = {"staff:n":F.make(100),"coverage:n:w1":F.make(2),"coverage:n:w2":F.make(20),"facility:or":F.make(100)}
-	var before: Array = cases.duplicate(true)
-	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
-	var free: Dictionary = backend.call("prepare",cases,budgets)
-	var locked: Dictionary = backend.call("prepare",ctx.arrivals._restrict_roles(cases,{"n":"w1"}),budgets)
-	var updates: Dictionary = _native_role_updates(cases,budgets)
-	var aggregate: Dictionary = _native_aggregate_inputs()
-	t.check("GROW-45",free.get("capacity",{})==F.make(100) and locked.get("capacity",{})==F.make(2) and before==cases and updates.passed and aggregate.passed,{"free":free,"locked":locked,"updates":updates,"aggregate":aggregate})
-
-func _native_aggregate_inputs() -> Dictionary:
-	# Exact numerical components, without hospital facts or resources reserved.
-	# The scalar interface is the independent no-batch parsing path.
-	var amounts: Array = [1,{"n":"1","d":"1"},{"n":"2","d":"2"},{"n":"-3","d":"7"},{"n":"123456789012345678901234567890","d":"9"},0]
-	var requests: Array = []
-	var expected: Array = []
-	for index: int in 24:
-		var stages: Dictionary = {"first":{"a":amounts[index%amounts.size()],"b":amounts[(index+1)%amounts.size()]},"second":{"a":amounts[index%amounts.size()]}}
-		var weight: Dictionary = {"n":"2","d":"4"} if index%2==0 else {"n":"1","d":"2"}
-		requests.append({"stages":stages,"weight":weight})
-		expected.append(PlatformArrivalMath.aggregate_stages(stages,weight))
-	var before: Array = requests.duplicate(true)
-	var batched: Dictionary = PlatformArrivalMath.aggregate_components(requests)
-	var equal: bool = batched.get("components",[])==expected and requests==before
-	var rejected: bool = true
-	for bad: Variant in [{"n":"1","d":"0"},{"n":"1","d":"-000"},{"n":"x","d":"1"},{"n":1,"d":"1"},[],"1/2"]:
-		var invalid: Array = requests.duplicate(true)
-		invalid.append({"stages":{"late":{"a":bad}},"weight":{"n":"1","d":"2"}})
-		var frozen: Array = invalid.duplicate(true)
-		var failure: Dictionary = PlatformArrivalMath.aggregate_components(invalid)
-		rejected = rejected and failure.has("error") and not failure.has("components") and invalid==frozen
-	var retried: Dictionary = PlatformArrivalMath.aggregate_components(requests)
-	# Changing the same source identity in the next batch must read new text.
-	requests[0].stages.first.a = {"n":"11","d":"3"}
-	var changed: Dictionary = PlatformArrivalMath.aggregate_components(requests)
-	var next_expected: Array = expected.duplicate(true)
-	next_expected[0] = PlatformArrivalMath.aggregate_stages(requests[0].stages,requests[0].weight)
-	return {"passed":equal and rejected and retried.get("components",[])==expected and changed.get("components",[])==next_expected,"scalar_equal":equal,"late_invalid_atomic":rejected,"retry_equal":retried.get("components",[])==expected,"new_batch_rereads":changed.get("components",[])==next_expected,"components":requests.size(),"invalid_inputs":6}
-
-func _native_role_updates(cases: Array, original_budgets: Dictionary) -> Dictionary:
-	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
-	var budgets: Dictionary = original_budgets.duplicate(true)
-	var first: Dictionary = backend.call("prepare_with_roles",cases,budgets,{"n":"w1"})
-	var equivalent: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1","absent":"w9"})
-	var unchanged: bool = equivalent.get("capacity")==F.make(2) and equivalent.get("resolution_count")==first.get("resolution_count") and equivalent.get("pricing_calls")==first.get("pricing_calls")
-	budgets["coverage:n:w1"] = F.make(3)
-	var three: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1","absent":"w8"})
-	budgets["coverage:n:w1"] = F.make(4)
-	var four: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1"})
-	# Coverage w1 is mandatory under this role. Its exact unit demand is one,
-	# independent of the changing budget; the inverse-budget pricing still runs.
-	var reused: bool = three.get("capacity")==F.make(3) and four.get("capacity")==F.make(4) and int(four.get("pricing_calls",0))-int(three.get("pricing_calls",0))==1
-	var switched: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w2"})
-	var restored: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1"})
-	var roles: bool = switched.get("capacity")==F.make(20) and restored.get("capacity")==F.make(4)
-	# In the unrestricted model, facility work attains100 and is incompatible
-	# with either coverage role. A complete alternative has zero facility demand.
-	budgets["staff:n"] = F.make(110)
-	var unrestricted: Dictionary = backend.call("prepare_with_roles",cases,budgets,{})
-	budgets["staff:n"] = F.make(120)
-	var warm_zero: Dictionary = backend.call("solve_with_roles",budgets,{"absent":"w1"})
-	budgets["staff:n"] = F.make(130)
-	var cached_zero: Dictionary = backend.call("solve_with_roles",budgets,{"absent":"w2"})
-	var zero: bool = unrestricted.get("capacity")==F.make(100) and warm_zero.get("capacity")==F.make(100) and cached_zero.get("capacity")==F.make(100) and int(cached_zero.get("pricing_calls",0))-int(warm_zero.get("pricing_calls",0))==1
-	var simple: Array = [{"probability":F.make(1),"bundles":[{"resources":{"a":F.make(1),"b":F.make(1)}}]}]
-	var large: Dictionary = F.make("123456789012345678901234567890",3)
-	var exact: Dictionary = backend.call("prepare",simple,{"a":large,"b":large})
-	var equivalent_fraction: Dictionary = backend.call("solve",{"a":{"n":"246913578024691357802469135780","d":"6"},"b":large})
-	var fractions: bool = exact.get("capacity")==large and equivalent_fraction.get("capacity")==large and exact.get("resolution_count")==equivalent_fraction.get("resolution_count")
-	var rejected: bool = true
-	for invalid: Variant in [{"n":"1","d":"0"},{"n":"x","d":"1"},{"n":"1","d":1},F.make(-1)]:
-		backend.call("prepare",simple,{"a":F.make(1),"b":F.make(1)})
-		var bad: Dictionary = backend.call("solve",{"a":invalid,"b":F.make(1)})
-		rejected = rejected and bad.has("error")
-	return {"passed":unchanged and reused and roles and zero and fractions and rejected,"same_mask_state_retained":unchanged,"unit_demand_reused":reused,"role_switch":roles,"zero_demand_reused":zero,"exact_fractions":fractions,"bad_budget_rejected":rejected,"first":first,"equivalent":equivalent,"three":three,"four":four,"switched":switched,"restored":restored,"warm_zero":warm_zero,"cached_zero":cached_zero}
 
 func _case_46(t) -> void:
 	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
@@ -505,31 +174,11 @@ func _case_80(t) -> void:
 func _case_81(t) -> void:
 	load("res://tests/acceptance/reference_routing.gd").new().run_case(t,_content)
 
-func _case_82(t) -> void:
-	load("res://tests/acceptance/structure_dominance.gd").new().run_case(t,_content)
-
 func _case_83(t) -> void:
 	load("res://tests/acceptance/clinical_query_batches.gd").new().run_case(t,_content)
 
 func _case_84(t) -> void:
 	load("res://tests/acceptance/surgery_qualification.gd").new().run_case(t,_content)
-
-func _case_47(t) -> void:
-	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
-	builder.content = _content
-	var sim: HospitalSimulation = builder._transit_fixture()
-	_simulations.append(sim)
-	var id: String = builder._connection(sim)
-	builder._add_actor(sim,"projection_rider","S49",[36,76])
-	sim.space.request_move(sim.world,"projection_rider",2,[46,80])
-	var boarding: bool = builder._wait(sim,func()->bool: return sim.world.facts.connectors[id].phase=="boarding",30)
-	var connection: Dictionary = sim.world.facts.connectors[id]
-	var first: Dictionary = HospitalTransit.reference_conditions(sim.world).duplicate(true)
-	connection.use_receipts = {"completed_trip":sim.world.sim_tick}
-	connection.condition = 90.0
-	var receipts_ignored: bool = HospitalTransit.reference_conditions(sim.world)==first
-	builder._movement_tick(sim)
-	t.check("GROW-47",boarding and receipts_ignored and HospitalTransit.reference_conditions(sim.world)!=first,{"boarding":boarding,"receipts_ignored":receipts_ignored,"remainder_retained":HospitalTransit.reference_conditions(sim.world)!=first})
 
 func _case_48(t) -> void:
 	# A legal quote input, before treatment starts. Both qualified nurses can
@@ -541,10 +190,11 @@ func _case_48(t) -> void:
 	builder._add_layout(ctx.world,"ward_two_beds","clin_ward",[42,72])
 	for index: int in 2:
 		var id: String = "transfer_nurse_"+str(index)
-		builder._add_worker(ctx.world,id,"nurse",[43+index,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
+		builder._add_worker(ctx.world,id,"nurse",[43+index,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","clin_ward")
 		ctx.world.facts.staff[id].ward_id = "clin_ward"
-	builder._add_worker(ctx.world,"clin_round","doctor",[51,79],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	builder._add_worker(ctx.world,"clin_round","doctor",[51,79],"outpatient",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
 	ctx.world.facts.staff[ctx.doctors[1]].abilities.treatment = 3
+	ctx.sim._ensure_services()
 	ctx.world.touch()
 	var before: Dictionary = ctx.world.freeze()
 	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
@@ -568,197 +218,6 @@ func _case_48(t) -> void:
 		nurses[alternative.nurse_id] = true
 	ctx.sim.space.end_route_query()
 	t.check("GROW-48",correct and nurses.size()==2 and ctx.world.freeze()==before,{"alternatives":alternatives.size(),"nurses":nurses.keys(),"correct_escort":correct,"quote":quote})
-
-func _case_49(t) -> void:
-	# Coverage-slot arithmetic consumes per-bed durations, not serial nurse
-	# work. These inputs do not claim an eight-patient clinical flow run.
-	var ctx: Dictionary = _context()
-	var key: String = "coverage:starter_nurse:ward"
-	var examples: Array = [
-		{"durations":[4000,4000],"expected":[8000,0,0]},
-		{"durations":[4000,4000,4000,4000,4000,4000,4000,4000],"expected":[32000,0,0]},
-		{"durations":[1000,7000],"expected":[7000,1000,0]},
-		{"durations":[1000,2000,3000,4000,5000,6000,7000,13000],"expected":[33000,7000,1000]}]
-	var correct: bool = true
-	for example: Dictionary in examples:
-		var projected: Dictionary = {"resources":{},"coverage":{key:example.durations},"visits":{}}
-		for shift: int in 3:
-			var work: Dictionary = ctx.arrivals._existing_workload(ctx.world,shift,{},projected)
-			correct = correct and work.get(key,F.make())==F.make(example.expected[shift])
-	t.check("GROW-49",correct,{"examples":examples})
-
-func _case_50(t) -> void:
-	var ctx: Dictionary = _commitment_context()
-	var clinic: HospitalClinic = ctx.sim.clinic
-	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["clin_surgeon","clin_anesthesia","clin_or_nurse"],{"structural_only":true,"ignore_supplies":true}) if ctx.ready else {"ok":false}
-	if not quote.ok:
-		t.check("GROW-50",false,quote)
-		return
-	var reason: String = clinic._reserve_bundle(ctx.world,ctx.visit,quote,ctx.visit.id)
-	if not reason.is_empty():
-		t.check("GROW-50",false,{"reservation":reason})
-		return
-	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
-	ctx.world.facts.preparations[ctx.visit.id] = {"id":ctx.visit.id,"visit_id":ctx.visit.id,"kind":"surgery","facility_id":quote.facility_id,"staff_ids":quote.staff_ids,"bed_id":quote.bed_id,"nurse_id":quote.nurse_id,"round_doctor_id":quote.round_doctor_id,"ward_id":quote.ward_id,"supply_units":quote.supply_units,"setup_remaining_ticks":7,"deadline_tick":ctx.world.sim_tick+300}
-	var before: Dictionary = ctx.world.freeze()
-	var input: Dictionary = preparation._capture(ctx.world,true,-1)
-	var captured: WorldState = WorldState.new(input.facts)
-	var actual: Dictionary = clinic.remaining_commitments(ctx.world)
-	var copied: Dictionary = clinic.remaining_commitments(captured)
-	var correct: bool = actual==copied and input.facts.gameplay_version==ctx.world.facts.gameplay_version and captured.facts.adaptations==ctx.world.facts.adaptations and not captured.facts.adaptations.is_empty() and before==ctx.world.freeze()
-	# Mutating an isolated input cannot alter the original reservation.
-	captured.facts.adaptations[quote.bed_id].staff_ids.clear()
-	correct = correct and ctx.world.freeze()==before
-	ctx.world.facts.preparations.clear()
-	for id: String in ctx.world.facility_ids("SE06"): ctx.world.facts.facilities[id].failed = true
-	var missing: Dictionary = preparation._capture(ctx.world,false,-1)
-	var arrivals: HospitalArrivalService = ctx.sim.services.arrivals
-	var direct: Dictionary = clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),ctx.visit.binding_id,false)
-	var copied_input: Dictionary = clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(WorldState.new(missing.facts)),ctx.visit.binding_id,false)
-	ctx.sim.space.begin_route_query(direct.world,{"nominal":true})
-	var sync: Dictionary = clinic._surgery_quote(direct.world,direct.visit,quote.staff_ids,{"structural_only":true,"ignore_supplies":true})
-	ctx.sim.space.end_route_query()
-	ctx.sim.space.begin_route_query(copied_input.world,{"nominal":true})
-	var background: Dictionary = clinic._surgery_quote(copied_input.world,copied_input.visit,quote.staff_ids,{"structural_only":true,"ignore_supplies":true})
-	ctx.sim.space.end_route_query()
-	correct = correct and not sync.ok and not background.ok and sync.reason==background.reason
-	preparation.dispose()
-	t.check("GROW-50",correct,{"commitments_equal":actual==copied,"sync_without_workbench":sync,"background_without_workbench":background})
-
-func _case_51(t) -> void:
-	var ctx: Dictionary = _commitment_context()
-	var clinic: HospitalClinic = ctx.sim.clinic
-	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["clin_surgeon","clin_anesthesia","clin_or_nurse"],{"structural_only":true,"ignore_supplies":true}) if ctx.ready else {"ok":false}
-	if not quote.ok or not clinic._reserve_bundle(ctx.world,ctx.visit,quote,ctx.visit.id).is_empty():
-		t.check("GROW-51",false,quote)
-		return
-	ctx.builder._add_worker(ctx.world,"new_round_doctor","doctor",[52,75],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
-	var stay: Dictionary = {"bed_id":quote.bed_id,"round_doctor_id":"new_round_doctor"}
-	var bed: Dictionary = ctx.sim.space.facility_layout(ctx.world,quote.bed_id)
-	var doctor: Dictionary = ctx.world.facts.actors.new_round_doctor
-	var target: Vector2i = Vector2i(int(bed.operator_cells[1][0]),int(bed.operator_cells[1][1]))
-	ctx.sim.space.begin_route_query(ctx.world)
-	var before: String = ctx.sim.space.static_reason(ctx.world,doctor,int(bed.floor_id),target)
-	ctx.sim.space.end_route_query()
-	var selected: String = clinic._round_candidate(ctx.world,ctx.visit,stay)
-	ctx.sim.space.begin_route_query(ctx.world)
-	var hot: String = ctx.sim.space.static_reason(ctx.world,doctor,int(bed.floor_id),target)
-	ctx.sim.space.end_route_query()
-	var cold: String = HospitalSpace.new(_content).static_reason(ctx.world,doctor,int(bed.floor_id),target)
-	var reset: String = ctx.sim.space.reserve_facility(ctx.world,quote.bed_id,ctx.visit.actor_id,ctx.visit.id,[quote.nurse_id,quote.round_doctor_id])
-	ctx.sim.space.begin_route_query(ctx.world)
-	var withdrawn: String = ctx.sim.space.static_reason(ctx.world,doctor,int(bed.floor_id),target)
-	ctx.sim.space.end_route_query()
-	t.check("GROW-51",not before.is_empty() and selected==doctor.id and hot.is_empty() and hot==cold and reset.is_empty() and not withdrawn.is_empty(),{"before":before,"selected":selected,"hot":hot,"cold":cold,"withdrawn":withdrawn,"reset":reset})
-
-func _case_52(t) -> void:
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	var query: Dictionary = {}
-	var classes: Array = ctx.arrivals._reference_classes(ctx.world,0,query)
-	var first: Dictionary = ctx.arrivals._structural_pairs(ctx.world,classes,0)
-	var retained: Dictionary = ctx.arrivals._structure_cache[0]
-	var changed: Array = classes.duplicate(true)
-	for case: Dictionary in changed:
-		case.probability = F.make(1,7)
-		case.choice_groups["unused-retry:9600"] = [{"resources":{"staff:unused":F.make(123)}}]
-		case.bundles.append(case.bundles[0].duplicate(true))
-	var next: Dictionary = ctx.arrivals._structural_pairs(ctx.world,changed,0)
-	var reused: bool = is_same(retained,ctx.arrivals._structure_cache[0])
-	# A real structural root must affect the identity even if K's maximum ties.
-	changed[0].bundles[0].structural_resources.append("facility:new_terminal")
-	ctx.arrivals._structural_pairs(ctx.world,changed,0)
-	t.check("GROW-52",first==next and reused and not is_same(retained,ctx.arrivals._structure_cache[0]),{"first":first,"same_K":next,"reused":reused})
-
-func _case_53(t) -> void:
-	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
-	builder.content = _content
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	var sim: HospitalSimulation = ctx.simulation
-	builder._history_height(sim,2)
-	var built: CommandResult = builder._command(sim,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
-	var extended: CommandResult = builder._command(sim,"connector_extend",{"connection_id":builder._connection(sim),"floor_id":2}) if built.accepted else built
-	if not extended.accepted:
-		t.check("GROW-53",false,extended.to_record())
-		return
-	var arrivals: HospitalArrivalService = sim.services.arrivals
-	for disease: Dictionary in _content.catalog.diseases: arrivals.execute(sim.world,"arrivals_weight",{"disease_id":disease.id,"weight":1 if disease.id=="D09" else 0})
-	var first: Dictionary = {}
-	arrivals._reference_classes(sim.world,0,first)
-	var connection: Dictionary = sim.world.facts.connectors[builder._connection(sim)]
-	connection.use_receipts = {"old":0}
-	var receipts: Dictionary = {}
-	arrivals._reference_classes(sim.world,0,receipts)
-	# This hospital's clinical resources remain on floor 1. Changing this
-	# connector's idle stop cannot improve their routes via the same anchor.
-	connection.floor_id = 2 if int(connection.floor_id)==1 else 1
-	var changed: Dictionary = {}
-	arrivals._reference_classes(sim.world,0,changed)
-	builder._add_actor(sim,"shared_quote_rider","S49",[36,76])
-	sim.space.request_move(sim.world,"shared_quote_rider",2,[46,80])
-	var boarding: bool = builder._wait(sim,func()->bool: return connection.phase=="boarding",80)
-	var facts: Dictionary = sim.world.freeze()
-	facts.moves = HospitalTransit.reference_movements(sim.world)
-	var nominal: WorldState = WorldState.new(facts)
-	var reference: Dictionary = {"nominal":true}
-	sim.space.begin_route_query(nominal,reference)
-	var route: Dictionary = sim.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
-	sim.space.begin_route_query(nominal)
-	var reused: Dictionary = sim.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
-	sim.space.end_route_query()
-	sim.space.end_route_query()
-	t.check("GROW-53",not first.model_key.is_empty() and first.model_key==receipts.model_key and first.model_key==changed.model_key and boarding and not facts.moves.is_empty() and route==reused and reference.journeys.size()==1 and reference.transport_builds==1,{"same_model":first.model_key==changed.model_key,"boarding":boarding,"journeys":reference.journeys.size(),"route":route})
-
-func _case_54(t) -> void:
-	var ctx: Dictionary = _context(false)
-	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
-	var input: Dictionary = preparation._capture(ctx.world,false,-1)
-	var changed: Dictionary = ctx.world.freeze()
-	changed.plan_strategy = "safety_first"
-	var other: Dictionary = preparation._capture(WorldState.new(changed),false,-1)
-	preparation._completed = {"input":input,"projection":{"complete":true,"marker":"A"}}
-	preparation._completed_id = 7
-	preparation._sequence = 8
-	preparation._active = other
-	preparation._active_id = 8
-	var gate: Semaphore = Semaphore.new()
-	preparation._thread = Thread.new()
-	preparation._thread.start(func()->Dictionary:
-		gate.wait()
-		return {"projection":{"complete":true,"marker":"B"},"elapsed_us":0})
-	var first: Dictionary = preparation.sealed_projection(ctx.world,false)
-	gate.post()
-	while preparation._thread.is_alive(): await t.process_frame
-	preparation.poll(false)
-	var retained: Dictionary = preparation.sealed_projection(ctx.world,false)
-	var correct: bool = first.get("marker")=="A" and retained==first and preparation._completed_id==8
-	preparation._sealed_result = {"complete":false,"reason":"controlled_failure"}
-	preparation.retry()
-	while preparation._thread!=null and preparation._thread.is_alive(): await t.process_frame
-	preparation.poll(false)
-	correct = correct and preparation._completed.input==input and preparation.sealed_projection(ctx.world,false).get("complete",false)
-	preparation.dispose()
-	t.check("GROW-54",correct,{"first":first,"retained":retained})
-
-func _case_55(t) -> void:
-	var ctx: Dictionary = _context()
-	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
-	var first: Dictionary = preparation._capture(ctx.world,true,-1)
-	var copied: int = preparation.metrics().copied_records
-	var second: Dictionary = preparation._capture(ctx.world,true,-1)
-	var unchanged: bool = first==second and preparation.metrics().copied_records==copied
-	var id: String = ctx.world.ids("facilities")[0]
-	var old: Dictionary = first.facts.facilities[id].duplicate(true)
-	ctx.world.facts.facilities[id].grade = 2
-	var changed: Dictionary = preparation._capture(ctx.world,true,-1)
-	ctx.world.facts.facilities.erase(id)
-	var removed: Dictionary = preparation._capture(ctx.world,true,-1)
-	ctx.world.facts.facilities[id] = old.duplicate(true)
-	var restored: Dictionary = preparation._capture(ctx.world,true,-1)
-	var correct: bool = unchanged and is_same(first.facts.facilities[id],second.facts.facilities[id]) and first.facts.facilities[id]==old and changed.facts.facilities[id].grade==2 and not removed.facts.facilities.has(id) and restored==first
-	preparation.dispose()
-	t.check("GROW-55",correct,{"unchanged_records_reused":unchanged,"restored":restored==first})
 
 func _case_56(t) -> void:
 	var ctx: Dictionary = _context()
@@ -811,35 +270,6 @@ func _case_57(t) -> void:
 			detailed.append([strategy,terminal.plan_id,selected.get("plan_id","")])
 	t.check("GROW-57",correct,detailed)
 
-func _case_58(t) -> void:
-	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
-	builder.content = _content
-	var sim: HospitalSimulation = builder._transit_fixture()
-	_simulations.append(sim)
-	var id: String = builder._connection(sim)
-	for index: int in 3:
-		var actor_id: String = "capture_queue_"+str(index)
-		builder._add_actor(sim,actor_id,"S49",[[36,76],[32,76],[45,84]][index])
-	sim.space.request_move(sim.world,"capture_queue_0",2,[46,80])
-	var boarded: bool = builder._wait(sim,func()->bool: return sim.world.facts.actors.capture_queue_0.location.kind=="transit",30)
-	sim.space.request_move(sim.world,"capture_queue_1",2,[42,82])
-	var queued: bool = boarded and builder._wait(sim,func()->bool: return sim.world.facts.moves.get("capture_queue_1",{}).has("transit_ticket"),90)
-	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
-	var actual: Dictionary = preparation._capture(sim.world,true,-1)
-	var captured: WorldState = WorldState.new(actual.facts)
-	var first: Dictionary = HospitalTransit._prefix(sim.space,sim.world,sim.world.facts.connectors[id],"capture_queue_2")
-	var copied: Dictionary = HospitalTransit._prefix(HospitalSpace.new(_content),captured,captured.facts.connectors[id],"capture_queue_2")
-	var nominal: Dictionary = preparation._capture(sim.world,false,-1)
-	var stripped: bool = true
-	for movement: Dictionary in nominal.facts.moves.values(): stripped = stripped and not movement.has("transit_ticket")
-	var before: Dictionary = sim.world.freeze()
-	builder._add_actor(sim,"capture_exit_blocker","S49",[36,76],2)
-	var blocked: WorldState = WorldState.new(preparation._capture(sim.world,true,-1).facts)
-	var blocked_source: Dictionary = HospitalTransit._prefix(sim.space,sim.world,sim.world.facts.connectors[id],"capture_queue_2")
-	var blocked_copy: Dictionary = HospitalTransit._prefix(HospitalSpace.new(_content),blocked,blocked.facts.connectors[id],"capture_queue_2")
-	preparation.dispose()
-	t.check("GROW-58",queued and first==copied and stripped and blocked_source==blocked_copy and not blocked_source.ok and not before.is_empty(),{"queued":queued,"source":first,"captured":copied,"blocked":blocked_source})
-
 func _case_59(t) -> void:
 	var ctx: Dictionary = _context()
 	var candidate: Dictionary = ctx.clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),"B_S49_D37_M37",false)
@@ -866,65 +296,6 @@ func _case_60(t) -> void:
 		checked += 1
 	t.check("GROW-60",correct and checked>0 and world.freeze()==before,{"checked":checked,"readonly":world.freeze()==before})
 
-func _case_61(t) -> void:
-	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
-	builder.content = _content
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	var sim: HospitalSimulation = ctx.simulation
-	builder._history_height(sim,2)
-	var built: CommandResult = builder._command(sim,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
-	var extended: CommandResult = builder._command(sim,"connector_extend",{"connection_id":builder._connection(sim),"floor_id":2}) if built.accepted else built
-	if not extended.accepted:
-		t.check("GROW-61",false,extended.to_record())
-		return
-	builder._add_actor(sim,"prefix_primary","S49",[36,76])
-	builder._add_actor(sim,"prefix_companion","S49",[37,76])
-	var move: String = sim.space.request_group_move(sim.world,"prefix_primary",["prefix_primary","prefix_companion"],{"prefix_primary":[0,0],"prefix_companion":[1,0]},2,[46,80])
-	var boarded: bool = move.is_empty() and builder._wait(sim,func()->bool: return sim.world.facts.actors.prefix_primary.location.kind=="transit",100)
-	if not boarded:
-		t.check("GROW-61",false,{"move":move,"boarded":boarded})
-		return
-	var source: Dictionary = sim.world.freeze()
-	var original: Dictionary = HospitalTransit.reference_basis(ctx.space,sim.world).duplicate(true)
-	var before: Dictionary = {}
-	ctx.arrivals._reference_classes(sim.world,0,before)
-	var observations: Array = []
-	var correct: bool = not before.model_key.is_empty()
-	for change: String in ["offset","posture","facing"]:
-		# Complete boundary inputs own their records; no in-flight simulation is
-		# advanced or moved by the alternative-envelope query.
-		var facts: Dictionary = source.duplicate(true)
-		if change=="offset": facts.moves.prefix_primary.offsets.prefix_companion = [0,1]
-		elif change=="posture": facts.actors.prefix_companion.posture = "lying"
-		else: facts.actors.prefix_companion.facing = PI/2
-		var changed: WorldState = WorldState.new(facts)
-		var hot: Dictionary = {}
-		var hot_classes: Array = ctx.arrivals._reference_classes(changed,0,hot)
-		# The collection may be retained, but every transport-dependent case
-		# must now carry the new complete prefix identity.
-		var expected: Dictionary = HospitalTransit.reference_basis(ctx.space,changed)
-		var rebound: bool = not ctx.arrivals._reference_cache[0].cases.is_empty()
-		for item: Dictionary in ctx.arrivals._reference_cache[0].cases.values(): rebound = rebound and item.transport==expected
-		ctx.arrivals._reference_cache.clear()
-		var cold: Dictionary = {}
-		var cold_classes: Array = ctx.arrivals._reference_classes(changed,0,cold)
-		# Local version counters are observation identities, not model values.
-		hot.erase("model_key")
-		cold.erase("model_key")
-		var reference: Dictionary = {"nominal":true}
-		var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(sim.world)
-		ctx.space.begin_route_query(nominal,reference)
-		ctx.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
-		ctx.space.end_route_query()
-		var primed: bool = reference.journeys.size()==1
-		ctx.space.begin_route_query(LegacyArrivalProjection._capacity_reference_world(changed),reference)
-		var invalidated: bool = primed and reference.journeys.is_empty()
-		ctx.space.end_route_query()
-		correct = correct and expected!=original and rebound and hot_classes==cold_classes and hot==cold and invalidated
-		observations.append({"change":change,"rebound":rebound,"cold_equal":hot_classes==cold_classes and hot==cold,"journeys_invalidated":invalidated})
-	t.check("GROW-61",correct and sim.world.freeze()==source,{"boarded":boarded,"observations":observations,"readonly":sim.world.freeze()==source})
-
 func _case_62(t) -> void:
 	var ctx: Dictionary = _context()
 	# Two legal terminals for the same treating doctor and selected plan must
@@ -934,7 +305,7 @@ func _case_62(t) -> void:
 	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
 	observer.scheduler = ctx.clinic.scheduler
 	observer.recruitment = ctx.clinic.recruitment
-	observer.departments = ctx.clinic.departments
+	observer.departments = ctx.clinic.experience
 	var world: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var before: Dictionary = world.freeze()
 	var quote: Dictionary = observer.reference_demand(world,"B_S13_D09_M09",false,0)
@@ -945,28 +316,14 @@ func _case_62(t) -> void:
 		for part: Dictionary in group: correct = correct and not part.has("full") and not part.has("representative")
 	t.check("GROW-62",correct and world.freeze()==before,{"components":components,"representatives":representatives,"full_calls":observer.full_calls,"readonly":world.freeze()==before})
 
-func _case_63(t) -> void:
-	var ctx: Dictionary = _context()
-	var id: String = ctx.world.ids("facilities")[0]
-	ctx.arrivals._reference_basis(ctx.world,0)
-	var first: Dictionary = ctx.arrivals._basis_records.facilities[id].value
-	var original: Dictionary = first.duplicate(true)
-	ctx.world.facts.facilities[id].condition = 80.0
-	ctx.arrivals._reference_basis(ctx.world,0)
-	var reused: bool = is_same(first,ctx.arrivals._basis_records.facilities[id].value)
-	ctx.world.facts.facilities[id].condition = 39.0
-	ctx.arrivals._reference_basis(ctx.world,0)
-	var changed: Dictionary = ctx.arrivals._basis_records.facilities[id]
-	t.check("GROW-63",reused and first==original and not changed.has("source") and changed.value.low_condition and not first.low_condition,{"unrelated_wear_reused":reused,"threshold":changed.value.low_condition,"source_isolated":first==original})
-
 func _case_64(t) -> void:
 	var ctx: Dictionary = _context()
 	var candidate: Dictionary = ctx.clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
 	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
 	observer.scheduler = ctx.clinic.scheduler
 	observer.recruitment = ctx.clinic.recruitment
-	observer.departments = ctx.clinic.departments
-	var departments: HospitalDepartments = ctx.simulation.services.departments
+	observer.departments = ctx.clinic.experience
+	var departments: HospitalExperience = ctx.simulation.services.experience
 	departments.clinic = observer
 	ctx.space.begin_route_query(candidate.world,{"nominal":true})
 	var structural: Dictionary = departments.readiness(candidate.world,"general",candidate.visit.id,true)
@@ -997,66 +354,6 @@ class QuoteCounts extends HospitalClinic:
 	func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
 		plan_calls += 1
 		return super.plan_quote(world,visit_id,plan_id,options)
-
-func _case_65(t) -> void:
-	var ctx: Dictionary = _context()
-	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
-	var first: Dictionary = preparation._capture(ctx.world,true,-1)
-	var second: Dictionary = preparation._capture(ctx.world,true,-1)
-	var correct: bool = preparation._same_input(first,second) and is_same(first.facts.rooms,second.facts.rooms)
-	correct = correct and is_same(second.facts.departments.units,ctx.world.department_records())
-	ctx.world.facts.facilities.water.use_receipts.history_only = 0
-	var source_receipts: Dictionary = ctx.world.freeze()
-	var with_receipts: Dictionary = preparation._capture(ctx.world,true,-1)
-	correct = correct and preparation._same_input(second,with_receipts) and ctx.world.freeze()==source_receipts and with_receipts.facts.facilities.water.use_receipts.is_empty()
-	ctx.world.facts.facilities.water.condition -= 1.0
-	var equipment_changed: Dictionary = preparation._capture(ctx.world,true,-1)
-	correct = correct and not preparation._same_input(with_receipts,equipment_changed) and second.facts.facilities.water.condition!=equipment_changed.facts.facilities.water.condition
-	ctx.world.facts.staff.starter_doctor_a.abilities.diagnosis += 1
-	var changed: Dictionary = preparation._capture(ctx.world,true,-1)
-	correct = correct and not preparation._same_input(equipment_changed,changed) and equipment_changed.layers.layout==changed.layers.layout and equipment_changed.layers.current==changed.layers.current and equipment_changed.layers.reference!=changed.layers.reference
-	var next_day: Dictionary = preparation._capture(ctx.world,true,WorldState.TICKS_PER_DAY)
-	correct = correct and next_day.layers.reference==changed.layers.reference and next_day.layers.current!=changed.layers.current
-	var before: Dictionary = ctx.world.freeze()
-	var restored: WorldState = WorldState.new(before.duplicate(true))
-	var restored_input: Dictionary = preparation._capture(restored,true,-1)
-	correct = correct and preparation._same_input(restored_input,changed) and ctx.world.freeze()==before
-	preparation.dispose()
-	t.check("GROW-65",correct,{"layout_shared":is_same(first.facts.rooms,second.facts.rooms),"restored_equal":restored_input==changed,"readonly":ctx.world.freeze()==before})
-
-func _case_74(t) -> void:
-	var ctx: Dictionary = _context()
-	var department: HospitalDepartments = ctx.simulation.services.departments
-	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
-	var initial: Dictionary = preparation._capture(ctx.world,true,-1)
-	var focused: CommandResult = department.execute(ctx.world,"department_set_focus",{"department_id":"general","focus_id":"T01"})
-	var first: Dictionary = preparation._capture(ctx.world,true,-1)
-	var sealed: Dictionary = first.facts.departments.duplicate(true)
-	var cleared: CommandResult = department.execute(ctx.world,"department_set_focus",{"department_id":"general","focus_id":""})
-	var next: Dictionary = preparation._capture(ctx.world,true,-1)
-	var independent: bool = first.facts.departments==sealed and not is_same(first.facts.departments.get("cases"),ctx.world.facts.departments.cases)
-	preparation.dispose()
-	t.check("GROW-74",focused.accepted and cleared.accepted and not initial.facts.departments.has("cases") and first.facts.departments.has("cases") and not next.facts.departments.has("cases") and independent,{"focused":focused.to_record(),"cleared":cleared.to_record(),"old_input_retained":independent})
-
-func _case_66(t) -> void:
-	var ctx: Dictionary = _context()
-	var department: HospitalDepartments = ctx.simulation.services.departments
-	var first: Dictionary = ctx.world.department_records()
-	var again: Dictionary = ctx.world.department_records()
-	var renamed: CommandResult = department.execute(ctx.world,"department_rename",{"department_id":"general","name":"隔离科室"})
-	var second: Dictionary = ctx.world.department_records()
-	var closed: CommandResult = department.execute(ctx.world,"department_set_open",{"department_id":"general","open":false})
-	var third: Dictionary = ctx.world.department_records()
-	var restored: WorldState = WorldState.new(ctx.world.freeze())
-	var restored_equal: bool = restored.department_records()==third
-	var room_id: String = third.general.room_ids[0]
-	var room: Dictionary = ctx.world.facts.rooms[room_id]
-	var handover: CommandResult = department.execute(ctx.world,"department_create",{"department_id":"handover","name":"接管科室","room_ids":[room_id],"entry":{"floor_id":room.floor_id,"cell":[int(room.origin[0])+1,int(room.origin[1])+1]}})
-	var transferred: Dictionary = ctx.world.department_records()
-	var prior: Dictionary = transferred.duplicate(true)
-	ctx.world.facts = ctx.world.freeze()
-	var reset_keeps_sealed: bool = transferred==prior and not transferred.is_empty()
-	t.check("GROW-66",is_same(first,again) and renamed.accepted and closed.accepted and first.general.name!="隔离科室" and second.general.name=="隔离科室" and second.general.open and not third.general.open and restored_equal and handover.accepted and room_id in third.general.room_ids and not room_id in transferred.general.room_ids and room_id in transferred.handover.room_ids and reset_keeps_sealed and ctx.world.department_records()==prior,{"initial_reused":is_same(first,again),"old_open":second.general.open,"new_open":third.general.open,"handover":handover.to_record(),"old_snapshot_retained":reset_keeps_sealed})
 
 func _case_67(t) -> void:
 	var ctx: Dictionary = _context()
@@ -1133,9 +430,6 @@ func _case_79(t) -> void:
 func _case_78(t) -> void:
 	load("res://tests/acceptance/reference_route_envelope.gd").new().run_case(t,_content)
 
-func _case_77(t) -> void:
-	await load("res://tests/acceptance/arrival_cancellation.gd").new().run_case(t,_content)
-
 func _case_76(t) -> void:
 	var ctx: Dictionary = _context()
 	var first: Dictionary = _patient(ctx,[45,76])
@@ -1181,83 +475,6 @@ func _case_76(t) -> void:
 	var original_ticket: bool = [second_ticket.id,second_ticket.enqueued_tick]==second_identity and second.ticket_id==second_ticket.id and not second_ticket.get("service_assigned",false) and world.facts.adaptations==before.adaptations and world.facts.ledger==before.ledger and world.facts.rng==before.rng
 	validation += world.validate(_content)
 	t.check("GROW-76",independent and structural_readonly and reserved and early and original_ticket and validation.is_empty(),{"independent_queries":independent,"pairs":all,"first_only":first_only,"reason":first.waiting_reason,"structural_readonly":structural_readonly,"actual_reservation":reserved,"blocked_without_views":early,"blocked_availability_builds":observer.availability_calls,"blocked_staff_id_reads":world.staff_id_reads,"original_ticket":original_ticket,"validation":validation})
-
-func _case_69(t) -> void:
-	var ctx: Dictionary = _context()
-	var query: Dictionary = {}
-	var a: Dictionary = {"resources":{"staff:starter_doctor_a":F.make(1,2),"facility:guide_desk":F.make(2,3)},"structural_resources":["staff:starter_doctor_a"]}
-	var b: Dictionary = {"resources":{"facility:guide_desk":F.make(4,6),"staff:starter_doctor_a":F.make(2,4)},"structural_resources":["staff:starter_doctor_a"]}
-	var first: Dictionary = ctx.arrivals._capacity_part(a,query,true)
-	var second: Dictionary = ctx.arrivals._capacity_part(b,query,true)
-	var c: Dictionary = b.duplicate(true)
-	c.resources["staff:starter_doctor_a"] = F.make(2,5)
-	var third: Dictionary = ctx.arrivals._capacity_part(c,query,true)
-	t.check("GROW-69",is_same(first,second) and is_same(first.resources,second.resources) and not is_same(first,third) and first.resources["staff:starter_doctor_a"]==F.make(1,2),{"equal_parts_shared":is_same(first,second),"unequal_distinct":not is_same(first,third),"maps":query.resource_maps.size()})
-
-func _case_70(t) -> void:
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
-	builder.content = _content
-	builder._history_height(ctx.simulation,2)
-	var built: CommandResult = builder._command(ctx.simulation,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
-	var id: String = builder._connection(ctx.simulation)
-	var extended: CommandResult = builder._command(ctx.simulation,"connector_extend",{"connection_id":id,"floor_id":2}) if built.accepted else built
-	if not extended.accepted:
-		t.check("GROW-70",false,extended.to_record())
-		return
-	var source: Dictionary = ctx.world.freeze()
-	var correct: bool = true
-	var observations: Array = []
-	for change: String in ["idle_stop","failure","new_connection","deleted_connection","ability","schedule","department"]:
-		ctx.arrivals._reference_cache.clear()
-		ctx.arrivals._reference_classes(WorldState.new(source.duplicate(true)),0,{})
-		var facts: Dictionary = source.duplicate(true)
-		match change:
-			"idle_stop": facts.connectors[id].floor_id = 2
-			"failure": facts.connectors[id].failed = true
-			"new_connection":
-				var alternative: HospitalSimulation = HospitalSimulation.new(WorldState.new(facts),_content)
-				_simulations.append(alternative)
-				var extra: CommandResult = builder._command(alternative,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[48,70]})
-				var extra_stop: CommandResult = builder._command(alternative,"connector_extend",{"connection_id":extra.changed_ids[0],"floor_id":2}) if extra.accepted else extra
-				correct = correct and extra_stop.accepted
-				facts = alternative.world.freeze()
-			"deleted_connection": facts.connectors.erase(id)
-			"ability": facts.staff.starter_doctor_a.abilities.diagnosis += 1
-			"schedule": facts.staff.starter_doctor_a.schedule[0] = {"kind":"rest","pools":[],"locked":false}
-			"department": facts.departments.units.general.open = false
-		var changed: WorldState = WorldState.new(facts)
-		var quotes: int = ctx.arrivals.reference_counts.case_quotes
-		var hot_query: Dictionary = {}
-		var hot: Array = ctx.arrivals._reference_classes(changed,0,hot_query)
-		var recalculated: int = ctx.arrivals.reference_counts.case_quotes-quotes
-		ctx.arrivals._reference_cache.clear()
-		var cold_query: Dictionary = {}
-		var cold: Array = ctx.arrivals._reference_classes(changed,0,cold_query)
-		hot_query.erase("model_key")
-		cold_query.erase("model_key")
-		var equal: bool = hot==cold and hot_query==cold_query
-		correct = correct and equal and (recalculated>0 or change in ["idle_stop","failure"])
-		observations.append({"change":change,"full_model_equal":equal,"recalculated":recalculated})
-	var child_world: WorldState = WorldState.new(source.duplicate(true))
-	var child_reference: Dictionary = {"nominal":true}
-	var journeys: Array = []
-	var propagated: bool = true
-	for index: int in 2:
-		var parent: Dictionary = {"nominal":true}
-		child_reference.transport_dependent = false
-		var searches: int = ctx.space.query_counts.transport_searches
-		ctx.space.begin_route_query(ctx.world,parent)
-		ctx.space.begin_route_query(child_world,child_reference)
-		var journey: Dictionary = ctx.space.route(child_world,"starter_doctor_a",2,[49,90],[],{},true)
-		ctx.space.end_route_query()
-		propagated = propagated and parent.get("transport_dependent",false) and int(parent.get("dependency_revision",0))>0
-		ctx.space.end_route_query()
-		journeys.append(journey)
-		if index==1: propagated = propagated and ctx.space.query_counts.transport_searches==searches
-	correct = correct and propagated and journeys[0]==journeys[1] and journeys[0].ok and ctx.space._route_queries.is_empty()
-	t.check("GROW-70",correct and ctx.world.freeze()==source,{"observations":observations,"nested_cached_dependency":propagated,"journey_ok":journeys[0].ok,"scope_balanced":ctx.space._route_queries.is_empty(),"readonly":ctx.world.freeze()==source})
 
 class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
@@ -1358,10 +575,10 @@ func _case_75(t) -> void:
 	environment.calls = 0
 	environment.sample_calls = 0
 	environment.nearby_queries = 0
-	var department: HospitalDepartments = ctx.simulation.services.departments
+	var department: HospitalExperience = ctx.simulation.services.experience
 	department.environment = environment
 	department.ensure(ctx.world)
-	ctx.world.facts.departments.experience[visit.id].next_anger_tick = ctx.world.sim_tick
+	ctx.world.facts.patient_experience.experience[visit.id].next_anger_tick = ctx.world.sim_tick
 	department.sample(ctx.world)
 	var worker_checks: Dictionary = preload("res://tests/acceptance/worker_sample_checks.gd").new().run(self,_content)
 	t.check("GROW-75",worker_checks.ok and correct and filtered and intersections and sampling and positive_only and empty_sources and readonly and environment.calls==1 and environment.sample_calls==1 and environment.nearby_queries==0 and environment._query.is_empty(),{"classification_equal":correct,"filtered_sources":filtered,"intersections":intersections,"sampling_equal":sampling,"positive_coverage_only":positive_only,"empty_sources":empty_sources,"readonly":readonly,"environment_calls":environment.calls,"sample_calls":environment.sample_calls,"nearby_queries":environment.nearby_queries,"scope_balanced":environment._query.is_empty(),"worker_sample_checks":worker_checks})
@@ -1495,87 +712,6 @@ func _case_71(t) -> void:
 			observations.append({"binding":binding,"complex":complex_case,"complete_model_equal":batch==single,"terminals":batch.get("model",{}).get("bundles",[]).size()})
 	t.check("GROW-71",correct and ctx.world.freeze()==before,{"observations":observations,"readonly":ctx.world.freeze()==before})
 
-func _case_40(t) -> void:
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":false})
-	ctx.world.facts.arrivals.plan.clear()
-	var session: GameSession = GameSession.new(ctx.simulation,"sealed-day")
-	var observed: Array = []
-	session.tick_completed.connect(func(result: TickResult) -> void: observed.append({"result":result,"complete":not ctx.simulation.step_in_progress() and ctx.world.sim_tick==result.sim_tick}))
-	# Change a real dependency after preparation starts. The original candidate
-	# cannot satisfy the sealed input, irrespective of worker scheduling speed.
-	ctx.arrivals.execute(ctx.world,"arrivals_weight",{"disease_id":"D09","weight":2})
-	var rng: Dictionary = ctx.world.facts.rng.duplicate(true)
-	session.set_speed(1)
-	var first: Array[TickResult] = session.advance(0.1)
-	var waiting: bool = first.is_empty() and ctx.simulation.pending() and ctx.world.sim_tick==0 and ctx.world.facts.arrivals.plan.is_empty() and ctx.world.facts.rng.arrival==rng.arrival
-	var sealed_world: Dictionary = ctx.world.freeze()
-	var late: CommandResult = session.submit(GameCommand.new("late-weight",ctx.world.hospital_id,ctx.world.revision,"arrivals_weight",BusinessPayload.new({"disease_id":"D09","weight":0}),"sealed-day"))
-	session.set_speed(0)
-	var results: Array[TickResult] = []
-	var deadline: int = Time.get_ticks_msec()+15000
-	while ctx.simulation.pending() and ctx.simulation.preparing_error().is_empty() and Time.get_ticks_msec()<deadline:
-		var completed: Array[TickResult] = session.advance(0.4)
-		if completed.is_empty(): waiting = waiting and ctx.world.freeze()==sealed_world
-		results.append_array(completed)
-		await t.process_frame
-	var notification: bool = observed.size()==1 and observed[0].complete and results.size()==1 and observed[0].result==results[0] and results[0].elapsed_us>=results[0].main_elapsed_us and results[0].main_elapsed_us>=0 and results[0].completed_engine_us-results[0].started_engine_us==results[0].elapsed_us
-	waiting = waiting and notification
-	var plan: Dictionary = ctx.world.facts.arrivals.plan.duplicate(true)
-	var sealed: bool = results.size()==1 and ctx.world.sim_tick==1 and int(plan.get("opportunity_count",0))>0 and not ctx.world.facts.command_receipts.has("late-weight") and int(ctx.world.facts.arrivals.disease_weights.D09)==2
-	session.advance(0.4)
-	var frozen: bool = ctx.world.facts.arrivals.plan==plan and ctx.world.sim_tick==1 and ctx.world.facts.command_receipts.has("late-weight")
-	var held: CommandResult = session.submit(GameCommand.new("hold",ctx.world.hospital_id,ctx.world.revision,"arrivals_scale",BusinessPayload.new({"mode":"hold_capacity"}),"sealed-day"))
-	session.submit(GameCommand.new("after-hold",ctx.world.hospital_id,ctx.world.revision,"arrivals_weight",BusinessPayload.new({"disease_id":"D09","weight":1}),"sealed-day"))
-	deadline = Time.get_ticks_msec()+15000
-	while ctx.simulation.pending() and ctx.simulation.preparing_error().is_empty() and Time.get_ticks_msec()<deadline:
-		session.advance(0.4)
-		await t.process_frame
-	var held_input: bool = ctx.world.facts.command_receipts.has("hold") and ctx.world.facts.arrivals.held_capacity_fraction==F.make() and not ctx.world.facts.command_receipts.has("after-hold")
-	session.advance(0.4)
-	t.check("GROW-40",waiting and late.code=="queued" and sealed and frozen and held.code=="queued" and held_input and int(ctx.world.facts.arrivals.disease_weights.D09)==1 and ctx.world.sim_tick==1 and ctx.world.facts.arrivals.plan==plan,{"waiting":waiting,"sealed":sealed,"frozen":frozen,"held_input":held_input,"error":ctx.simulation.preparing_error()})
-
-func _case_41(t) -> void:
-	var ctx: Dictionary = _context()
-	_single_case(ctx)
-	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":false})
-	ctx.world.facts.arrivals.plan.clear()
-	var session: GameSession = GameSession.new(ctx.simulation,"save-boundary")
-	ctx.arrivals.execute(ctx.world,"arrivals_weight",{"disease_id":"D09","weight":2})
-	session.set_speed(1)
-	session.advance(0.1)
-	var pending: bool = ctx.simulation.pending()
-	session.set_speed(0)
-	session.submit(GameCommand.new("before-save",ctx.world.hospital_id,ctx.world.revision,"finance_note",BusinessPayload.new({"text":"保存前接收","target_amount":6000}),"save-boundary"))
-	var guard: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
-	var acquired: Dictionary = guard.call("acquire")
-	if not acquired.ok:
-		t.check("GROW-41",false,acquired)
-		return
-	var store: HospitalSnapshots = HospitalSnapshots.new(_content,guard)
-	var started: Dictionary = store.begin(ctx.simulation,"save-boundary")
-	session.submit(GameCommand.new("after-save",ctx.world.hospital_id,ctx.world.revision,"finance_note",BusinessPayload.new({"text":"保存后接收","target_amount":7000}),"save-boundary"))
-	var receipt: Dictionary = {}
-	var deadline: int = Time.get_ticks_msec()+15000
-	while started.ok and receipt.is_empty() and ctx.simulation.preparing_error().is_empty() and Time.get_ticks_msec()<deadline:
-		receipt = store.poll()
-		if not receipt.is_empty(): break
-		session.advance(0.4)
-		await t.process_frame
-	var loaded: Dictionary = store.load_commit(ctx.world.hospital_id,receipt.snapshot_id) if receipt.get("ok",false) else {"ok":false}
-	var watermark: bool = loaded.ok and loaded.world.sim_tick==1 and loaded.world.facts.command_receipts.has("before-save") and not loaded.world.facts.command_receipts.has("after-save")
-	var restored: bool = false
-	if loaded.ok:
-		var saved: Dictionary = loaded.world.freeze()
-		var kernel: HospitalSimulation = HospitalSimulation.new(loaded.world,_content)
-		var resumed: GameSession = GameSession.new(kernel,"restored-plan")
-		resumed.advance(0.4)
-		restored = loaded.world.freeze()==saved
-		kernel.dispose()
-	guard.call("release")
-	t.check("GROW-41",pending and started.ok and started.request.get("pending",false) and watermark and restored,{"pending":pending,"started":started,"receipt":receipt,"watermark":watermark,"restored":restored,"error":ctx.simulation.preparing_error()})
-
 func _case_04(t) -> void:
 	var base: Dictionary = _context()
 	_single_case(base)
@@ -1583,42 +719,6 @@ func _case_04(t) -> void:
 	base.arrivals.execute(base.world,"arrivals_intake",{"open":false})
 	var closed_capacity: Dictionary = base.arrivals.capacity(base.world,false)
 	t.check("GROW-04",closed_capacity.get("capacity",{})==capacity.get("capacity",{}) and closed_capacity.get("shift_pairs",[])==capacity.get("shift_pairs",[]),closed_capacity)
-
-func _case_05(t) -> void:
-	var base: Dictionary = _context()
-	_single_case(base)
-	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
-	base.arrivals.execute(base.world,"arrivals_intake",{"open":false})
-	# Today is already frozen; real capacity was calculated above and is still
-	# recalculated by hold selection and the later new-day boundaries below.
-	base.arrivals.boundaries(base.world)
-	var today: Dictionary = base.world.facts.arrivals.plan.duplicate(true)
-	var held_result: CommandResult = base.arrivals.execute(base.world,"arrivals_scale",{"mode":"hold_capacity"})
-	var held: Dictionary = base.world.facts.arrivals.held_capacity_fraction.duplicate(true)
-	_add_room(base.world,"second_terminal_room","T01",[42,70],[6,6])
-	_add_facility(base.world,"second_terminal","M09","second_terminal_room",[44,71])
-	# One additional treatment operator is sufficient to increase C. Duplicating
-	# the whole diagnostic roster adds unrelated interchangeable resource bundles.
-	for source_id: String in ["starter_doctor_b"]:
-		var extra_id: String = "extra_"+source_id
-		base.world.facts.staff[extra_id] = base.world.facts.staff[source_id].duplicate(true)
-		base.world.facts.staff[extra_id].id = extra_id
-		base.world.facts.actors[extra_id] = base.world.facts.actors[source_id].duplicate(true)
-		base.world.facts.actors[extra_id].id = extra_id
-		base.world.facts.actors[extra_id].location.cell = [54,65+base.world.facts.staff.size()%5]
-	_fresh_space(base)
-	var grown: Dictionary = base.arrivals.capacity(base.world,false)
-	base.arrivals.boundaries(base.world)
-	var unchanged_today: bool = base.world.facts.arrivals.plan==today
-	base.world.facts.sim_tick = 18000
-	base.arrivals.boundaries(base.world)
-	var held_day: Dictionary = base.world.facts.arrivals.plan.duplicate(true)
-	var held_total: Dictionary = _sum(held_day.get("shift_capacities",[]))
-	base.world.facts.facilities.zombie_machine.failed = true
-	base.world.facts.facilities.second_terminal.failed = true
-	base.world.facts.sim_tick = 36000
-	base.arrivals.boundaries(base.world)
-	t.check("GROW-05",held_result.accepted and held==capacity.get("capacity",{}) and F.compare(grown.get("capacity",F.make()),held)>0 and unchanged_today and held_total==held and base.world.facts.arrivals.plan.opportunity_count==0,{"held":held,"grown":grown,"held_day":held_day,"declined":base.world.facts.arrivals.plan})
 
 func _case_06(t) -> void:
 	var empty: Dictionary = _context(false)
@@ -1702,24 +802,26 @@ func _case_11(t) -> void:
 		_add_facility(counting.world,"count_table","EQ01","count_or",[36,67])
 		counting.world.facts.facilities.count_table.patient_cell = [36,71]
 		counting.world.facts.facilities.count_table.operator_cells = [[35,68],[39,67],[39,69]]
-		_add_room(counting.world,"count_ward","ward",[50,67],[8,8])
-		_add_facility(counting.world,"count_bed","EQ05","count_ward",[51,68])
-		_add_facility(counting.world,"count_nurse_base","SE06","count_ward",[51,73])
-		HospitalFactory._add_staff(counting.world,"count_care_nurse","护理护士","nurse",[54,73],_content)
+		_add_room(counting.world,"count_ward","ward",[44,65],[8,8])
+		_add_facility(counting.world,"count_bed","EQ05","count_ward",[45,66])
+		_add_facility(counting.world,"count_nurse_base","SE06","count_ward",[45,71])
+		HospitalFactory._add_staff(counting.world,"count_care_nurse","护理护士","nurse",[48,71],_content)
 		for doctor_id: String in ["starter_doctor_a","starter_doctor_b"]:
 			counting.world.facts.staff[doctor_id].title_id = "DT02"
 			counting.world.facts.staff[doctor_id].abilities.surgery = 2
-			counting.world.facts.staff[doctor_id].schedule[0] = {"kind":"surgery","pools":[],"locked":false}
+			counting.world.facts.staff[doctor_id].schedule[0] = {"kind":"surgery","pools":["count_or"],"locked":false}
 		counting.world.facts.staff.starter_nurse.abilities.surgery = 1
 		counting.world.facts.staff.starter_nurse.certificates.append("q_or")
 		counting.world.facts.staff.starter_doctor_c.abilities.diagnosis = 2
-		counting.world.facts.staff.starter_doctor_c.schedule[0] = {"kind":"round","pools":[],"locked":false}
+		counting.world.facts.staff.starter_doctor_c.schedule[0] = {"kind":"outpatient","pools":[],"locked":false}
 		counting.world.facts.staff.starter_doctor_c.on_shift = true
 		counting.simulation._ensure_services()
+		counting.world.facts.staff.starter_nurse.schedule[0] = {"kind":"work","pools":["count_or"],"locked":false}
+		counting.world.facts.staff.count_care_nurse.schedule[0] = {"kind":"work","pools":["count_ward"],"locked":false}
 		counting.clinic._retarget_ticket(counting.world,first,"surgery")
 		first.plan_decision = {"plan_id":"P_D01_SURGERY","source":"director","revision":1}
 		# A frozen, not-yet-started original bed commitment is the admission-count input.
-		counting.world.facts.preparations[first.id] = {"id":first.id,"visit_id":first.id,"kind":"surgery","bed_id":"count_bed","facility_id":"count_table","staff_ids":["starter_doctor_a","starter_doctor_b","starter_nurse"],"nurse_id":"count_care_nurse","round_doctor_id":"starter_doctor_c","ward_id":"count_ward","supply_units":8,"deadline_tick":counting.world.sim_tick+300,"setup_remaining_ticks":60}
+		counting.world.facts.preparations[first.id] = {"id":first.id,"visit_id":first.id,"kind":"surgery","bed_id":"count_bed","facility_id":"count_table","staff_ids":["starter_doctor_a","starter_doctor_b","starter_nurse"],"nurse_id":"count_care_nurse","ward_id":"count_ward","supply_units":8,"deadline_tick":counting.world.sim_tick+300,"setup_remaining_ticks":60}
 		var with_bed: int = counting.arrivals.outpatient_count(counting.world)
 		counting.world.facts.preparations.erase(first.id)
 		var restored_count: int = counting.arrivals.outpatient_count(counting.world)

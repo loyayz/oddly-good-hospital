@@ -76,12 +76,6 @@ func _observer(ctx: Dictionary) -> AdmissionObserver:
 	ctx.arrivals.clinic = observer
 	return observer
 
-func _sum(values: Array) -> Dictionary:
-	var result: Dictionary = F.make()
-	for value: Dictionary in values:
-		result = F.add(result,value)
-	return result
-
 # Fixture setup uses production admission and queue creation. The chosen cell is
 # the initial position of this focused saved-world input, not a movement result.
 func _patient(ctx: Dictionary, cell: Array, binding: String = "B_S49_D37_M37", personality: String = "PP01", resident: Dictionary = {}) -> Dictionary:

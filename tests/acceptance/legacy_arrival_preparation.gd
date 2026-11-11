@@ -218,8 +218,8 @@ func _compute(input: Dictionary, cancellation: Cancellation = null) -> Dictionar
 		_worker = LegacyArrivalProjection.new(content,geometry)
 		_worker.clinic.scheduler = HospitalShiftScheduler.new(content,geometry)
 		_worker.clinic.recruitment = RecruitmentService.new(content,geometry)
-		_worker.clinic.departments = HospitalDepartments.new(content,geometry)
-		_worker.departments = _worker.clinic.departments
+		_worker.clinic.experience = HospitalExperience.new(content,geometry)
+		_worker.departments = _worker.clinic.experience
 	var stop: Callable = cancellation.requested if cancellation!=null else Callable()
 	var projection: Dictionary = _worker.capacity(WorldState.new(input.facts),input.subtract_existing,stop)
 	var result: Dictionary = {"projection":projection,"elapsed_us":Time.get_ticks_usec()-started}
@@ -248,10 +248,10 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 			if staff.has(field): record[field] = staff[field]
 		facts.staff[id] = record
 	facts.arrivals = {"disease_weights":world.facts.arrivals.disease_weights,"next_preset":world.facts.arrivals.next_preset}
-	facts.departments = {"units":world.department_records()}
-	for unit: Dictionary in facts.departments.units.values():
+	facts.patient_experience = {"units":world.department_records()}
+	for unit: Dictionary in facts.patient_experience.units.values():
 		if not str(unit.get("focus_id","")).is_empty():
-			facts.departments.cases = world.facts.get("departments",{}).get("cases",[])
+			facts.patient_experience.cases = world.facts.get("patient_experience",{}).get("cases",[])
 			break
 	facts.maintenance = {"jobs":{},"upgrades":{}}
 	for collection: String in facts.maintenance:

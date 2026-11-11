@@ -123,7 +123,7 @@ func _bind(facts: Dictionary, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(facts.duplicate(true))
 	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
 	return {"world":world,"simulation":simulation,"space":simulation.space,"clinic":simulation.clinic,
-		"arrivals":simulation.services.arrivals,"environment":simulation.services.environment,"departments":simulation.services.departments}
+		"arrivals":simulation.services.arrivals,"environment":simulation.services.environment,"departments":simulation.services.experience}
 
 func _seed(suite: RefCounted, content: HospitalContent, count: int) -> Dictionary:
 	var original: Dictionary = suite._context()
@@ -150,7 +150,7 @@ func _seed(suite: RefCounted, content: HospitalContent, count: int) -> Dictionar
 	x.departments.ensure(x.world)
 	for id: String in ids:
 		var visit: Dictionary = x.world.facts.visits[id]
-		var data: Dictionary = x.world.facts.departments.experience[id]
+		var data: Dictionary = x.world.facts.patient_experience.experience[id]
 		data.phase = "arrival"
 		data.phase_started_tick = 0
 		data.next_anger_tick = 0
@@ -259,7 +259,7 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 	var budget: bool = not warm_budget or serial.environment._coverage_cache[1].coverage.size()==128 and parallel.environment._coverage_cache[1].coverage.size()==128
 	var seed_released: bool = parallel.departments._worker_sample_batch==null or _seed_released(parallel.departments._worker_sample_batch)
 	var scopes: bool = serial.environment._query.is_empty() and parallel.environment._query.is_empty() and serial.environment._query_depth==0 and parallel.environment._query_depth==0 and serial.space._route_queries.is_empty() and parallel.space._route_queries.is_empty()
-	var staff_days: bool = not parallel.world.facts.departments.staff_days.is_empty()
+	var staff_days: bool = not parallel.world.facts.patient_experience.staff_days.is_empty()
 	var overrides: bool = not custom or int(parallel.environment.sample_calls)==requested and int(serial.environment.sample_calls)==requested
 	var space_override: bool = not custom_space or int(parallel.environment.space.owned_calls)>0 and int(serial.environment.space.owned_calls)>0
 	var valid: String = parallel.world.validate(content)

@@ -9,7 +9,7 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 		"facilities":{},"adaptations":{},"moves":{},"command_receipts":{},"rooms":{},"connectors":{},"research":[],
 		"ledger":{"opening_balance":int(content.balance.starting_cash),"entries":{}},"inventory":{"units":0,"issues":{},"build_items":{}},"rng":{},
 		"floors":{"height_intervals":[{"first":1,"last":1,"height_m":float(content.balance.floors.clear_height_m)}],
-			"overrides":{"1":{"plots":[starter.plot.duplicate()],"blocked":[],"doors":[],"paths":[]}}},
+			"overrides":{"1":{"plots":[starter.plot.duplicate()],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}}},
 		"entry":{"floor_id":1,"cell":starter.entry.anchor.duplicate(),"exit_cell":[48,95]},
 		"arrival_receipts":{},"initial_offers":starter.initial_offers.duplicate()}
 	var world: WorldState = WorldState.new(data)
@@ -78,27 +78,10 @@ static func _add_staff(world: WorldState, id: String, name: String, role: String
 		"practice":{"diagnosis":0,"treatment":0,"care":0,"surgery":0},"completed_jobs":{},"hired_tick":world.sim_tick,"skill":1}
 
 static func _add_room(world: WorldState, source: Dictionary, content: HospitalContent) -> void:
-	var room: Dictionary = {"id":source.id,"kind":source.type,"room_type_id":source.type,"floor_id":1,
-		"origin":source.anchor.duplicate(),"size":source.size.duplicate(),"paid_cost":int(source.size[0])*int(source.size[1])*int(content.balance.room_fitout_cost_cell),"used":false,"ownership":"purchased"}
-	world.facts.rooms[room.id] = room
-	var x0: int = int(room.origin[0])-1
-	var y0: int = int(room.origin[1])-1
-	var x1: int = int(room.origin[0])+int(room.size[0])
-	var y1: int = int(room.origin[1])+int(room.size[1])
-	var definition: Dictionary = content.definition("doors",source.door.definition_id)
-	var span: int = int(definition.get("footprint",[int(definition.get("span",1)),1])[0])
-	span = int(definition.get("base_span_cells",definition.get("span_cells",span)))
-	# Starter doors are all on their original south wall.
-	var door_x: int = int(room.origin[0])+int(source.door.offset)
-	var layout: Dictionary = world.facts.floors.overrides["1"]
-	for x: int in range(x0,x1+1):
-		_put_cell(layout.blocked,[x,y0])
-		if x < door_x or x >= door_x+span:
-			_put_cell(layout.blocked,[x,y1])
-	for y: int in range(y0+1,y1):
-		_put_cell(layout.blocked,[x0,y])
-		_put_cell(layout.blocked,[x1,y])
-	layout.doors.append({"id":room.id+"_door","definition_id":definition.id,"cell":[door_x,y1],"span":span,"axis":"x","room_id":room.id,"active_actor_id":"","clear_height_m":float(definition.clear_height_m)})
+	var request: Dictionary = {"id":source.id,"room_type_id":source.type,"floor_id":int(source.get("floor_id",1)),"origin":source.anchor.duplicate(),"size":source.size.duplicate(),"door":source.door.duplicate(true)}
+	request.door.id = str(source.id)+"_door"
+	var result: Dictionary = BuildService.new(content)._add_room(world,request)
+	assert(result.ok,str(result.get("reason","初始房间结构无效")))
 
 static func _put_cell(cells: Array, cell: Array) -> void:
 	if not cell in cells:

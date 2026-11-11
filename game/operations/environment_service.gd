@@ -957,7 +957,7 @@ func _rectangle(facility: Dictionary) -> Rect2:
 
 func _room_at(world: WorldState, floor_id: int, cell: Array) -> String:
 	for room: Dictionary in world.facts.rooms.values():
-		if int(room.floor_id)==floor_id and BuildGeometry.contains(room,cell):
+		if int(room.floor_id)==floor_id and room.get("structure_valid",true) and BuildGeometry.contains(room,cell):
 			return str(room.id)
 	return ""
 
@@ -998,7 +998,7 @@ func _wall_between(world: WorldState, floor_id: int, first: Array, second: Array
 			var door_line: int = int(door.cell[1] if horizontal else door.cell[0])
 			var door_start: int = int(door.cell[0] if horizontal else door.cell[1])
 			var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
-			if door.room_id==wall.room_id and door.axis==axis and door_line==line and along>=door_start and along<door_start+span:
+			if (str(wall.room_id).is_empty() or door.room_id==wall.room_id) and door.axis==axis and door_line==line and along>=door_start and along<door_start+span:
 				opening = true
 				break
 		if not opening: return true
@@ -1029,13 +1029,12 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		return _use_coverage_edges(world,floor_id,cached)
 	space.query_counts["environment_coverage_source_checks"] = int(space.query_counts.get("environment_coverage_source_checks",0))+1
 	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
-	var source: Dictionary = {"floor_id":floor_id,"plots":space.floor_plots(world,floor_id),"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
-	for room: Dictionary in world.facts.rooms.values():
-		if int(room.floor_id)!=floor_id: continue
-		var shape: Dictionary = {"id":room.id,"origin":room.origin,"size":room.size}
-		for field: String in ["cells","wall_edges"]:
-			if room.has(field): shape[field] = room[field]
-		source.rooms.append(shape)
+	var source: Dictionary = {"floor_id":floor_id,"plots":space.floor_plots(world,floor_id),"blocked":layout.get("blocked",[]),"walls":[],"doors":[],"screens":[]}
+	for wall: Dictionary in layout.get("wall_edges",[]): source.walls.append(wall.merged({"room_id":""}))
+	if not layout.has("wall_edges"):
+		for room: Dictionary in world.facts.rooms.values():
+			if int(room.floor_id)!=floor_id or not room.get("structure_valid",true): continue
+			for wall: Dictionary in BuildGeometry.room_walls(room): source.walls.append(wall.merged({"room_id":room.id}))
 	for door: Dictionary in layout.get("doors",[]):
 		source.doors.append({"id":door.id,"room_id":door.room_id,"axis":door.axis,"cell":door.cell,"span":int(door.span)})
 	var screens: Array = []
@@ -1057,18 +1056,17 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{},"owned":{},"wall_overrides":{}}
 	for plot: Array in source.plots: edges.owned[Vector2i(int(plot[0]),int(plot[1]))] = true
 	for cell: Array in source.blocked: edges.blocked[Vector2i(int(cell[0]),int(cell[1]))] = true
-	for room: Dictionary in source.rooms:
-		for wall: Dictionary in BuildGeometry.room_walls(room):
-			for along: int in range(int(wall.low),int(wall.high)):
-				var opening: bool = false
-				for door: Dictionary in source.doors:
-					var line: int = int(door.cell[1] if wall.axis=="x" else door.cell[0])
-					var begin: int = int(door.cell[0] if wall.axis=="x" else door.cell[1])
-					var span: int = int(door.span)
-					if door.room_id==room.id and door.axis==wall.axis and line==int(wall.line) and along>=begin and along<begin+span:
-						opening = true
-						break
-				if not opening: edges.walls[Vector3i(0 if wall.axis=="x" else 1,int(wall.line),along)] = true
+	for wall: Dictionary in source.walls:
+		for along: int in range(int(wall.low),int(wall.high)):
+			var opening: bool = false
+			for door: Dictionary in source.doors:
+				var line: int = int(door.cell[1] if wall.axis=="x" else door.cell[0])
+				var begin: int = int(door.cell[0] if wall.axis=="x" else door.cell[1])
+				var span: int = int(door.span)
+				if (str(wall.room_id).is_empty() or door.room_id==wall.room_id) and door.axis==wall.axis and line==int(wall.line) and along>=begin and along<begin+span:
+					opening = true
+					break
+			if not opening: edges.walls[Vector3i(0 if wall.axis=="x" else 1,int(wall.line),along)] = true
 	for edge: Vector3i in source.screens: edges.noise[edge] = true
 	edges.native_coverage = _prepare_coverage_masks(edges)
 	_coverage_used += 1
@@ -1155,18 +1153,17 @@ func _apply_door_changes(world: WorldState, floor_id: int, entry: Dictionary, ra
 # navigation/reservation indices. Normal runtime scopes never enter this path.
 func _raw_source_wall_closed(world: WorldState, source: Dictionary, edge: Vector3i) -> bool:
 	var axis: String = "x" if edge.x==0 else "y"
-	for room: Dictionary in source.rooms:
-		for wall: Dictionary in BuildGeometry.room_walls(room):
-			if wall.axis!=axis or int(wall.line)!=edge.y or edge.z<int(wall.low) or edge.z>=int(wall.high): continue
-			var opening: bool = false
-			for door: Dictionary in source.doors:
-				var line: int = int(door.cell[1] if edge.x==0 else door.cell[0])
-				var start: int = int(door.cell[0] if edge.x==0 else door.cell[1])
-				var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
-				if door.room_id==room.id and door.axis==axis and line==edge.y and edge.z>=start and edge.z<start+span:
-					opening = true
-					break
-			if not opening: return true
+	for wall: Dictionary in source.walls:
+		if wall.axis!=axis or int(wall.line)!=edge.y or edge.z<int(wall.low) or edge.z>=int(wall.high): continue
+		var opening: bool = false
+		for door: Dictionary in source.doors:
+			var line: int = int(door.cell[1] if edge.x==0 else door.cell[0])
+			var start: int = int(door.cell[0] if edge.x==0 else door.cell[1])
+			var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
+			if (str(wall.room_id).is_empty() or door.room_id==wall.room_id) and door.axis==axis and line==edge.y and edge.z>=start and edge.z<start+span:
+				opening = true
+				break
+		if not opening: return true
 	return false
 
 func _patch_mask_edge(mask: PackedByteArray, edge: Vector3i, open: bool, edges: Dictionary) -> void:

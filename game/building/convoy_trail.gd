@@ -90,7 +90,11 @@ static func drop(points: Array, distance: float) -> Array:
   var a: Vector2=point(points[i-1]);var b: Vector2=point(points[i]);var span: float=a.distance_to(b)
   if span<0.000001: continue
   if distance<span-0.000001:
-   var at: Vector2=a.lerp(b,distance/span);var result: Array=[[at.x,at.y]]
+   var at: Vector2=a.lerp(b,distance/span)
+   # Vector2 interpolation can round an interior scalar fraction to the
+   # exact float32 endpoint. Retain that endpoint once, never a zero segment.
+   if at==b: return points.slice(i)
+   var result: Array=[[at.x,at.y]]
    result.append_array(points.slice(i));return result
   distance-=span
  return [points[-1].duplicate()]

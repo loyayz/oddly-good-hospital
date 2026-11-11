@@ -20,14 +20,14 @@ func capture(world: WorldState, room_ids: Array, object_ids: Array, name: String
 	var low: Vector2i = Vector2i(96,96)
 	var floor_id: int = -1
 	for id: String in room_ids:
-		if not world.facts.rooms.has(id): return BuildGeometry.failure("原房间已不存在")
+		if not world.facts.rooms.has(id) or not world.facts.rooms[id].get("structure_valid",true): return BuildGeometry.failure("原房间已不存在")
 		var room: Dictionary = world.facts.rooms[id]
 		if floor_id!=-1 and floor_id!=int(room.floor_id): return BuildGeometry.failure("蓝图只保存单层完整布局")
 		floor_id = int(room.floor_id)
 		low = low.min(Vector2i(int(room.origin[0]),int(room.origin[1])))
 		var doors: Array = []
 		for door: Dictionary in world.facts.floors.overrides[str(floor_id)].doors:
-			if door.room_id==id: doors.append({"definition_id":door.definition_id,"cell":door.cell.duplicate(),"edge":"south" if door.axis=="x" else "east","offset":0})
+			if door.room_id==id: doors.append({"definition_id":door.definition_id,"cell":door.cell.duplicate(),"edge":("north" if int(door.get("interior_side",-1))>0 else "south") if door.axis=="x" else ("west" if int(door.get("interior_side",-1))>0 else "east"),"offset":0,"interior_side":int(door.get("interior_side",-1))})
 		rooms.append({"local_id":id,"kind":room.kind,"cells":BuildGeometry.cells(room).duplicate(true),"doors":doors})
 	for id: String in world.ids("facilities"):
 		var object: Dictionary = world.facts.facilities[id]
@@ -99,7 +99,7 @@ func validate_definition(blueprint: Variant) -> String:
 	var ids: Dictionary = {}
 	for room: Variant in blueprint.rooms:
 		if not room is Dictionary or not room.get("local_id") is String or ids.has(room.local_id) or not room.get("cells") is Array or not room.get("doors") is Array: return "蓝图房间结构或局部身份无效"
-		var definition: Dictionary = content.definition("build_room_types",str(room.get("kind","")))
+		var definition: Dictionary = BuildService.new(content,space)._room_type(str(room.get("kind","")))
 		if definition.is_empty(): return "缺少房型定义："+str(room.get("kind",""))
 		var shape: Dictionary = BuildGeometry.shape(room,definition.min_inner_size)
 		if not shape.ok: return shape.reason
@@ -126,7 +126,7 @@ func validate_definition(blueprint: Variant) -> String:
 func dependencies(blueprint: Dictionary) -> Array:
 	var entries: Dictionary = {}
 	for room: Dictionary in blueprint.rooms:
-		entries["build_room_types:"+str(room.kind)] = {"collection":"build_room_types","id":room.kind}
+		if not str(room.kind).is_empty(): entries["build_room_types:"+str(room.kind)] = {"collection":"build_room_types","id":room.kind}
 		for door: Dictionary in room.doors: entries["doors:"+str(door.definition_id)] = {"collection":"doors","id":door.definition_id}
 	for item: Dictionary in blueprint.objects: entries["facilities:"+str(item.definition_id)] = {"collection":"facilities","id":item.definition_id}
 	for surface: Dictionary in blueprint.get("surfaces",[]): entries["renovation_materials:"+str(surface.material_id)] = {"collection":"renovation_materials","id":surface.material_id}
@@ -143,7 +143,7 @@ func without_missing(blueprint: Dictionary) -> Dictionary:
 	result.rooms = []
 	var rooms: Dictionary = {}
 	for room: Dictionary in blueprint.get("rooms",[]):
-		if content.definition("build_room_types",str(room.get("kind",""))).is_empty(): continue
+		if not str(room.get("kind","")).is_empty() and content.definition("build_room_types",str(room.kind)).is_empty(): continue
 		var retained: Dictionary = room.duplicate(true)
 		retained.doors = retained.doors.filter(func(door: Dictionary) -> bool: return not content.definition("doors",str(door.get("definition_id",""))).is_empty())
 		if retained.doors.is_empty(): continue
@@ -233,11 +233,6 @@ func preview(world: WorldState, payload: Dictionary) -> Dictionary:
 	var checked: String = services.remodel._final_geometry(world,candidate,builder,[floor_id],changed)
 	if not checked.is_empty(): return BuildGeometry.failure(checked)
 	if HospitalLedger.balance(candidate)<purchase: return BuildGeometry.failure("资金不足，布局与库存保留")
-	var department_id: String = str(payload.get("department_id",""))
-	if not department_id.is_empty():
-		var department: Dictionary = candidate.facts.get("departments",{}).get("units",{}).get(department_id,{})
-		if department.is_empty(): return BuildGeometry.failure("目标运营科室已不存在")
-		for room_id: String in room_ids.values(): department.room_ids.append(room_id)
 	return {"ok":true,"reason":"","price":purchase+upgrade_cost+material_cost,"purchase_cost":purchase,"upgrade_cost":upgrade_cost,"material_cost":material_cost,"inventory_choices":choices,"changed_ids":changed,"candidate":candidate,"world_revision":world.revision}
 
 func execute(world: WorldState, _kind: String, payload: Dictionary) -> CommandResult:

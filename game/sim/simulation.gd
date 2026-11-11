@@ -25,7 +25,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	services.building = BuildService.new(database,space)
 	for kind: String in BuildService.KINDS:
 		_business_handlers[kind] = services.building
-	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan","clinical_assign_ward","clinical_transfer_bed","clinical_ward_refer","clinical_visit_consent"]:
+	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan","clinical_transfer_bed","clinical_ward_refer","clinical_visit_consent"]:
 		_business_handlers[kind] = clinic
 	_register_service("development",HospitalClinicalDevelopment.new(database,space),["train_staff","promote_staff","cancel_training","set_growth_direction"])
 	_register_service("scheduler",HospitalShiftScheduler.new(database,space),["apply_schedule","set_schedule_lock","plan_leave","cancel_leave"])
@@ -35,7 +35,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("supplies",HospitalSupplies.new(database,space),["set_auto_restock","supply_auto","purchase_supplies","supply_purchase","supply_aid"])
 	_register_service("environment",HospitalEnvironment.new(database,space),["renovate","renovation_order","renovation_pause","renovation_resume","renovation_cancel","cleanup_pin"])
 	_register_service("maintenance",HospitalMaintenance.new(database,space),["maintenance_policy","maintenance_order","maintenance_pin","maintenance_pause","maintenance_resume","maintenance_cancel","machine_upgrade","upgrade_order","upgrade_pause","upgrade_resume","upgrade_cancel","upgrade_abandon"])
-	_register_service("departments",HospitalDepartments.new(database,space),["department_create","department_configure","department_rename","department_set_open","department_set_focus"])
+	_register_service("experience",HospitalExperience.new(database,space),[])
 	_register_service("finance",FinanceService.new(database,space),["finance_note","finance_rescue","finance_return_rescue"])
 	_register_service("recruitment",RecruitmentService.new(database,space),["recruitment_search","recruitment_cancel_search","recruitment_hire","recruitment_bookmark","recruitment_dismiss"])
 	_register_service("arrivals",HospitalArrivalService.new(database,space),["arrivals_intake","set_intake_open","arrivals_preset","arrivals_scale","arrivals_weight","resident_remember","resident_forget","tutorial_skip_request","tutorial_set_enabled"])
@@ -50,6 +50,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.remodel.clinic = clinic
 		services.blueprints.services = services
 		services.development.research = services.research
+		services.development.scheduler = services.scheduler
 		services.research.recruitment = services.recruitment
 		services.research.scheduler = services.scheduler
 		services.research.clinic = clinic
@@ -64,11 +65,13 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		clinic.environment = services.environment
 		services.waiting.environment = services.environment
 		services.waiting.visitors = clinic.visitors
+		services.wellbeing.waiting_life = services.waiting
+		services.wellbeing.scheduler = services.scheduler
 		services.environment.waiting_life = services.waiting
-		clinic.departments = services.departments
-		services.departments.clinic = clinic
-		services.departments.waiting_life = services.waiting
-		services.departments.environment = services.environment
+		clinic.experience = services.experience
+		services.experience.clinic = clinic
+		services.experience.waiting_life = services.waiting
+		services.experience.environment = services.environment
 		services.finance.supplies = services.supplies
 		services.finance.maintenance = services.maintenance
 		services.supplies.finance = services.finance
@@ -76,7 +79,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		clinic.recruitment = services.recruitment
 		services.environment.recruitment = services.recruitment
 		services.arrivals.clinic = clinic
-		services.arrivals.departments = services.departments
+		services.arrivals.experience = services.experience
 		services.arrivals.environment = services.environment
 		services.arrivals.development = services.development
 	_ensure_services()
@@ -109,6 +112,8 @@ func dispose() -> void:
 		services.floor_guidance.waiting = null
 	if clinic!=null: clinic.floor_guidance = null
 	if services.has("waiting"): services.waiting.floor_guidance = null
+	if services.has("wellbeing"): services.wellbeing.waiting_life = null
+	if services.has("wellbeing"): services.wellbeing.scheduler = null
 	if services.has("arrivals"): services.arrivals.dispose()
 	if services.has("floors"): services.floors.environment = null
 	if services.has("remodel"):
@@ -117,6 +122,7 @@ func dispose() -> void:
 	if services.has("blueprints"): services.blueprints.services = {}
 	if services.has("development"):
 		services.development.research = null
+		services.development.scheduler = null
 	if services.has("research"):
 		services.research.recruitment = null
 		services.research.scheduler = null
@@ -137,13 +143,13 @@ func dispose() -> void:
 	if services.has("environment"):
 		services.environment.waiting_life = null
 	if clinic!=null:
-		clinic.departments = null
-	if services.has("departments"):
-		services.departments.clinic = null
-	if services.has("departments"):
-		services.departments.waiting_life = null
-	if services.has("departments"):
-		services.departments.environment = null
+		clinic.experience = null
+	if services.has("experience"):
+		services.experience.clinic = null
+	if services.has("experience"):
+		services.experience.waiting_life = null
+	if services.has("experience"):
+		services.experience.environment = null
 	if services.has("finance"):
 		services.finance.supplies = null
 	if services.has("finance"):
@@ -159,7 +165,7 @@ func dispose() -> void:
 	if services.has("arrivals"):
 		services.arrivals.clinic = null
 	if services.has("arrivals"):
-		services.arrivals.departments = null
+		services.arrivals.experience = null
 		services.arrivals.environment = null
 		services.arrivals.development = null
 	_business_handlers.clear()
@@ -288,6 +294,7 @@ func step_nonblocking() -> TickResult:
 			_step_context.main_us += Time.get_ticks_usec()-main_started
 			return null
 		if _production():
+			services.building.finish_structure_handoffs(world)
 			services.supplies.boundaries(world)
 			services.research.boundaries(world) # 2: schedules and equipment.
 			services.scheduler.boundaries(world)
@@ -308,7 +315,6 @@ func step_nonblocking() -> TickResult:
 		services.development.dispatch(world)
 		services.floor_guidance.dispatch(world)
 		services.waiting.dispatch(world)
-		services.departments.dispatch(world)
 		services.environment.dispatch(world)
 		services.maintenance.dispatch(world)
 		services.floors.dispatch(world)
@@ -331,7 +337,6 @@ func step_nonblocking() -> TickResult:
 		services.scheduler.advance(world)
 		services.environment.advance(world)
 		services.maintenance.advance(world)
-		services.departments.advance(world)
 		services.floor_guidance.advance(world)
 		services.recruitment.advance(world)
 		services.floors.advance(world)
@@ -342,7 +347,6 @@ func step_nonblocking() -> TickResult:
 		worked.merge(services.scheduler.worked_staff(),true)
 		worked.merge(services.environment.worked_staff(),true)
 		worked.merge(services.maintenance.worked_staff(),true)
-		worked.merge(services.departments.worked_staff(),true)
 		worked.merge(services.floor_guidance.worked_staff(),true)
 		worked.merge(services.floors.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
@@ -350,7 +354,7 @@ func step_nonblocking() -> TickResult:
 		services.supplies.advance(world)
 		services.environment.begin_query(world)
 		services.arrivals.advance_wait(world)
-		services.departments.sample(world)
+		services.experience.sample(world)
 		services.arrivals.needs(world)
 		services.environment.end_query()
 	else:
@@ -361,7 +365,7 @@ func step_nonblocking() -> TickResult:
 	if _production():
 		services.research.settle(world)
 		services.development.settle(world)
-		services.departments.settle(world)
+		services.experience.settle(world)
 		services.finance.settle(world)
 		services.recruitment.settle(world)
 		services.arrivals.settle(world)

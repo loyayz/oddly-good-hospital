@@ -51,7 +51,7 @@
       2
     ],
     "price": 400,
-    "room_type": "rest",
+    "room_type": "dormitory",
     "scene": "@zh:core.service_equipment.SE04.scene",
     "use": "staff_sleep"
   },
@@ -76,7 +76,7 @@
     "price": 300,
     "room_type": "doctor_office",
     "scene": "@zh:core.service_equipment.SE05.scene",
-    "use": "doctor_handoff"
+    "use": "doctor_office"
   },
   {
     "capacity": 1,

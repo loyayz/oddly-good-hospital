@@ -66,9 +66,9 @@ func dependency_basis(world: WorldState) -> Dictionary:
 	var values: Dictionary = {"hospital_id":world.hospital_id,"content":service.content.content_fingerprint,"floors":{},"rooms":{},"facilities":{},"actors":{},"adaptations":{},"connectors":{},"moves":{},"dirt":{},"target":service._target_basis(world,kind,draft),"busy":service._busy(world,target_id),"target_used":service._used(original),"upgrade_paid":original.get("completed_upgrade_paid_cost",0)}
 	for floor_id: int in floors:
 		var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
-		values.floors[str(floor_id)] = {"plots":layout.get("plots",[]),"blocked":layout.get("blocked",[]),"doors":[]}
+		values.floors[str(floor_id)] = {"plots":layout.get("plots",[]),"blocked":layout.get("blocked",[]),"wall_edges":layout.get("wall_edges",[]),"doors":[]}
 		for door: Dictionary in layout.get("doors",[]):
-			values.floors[str(floor_id)].doors.append(_fields(door,["id","definition_id","cell","span","axis","room_id"]))
+			values.floors[str(floor_id)].doors.append(_fields(door,["id","definition_id","cell","span","axis","room_id","interior_side"]))
 	for room: Dictionary in world.facts.rooms.values():
 		if int(room.floor_id) in floors:
 			values.rooms[room.id] = _fields(room,["id","kind","floor_id","origin","size","cells","wall_edges"])
@@ -258,7 +258,7 @@ func _step(world: WorldState) -> void:
 				if _candidate.facts.facilities.has(id):
 					ignored.append(id)
 			for id: String in _plan.changed_ids:
-				if _candidate.facts.rooms.has(id):
+				if _candidate.facts.rooms.has(id) and kind in ["build_room","build_move","build_rotate","build_resize"]:
 					var room: Dictionary = _candidate.facts.rooms[id]
 					if not room.has("cells") or room.cells.size()==int(room.size[0])*int(room.size[1]):
 						# A complete row has exactly the union of its unit cells;
@@ -309,6 +309,10 @@ func _step(world: WorldState) -> void:
 			if _cursor>=_public_checks.size():
 				_cursor = 0
 				for floor_id: int in _plan.floors:
+					var door_error: String = service.door_connections_error(_candidate,floor_id)
+					if not door_error.is_empty():
+						_fail(door_error)
+						return
 					var guidance: Dictionary = service.guidance_floor_error(_candidate,floor_id)
 					if not guidance.ok:
 						_finish(guidance,world)

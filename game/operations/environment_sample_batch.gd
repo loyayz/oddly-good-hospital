@@ -149,8 +149,8 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 	var stamp: int = Time.get_ticks_usec() if _diagnostics else 0
 	var requests: Array = []
 	for visit_id: String in visit_ids:
-		if not world.facts.departments.experience.has(visit_id): continue
-		if int(world.facts.departments.experience[visit_id].closed_tick)>=0: continue
+		if not world.facts.patient_experience.experience.has(visit_id): continue
+		if int(world.facts.patient_experience.experience[visit_id].closed_tick)>=0: continue
 		var visit: Dictionary = world.facts.visits[visit_id]
 		var actor: Dictionary = world.facts.actors[visit.actor_id]
 		if actor.location.kind!="floor": continue

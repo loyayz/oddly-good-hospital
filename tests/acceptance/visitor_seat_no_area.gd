@@ -1,9 +1,9 @@
 extends "res://tests/acceptance/visitor_seat_retry.gd"
 class AreaProbe extends HospitalPublicAreas:
 	var selected_ticks: Array = []
-	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false, excluded_rooms: Array = []) -> Dictionary:
 		selected_ticks.append(world.sim_tick)
-		return super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only)
+		return super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only,excluded_rooms)
 
 func run_no_area(database: HospitalContent) -> Dictionary:
 	_content=database

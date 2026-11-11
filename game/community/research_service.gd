@@ -209,7 +209,7 @@ func dispatch_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) ->
 		return
 	if desks.is_empty(): desks = HospitalClinicalDevelopment.desk_view(world)
 	if not desks.has("maintenance"): desks.maintenance = desk_maintenance_view(world)
-	if not str(job.desk_id).is_empty() and (not desk_reason(world,job.desk_id,desks.maintenance).is_empty() or not _worker_ready(world,job.worker_id,job.id)):
+	if not str(job.desk_id).is_empty() and (not desk_reason(world,job.desk_id,desks.maintenance).is_empty() or not _worker_ready(world,job.worker_id,job.id) or not _worker_room(world,job.worker_id,job.desk_id)):
 		_release(world,job)
 	if str(job.desk_id).is_empty():
 		var pair: Dictionary = _find_pair(world,job.preferred_desk_id,job.preferred_worker_id,job.id,desks)
@@ -339,6 +339,8 @@ func desk_reason(world: WorldState, desk_id: String, maintenance: Dictionary = {
 	var desk: Dictionary = world.facts.facilities.get(desk_id,{})
 	if desk.is_empty() or desk.definition_id!="FUR05":
 		return "研究桌尚未实际放置"
+	var room_reason: String=space.room_use.facility_reason(world,desk)
+	if not room_reason.is_empty(): return room_reason
 	if desk.get("failed",false) or desk.get("pending_failure",false) or desk.get("maintenance_block",false):
 		return "研究桌故障或正在维护"
 	if HospitalRemodel.blocked(world,desk_id):
@@ -386,6 +388,7 @@ func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker
 				if _worker_ready(world,id,own_job) and not world.facts.moves.has(id): worker_ids.append(id)
 			workers_ready = true
 		for worker_id: String in worker_ids:
+			if not _worker_room(world,worker_id,desk_id): continue
 			var region: Dictionary = world.facts.staff[worker_id].get("work_region",{})
 			var cell: Array = HospitalClinicalDevelopment._operator(layout)
 			if region.get("strict",false) and (int(region.get("floor_id",-1))!=int(layout.floor_id) or not _in_region(cell,region)):
@@ -393,6 +396,12 @@ func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker
 			if space.can_reach(world,worker_id,int(layout.floor_id),cell):
 				return {"desk_id":desk_id,"worker_id":worker_id}
 	return {}
+
+func _worker_room(world: WorldState, worker_id: String, desk_id: String) -> bool:
+	if scheduler==null: return true
+	var entry: Dictionary=scheduler.assignment(world,worker_id,scheduler.shift_index(world))
+	var desk: Dictionary=world.facts.facilities.get(desk_id,{})
+	return entry.kind=="work" and str(desk.get("room_id","")) in entry.pools
 
 func _resource_reason(world: WorldState, preferred_desk: String, preferred_worker: String) -> String:
 	if not preferred_desk.is_empty():

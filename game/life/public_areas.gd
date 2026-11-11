@@ -13,6 +13,7 @@ var space: HospitalSpace:
 var _world: WeakRef
 var _revision: int = -1
 var _regions: Array = []
+var _facility_areas: HospitalFacilityAreaIndex = HospitalFacilityAreaIndex.new()
 var _regions_by_definition: Dictionary = {}
 var _by_facility: Dictionary = {}
 var _derived_floors: Dictionary = {}
@@ -41,6 +42,7 @@ func _init(geometry: HospitalSpace) -> void:
 func invalidate() -> void:
 	_revision = -1
 	_decision_tick = -1
+	_facility_areas.invalidate()
 
 func changed(world: WorldState) -> void:
 	if _decision_world!=null and _decision_world.get_ref()==world: _decision_tick = -1
@@ -455,221 +457,54 @@ func for_facility(world: WorldState, facility_id: String) -> Dictionary:
 	_ensure(world)
 	return _by_facility[facility_id].ref.duplicate(true) if _by_facility.has(facility_id) else {}
 
-func _ensure(world: WorldState, requested_floor: int = 0) -> void:
-	var same_world: bool = _world!=null and _world.get_ref()==world
-	var current: bool = same_world and _revision==world.geometry_revision
-	if current and (requested_floor==0 or _derived_floors.has(requested_floor)): return
-	var floors: Dictionary = {}
-	if not current:
-		_world = weakref(world)
-		_revision = world.geometry_revision
-		_wait_geometry = {}
-		_geometry_fits.clear()
-		_entry_geometry.clear()
-		# Empty purchased floor space is still a real place to stand. Completed
-		# upper floors without overrides are materialized lazily on first use.
-		for floor_key: String in world.facts.floors.overrides: floors[int(floor_key)] = true
-		for room: Dictionary in world.facts.rooms.values(): floors[int(room.floor_id)] = true
-		for facility: Dictionary in world.facts.facilities.values(): floors[int(facility.floor_id)] = true
-	if requested_floor>0: floors[requested_floor] = true
-	var layouts: Dictionary = {}
-	for floor_id: int in floors:
-		if current and _derived_floors.has(floor_id): continue
-		var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
-		if not layout.plots.is_empty(): layouts[floor_id] = layout
-	# Capture the actual adaptation once. Only the exact region inputs persist;
-	# unrelated revisions do not rebuild every floor's connected components.
-	var rooms: Dictionary = {}
-	for id: String in world.ids("rooms"):
-		var room: Dictionary = world.facts.rooms[id]
-		if layouts.has(int(room.floor_id)): rooms.get_or_add(int(room.floor_id),[]).append(room)
-	var facilities: Dictionary = {}
-	for id: String in world.ids("facilities"):
-		var facility: Dictionary = world.facts.facilities[id]
-		if not layouts.has(int(facility.floor_id)) or facility.get("stored",false): continue
-		# Region connectivity consumes only these actual geometry fields. The
-		# full facility layout also duplicates unrelated service/state metadata.
-		var adaptation: Dictionary = world.facts.adaptations.get(id,{})
-		var actual: Dictionary = {"cell":facility.cell,"footprint":adaptation.get("footprint",facility.footprint),"patient_cell":adaptation.get("patient_cell",facility.patient_cell)}
-		facilities.get_or_add(int(facility.floor_id),[]).append({"id":id,"definition":str(facility.definition_id),"layout":actual,"blocks":space.content.facility_definition(facility.definition_id).get("blocks_movement",true)})
-	var next_floors: Dictionary = {} if not current else _floor_regions.duplicate()
-	var same_regions: bool = same_world
-	for floor_id: int in floors:
-		if not layouts.has(floor_id): continue
-		var floor_rooms: Array = rooms.get(floor_id,[])
-		var floor_facilities: Array = facilities.get(floor_id,[])
-		var connectors: Array = []
-		for connector: Dictionary in world.facts.connectors.values():
-			if HospitalTransit.has_stop(connector,floor_id) and not connector.get("stored",false): connectors.append(connector)
-		var basis: Array = _region_basis(layouts[floor_id],floor_rooms,floor_facilities,connectors)
-		var retained: Dictionary = _floor_regions.get(floor_id,{})
-		if not retained.is_empty() and retained.basis==basis:
-			# Equal frozen component inputs can avoid another traversal even
-			# across a read-only world projection. Mutable region views still
-			# belong to the new world; no occupancy/body decision is inherited.
-			next_floors[floor_id] = retained if same_world else _copy_floor_regions(retained)
-			space.query_counts["public_region_floor_hits"] = int(space.query_counts.get("public_region_floor_hits",0))+1
-		else:
-			var derived: Dictionary = _derive_floor(floor_id,layouts[floor_id],floor_rooms,floor_facilities,connectors)
-			derived.basis = basis.duplicate(true)
-			next_floors[floor_id] = derived
-			same_regions = false
-			space.query_counts["public_region_floor_builds"] = int(space.query_counts.get("public_region_floor_builds",0))+1
-	same_regions = same_regions and next_floors.keys()==_floor_regions.keys()
-	_floor_regions = next_floors
-	# Complete comparison remains the fallback for every broad invalidation.
-	# When it proves the same floor sequence and objects, the existing global
-	# mappings are already exact; do not copy all their cells a second time.
-	if same_regions:
-		space.query_counts["public_region_mapping_hits"] = int(space.query_counts.get("public_region_mapping_hits",0))+1
-		return
-	# Reattach region/facility views in the original order. Cell membership has
-	# one owner per floor; no second global map or per-cell floor string is needed.
-	_regions.clear()
-	_regions_by_definition.clear()
-	_by_facility.clear()
-	_derived_floors.clear()
-	for floor_id: int in _floor_regions:
-		var derived: Dictionary = _floor_regions[floor_id]
-		_derived_floors[floor_id] = true
-		for area: Dictionary in derived.regions:
-			var number: int = _regions.size()
-			_regions.append(area)
-			for definition: String in area.facility_definitions:
-				_regions_by_definition.get_or_add(definition,[]).append(number)
-		_by_facility.merge(derived.by_facility)
-	space.query_counts["public_region_mapping_builds"] = int(space.query_counts.get("public_region_mapping_builds",0))+1
-	space.query_counts["public_region_definition_index_builds"] = int(space.query_counts.get("public_region_definition_index_builds",0))+1
-	_wait_geometry = {}
+func _ensure(world: WorldState, _requested_floor: int = 0) -> void:
+	if not _facility_areas.refresh(world,space): return
+	_world=weakref(world)
+	_revision=world.geometry_revision
+	_regions=_facility_areas.regions
+	_by_facility=_facility_areas.by_facility
+	_regions_by_definition.clear(); _derived_floors.clear(); _floor_regions.clear()
+	for floor_id: int in _facility_areas.by_floor:
+		_derived_floors[floor_id]=true
+		_floor_regions[floor_id]={"by_cell":{}}
+		for point: Vector2i in _facility_areas.by_floor[floor_id]:
+			_floor_regions[floor_id].by_cell[point]=_facility_areas.by_floor[floor_id][point][0]
+	for number: int in _regions.size():
+		for definition: String in _regions[number].facility_definitions:
+			_regions_by_definition.get_or_add(definition,[]).append(number)
+	_wait_geometry.clear(); _geometry_fits.clear(); _entry_geometry.clear()
 
-# Clone only the derived region containers, preserving their internal aliases.
-# A recursive duplicate of by_cell would duplicate its region once per cell.
-# Entry/body/door query caches are intentionally not copied across world owners.
-func _copy_floor_regions(source: Dictionary) -> Dictionary:
-	var result: Dictionary = {"regions":[],"by_cell":{},"by_facility":{},"basis":source.basis.duplicate(true)}
-	for area: Dictionary in source.regions:
-		var copied: Dictionary = {"ref":area.ref.duplicate(true),"cells":area.cells.duplicate(),"facilities":area.facilities.duplicate(),"facility_definitions":area.facility_definitions.duplicate(true),"bounds":area.bounds,"geometry":area.geometry}
-		result.regions.append(copied)
-		for point: Vector2i in copied.cells: result.by_cell[point] = copied
-	# Preserve the original facility insertion order, not component grouping.
-	for id: String in source.by_facility:
-		var anchor: Array = source.by_facility[id].ref.anchor
-		result.by_facility[id] = result.by_cell[Vector2i(int(anchor[0]),int(anchor[1]))]
-	space.query_counts["public_region_floor_copies"] = int(space.query_counts.get("public_region_floor_copies",0))+1
-	return result
+func public_point(world: WorldState, floor_id: int, point: Vector2i) -> bool:
+	_ensure(world,floor_id)
+	return _facility_areas.public_point(world,floor_id,point)
 
-func _region_basis(layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Array:
-	var room_shapes: Array = []
-	for room: Dictionary in rooms:
-		room_shapes.append([room.id,room.origin,room.size,room.get("cells")])
-	var facility_shapes: Array = []
-	for facility: Dictionary in facilities:
-		var actual: Dictionary = facility.layout
-		facility_shapes.append([facility.id,facility.definition,facility.blocks,actual.cell,actual.footprint,actual.patient_cell])
-	var connector_shapes: Array = []
-	for connector: Dictionary in connectors: connector_shapes.append([connector.cell,connector.footprint])
-	return [layout.plots,layout.get("blocked",[]),room_shapes,facility_shapes,connector_shapes]
+func room_exit_point(world: WorldState, actor_id: String) -> Dictionary:
+	var actor: Dictionary=world.facts.actors[actor_id]
+	if actor.location.kind!="floor": return {}
+	var floor_id: int=int(actor.location.floor_id)
+	var origin:=Vector2i(floori(actor.location.cell[0]),floori(actor.location.cell[1]))
+	var room_id: String=space.room_use.room_at(world,floor_id,origin)
+	if room_id.is_empty():
+		if safe_wait(world,actor_id,floor_id,actor.location.cell): return {"floor_id":floor_id,"cell":actor.location.cell.duplicate()}
+		return {}
+	# Door approaches already have a bounded layout index. A usable public
+	# stop does not require another piece of furniture to generate an area.
+	var points: Array=space.room_use.waiting_cells(world,room_id).duplicate()
+	points.sort_custom(func(a:Vector2i,b:Vector2i)->bool:return origin.distance_squared_to(a)<origin.distance_squared_to(b) if origin.distance_squared_to(a)!=origin.distance_squared_to(b) else (a.y<b.y if a.y!=b.y else a.x<b.x))
+	for point: Vector2i in points:
+		if not space.room_use.room_at(world,floor_id,point).is_empty(): continue
+		var cell: Array=[point.x,point.y]
+		if not safe_wait(world,actor_id,floor_id,cell): continue
+		if space.travel_quote(world,actor_id,floor_id,cell).get("ok",false): return {"floor_id":floor_id,"cell":cell}
+	return {}
 
-func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Dictionary:
-	var blocking: Array = []
-	for facility: Dictionary in facilities:
-		if facility.blocks: blocking.append(facility.layout)
-	blocking.append_array(connectors)
-	# Pass original compact geometry, not a script-expanded Variant per cell.
-	var native: Dictionary = PlatformArrivalMath.public_region_components({"plots":layout.plots,"blocked":layout.get("blocked",[]),"rooms":rooms,"obstacles":blocking})
-	if native.has("error"): push_error("公共区域组件原生计算失败："+str(native.get("bottleneck",native.error)))
-	var components: Array
-	if native.get("ready",false):
-		components = native.components
-		space.query_counts["public_region_native_builds"] = int(space.query_counts.get("public_region_native_builds",0))+1
-	else:
-		components = _script_region_components(layout,rooms,blocking)
-		space.query_counts["public_region_script_builds"] = int(space.query_counts.get("public_region_script_builds",0))+1
-	var result: Dictionary = {"regions":[],"by_cell":{},"by_facility":{}}
-	for component: Dictionary in components:
-		var coordinates: PackedInt64Array = component.cells
-		var origin: Vector2i = Vector2i(coordinates[0],coordinates[1])
-		var extent: Array = component.bounds
-		var digest: HashingContext = HashingContext.new()
-		digest.start(HashingContext.HASH_SHA256)
-		digest.update(coordinates.to_byte_array())
-		var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":component.room_id,"anchor":[origin.x,origin.y]},"cells":{},"facilities":[],"facility_definitions":{},"bounds":Rect2i(int(extent[0]),int(extent[1]),int(extent[2]),int(extent[3])),"geometry":digest.finish().hex_encode()}
-		result.regions.append(region)
-		for index: int in range(0,coordinates.size(),2):
-			var point: Vector2i = Vector2i(coordinates[index],coordinates[index+1])
-			region.cells[point] = true
-			result.by_cell[point] = region
-	for facility: Dictionary in facilities:
-		var actual: Dictionary = facility.layout
-		var point: Vector2i = Vector2i(int(actual.patient_cell[0]),int(actual.patient_cell[1]))
-		var region: Dictionary = result.by_cell.get(point,{})
-		if not region.is_empty():
-			var definition: String = facility.definition
-			var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
-			positions.append(region.facilities.size())
-			region.facility_definitions[definition] = positions
-			region.facilities.append(facility.id)
-			result.by_facility[facility.id] = region
-	return result
 
-func _script_region_components(layout: Dictionary, rooms: Array, blocking: Array) -> Array:
-	# Unsupported/native-failure inputs retain the complete original geometry
-	# calculation. Only its exported order/identity uses canonical y/x cells.
-	var result: Array = []
-	var zones: Dictionary = {}
-	for plot: Array in layout.plots:
-		for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
-			for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32): zones[Vector2i(x,y)] = ""
-	for room: Dictionary in rooms:
-		for cell: Array in BuildGeometry.cells(room): zones[Vector2i(int(cell[0]),int(cell[1]))] = str(room.id)
-	var free: Dictionary = zones.duplicate()
-	for cell: Array in layout.get("blocked",[]): free.erase(Vector2i(int(cell[0]),int(cell[1])))
-	for obstacle: Dictionary in blocking:
-		for y: int in range(int(obstacle.cell[1]),int(obstacle.cell[1])+int(obstacle.footprint[1])):
-			for x: int in range(int(obstacle.cell[0]),int(obstacle.cell[0])+int(obstacle.footprint[0])): free.erase(Vector2i(x,y))
-	# Row-major seeds retain the original minimum y/x component anchors.
-	var packed: PackedInt32Array = PackedInt32Array()
-	packed.resize(free.size())
-	var compact: bool = true
-	var number: int = 0
-	for point: Vector2i in free:
-		if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
-			compact = false
-			break
-		packed[number] = point.y*ENTRY_GRID_WIDTH+point.x
-		number += 1
-	var ordered: Array = []
-	if compact:
-		packed.sort()
-	else:
-		# Keep the original ordering outside the bounded integer encoding.
-		ordered = free.keys()
-		ordered.sort_custom(func(a: Vector2i,b: Vector2i)->bool: return a.y<b.y or a.y==b.y and a.x<b.x)
-	var seen: Dictionary = {}
-	for index: int in free.size():
-		var start: Vector2i = Vector2i(packed[index]%ENTRY_GRID_WIDTH,packed[index]/ENTRY_GRID_WIDTH) if compact else ordered[index]
-		if seen.has(start): continue
-		var bounds: Rect2i = Rect2i(start,Vector2i.ONE)
-		var pending: Array[Vector2i] = [start]
-		seen[start] = true
-		var cursor: int = 0
-		while cursor<pending.size():
-			var point: Vector2i = pending[cursor]
-			cursor += 1
-			for direction: Vector2i in BuildGeometry.DIRECTIONS:
-				var next: Vector2i = point+direction
-				if seen.has(next) or not free.has(next) or zones[next]!=zones[start]: continue
-				seen[next] = true
-				bounds = bounds.merge(Rect2i(next,Vector2i.ONE))
-				pending.append(next)
-		pending.sort_custom(func(a: Vector2i,b: Vector2i)->bool:return a.y<b.y or a.y==b.y and a.x<b.x)
-		var coordinates: PackedInt64Array = PackedInt64Array()
-		coordinates.resize(pending.size()*2)
-		for coordinate_index: int in pending.size():
-			coordinates[coordinate_index*2] = pending[coordinate_index].x
-			coordinates[coordinate_index*2+1] = pending[coordinate_index].y
-		result.append({"room_id":zones[start],"cells":coordinates,"bounds":[bounds.position.x,bounds.position.y,bounds.size.x,bounds.size.y]})
-	return result
+
+
+
+
+
+
 
 func _cell_region(floor_id: int, point: Vector2i) -> Dictionary:
 	# The outer Dictionary keeps the complete 64-bit floor identity. Coordinates
@@ -678,12 +513,8 @@ func _cell_region(floor_id: int, point: Vector2i) -> Dictionary:
 
 func region(world: WorldState, reference: Dictionary) -> Dictionary:
 	_ensure(world,int(reference.get("floor_id",0)))
-	if reference.is_empty(): return {}
-	if not str(reference.get("room_id","")).is_empty() and HospitalRemodel.blocked(world,reference.room_id): return {}
-	var anchor: Array = reference.get("anchor",[])
-	if anchor.size()!=2: return {}
-	var result: Dictionary = _cell_region(int(reference.floor_id),Vector2i(int(anchor[0]),int(anchor[1])))
-	return result if not result.is_empty() and result.ref==reference else {}
+	var area: Dictionary=_by_facility.get(str(reference.get("facility_id","")),{})
+	return area if not area.is_empty() and area.ref==reference else {}
 
 func contains(world: WorldState, reference: Dictionary, actor_id: String) -> bool:
 	var area: Dictionary = region(world,reference)
@@ -756,7 +587,7 @@ func compatible_geometry(world: WorldState, reference: Dictionary, definitions: 
 		if fits[key]: return true
 	return false
 
-func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false, excluded_rooms: Array = []) -> Dictionary:
 	var actor: Dictionary = world.facts.actors[actor_id]
 	# Support exit owns the real height, pose and origin until it finishes.
 	# Public destinations are selected only after that ordinary handoff.
@@ -777,6 +608,14 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 	var body_key: String = ""
 	# Rest and return-to-waiting also permit a safe standing region without furniture.
 	var candidates: Array = _regions if purpose in ["rest","waiting"] else _candidate_regions(definitions)
+	if purpose=="toilet":
+		var by_room: Dictionary={}
+		for area: Dictionary in candidates: by_room.get_or_add(str(area.ref.room_id),[]).append(area)
+		var random_rooms: Array=by_room.keys()
+		candidates=[]
+		while not random_rooms.is_empty():
+			var index: int=world.draw("guidance",random_rooms.size())
+			candidates.append_array(by_room[random_rooms.pop_at(index)])
 	# Choose a strong bound cheaply before quoting other floors. This changes
 	# evaluation order only; _earlier and equal-cost tie candidates stay intact.
 	if not current_floor_only and purpose in ["water","toilet"]:
@@ -793,7 +632,9 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 	space.begin_dynamic_route_query(world,not space.in_dynamic_route_query(world))
 	for area: Dictionary in candidates:
 		if current_floor_only and int(area.ref.floor_id)!=int(actor.location.floor_id): continue
+		if str(area.ref.room_id) in excluded_rooms: continue
 		var room: Dictionary = world.facts.rooms.get(area.ref.room_id,{})
+		if not room.get("open_intent",true): continue
 		if not room.is_empty() and (not str(room.get("kind",room.get("type",""))) in room_kinds or HospitalRemodel.blocked(world,area.ref.room_id)): continue
 		if room.is_empty() and not "" in room_kinds: continue
 		var local: Array = facilities(world,area.ref,definitions)
@@ -809,7 +650,7 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 			return true)
 		if local.is_empty() and not purpose in ["rest","waiting"]: continue
 		var inside: bool = contains(world,area.ref,actor_id)
-		var waiting: int = _wait_estimate(world,area.ref,local,purpose)
+		var waiting: int = 0
 		var travel_limit: int = maximum_travel_ticks
 		if not best.is_empty():
 			if purpose in ["water","toilet"]:
@@ -837,6 +678,7 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 		if best.is_empty() or _earlier(point,best,purpose):
 			best = point
 			best_entries = entries
+		if purpose=="toilet": break
 	space.end_route_query()
 	selected_entries.merge(best_entries,true)
 	return best
@@ -922,46 +764,21 @@ func _contains_arrival_envelope(area: Dictionary, point: Vector2i, size: int) ->
 			if not area.cells.has(Vector2i(x,y)): return false
 	return true
 
-# Enumerate actual door lanes and connector/entry anchors, never region cells.
-# Cold bodies and changed door spans use the same small structural calculation.
+# Each facility has a bounded three-cell region. Its geometric boundary is
+# independent of floor entrances: a room door need not lie in this region.
+# Prepare the complete boundary once for this region and body envelope.
 func _arrival_points(world: WorldState, actor: Dictionary, area: Dictionary, geometry: Dictionary) -> Array:
 	if geometry.has("arrival_points"): return geometry.arrival_points
-	var floor_id: int = int(area.ref.floor_id)
 	var size: int = space.clearance(actor)
-	var seeds: Array[Vector2i] = []
-	for door: Dictionary in _wait_constraints(world).doors.get(floor_id,[]):
-		var fit: Dictionary = space.door_quote(world,actor,floor_id,door)
-		if not fit.ok: continue
-		var depth: int = 0 if world.facts.rooms.get(door.room_id,{}).has("wall_edges") else 1
-		for offset: int in range(0,int(fit.span)-size+1):
-			var first: Vector2i = Vector2i(int(door.cell[0]),int(door.cell[1]))
-			var second: Vector2i = first
-			if door.axis=="x": first += Vector2i(offset,-size);second += Vector2i(offset,depth)
-			else: first += Vector2i(-size,offset);second += Vector2i(depth,offset)
-			seeds.append(first);seeds.append(second)
-	for connection: Dictionary in world.facts.connectors.values():
-		if HospitalTransit.has_stop(connection,floor_id) and not connection.get("stored",false): seeds.append(Vector2i(int(connection.anchor[0]),int(connection.anchor[1])))
-	var entry: Dictionary = world.facts.get("entry",{})
-	if int(entry.get("floor_id",1))==floor_id and entry.get("cell",[]).size()==2: seeds.append(Vector2i(roundi(entry.cell[0]),roundi(entry.cell[1])))
 	var points: Dictionary = {}
 	var query: RouteClearance = geometry.geometry
-	for seed: Vector2i in seeds:
-		space.query_counts["public_arrival_ports"] = int(space.query_counts.get("public_arrival_ports",0))+1
-		if not area.cells.has(seed) or not query.reason(seed).is_empty(): continue
-		# A rotated body can straddle the boundary at the door seed. Check
-		# immediate inward continuations before deciding this lane cannot enter.
-		var candidates: Array[Vector2i] = [seed]
+	for point: Vector2i in area.cells:
+		space.query_counts["public_arrival_local_geometry"] = int(space.query_counts.get("public_arrival_local_geometry",0))+1
+		if not _contains_arrival_envelope(area,point,size) or not query.reason(point).is_empty(): continue
 		for direction: Vector2i in BuildGeometry.DIRECTIONS:
-			for distance: int in range(1,size+1): candidates.append(seed+direction*distance)
-		var fallback: Array = []
-		for next: Vector2i in candidates:
-			space.query_counts["public_arrival_local_geometry"] = int(space.query_counts.get("public_arrival_local_geometry",0))+1
-			if not _contains_arrival_envelope(area,next,size) or not query.sweep_reason(Vector2(seed),Vector2(next)).is_empty(): continue
-			if fallback.is_empty(): fallback = [next]
-			if _safe_wait_geometry(world,actor,floor_id,Vector2(next),query,geometry.doors): fallback = [next];break
-		# Lack of a safe stopping point does not eliminate a genuine entrance.
-		if not fallback.is_empty(): points[fallback[0]] = true
-
+			if not _contains_arrival_envelope(area,point+direction,size):
+				points[point]=true
+				break
 	geometry.arrival_points = points.keys()
 	space.query_counts["public_arrival_geometry_builds"] = int(space.query_counts.get("public_arrival_geometry_builds",0))+1
 	return geometry.arrival_points
@@ -1258,7 +1075,9 @@ func safe_wait(world: WorldState, actor_id: String, floor_id: int, cell: Array, 
 	var origin: Vector2 = Vector2(float(cell[0]),float(cell[1]))
 	if geometry.is_empty():
 		var area: Dictionary = _cell_region(floor_id,point)
-		if area.is_empty(): return false
+		# Standing safety also serves offices, empty rest rooms and queue tails.
+		# A facility region grants no additional physical standing permission.
+		if area.is_empty(): area={"ref":{"floor_id":floor_id}}
 		geometry = _entry_geometry_view(world,actor,area)
 	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))
 	if not geometry.points[origin]: return false
@@ -1437,35 +1256,26 @@ func _queue_members(world: WorldState) -> Dictionary:
 		else:
 			var area: Dictionary = region(world,other.get("area",{}))
 			if area.is_empty(): continue
-			result.areas.get_or_add(JSON.stringify([purpose,area.ref],"",true,true),[]).append(row)
+			for id: String in area.facilities:
+				result.targets.get_or_add(JSON.stringify([purpose,id]),[]).append(row)
 	return result
 
 func _facility_queue(world: WorldState, purpose: String, facility_id: String) -> Array:
 	var view: Dictionary = space.read_view(world,"public_queue_members",_queue_members.bind(world))
 	var key: String = JSON.stringify([purpose,facility_id])
 	if not view.facilities.has(key):
-		var targeted: Array = view.targets.get(key,[])
-		var area: Dictionary = for_facility(world,facility_id)
-		var regional: Array = view.areas.get(JSON.stringify([purpose,area],"",true,true),[])
-		# Both disjoint subsequences retain the original intent traversal order.
-		var rows: Array = []
-		var first: int = 0
-		var second: int = 0
-		while first<targeted.size() and second<regional.size():
-			if int(targeted[first].order)<int(regional[second].order):
-				rows.append(targeted[first])
-				first += 1
-			else:
-				rows.append(regional[second])
-				second += 1
-		while first<targeted.size():
-			rows.append(targeted[first])
-			first += 1
-		while second<regional.size():
-			rows.append(regional[second])
-			second += 1
-		view.facilities[key] = rows
+		view.facilities[key] = view.targets.get(key,[])
 	return view.facilities[key]
+
+# Queue joining is an explicit task transition after actual regional arrival.
+# The sequence is shared by patient and employee intents, including same-tick
+# arrivals. Overlapping facility regions do not create separate queue priority.
+func join(world: WorldState, intent: Dictionary) -> void:
+	if intent.get("public_purpose","")!="water" or int(intent.get("arrived_tick",-1))<0 or intent.has("joined_seq"): return
+	var state: Dictionary=world.facts.waiting_life
+	state.next_queue_seq=int(state.get("next_queue_seq",0))+1
+	intent.joined_seq=state.next_queue_seq
+	changed(world)
 
 func turn(world: WorldState, intent: Dictionary, facility_id: String) -> bool:
 	# Waiting chairs have no arrival-ticket priority. Only actual occupancy
@@ -1474,7 +1284,7 @@ func turn(world: WorldState, intent: Dictionary, facility_id: String) -> bool:
 	for row: Dictionary in _facility_queue(world,str(intent.public_purpose),facility_id):
 		var other: Dictionary = row.intent
 		if is_same(other,intent): continue
-		var before: bool = int(other.arrived_tick)<int(intent.arrived_tick) or int(other.arrived_tick)==int(intent.arrived_tick) and str(other.id)<str(intent.id)
+		var before: bool = int(other.joined_seq)<int(intent.joined_seq) if other.has("joined_seq") and intent.has("joined_seq") else int(other.arrived_tick)<int(intent.arrived_tick) or int(other.arrived_tick)==int(intent.arrived_tick) and str(other.id)<str(intent.id)
 		if int(intent.get("arrived_tick",-1))<0: before = true
 		if not before: continue
 		var ids: Array = other.get("staff_ids",[str(other.actor_id)])

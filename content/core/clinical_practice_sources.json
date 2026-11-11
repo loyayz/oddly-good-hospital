@@ -13,8 +13,7 @@
     "id": "CPS02",
     "role": "doctor",
     "sources": [
-      "outpatient_completed",
-      "discharge_round_completed"
+      "outpatient_completed"
     ]
   },
   {

@@ -40,7 +40,7 @@ func _bind(world: WorldState) -> Dictionary:
 		"w":HospitalStaffWellbeing.new(_content,space),"l":HospitalWaitingLife.new(_content,space),
 		"r":RecruitmentService.new(_content,space),"c":HospitalClinic.new(_content,space),
 		"f":FinanceService.new(_content,space),"e":HospitalEnvironment.new(_content,space),
-		"p":HospitalDepartments.new(_content,space),"m":HospitalMaintenance.new(_content,space),
+		"p":HospitalExperience.new(_content,space),"m":HospitalMaintenance.new(_content,space),
 		"a":HospitalArrivalService.new(_content,space)}
 	for key: String in ["r","d","s","w","l","c","f","e","p","m","a"]:
 		x[key].ensure(world)

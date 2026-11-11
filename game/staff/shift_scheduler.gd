@@ -112,7 +112,7 @@ func boundaries(world: WorldState) -> void:
 		staff.on_shift = not needs_rest
 		staff.block_new_work = needs_rest or life_phase!="idle" or (schedule.kind=="training" and not str(staff.get("training_job_id","")).is_empty()) or not staff.get("base_task",{}).is_empty()
 		staff.schedule_reason = "休假等待真实离院" if leave_due else ("补休中" if int(staff.rest_debt_ticks)>0 else ("休息班" if schedule.kind=="rest" else ""))
-		if needs_rest and staff.has("base_prepared"):
+		if needs_rest and staff.role=="nurse" and staff.has("base_prepared"):
 			staff.base_prepared = false
 		staff.last_schedule_slot = day*shifts_per_day+slot
 
@@ -126,16 +126,16 @@ func dispatch(world: WorldState) -> void:
 	var busy: Dictionary = Development.busy_view(world)
 	for stay_id: String in world.ids("ward_stays"):
 		var stay: Dictionary = world.facts.ward_stays[stay_id]
-		if not stay.get("phase","") in ["recovery","round_wait"]:
+		if not stay.get("phase","") in ["recovery"]:
 			continue
 		var old_id: String = str(stay.get("nurse_id",""))
 		if old_id.is_empty() or not world.facts.staff.has(old_id):
 			continue
 		var old: Dictionary = world.facts.staff[old_id]
-		if old.on_shift and not old.block_new_work:
-			continue
 		var bed: Dictionary = world.facts.facilities[stay.bed_id]
 		var ward_id: String = str(bed.get("room_id",""))
+		if old.on_shift and not old.block_new_work and ward_id in assignment(world,old_id,shift_index(world)).pools:
+			continue
 		if world.facts.staff_schedule.handoffs.has(ward_id):
 			continue
 		if not query_ready:
@@ -151,13 +151,13 @@ func dispatch(world: WorldState) -> void:
 			for candidate_id: String in world.ids("staff"):
 				var candidate: Dictionary = world.facts.staff[candidate_id]
 				if candidate.role!="nurse" or not candidate.on_shift or candidate.block_new_work or int(candidate.abilities.get("care",0))<1: continue
-				var candidate_ward: String = str(candidate.get("ward_id",""))
+				var assigned: Dictionary=assignment(world,candidate_id,shift_index(world))
+				var candidate_ward: String = str(assigned.pools[0]) if assigned.kind=="work" and not assigned.pools.is_empty() else ""
 				if not nurses_by_ward.has(candidate_ward): nurses_by_ward[candidate_ward] = []
 				nurses_by_ward[candidate_ward].append(candidate_id)
 			query_ready = true
 		if not candidates_by_ward.has(ward_id):
-			var candidates: Array = nurses_by_ward.get("",[]).duplicate()
-			if not ward_id.is_empty(): candidates.append_array(nurses_by_ward.get(ward_id,[]))
+			var candidates: Array = nurses_by_ward.get(ward_id,[]).duplicate()
 			candidates.sort()
 			candidates_by_ward[ward_id] = candidates
 		var layout: Dictionary = space.facility_layout(world,stay.bed_id)
@@ -235,10 +235,33 @@ func suggestion(world: WorldState) -> Dictionary:
 		index += 1
 		for slot: int in int(content.balance.schedule.shifts_per_day):
 			if not proposed[slot].locked:
-				proposed[slot] = {"kind":"rest" if slot==rest_slot else "outpatient","pools":proposed[slot].pools.duplicate(),"locked":false}
-		if _template_error(proposed).is_empty() and _continuity_error(world,staff,proposed).is_empty() and proposed!=staff.schedule:
+				var pools: Array=proposed[slot].pools.duplicate()
+				var kind: String="rest" if slot==rest_slot else "outpatient"
+				if kind=="rest": pools=[]
+				elif not pools.is_empty() and world.facts.rooms.get(str(pools[0]),{}).get("kind","")=="operating_room": kind="surgery"
+				proposed[slot] = {"kind":kind,"pools":pools,"locked":false}
+		if _template_error(proposed).is_empty() and _room_template_error(world,staff,proposed).is_empty() and _continuity_error(world,staff,proposed).is_empty() and proposed!=staff.schedule:
 			changes.append({"staff_id":id,"schedule":proposed})
 	return {"id":str(hash(basis)),"basis":basis,"changes":changes,"coverage":coverage(world,changes)}
+
+func room_coverage(world: WorldState, changes: Array = []) -> Array:
+	var proposed: Dictionary={}
+	for change: Dictionary in changes: proposed[change.staff_id]=change.schedule
+	var assigned: Dictionary={}
+	for id: String in world.ids("staff"):
+		var staff: Dictionary=world.facts.staff[id]
+		if staff.get("departed",false): continue
+		for slot: int in int(content.balance.schedule.shifts_per_day):
+			var entry: Dictionary=assignment(world,id,slot)
+			if proposed.has(id) and slot>=shift_index(world) and not (int(staff.schedule_day)==world.sim_tick/WorldState.TICKS_PER_DAY and staff.schedule_overrides.has(str(slot))): entry=proposed[id][slot]
+			if entry.pools.is_empty() or _preview_leave_overlap(world,staff,slot): continue
+			assigned.get_or_add(str(entry.pools[0]),{}).get_or_add(slot,[]).append(id)
+	var result: Array=[]
+	for id: String in world.ids("rooms"):
+		var room: Dictionary=world.facts.rooms[id]
+		if not room.get("structure_valid",true) or not room.kind in ["gp","treatment","operating_room","ward","research"]: continue
+		result.append({"room_id":id,"floor_id":int(room.floor_id),"purpose":room.kind,"open":room.get("open_intent",true),"shifts":assigned.get(id,{})})
+	return result
 
 func coverage(world: WorldState, changes: Array = []) -> Array:
 	var overrides: Dictionary = {}
@@ -266,8 +289,6 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 				if entry.kind=="surgery" and int(staff.abilities.get("surgery",0))>=2 and int(content.definition("doctor_titles",staff.title_id).get("rank",0))>=1:
 					row.surgeon += 1
 					row.anesthesia += 1
-				if entry.kind=="round" and int(staff.abilities.get("diagnosis",0))>=2 and int(staff.abilities.get("treatment",0))>=1:
-					row.ward += 1
 			elif staff.role=="nurse":
 				row.nurse += 1
 				if "q_ward" in staff.get("certificates",[]): row.ward_nurse += 1
@@ -286,8 +307,8 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 			row.gaps.append("缺初诊/门诊医生")
 		if _has_facility(world,"EQ01") and int(row.surgeon)<2:
 			row.gaps.append("手术缺两名互异合资格医生")
-		if _has_facility(world,"EQ05") and (int(row.ward)==0 or int(row.ward_nurse)==0):
-			row.gaps.append("病房缺护理或查房排班资格")
+		if _has_facility(world,"EQ05") and int(row.ward_nurse)==0:
+			row.gaps.append("病房缺护理排班资格")
 		var desks: int = 0
 		for facility: Dictionary in world.facts.facilities.values():
 			if facility.definition_id=="FUR05" and not facility.failed:
@@ -384,6 +405,8 @@ func validate(world: WorldState) -> String:
 		var error: String = _template_error(staff.get("schedule",[]))
 		if not error.is_empty():
 			return error
+		error=_room_template_error(world,staff,staff.schedule)
+		if not error.is_empty(): return error
 		if not staff.get("rest_debt_ticks") is int or int(staff.rest_debt_ticks)<0 or not staff.get("schedule_overrides") is Dictionary or not staff.get("leave_plan") is Dictionary:
 			return "排班休息债或休假结构无效"
 		if staff.has("previous_day_work_tail") and (not staff.previous_day_work_tail is int or int(staff.previous_day_work_tail)<0 or int(staff.previous_day_work_tail)>int(content.balance.schedule.max_consecutive_work_shifts)):
@@ -400,7 +423,7 @@ func validate(world: WorldState) -> String:
 		for stay_id: Variant in handoff.get("stay_ids",[]):
 			if not stay_id is String or not world.facts.ward_stays.has(stay_id):
 				return "护理安全交接床位责任缺失"
-	return ""
+	return _room_capacity_error(world,[])
 
 func _apply(world: WorldState, payload: Dictionary) -> CommandResult:
 	var expected: Dictionary = payload.get("basis",{})
@@ -417,6 +440,8 @@ func _apply(world: WorldState, payload: Dictionary) -> CommandResult:
 		var error: String = _template_error(change.get("schedule",[]))
 		if not error.is_empty():
 			return _result(world,false,"invalid_schedule",error)
+		error = _room_template_error(world,staff,change.schedule)
+		if not error.is_empty(): return _result(world,false,"invalid_schedule",error)
 		error = _continuity_error(world,staff,change.schedule)
 		if not error.is_empty():
 			return _result(world,false,"invalid_schedule",error)
@@ -424,6 +449,8 @@ func _apply(world: WorldState, payload: Dictionary) -> CommandResult:
 			if staff.schedule[slot].locked and staff.schedule[slot]!=change.schedule[slot]:
 				return _result(world,false,"locked","手动锁定班次须先解锁")
 		seen[change.staff_id] = true
+	var room_error: String = _room_capacity_error(world,changes)
+	if not room_error.is_empty(): return _result(world,false,"room_capacity",room_error)
 	for change: Dictionary in changes:
 		var staff: Dictionary = world.facts.staff[change.staff_id]
 		_roll_day(staff,_day_state(world,staff))
@@ -493,13 +520,13 @@ func _template_error(schedule: Variant) -> String:
 		return "每天需要完整三班模板"
 	var rests: int = 0
 	for item: Variant in schedule:
-		if not item is Dictionary or not item.get("kind","") in ["work","outpatient","surgery","round","training","rest"] or not item.get("pools") is Array or not item.get("locked") is bool:
-			return "班次类型、工作池或锁定状态无效"
-		if item.pools.size()>count:
-			return "门诊每班最多关联三个服务池"
+		if not item is Dictionary or not item.get("kind","") in ["work","outpatient","surgery","training","rest"] or not item.get("pools") is Array or not item.get("locked") is bool:
+			return "班次类型、房间或锁定状态无效"
+		if item.pools.size()>1:
+			return "同一班次只能安排一个房间"
 		for pool: Variant in item.pools:
 			if not pool is String:
-				return "工作池身份无效"
+				return "排班房间身份无效"
 		if item.kind=="rest":
 			rests += 1
 	if rests<int(content.balance.schedule.minimum_rest_shifts):
@@ -509,6 +536,38 @@ func _template_error(schedule: Variant) -> String:
 		consecutive = 0 if schedule[slot%count].kind=="rest" else consecutive+1
 		if consecutive>int(content.balance.schedule.max_consecutive_work_shifts):
 			return "跨日连续工作不能超过两个班次"
+	return ""
+
+func _room_template_error(world: WorldState, staff: Dictionary, schedule: Array) -> String:
+	for entry: Dictionary in schedule:
+		if entry.pools.is_empty(): continue
+		var room: Dictionary=world.facts.rooms.get(str(entry.pools[0]),{})
+		if room.is_empty() or not room.get("structure_valid",true): return "班表只能选择实际合法房间"
+		var allowed: bool=false
+		if room.kind=="gp": allowed=staff.role=="doctor" and entry.kind=="outpatient"
+		elif room.kind=="treatment": allowed=staff.role in ["doctor","nurse"] and entry.kind==("outpatient" if staff.role=="doctor" else "work")
+		elif room.kind=="operating_room": allowed=staff.role in ["doctor","nurse"] and entry.kind==("surgery" if staff.role=="doctor" else "work")
+		elif room.kind=="ward": allowed=staff.role=="nurse" and entry.kind=="work"
+		elif room.kind=="research": allowed=staff.role=="researcher" and entry.kind=="work"
+		if not allowed: return "该房间用途与员工岗位或班次不符"
+	return ""
+
+func _room_capacity_error(world: WorldState, changes: Array) -> String:
+	var proposed: Dictionary={}
+	for change: Dictionary in changes: proposed[change.staff_id]=change.schedule
+	var slots: Dictionary={}
+	for staff_id: String in world.ids("staff"):
+		var staff: Dictionary=world.facts.staff[staff_id]
+		if staff.role!="doctor" or staff.get("departed",false): continue
+		var schedule: Array=proposed.get(staff_id,staff.schedule)
+		for slot: int in schedule.size():
+			var entry: Dictionary=schedule[slot]
+			if entry.pools.is_empty(): continue
+			var room_id: String=str(entry.pools[0])
+			if world.facts.rooms.get(room_id,{}).get("kind","")!="gp": continue
+			var key: String=room_id+":"+str(slot)
+			if slots.has(key): return "门诊室每班只能安排一名医生"
+			slots[key]=staff_id
 	return ""
 
 func _has_facility(world: WorldState, definition_id: String) -> bool:

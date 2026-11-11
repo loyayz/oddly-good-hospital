@@ -34,7 +34,7 @@ func arrivals(world: WorldState) -> void:
 			if visit.companion_intent and not visit.phase in ["leaving","departed"]:
 				_request(world,visit,"companion","")
 		var stay: Dictionary = lookup.wards.get(visit_id,{})
-		if stay.is_empty() or not stay.phase in ["recovery","round_wait"] or _window(world).ends_with(":2"):
+		if stay.is_empty() or not stay.phase in ["recovery"] or _window(world).ends_with(":2"):
 			continue
 		if not visit.has("visitor_windows"):
 			visit.visitor_windows = {}
@@ -158,7 +158,7 @@ func _dispatch_waiting(world: WorldState) -> void:
 				wards = _lookup(world,false).wards
 				wards_ready = true
 			var ward_stay: Dictionary = wards.get(visit.id,{})
-			if ward_stay.is_empty() or not ward_stay.phase in ["recovery","round_wait"]:
+			if ward_stay.is_empty() or not ward_stay.phase in ["recovery"]:
 				continue
 			var position: Dictionary = _bedside(world,stay.actor_id,ward_stay)
 			if position.is_empty():
@@ -495,7 +495,7 @@ func _bedside_in_query(world: WorldState, actor_id: String, stay: Dictionary) ->
 	if not bool(stay.care_completed):
 		return {}
 	for session: Dictionary in world.facts.sessions.values():
-		if session.facility_id==stay.bed_id and session.kind in ["care","round"]:
+		if session.facility_id==stay.bed_id and session.kind in ["care"]:
 			return {}
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
 	var ward: Dictionary = world.facts.rooms[bed.room_id]

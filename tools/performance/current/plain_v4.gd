@@ -72,8 +72,8 @@ func _run() -> void:
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
-	sim.services.departments.sample_workers_enabled=worker_tasks>0
-	sim.services.departments.sample_worker_tasks=maxi(1,worker_tasks)
+	sim.services.experience.sample_workers_enabled=worker_tasks>0
+	sim.services.experience.sample_worker_tasks=maxi(1,worker_tasks)
 	# Match AppRoot loading: prepare the selected floor before simulation starts.
 	# Background floors still use the production lazy path; do not preload invented work.
 	var floor_preparation: Dictionary=sim.prepare_floor_static(observed_floor)
@@ -161,6 +161,6 @@ func _run() -> void:
 		if not attribution.errors.is_empty() or not attribution.step_records_complete or int(attribution.complete_steps)!=steps:
 			errors.append("Incomplete or invalid stage attribution")
 			complete=false
-	write_json(output+".execution.json",{"main_thread_policy":thread_policy,"worker_tasks":worker_tasks,"worker_samples":sim.services.departments.sample_worker_report(),"profile_stages":profile_stages,"scope":"Simulation.step wall elapsed including internal waits; excludes renderer, GameSession and initialization. Stage spans are diagnostic, not function self CPU."})
+	write_json(output+".execution.json",{"main_thread_policy":thread_policy,"worker_tasks":worker_tasks,"worker_samples":sim.services.experience.sample_worker_report(),"profile_stages":profile_stages,"scope":"Simulation.step wall elapsed including internal waits; excludes renderer, GameSession and initialization. Stage spans are diagnostic, not function self CPU."})
 	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events},"initialization_us":init_us,"observed_floor":observed_floor,"floor_static_preparation":floor_preparation,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
 	sim.dispose();quit(0 if complete else 1)

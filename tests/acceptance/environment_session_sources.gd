@@ -118,7 +118,7 @@ func _session_resume() -> Dictionary:
 	_facility(x,"resume_machine",str(item.definition_id),[39,69],"resume_room")
 	f.w.touch()
 	var department_id: String = f.w.facts.visits[old.visit_id].get("department_id","")
-	if f.w.facts.departments.units.has(department_id): f.w.facts.departments.units[department_id].room_ids.append("resume_room")
+	if f.w.facts.patient_experience.units.has(department_id): f.w.facts.patient_experience.units[department_id].room_ids.append("resume_room")
 	var initial_valid: String = f.w.validate(_content)
 	_compare_direct(x,reference,[51,88])
 	var builds: int = _count(x.space,"session_source_builds")

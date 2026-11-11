@@ -103,7 +103,14 @@ func _lifecycle(world: WorldState, content: HospitalContent) -> Dictionary:
 	var fully_slept: bool = slept.size()==2
 	for id: String in slept: fully_slept = fully_slept and slept[id]==4500 and int(world.facts.staff[id].sleep_remaining_ticks)==0
 	var released: bool = true
-	for id: String in IDS: released = released and not world.facts.staff_life.reservations.has(id) and not world.facts.adaptations.has(id)
+	# Other employees keep their lawful sleep/rest attempts. A newly available
+	# sofa may now hold an unassigned doctor's sleep; only the three original
+	# participants' reservations and envelopes must have completed their release.
+	for id: String in IDS:
+		var reservation: Dictionary=world.facts.staff_life.reservations.get(id,{})
+		var adapter: Dictionary=world.facts.adaptations.get(id,{})
+		for actor_id: String in starts:
+			released=released and not actor_id in reservation.get("staff_ids",[]) and adapter.get("actor_id","")!=actor_id and not actor_id in adapter.get("staff_ids",[])
 	var validation: String = world.validate(content)
 	var life_validation: String = sim.services.wellbeing.validate(world)
 	var result: Dictionary = {"ok":close.accepted and owners.size()==2 and fully_slept and returned.size()==3 and sofa_ticks>0 and simultaneous and released and owners==world.facts.staff_life.personal_beds and violations.is_empty() and validation.is_empty() and life_validation.is_empty(),"input":"fresh current-content starter after normal store/place/move; automatic owners at mandatory-sleep boundary, nurse energy20; no actor relocation or progress completion","close_intake":close.to_record(),"owners":owners,"unassigned_staff":world.facts.staff.size()-owners.size(),"starts":starts,"sleep_ticks":slept,"sofa_rest_ticks":sofa_ticks,"simultaneous_two_beds_and_sofa":simultaneous,"returned":returned,"released":released,"owners_unchanged":owners==world.facts.staff_life.personal_beds,"steps":steps,"cash_before":before_cash,"cash_after":HospitalLedger.balance(world),"violations":violations,"validation":validation,"life_validation":life_validation,"transitions":transitions,"final_staff":world.facts.staff.duplicate(true)}

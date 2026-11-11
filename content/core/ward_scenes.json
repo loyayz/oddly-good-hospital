@@ -39,6 +39,6 @@
     "low_motion_scene": "@zh:core.ward_scenes.WS06.low_motion_scene",
     "personality_id": null,
     "scene": "@zh:core.ward_scenes.WS06.scene",
-    "stage": "discharge_round"
+    "stage": "discharge_handoff"
   }
 ]

@@ -16,7 +16,7 @@ func _guide_bind(world: WorldState) -> Dictionary:
 	var x: Dictionary = _bind(world)
 	x.g = HospitalFloorGuidance.new(_content,x.space)
 	x.g.clinic = x.c; x.g.waiting = x.l
-	x.c.floor_guidance = x.g; x.c.waiting_life = x.l; x.c.departments = x.p
+	x.c.floor_guidance = x.g; x.c.waiting_life = x.l; x.c.experience = x.p
 	x.l.floor_guidance = x.g; x.p.clinic = x.c
 	x.g.ensure(world)
 	return x
@@ -29,7 +29,7 @@ func _base(doctor: bool = false, upper: bool = false) -> Dictionary:
 	HospitalFactory._add_room(world,{"id":"clinic","type":"gp","anchor":[34,66],"size":[10,12],"door":{"definition_id":"DR04","offset":3}},_content)
 	_facility(x,"diagnosis","FUR02",[39,69],"clinic")
 	_facility(x,"guide","SE01",[47,83])
-	world.facts.departments.units.general.room_ids = ["clinic"]
+	world.facts.patient_experience.units.general.room_ids = ["clinic"]
 	if doctor:
 		HospitalFactory._add_staff(world,"doctor","医生","doctor",[43,87],_content)
 		x.d.ensure(world);x.s.ensure(world);x.w.ensure(world);x.r.ensure(world);x.f.ensure(world)
@@ -277,7 +277,7 @@ func _departure() -> Dictionary:
 
 func _dispose(x: Dictionary) -> void:
 	if x.has("g"): x.g.clinic = null; x.g.waiting = null
-	if x.has("c"): x.c.floor_guidance = null; x.c.waiting_life = null; x.c.departments = null
+	if x.has("c"): x.c.floor_guidance = null; x.c.waiting_life = null; x.c.experience = null
 	if x.has("l"): x.l.floor_guidance = null; x.l.visitors = null
 	if x.has("p"): x.p.waiting_life = null; x.p.clinic = null
 

@@ -66,7 +66,7 @@ func geometry(world: WorldState) -> Dictionary:
  return {"facilities":facilities,"rooms":rooms,"blocked":floors}
 func journey(saved: Dictionary, restore: bool) -> Dictionary:
  var world=WorldState.new(saved.facts.duplicate(true));var sim=HospitalSimulation.new(world,content)
- sim.clinic.departments=null
+ sim.clinic.experience=null
  var patient_id: String=world.facts.visits[saved.visit_id].actor_id
  var fixed=geometry(world);var blocker=world.facts.actors.clin_round.location.duplicate(true)
  var errors: Array=[];var trace: Array=[];var restored: bool=false;var group_seen: bool=false;var saw_detour: bool=false
@@ -93,7 +93,7 @@ func journey(saved: Dictionary, restore: bool) -> Dictionary:
     saw_detour=true
     if (trace.is_empty() or trace[-1].cursor!=m.cursor):trace.append({"tick":world.sim_tick,"head":patient.location.cell.duplicate(),"tail":world.facts.actors.clin_cover.location.cell.duplicate(),"phase":m.detour.phase,"cursor":m.cursor,"remaining":m.path.slice(m.cursor)})
    if restore and not restored and m.has("detour") and m.cursor>0:
-    var frozen=world.freeze();sim.dispose();world=WorldState.new(frozen);sim=HospitalSimulation.new(world,content);sim.clinic.departments=null
+    var frozen=world.freeze();sim.dispose();world=WorldState.new(frozen);sim=HospitalSimulation.new(world,content);sim.clinic.experience=null
     restored=world.freeze()==frozen
   var valid: String=world.validate(content)
   if not valid.is_empty():checks.all_world_boundaries_valid=false;errors.append(valid)

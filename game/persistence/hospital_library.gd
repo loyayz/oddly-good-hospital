@@ -5,7 +5,7 @@ const TRASH: String = "user://trash"
 const PENDING: String = ".library-pending"
 const TRASH_RECORD: String = ".trash.json"
 const DEFINITION_IDS: Array[String] = ["definition_id","species_id","disease_id","binding_id","body_binding_id","title_id","personality_id","requested_plan_id","plan_id","course_id","research_id","material_id","handler_id","certificate_id","department_definition_id"]
-const INSTANCE_ARRAYS: Array[String] = ["riders","occupants","participants"]
+const INSTANCE_ARRAYS: Array[String] = ["riders","occupants","participants","queue","pools","pool"]
 const INSTANCE_KEY_MAPS: Array[String] = ["moves","command_receipts","completed_jobs","use_receipts","issues","reservations","completion_receipts","evidence_by_source","work_receipts"]
 
 var content: HospitalContent
@@ -326,7 +326,7 @@ func _remap_hospital(value: Dictionary,old_id: String,new_id: String) -> Diction
 	_collect_instance_ids(value,old_id,new_id,ids)
 	var rewritten: Dictionary = _rewrite_ids(value,"",old_id,new_id,ids)
 	# Rating deduplication keys concatenate two instance identities.
-	var state: Dictionary = value.get("departments",{})
+	var state: Dictionary = value.get("patient_experience",{})
 	if state.has("staff_consumed"):
 		var consumed: Dictionary = {}
 		var staff_ids: Dictionary = value.get("staff",{})
@@ -344,7 +344,7 @@ func _remap_hospital(value: Dictionary,old_id: String,new_id: String) -> Diction
 					break
 				separator = key.rfind(":",separator-1) if separator>0 else -1
 			consumed[mapped] = state.staff_consumed[key]
-		rewritten.departments.staff_consumed = consumed
+		rewritten.patient_experience.staff_consumed = consumed
 	return rewritten
 
 func _collect_instance_ids(value: Variant,old_id: String,new_id: String,ids: Dictionary,field: String = "",path: Array[String] = []) -> void:
@@ -397,13 +397,15 @@ static func _typed_instance_map(path: Array[String]) -> bool:
 	var owner: String = path[0]
 	var field: String = path.back()
 	if path.size()==1:
-		return owner in ["wait_departures","adaptations"]
+		return owner in ["wait_departures","adaptations","doctor_desks"]
 	if owner=="waiting_life" and path.size()==2:
-		return field in ["seats","needs","clocks"]
+		return field in ["seats","needs","clocks","toilet_queues"]
+	if owner=="floor_guidance" and path.size()==2:
+		return field in ["visits","desks","releases","clinic_queues"]
 	if owner=="staff_life" and path.size()==2:
 		return field in ["personal_beds","reservations"]
-	if owner=="departments":
-		return (path.size()==2 and field in ["room_focus","routes","guidance","experience","staff_jobs"]) or (path.size()==3 and path[1]=="staff_days") or (path.size()==4 and path[1]=="experience" and field in ["retired_tickets","started_services","completed_services","staff_names"])
+	if owner=="patient_experience":
+		return (path.size()==2 and field in ["experience","staff_jobs"]) or (path.size()==3 and path[1]=="staff_days") or (path.size()==4 and path[1]=="experience" and field in ["retired_tickets","started_services","completed_services","staff_names"])
 	if owner=="inventory" and path.size()==3 and path[1]=="shortage":
 		return field=="participants"
 	if owner=="staff_schedule" and path.size()==2:

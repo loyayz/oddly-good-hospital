@@ -1,9 +1,10 @@
 class_name HospitalSchedulePanel
 extends HospitalActionPanel
 
-const KINDS: Dictionary = {"work":"岗位工作","outpatient":"门诊","surgery":"手术","round":"查房","training":"培训","rest":"休息"}
+const KINDS: Dictionary = {"work":"岗位工作","outpatient":"门诊 / 诊疗","surgery":"手术","training":"培训","rest":"休息"}
 var _staff: OptionButton
 var _slots: Array[OptionButton] = []
+var _rooms: Array[OptionButton] = []
 var _proposal: Dictionary = {}
 var _preview: Label
 
@@ -12,14 +13,16 @@ func build_controls() -> void:
 	_staff = choice("员工",entity_choices("staff"))
 	_staff.item_selected.connect(func(_index: int) -> void: _load_staff())
 	_slots.clear()
+	_rooms.clear()
 	var entries: Array = []
 	for key: String in KINDS:
 		entries.append({"id":key,"name":KINDS[key]})
 	for slot: int in int(simulation.content.balance.schedule.shifts_per_day):
 		_slots.append(choice("第%d班" % (slot+1),entries))
+		_rooms.append(choice("第%d班房间" % (slot+1),[{"id":"","name":"无临床房间 / 待岗 / 导诊"}]+entity_choices("rooms")))
 		var index: int = slot
 		action("切换第%d班锁定" % (slot+1),func() -> void: _toggle_lock(index))
-	_preview = note("预览只生成草案；确认后才应用。医生建议不调整护士、接待等岗位。")
+	_preview = note("预览只生成草案；确认后才应用。医生建议只调整医生，护士按真实房间与导诊岗位安排。")
 	action("预览所选员工修改",_preview_manual)
 	action("预览医生建议排班",_preview_suggestion)
 	action("应用已预览班表",func() -> void:
@@ -41,6 +44,9 @@ func _load_staff() -> void:
 		for option: int in _slots[index].item_count:
 			if _slots[index].get_item_metadata(option)==schedule[index].kind:
 				_slots[index].select(option)
+		var room_id: String=str(schedule[index].pools[0]) if not schedule[index].pools.is_empty() else ""
+		for option: int in _rooms[index].item_count:
+			if _rooms[index].get_item_metadata(option)==room_id: _rooms[index].select(option)
 
 func _toggle_lock(slot: int) -> void:
 	var staff: Dictionary = simulation.world.facts.staff.get(selected(_staff),{})
@@ -54,6 +60,7 @@ func _preview_manual() -> void:
 	var schedule: Array = staff.schedule.duplicate(true)
 	for index: int in _slots.size():
 		schedule[index].kind = selected(_slots[index])
+		schedule[index].pools = [] if selected(_rooms[index]).is_empty() else [selected(_rooms[index])]
 	var suggestion: Dictionary = simulation.services.scheduler.suggestion(simulation.world)
 	_proposal = {"basis":suggestion.basis,"changes":[{"staff_id":selected(_staff),"schedule":schedule}]}
 	_show_coverage(simulation.services.scheduler.coverage(simulation.world,_proposal.changes))
@@ -65,10 +72,17 @@ func _preview_suggestion() -> void:
 func _show_coverage(rows: Array) -> void:
 	var lines: PackedStringArray = ["今日有效排班（草案，未应用）", "已过班次仅作排班记录，今日覆盖保留；人数仅表示排班资格，不代表已到岗或整班可用。休假与班次部分重叠也不计入。"]
 	for row: Dictionary in rows:
-		lines.append("第%d班：初诊医生%d · 手术医生%d · 查房医生%d\n护士%d（护理/导诊%d · 检查%d · 手术%d · 病房资格%d）\n清洁%d · 研究%d · 培训%d" % [int(row.shift)+1,row.outpatient,row.surgeon,row.ward,row.nurse,row.care,row.nurse_diagnosis,row.nurse_surgery,row.ward_nurse,row.cleaner,row.researcher,row.training])
+		lines.append("第%d班：门诊/诊疗医生%d · 手术医生%d\n护士%d（护理/导诊%d · 检查%d · 手术%d · 病房资格%d）\n清洁%d · 研究%d · 培训%d" % [int(row.shift)+1,row.outpatient,row.surgeon,row.nurse,row.care,row.nurse_diagnosis,row.nurse_surgery,row.ward_nurse,row.cleaner,row.researcher,row.training])
 		if int(row.leave_excluded)>0: lines.append("休假重叠未计入：%d人" % row.leave_excluded)
 		lines.append("；".join(row.gaps) if not row.gaps.is_empty() else "未发现上述排班零人缺口；仍需核验实际服务条件")
-	lines.append("护士能力人数可重叠，不能相加或同时用于导诊、检查、手术和病房。仍须核对各台/各病房独立人员、技能等级、工作池、路线及工作时窗。其他岗位仅列人数，不判断工作量是否足够。")
+	lines.append("护士能力人数可重叠，不能相加或同时用于导诊、检查、手术和病房。仍须核对每个房间的完整团队、设备资格与真实到场。")
+	for room: Dictionary in simulation.services.scheduler.room_coverage(simulation.world,_proposal.get("changes",[])):
+		var shifts: PackedStringArray=[]
+		for slot: int in int(simulation.content.balance.schedule.shifts_per_day):
+			var names: PackedStringArray=[]
+			for id: String in room.shifts.get(slot,[]): names.append(simulation.world.facts.actors[id].name)
+			shifts.append("第%d班：%s"%[slot+1,"、".join(names) if not names.is_empty() else "未安排"])
+		lines.append("%d楼 %s%s · %s"%[room.floor_id,room.room_id,"（关闭）" if not room.open else ""," / ".join(shifts)])
 	lines.append("当前实际状态（不随草案变化）：")
 	if simulation.services.has("floor_guidance"):
 		lines.append(simulation.services.floor_guidance.summary(simulation.world))

@@ -4,10 +4,12 @@ extends RefCounted
 var content: HospitalContent
 var space: HospitalSpace
 var research: RefCounted
+var scheduler: RefCounted
 var _worked: Dictionary = {}
 var _mentor_blocks: Dictionary = {}
 var _busy_query: Dictionary = {}
 var _base_batch: Dictionary = {}
+var _office_basis: Array = []
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -16,12 +18,14 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("training_jobs"):
 		world.facts.training_jobs = {}
+	if not world.facts.has("doctor_desks"): world.facts.doctor_desks={}
 	for staff: Dictionary in world.facts.staff.values():
 		if not staff.role in ["doctor","nurse"]:
 			continue
 		var defaults: Dictionary = {"growth_direction":"treatment" if staff.role=="doctor" else "care", "training_job_id":"", "cured_cases":0,
 			"completed_courses":{}, "growth_history":[], "growth_goal":{}, "base_prepared":false, "base_task":{}, "title_rate_changed_tick":int(staff.get("hired_tick",0))}
 		for key: String in defaults:
+			if staff.role=="doctor" and key in ["base_prepared","base_task"]: continue
 			if not staff.has(key):
 				staff[key] = defaults[key]
 
@@ -170,7 +174,7 @@ func dispatch(world: WorldState) -> void:
 	var base_queue: Array = []
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
-		if not staff.role in ["doctor","nurse"] or _mentor_blocks.has(staff_id) or (not str(staff.get("training_job_id","")).is_empty() and _training_window(world,staff)):
+		if staff.role!="nurse" or _mentor_blocks.has(staff_id) or (not str(staff.get("training_job_id","")).is_empty() and _training_window(world,staff)):
 			continue
 		base_queue.append({"id":staff_id,"queue_tick":_base_order_tick(world,staff),"commitment":2})
 	base_queue.sort_custom(_base_before)
@@ -180,7 +184,95 @@ func dispatch(world: WorldState) -> void:
 		_prepare_base(world,entry.id,world.facts.staff[entry.id])
 		_refresh_base_view(world,entry.id,prior)
 	_base_batch = {}
+	_dispatch_offices(world)
+	_dispatch_research_idle(world)
 	_busy_query = {}
+
+func _dispatch_offices(world: WorldState) -> void:
+	var owners: Dictionary=world.facts.doctor_desks
+	var basis: Array=[world.get_instance_id(),world.geometry_revision,world.ids("staff"),world.facility_ids("SE05")]
+	for id: String in world.ids("staff"): basis.append([id,world.facts.staff[id].get("departed",false)])
+	if basis!=_office_basis:
+		var assigned: Dictionary={}
+		for desk_id: String in owners.keys():
+			var staff_id: String=str(owners[desk_id].staff_id)
+			if not world.facts.facilities.has(desk_id) and not world.facts.inventory.get("build_items",{}).has(desk_id) or not world.facts.staff.has(staff_id) or world.facts.staff[staff_id].get("departed",false): owners.erase(desk_id)
+			else: assigned[staff_id]=true
+		for staff_id: String in world.ids("staff"):
+			if assigned.has(staff_id) or world.facts.staff[staff_id].role!="doctor" or world.facts.staff[staff_id].get("departed",false): continue
+			for desk_id: String in world.facility_ids("SE05"):
+				var desk: Dictionary=world.facts.facilities[desk_id]
+				if owners.has(desk_id) or world.facts.rooms.get(desk.get("room_id",""),{}).get("kind","")!="doctor_office": continue
+				if space.facility_geometry_quote(world,desk_id,staff_id).ok:
+					owners[desk_id]={"staff_id":staff_id}
+					break
+		_office_basis=basis.duplicate(true)
+	for staff_id: String in world.ids("staff"):
+		var staff: Dictionary=world.facts.staff[staff_id]
+		if staff.role!="doctor" or not staff.get("on_shift",false) or staff.get("departed",false) or staff.get("life_task",{}).get("phase","idle")!="idle" or _busy(world,staff_id): continue
+		var shift_ticks: int=ceili(float(content.balance.schedule.shift_seconds)/WorldState.TICK_SECONDS)
+		var slot: int=(world.sim_tick/shift_ticks)%int(content.balance.schedule.shifts_per_day)
+		var schedule: Dictionary=staff.schedule[slot]
+		if int(staff.get("schedule_day",-1))==world.sim_tick/WorldState.TICKS_PER_DAY: schedule=staff.get("schedule_overrides",{}).get(str(slot),schedule)
+		var clinical: bool=not schedule.get("pools",[]).is_empty() or schedule.kind in ["training","rest"]
+		var move: Dictionary=world.facts.moves.get(staff_id,{})
+		if clinical:
+			if move.get("doctor_office_idle",false): space.cancel_ground_move(world,staff_id)
+			continue
+		if not move.is_empty(): continue
+		var actor: Dictionary=world.facts.actors[staff_id]
+		if actor.location.kind!="floor": continue
+		var rooms: Array=[]
+		for desk_id: String in owners:
+			if owners[desk_id].staff_id==staff_id and world.facts.facilities.has(desk_id):
+				var room_id: String=str(world.facts.facilities[desk_id].get("room_id",""))
+				if world.facts.rooms.get(room_id,{}).get("kind","")=="doctor_office": rooms.append(room_id)
+		for room_id: String in space.room_use.rooms(world,"doctor_office"):
+			if not room_id in rooms: rooms.append(room_id)
+		var selected: Dictionary={}
+		for room_id: String in rooms:
+			var room: Dictionary=world.facts.rooms[room_id]
+			if not room.get("structure_valid",true) or not room.get("open_intent",true): continue
+			if int(actor.location.floor_id)==int(room.floor_id) and space.room_contains(room,space.body_rectangle(actor)) and space.public_areas.safe_wait(world,staff_id,int(room.floor_id),actor.location.cell):
+				selected={"here":true}; break
+			for cell: Array in BuildGeometry.cells(room):
+				if space.public_areas.safe_wait(world,staff_id,int(room.floor_id),cell) and space.can_reach(world,staff_id,int(room.floor_id),cell):
+					selected={"floor_id":int(room.floor_id),"cell":cell}; break
+			if not selected.is_empty(): break
+		if selected.is_empty(): selected=_public_idle_point(world,staff_id)
+		if selected.is_empty() or selected.get("here",false): continue
+		if space.request_move(world,staff_id,int(selected.floor_id),selected.cell).is_empty() and world.facts.moves.has(staff_id): world.facts.moves[staff_id].doctor_office_idle=true
+
+func _public_idle_point(world: WorldState, staff_id: String) -> Dictionary:
+	var actor: Dictionary=world.facts.actors[staff_id]
+	var floor_id: int=int(actor.location.floor_id)
+	var point:=Vector2i(floori(actor.location.cell[0]),floori(actor.location.cell[1]))
+	if space.room_use.public_point(world,floor_id,point) and space.public_areas.safe_wait(world,staff_id,floor_id,actor.location.cell): return {"here":true}
+	var rooms: Dictionary={}
+	for x: int in range(point.x-2,point.x+3):
+		for y: int in range(point.y-2,point.y+3):
+			var room_id: String=space.room_use.room_at(world,floor_id,Vector2i(x,y))
+			if not room_id.is_empty(): rooms[room_id]=true
+	for room_id: String in rooms:
+		for cell: Vector2i in space.room_use.waiting_cells(world,room_id):
+			var target: Array=[cell.x,cell.y]
+			if space.public_areas.safe_wait(world,staff_id,floor_id,target) and space.can_reach(world,staff_id,floor_id,target): return {"floor_id":floor_id,"cell":target}
+	return {}
+
+func _dispatch_research_idle(world: WorldState) -> void:
+	if scheduler==null: return
+	for staff_id: String in world.ids("staff"):
+		var staff: Dictionary=world.facts.staff[staff_id]
+		if staff.role!="researcher" or not staff.get("on_shift",false) or staff.get("departed",false) or _busy(world,staff_id) or world.facts.moves.has(staff_id) or staff.get("life_task",{}).get("phase","idle")!="idle": continue
+		var assignment: Dictionary=scheduler.assignment(world,staff_id,scheduler.shift_index(world))
+		if assignment.kind!="work" or assignment.pools.is_empty(): continue
+		var room: Dictionary=world.facts.rooms.get(str(assignment.pools[0]),{})
+		if room.get("kind","")!="research" or not room.get("structure_valid",true) or not room.get("open_intent",true): continue
+		var actor: Dictionary=world.facts.actors[staff_id]
+		if actor.location.kind!="floor" or int(actor.location.floor_id)==int(room.floor_id) and space.room_contains(room,space.body_rectangle(actor)): continue
+		for cell: Array in space.room_use.standing_cells(world,room.id):
+			if not space.public_areas.safe_wait(world,staff_id,int(room.floor_id),cell): continue
+			if space.request_move(world,staff_id,int(room.floor_id),cell).is_empty(): break
 
 func _dispatch_training_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) -> void:
 	if desks.is_empty(): desks = desk_view(world)
@@ -323,6 +415,15 @@ func worked_staff() -> Dictionary:
 	return _worked.duplicate()
 
 func validate(world: WorldState) -> String:
+	if not world.facts.get("doctor_desks",{}) is Dictionary: return "医生个人桌归属集合无效"
+	var assigned_doctors: Dictionary={}
+	for id: Variant in world.facts.get("doctor_desks",{}):
+		var owner: Variant=world.facts.doctor_desks[id]
+		if not id is String or not owner is Dictionary or not owner.get("staff_id") is String: return "医生个人桌归属无效"
+		var staff: Dictionary=world.facts.staff.get(owner.staff_id,{})
+		var desk: Dictionary=world.facts.facilities.get(id,world.facts.inventory.get("build_items",{}).get(id,{}))
+		if staff.get("role","")!="doctor" or staff.get("departed",false) or desk.get("definition_id","")!="SE05" or assigned_doctors.has(owner.staff_id): return "医生个人桌不存在、重复归属或员工已离职"
+		assigned_doctors[owner.staff_id]=true
 	if not world.facts.get("training_jobs") is Dictionary or not world.facts.get("staff") is Dictionary or not world.facts.get("facilities") is Dictionary:
 		return "培养任务集合缺失"
 	var active: Dictionary = {}
@@ -397,6 +498,9 @@ func _busy(world: WorldState, staff_id: String) -> bool:
 	return safe_busy(world,staff_id,_busy_query)
 
 func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> void:
+	# A short amenity trip does not end the original nursing work segment.
+	# Actual rest/training/leave still clears readiness through its own owner.
+	if staff.get("life_task",{}).get("kind","")=="amenity": return
 	if HospitalStaffWellbeing.waiting_recreation(staff):
 		if staff.get("on_shift",true) and not staff.get("base_prepared",false): HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id])
 		return
@@ -569,8 +673,11 @@ func _select_base(world: WorldState, staff_id: String) -> String:
 	var actor: Dictionary = world.facts.actors[staff_id]
 	if actor.location.kind!="floor":
 		return ""
-	var wanted: String = str(content.balance.staff_work_bases.doctor_equipment_id if staff.role=="doctor" else content.balance.staff_work_bases.nurse_equipment_id)
+	var wanted: String = str(content.balance.staff_work_bases.nurse_equipment_id)
 	var ward: Dictionary = world.facts.rooms.get(staff.get("ward_id",""),{})
+	if scheduler!=null and staff.role=="nurse":
+		var entry: Dictionary=scheduler.assignment(world,staff_id,scheduler.shift_index(world))
+		if not entry.pools.is_empty(): ward=world.facts.rooms.get(str(entry.pools[0]),{})
 	var nurse_floor: int = int(ward.floor_id) if ward.get("kind","")=="ward" else int(actor.location.floor_id)
 	var choices: Array = []
 	var previous_query: Dictionary = _base_batch
@@ -751,7 +858,7 @@ func _finish(world: WorldState, job: Dictionary, state: String) -> void:
 	job.desk_id = ""
 	var staff: Dictionary = world.facts.staff[job.staff_id]
 	staff.training_job_id = ""
-	staff.base_prepared = false
+	if staff.role=="nurse": staff.base_prepared = false
 	staff.block_new_work = false
 	job.reason = "实操已掌握，退还未完成课程" if state=="superseded" else ("已取消并退还剩余学费" if state=="cancelled" else "培养完成")
 

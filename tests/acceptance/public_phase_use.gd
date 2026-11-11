@@ -19,24 +19,24 @@ class WaitingWorkProbe extends HospitalWaitingLife:
 class FreshEntryAreas extends HospitalPublicAreas:
 	func _candidate_regions(_definitions: Array) -> Array:
 		return _regions
-	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false, excluded_rooms: Array = []) -> Dictionary:
 		space.begin_dynamic_route_query(world,true)
-		var result: Dictionary = super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only)
+		var result: Dictionary = super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only,excluded_rooms)
 		space.end_route_query()
 		return result
 
 # Count real area searches without replacing geometry, selection or movement.
 class SeatAreaSearchProbe extends HospitalPublicAreas:
 	var searches: int = 0
-	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false, excluded_rooms: Array = []) -> Dictionary:
 		if purpose=="seat": searches += 1
-		return super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only)
+		return super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only,excluded_rooms)
 
 class WaitSignatureProbe extends HospitalPublicAreas:
 	var signatures: int = 0
-	func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
+	func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array, observed: Dictionary, collect_signature: bool = true) -> Array:
 		signatures += 1
-		return super._decision_signature(world,intent,definitions,members,extra,route_floors)
+		return super._capture_wait_signature(world,intent,definitions,members,extra,route_floors,observed,collect_signature)
 
 func _observe_waiting(x: Dictionary) -> WaitingWorkProbe:
 	var probe: WaitingWorkProbe = WaitingWorkProbe.new(_content,x.space)

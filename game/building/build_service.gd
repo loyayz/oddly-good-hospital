@@ -2,12 +2,17 @@ class_name BuildService
 extends RefCounted
 
 const HISTORY_LIMIT: int = 20
-const KINDS: Array[String] = ["build_room","build_facility","build_store","build_door","build_move","build_rotate","build_resize","build_demolish","build_undo","build_land"]
+const Structure = preload("res://game/building/room_structure.gd")
+const KINDS: Array[String] = ["build_wall","build_remove_wall","build_room_use","build_room_open","build_room","build_facility","build_store","build_door","build_move","build_rotate","build_resize","build_demolish","build_undo","build_land"]
 var content: HospitalContent
 var space: HospitalSpace
 var _deferred_checks: bool = false
 var _prepared_shape: Dictionary = {}
 var _remodel_application: bool = false
+var _handoff_world: WeakRef
+var _handoff_facts: Dictionary = {}
+var _handoff_revision: int = -1
+var _handoff_rooms: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace = null) -> void:
 	content = database
@@ -20,6 +25,43 @@ func ensure(world: WorldState) -> void:
 		world.facts.build_history = []
 	if not world.facts.inventory.has("build_items"):
 		world.facts.inventory.build_items = {}
+
+func finish_structure_handoffs(world: WorldState) -> void:
+	# This pending set is derived only on a structural/facts replacement boundary.
+	# Ordinary movement and waiting never scan the hospital to rediscover it.
+	if _handoff_world==null or _handoff_world.get_ref()!=world or not is_same(_handoff_facts,world.facts) or _handoff_revision!=world.geometry_revision:
+		_handoff_world = weakref(world)
+		_handoff_facts = world.facts
+		_handoff_revision = world.geometry_revision
+		_handoff_rooms.clear()
+		for room: Dictionary in world.facts.rooms.values():
+			if not room.get("structure_valid",true): _handoff_rooms[room.id] = []
+		if not _handoff_rooms.is_empty():
+			for facility: Dictionary in world.facts.facilities.values():
+				var room_id: String = str(facility.get("room_id",""))
+				if _handoff_rooms.has(room_id): _handoff_rooms[room_id].append(facility.id)
+	if _handoff_rooms.is_empty(): return
+	var changed: bool = false
+	for room_id: String in _handoff_rooms.keys():
+		var pending: Array = _handoff_rooms[room_id]
+		for id: String in pending.duplicate():
+			if not world.facts.facilities.has(id):
+				pending.erase(id)
+				continue
+			if not _busy(world,id).is_empty(): continue
+			var facility: Dictionary = world.facts.facilities[id]
+			facility.erase("room_id")
+			for room: Dictionary in world.facts.rooms.values():
+				if int(room.floor_id)==int(facility.floor_id) and room.get("structure_valid",true) and Structure._facility_inside(facility,room):
+					facility.room_id = room.id
+					break
+			pending.erase(id)
+			changed = true
+		if pending.is_empty() and _busy(world,room_id).is_empty():
+			world.facts.rooms.erase(room_id)
+			_handoff_rooms.erase(room_id)
+			changed = true
+	if changed: world.touch()
 
 func preview(world: WorldState, draft: Dictionary) -> Dictionary:
 	var kind: String = str(draft.get("kind","build_room"))
@@ -80,7 +122,7 @@ func _intent(payload: Dictionary) -> Dictionary:
 func _scratch(world: WorldState) -> WorldState:
 	# The preview shares read-only actors/clinical facts and copies only affected ownership.
 	var data: Dictionary = world.facts.duplicate()
-	for field: String in ["rooms","facilities","floors","ledger","inventory","build_transactions","build_history"]:
+	for field: String in ["rooms","facilities","floors","staff","ledger","inventory","build_transactions","build_history"]:
 		if data.has(field):
 			data[field] = data[field].duplicate(true)
 	return WorldState.new(data)
@@ -91,6 +133,9 @@ func _plan(world: WorldState, kind: String, payload: Dictionary, owns_world: boo
 	var payload_error: String = _payload_error(payload)
 	if not payload_error.is_empty():
 		return BuildGeometry.failure(payload_error)
+	var previous_rooms: Dictionary = {}
+	if not world.facts.staff.is_empty():
+		for room: Dictionary in world.facts.rooms.values(): previous_rooms[room.id] = str(room.get("kind",""))
 	# Moving a working object into or out of inventory also changes its original
 	# work orders and their exclusive worker routes. Keep that whole transaction
 	# isolated until the final spatial and quoted-intent checks have succeeded.
@@ -103,6 +148,10 @@ func _plan(world: WorldState, kind: String, payload: Dictionary, owns_world: boo
 		HospitalSpace.materialize_layout(candidate,requested_floor)
 	var result: Dictionary
 	match kind:
+		"build_wall": result = _change_walls(candidate,payload,false)
+		"build_remove_wall": result = _change_walls(candidate,payload,true)
+		"build_room_use": result = _room_use(candidate,payload)
+		"build_room_open": result = _room_open(candidate,payload)
 		"build_room": result = _add_room(candidate,payload)
 		"build_facility": result = _add_facility(candidate,payload)
 		"build_store": result = _store_facility(candidate,payload)
@@ -114,6 +163,18 @@ func _plan(world: WorldState, kind: String, payload: Dictionary, owns_world: boo
 		"build_land": result = _land(candidate,payload)
 	if not result.ok:
 		return result
+	if result.has("structure_seeds"):
+		var protected: Dictionary = {}
+		for id: String in candidate.facts.facilities:
+			if not _busy(candidate,id).is_empty(): protected[id] = true
+		for floor_key: String in result.structure_seeds:
+			result.changed_ids.append_array(Structure.reconcile(candidate,int(floor_key),result.structure_seeds[floor_key],protected))
+		result.erase("structure_seeds")
+	result.changed_ids.append_array(_prune_room_assignments(candidate,previous_rooms))
+	var unique_ids: Array = []
+	for id: String in result.changed_ids:
+		if not id in unique_ids: unique_ids.append(id)
+	result.changed_ids = unique_ids
 	if HospitalLedger.balance(world)+int(result.refund)-int(result.price)<0:
 		return BuildGeometry.failure("资金不足，草案和原布局保留")
 	var checked_floors: Dictionary = {}
@@ -126,6 +187,25 @@ func _plan(world: WorldState, kind: String, payload: Dictionary, owns_world: boo
 	if owns_world: candidate.invalidate_geometry()
 	result.candidate = candidate
 	return result
+
+func _prune_room_assignments(world: WorldState, previous_rooms: Dictionary) -> Array:
+	var affected: Dictionary = {}
+	for id: String in previous_rooms:
+		var room: Dictionary = world.facts.rooms.get(id,{})
+		if room.is_empty() or not room.get("structure_valid",true) or str(room.get("kind",""))!=str(previous_rooms[id]): affected[id] = true
+	if affected.is_empty(): return []
+	var scheduler: HospitalShiftScheduler = HospitalShiftScheduler.new(content,space)
+	var changed: Array = []
+	for staff: Dictionary in world.facts.staff.values():
+		var entries: Array = staff.get("schedule",[]).duplicate()
+		entries.append_array(staff.get("schedule_overrides",{}).values())
+		for entry: Dictionary in entries:
+			var pools: Array = entry.get("pools",[])
+			if pools.is_empty() or not pools.any(func(id: Variant)->bool:return affected.has(str(id))): continue
+			if not scheduler._room_template_error(world,staff,[entry]).is_empty():
+				entry.pools = []
+				if not staff.id in changed: changed.append(staff.id)
+	return changed
 
 func prepare_preview(world: WorldState, kind: String, draft: Dictionary, prepared_shape: Dictionary = {}) -> Dictionary:
 	var staging: BuildService = BuildService.new(content)
@@ -149,7 +229,84 @@ func _payload_error(payload: Dictionary) -> String:
 	return ""
 
 func _room_type(id: String) -> Dictionary:
+	if id.is_empty(): return {"id":"","name":"空房间","min_inner_size":[1,1],"requires_research":[]}
 	return content.definition("build_room_types",id)
+
+func _wall_request(payload: Dictionary) -> Dictionary:
+	var requested: Variant = payload.get("edges",[payload])
+	if not requested is Array or requested.is_empty(): return BuildGeometry.failure("请选择实际墙边")
+	var result: Array = []
+	for edge: Variant in requested:
+		if not edge is Dictionary or not edge.get("axis") in ["x","y"]: return BuildGeometry.failure("墙边方向无效")
+		for field: String in ["line","low","high"]:
+			if not edge.get(field) is int: return BuildGeometry.failure("墙边坐标必须为整数")
+		if int(edge.line)<0 or int(edge.line)>96 or int(edge.low)<0 or int(edge.high)>96 or int(edge.low)>=int(edge.high): return BuildGeometry.failure("墙边超出真实院区或长度无效")
+		result.append({"axis":edge.axis,"line":int(edge.line),"low":int(edge.low),"high":int(edge.high)})
+	return {"ok":true,"edges":Structure.edges(Structure.units(result))}
+
+func _change_walls(world: WorldState, payload: Dictionary, remove: bool) -> Dictionary:
+	var request: Dictionary = _wall_request(payload)
+	if not request.ok: return request
+	var floor_id: int = int(payload.get("floor_id",1))
+	if not world.facts.floors.overrides.has(str(floor_id)): return BuildGeometry.failure("目标层没有真实地面或完工楼板")
+	var layout: Dictionary = world.facts.floors.overrides[str(floor_id)]
+	var pieces: Dictionary = Structure.units(layout.get("wall_edges",[]))
+	var count: int = 0
+	var additions: Dictionary = Structure.units(request.edges)
+	for key: String in additions:
+		var edge: Dictionary = additions[key]
+		var first: Vector2i = Vector2i(int(edge.low),int(edge.line)-1) if edge.axis=="x" else Vector2i(int(edge.line)-1,int(edge.low))
+		var second: Vector2i = first+(Vector2i.DOWN if edge.axis=="x" else Vector2i.RIGHT)
+		if not space.owned(world,floor_id,first) and not space.owned(world,floor_id,second): return BuildGeometry.failure("墙边没有已取得的真实地面")
+		if remove:
+			if pieces.erase(key): count += 1
+		elif not pieces.has(key):
+			var crossing: String = _wall_crossing(world,floor_id,edge)
+			if not crossing.is_empty(): return BuildGeometry.failure(crossing)
+			pieces[key] = edge
+			count += 1
+	layout.wall_edges = Structure.edges(pieces)
+	var result: Dictionary = _success(0 if remove else count*int(content.balance.wall_cost_edge),0,["walls:"+str(floor_id)],[floor_id])
+	result.structure_seeds = {str(floor_id):Structure.seeds(request.edges)}
+	return result
+
+func _wall_crossing(world: WorldState, floor_id: int, edge: Dictionary) -> String:
+	if floor_id==1:
+		var entry: Array = world.facts.entry.cell
+		var protected_entry: Rect2 = Rect2(float(entry[0]),float(entry[1]),3,3)
+		if _edge_crosses(edge,protected_entry) or edge.axis=="x" and int(edge.line)==int(entry[1])+3 and int(edge.low)<int(entry[0])+3 and int(edge.high)>int(entry[0]): return "医院入口缓冲区和通向外界的边界不能阻断"
+	for collection: String in ["facilities","connectors"]:
+		for record: Dictionary in world.facts[collection].values():
+			if int(record.floor_id)!=floor_id: continue
+			var rect: Rect2 = BuildGeometry.rectangle(record)
+			if _edge_crosses(edge,rect): return "墙不能穿过实际设备或交通设施："+str(record.id)
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if int(reservation.floor_id)!=floor_id: continue
+		for region: Array in reservation.regions:
+			if _edge_crosses(edge,Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3]))): return "墙不能穿过正在使用或安全交接的真实预约"
+	return ""
+
+func _edge_crosses(edge: Dictionary, rect: Rect2) -> bool:
+	var before: float = rect.position.y if edge.axis=="x" else rect.position.x
+	var after: float = rect.end.y if edge.axis=="x" else rect.end.x
+	var low: float = rect.position.x if edge.axis=="x" else rect.position.y
+	var high: float = rect.end.x if edge.axis=="x" else rect.end.y
+	return before<float(edge.line) and after>float(edge.line) and low<float(edge.high) and high>float(edge.low)
+
+func _room_use(world: WorldState, payload: Dictionary) -> Dictionary:
+	var room: Dictionary = world.facts.rooms.get(str(payload.get("target_id","")),{})
+	if room.is_empty() or not room.get("structure_valid",true): return BuildGeometry.failure("请选择实际闭合的房间")
+	var purpose: String = str(payload.get("room_type_id",""))
+	if _room_type(purpose).is_empty(): return BuildGeometry.failure("未知房间用途")
+	room.kind = purpose
+	room.erase("room_type_id")
+	return _success(0,0,[room.id],[int(room.floor_id)])
+
+func _room_open(world: WorldState, payload: Dictionary) -> Dictionary:
+	var room: Dictionary = world.facts.rooms.get(str(payload.get("target_id","")),{})
+	if room.is_empty() or not room.get("structure_valid",true) or not payload.get("open_intent") is bool: return BuildGeometry.failure("房间开放意愿无效")
+	room.open_intent = payload.open_intent
+	return _success(0,0,[room.id],[int(room.floor_id)])
 
 func _unlocked(world: WorldState, definition: Dictionary) -> String:
 	for research: String in definition.get("requires_research",[]):
@@ -162,10 +319,7 @@ func _add_room(world: WorldState, payload: Dictionary) -> Dictionary:
 	var definition: Dictionary = _room_type(type_id)
 	if definition.is_empty():
 		return BuildGeometry.failure("未知房型："+type_id)
-	var locked: String = _unlocked(world,definition)
-	if not locked.is_empty():
-		return BuildGeometry.failure(locked)
-	var shape: Dictionary = _prepared_shape if not _prepared_shape.is_empty() else BuildGeometry.shape(payload,definition.min_inner_size)
+	var shape: Dictionary = _prepared_shape if not _prepared_shape.is_empty() else BuildGeometry.shape(payload,[1,1])
 	if not shape.ok:
 		return shape
 	var floor_id: int = int(payload.get("floor_id",1))
@@ -174,46 +328,40 @@ func _add_room(world: WorldState, payload: Dictionary) -> Dictionary:
 		id = world.new_id("room")
 	if _exists(world,id):
 		return BuildGeometry.failure("对象身份已存在："+id)
-	if not _deferred_checks:
-		var rects: Array = []
-		for cell: Array in shape.cells:
-			rects.append(Rect2(float(cell[0]),float(cell[1]),1,1))
-		var collision: Dictionary = BuildGeometry.occupied_error(world,space,floor_id,rects)
-		if not collision.ok:
-			return collision
 	for other: Dictionary in ([] if _deferred_checks else world.facts.rooms.values()):
-		if int(other.floor_id)==floor_id:
+		if int(other.floor_id)==floor_id and other.get("structure_valid",true):
 			for cell: Array in shape.cells:
 				if BuildGeometry.contains(other,cell):
 					return BuildGeometry.failure("房间内格与实际房间重叠："+str(other.id),[cell])
-	var room: Dictionary = {"id":id,"kind":type_id,"floor_id":floor_id,"origin":shape.origin,"size":shape.size,"cells":shape.cells,"wall_edges":shape.wall_edges,
-		"open_intent":bool(payload.get("open_intent",true)),"paid_cost":shape.cells.size()*(int(content.balance.floor_cost_cell)+int(content.balance.room_fitout_cost_cell)),"used":false,"ownership":"purchased"}
-	world.facts.rooms[id] = room
+	var walls: Dictionary = _change_walls(world,{"floor_id":floor_id,"edges":shape.wall_edges},false)
+	if not walls.ok: return walls
 	var door_drafts: Array = payload.get("doors",[payload.get("door",{"definition_id":"DR01","edge":"south","offset":1})])
 	if door_drafts.is_empty():
 		return BuildGeometry.failure("房间至少需要一扇通向公共区域的门")
-	var price: int = int(room.paid_cost)
+	var price: int = int(walls.price)
 	var changed: Array = [id]
 	for door_draft: Variant in door_drafts:
 		if not door_draft is Dictionary:
 			return BuildGeometry.failure("房门草案结构无效")
 		var request: Dictionary = door_draft.duplicate(true)
-		request.room_id = id
+		request.floor_id = floor_id
+		var side: String = str(request.get("edge","south"))
+		if not request.has("cell"):
+			request.cell = [int(shape.origin[0])+(int(request.get("offset",0)) if side in ["north","south"] else int(shape.size[0]) if side=="east" else 0),int(shape.origin[1])+(int(request.get("offset",0)) if side in ["west","east"] else int(shape.size[1]) if side=="south" else 0)]
 		var placed: Dictionary = _add_door(world,request)
 		if not placed.ok:
 			return placed
 		price += int(placed.price)
 		changed.append_array(placed.changed_ids)
-	var public: String = "" if _deferred_checks else _public_door(world,room)
-	if not public.is_empty():
-		return BuildGeometry.failure(public)
+	changed.append_array(Structure.reconcile(world,floor_id,Structure.seeds(shape.wall_edges),{},{"id":id,"cells":shape.cells}))
+	if not world.facts.rooms.has(id): return BuildGeometry.failure("墙门须形成连续无孔且门朝内的合法空房")
+	world.facts.rooms[id].kind = type_id
+	world.facts.rooms[id].open_intent = bool(payload.get("open_intent",true))
 	return _success(price,0,changed,[floor_id])
 
 func _add_door(world: WorldState, payload: Dictionary) -> Dictionary:
 	var room_id: String = str(payload.get("room_id",""))
-	if not world.facts.rooms.has(room_id):
-		return BuildGeometry.failure("房门缺少实际房间")
-	var room: Dictionary = world.facts.rooms[room_id]
+	var room: Dictionary = world.facts.rooms.get(room_id,{})
 	var definition: Dictionary = content.definition("doors",str(payload.get("definition_id","DR01")))
 	if definition.is_empty():
 		return BuildGeometry.failure("未知房门定义")
@@ -222,32 +370,47 @@ func _add_door(world: WorldState, payload: Dictionary) -> Dictionary:
 	if not edge in ["north","south","west","east"] or offset<0:
 		return BuildGeometry.failure("门墙边或偏移无效")
 	var axis: String = "x" if edge in ["north","south"] else "y"
-	var cell: Array = payload.get("cell",[int(room.origin[0])+(offset if axis=="x" else int(room.size[0]) if edge=="east" else 0),int(room.origin[1])+(offset if axis=="y" else int(room.size[1]) if edge=="south" else 0)])
+	var cell: Array = payload.get("cell",[])
+	if cell.is_empty() and not room.is_empty(): cell = [int(room.origin[0])+(offset if axis=="x" else int(room.size[0]) if edge=="east" else 0),int(room.origin[1])+(offset if axis=="y" else int(room.size[1]) if edge=="south" else 0)]
 	if not BuildGeometry.point(cell):
 		return BuildGeometry.failure("房门墙边坐标无效")
 	var span: int = int(definition.span_cells)
-	var wall_error: String = _door_wall_error(room,{"axis":axis,"cell":cell,"span":span})
+	var floor_id: int = int(payload.get("floor_id",room.get("floor_id",1)))
+	if not world.facts.floors.overrides.has(str(floor_id)): return BuildGeometry.failure("目标层没有实际楼板")
+	var wall_error: String = _door_wall_error({"wall_edges":world.facts.floors.overrides[str(floor_id)].get("wall_edges",[])},{"axis":axis,"cell":cell,"span":span})
 	if not wall_error.is_empty(): return BuildGeometry.failure(wall_error,[cell])
 	var id: String = str(payload.get("id",""))
 	if id.is_empty():
 		id = world.new_id("door")
 	if _exists(world,id):
 		return BuildGeometry.failure("对象身份已存在："+id)
-	var door: Dictionary = {"id":id,"definition_id":definition.id,"cell":cell.duplicate(),"span":span,"axis":axis,"room_id":room_id,"active_actor_id":"","clear_height_m":float(definition.clear_height_m),"paid_cost":int(definition.price),"used":false,"ownership":"purchased"}
+	var interior_side: int = int(payload.get("interior_side",1 if edge in ["north","west"] else -1))
+	if not interior_side in [-1,1]: return BuildGeometry.failure("门后侧方向无效")
+	var door: Dictionary = {"id":id,"definition_id":definition.id,"cell":cell.duplicate(),"span":span,"axis":axis,"interior_side":interior_side,"room_id":room_id,"active_actor_id":"","clear_height_m":float(definition.clear_height_m),"paid_cost":int(definition.price),"used":false,"ownership":"purchased"}
+	for offset_index: int in span:
+		var sides: Array[Vector2i] = Structure.door_sides(door,offset_index)
+		var side_rooms: Array = ["",""]
+		for existing: Dictionary in world.facts.rooms.values():
+			if int(existing.floor_id)!=floor_id or not existing.get("structure_valid",true): continue
+			for side_index: int in 2:
+				if BuildGeometry.contains(existing,[sides[side_index].x,sides[side_index].y]): side_rooms[side_index] = existing.id
+		if not str(side_rooms[0]).is_empty() and not str(side_rooms[1]).is_empty() and side_rooms[0]!=side_rooms[1]: return BuildGeometry.failure("不能在共墙开门直接连接两个房间")
 	var rect: Rect2 = space._door_rect(door,span)
-	for other: Dictionary in world.facts.floors.overrides[str(int(room.floor_id))].doors:
+	for other: Dictionary in world.facts.floors.overrides[str(floor_id)].doors:
 		if other.axis==axis and rect.intersects(space._door_rect(other,int(other.span)),false):
 			return BuildGeometry.failure("门与已有房门相交",[cell])
 	for facility: Dictionary in world.facts.facilities.values():
-		if int(facility.floor_id)==int(room.floor_id) and rect.intersects(BuildGeometry.rectangle(facility),false):
+		if int(facility.floor_id)==floor_id and rect.intersects(BuildGeometry.rectangle(facility),false):
 			return BuildGeometry.failure("门口有实际设施："+str(facility.id),[cell])
 	for reservation: Dictionary in world.facts.adaptations.values():
-		if int(reservation.floor_id)==int(room.floor_id):
+		if int(reservation.floor_id)==floor_id:
 			for region: Array in reservation.regions:
 				if rect.intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false):
 					return BuildGeometry.failure("门口有尚未释放的真实预约",[cell])
-	world.facts.floors.overrides[str(int(room.floor_id))].doors.append(door)
-	return _success(int(definition.price),0,[id],[int(room.floor_id)])
+	world.facts.floors.overrides[str(floor_id)].doors.append(door)
+	var result: Dictionary = _success(int(definition.price),0,[id],[floor_id])
+	result.structure_seeds = {str(floor_id):Structure.door_sides(door)}
+	return result
 
 func _door_wall_error(room: Dictionary, door: Dictionary) -> String:
 	var low: int = int(door.cell[0] if door.axis=="x" else door.cell[1])
@@ -269,10 +432,14 @@ func _replace_door(world: WorldState, payload: Dictionary) -> Dictionary:
 	var request: Dictionary = payload.duplicate(true)
 	request.id = id
 	request.room_id = found.door.room_id
+	request.floor_id = int(found.floor_id)
+	if not request.has("cell") and not request.has("edge"): request.cell = found.door.cell.duplicate()
+	if not request.has("edge"): request.edge = ("north" if int(found.door.get("interior_side",-1))>0 else "south") if found.door.axis=="x" else ("west" if int(found.door.get("interior_side",-1))>0 else "east")
 	world.facts.floors.overrides[str(found.floor_id)].doors.erase(found.door)
 	var placed: Dictionary = _add_door(world,request)
 	if placed.ok:
-		placed.refund = _refund(found.door)
+		placed.refund = 0
+		placed.structure_seeds[str(found.floor_id)].append_array(Structure.door_sides(found.door))
 	return placed
 
 func _add_facility(world: WorldState, payload: Dictionary) -> Dictionary:
@@ -416,12 +583,29 @@ func _facility_position(world: WorldState, facility: Dictionary, ignore: Array =
 	if not collision.ok:
 		return collision
 	var room_id: String = str(facility.get("room_id",""))
+	if not room_id.is_empty() and not world.facts.rooms.get(room_id,{}).get("structure_valid",true): return BuildGeometry.failure("原房间结构已失效，请刷新草案")
+	# Placement may infer a containing room, but never infer a clinical purpose.
+	if room_id.is_empty():
+		for room: Dictionary in world.facts.rooms.values():
+			if int(room.floor_id)==int(facility.floor_id) and room.get("structure_valid",true) and Structure._facility_inside(facility,room):
+				room_id = str(room.id)
+				facility.room_id = room_id
+				break
+	var room: Dictionary = world.facts.rooms.get(room_id,{})
+	var purpose: String = str(room.get("kind","")) if room.get("structure_valid",true) else ""
+	var restricted: Dictionary = {"SE04":["dormitory"]}
+	if str(facility.definition_id).begins_with("RC"): restricted[str(facility.definition_id)] = ["rest"]
+	if restricted.has(facility.definition_id) and not purpose in restricted[facility.definition_id]: return BuildGeometry.failure("设施不适用于此房间用途")
+	if purpose=="rest" and facility.definition_id=="EQ05": return BuildGeometry.failure("员工休息室不能放床")
+	if facility.definition_id=="EQ01" and purpose=="operating_room":
+		for other: Dictionary in world.facts.facilities.values():
+			if other.id!=facility.id and other.definition_id=="EQ01" and other.get("room_id","")==room_id: return BuildGeometry.failure("手术室只能放一张手术台")
 	for x: int in range(int(facility.cell[0]),int(facility.cell[0])+int(facility.footprint[0])):
 		for y: int in range(int(facility.cell[1]),int(facility.cell[1])+int(facility.footprint[1])):
 			if not room_id.is_empty() and (not world.facts.rooms.has(room_id) or int(world.facts.rooms[room_id].floor_id)!=int(facility.floor_id) or not BuildGeometry.contains(world.facts.rooms[room_id],[x,y])):
 				return BuildGeometry.failure("设备主体必须完整位于所属房间的实际内格",[[x,y]])
-			for room: Dictionary in world.facts.rooms.values():
-				if int(room.floor_id)==int(facility.floor_id) and room.id!=room_id and BuildGeometry.contains(room,[x,y]):
+			for other_room: Dictionary in world.facts.rooms.values():
+				if int(other_room.floor_id)==int(facility.floor_id) and other_room.get("structure_valid",true) and other_room.id!=room_id and BuildGeometry.contains(other_room,[x,y]):
 					return BuildGeometry.failure("公共家具或其他房间设备不能侵入本房间",[[x,y]])
 	for door: Dictionary in world.facts.floors.overrides[str(int(facility.floor_id))].get("doors",[]):
 		if BuildGeometry.rectangle(facility).intersects(space._door_rect(door,int(door.span)),false):
@@ -449,8 +633,8 @@ func _move(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 				return BuildGeometry.failure("移动目标坐标无效")
 			facility.cell = payload.cell.duplicate()
 			facility.floor_id = int(payload.get("floor_id",facility.floor_id))
+			facility.erase("room_id")
 			if payload.has("room_id"):
-				facility.erase("room_id")
 				if not str(payload.room_id).is_empty():
 					facility.room_id = str(payload.room_id)
 		else:
@@ -466,6 +650,7 @@ func _move(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 			return positioned
 		return _success(0,0,[id],[previous_floor,int(facility.floor_id)])
 	if world.facts.rooms.has(id):
+		if not world.facts.rooms[id].get("structure_valid",true): return BuildGeometry.failure("原房间结构已失效，请选择实际布局")
 		if kind=="build_rotate":
 			return _rotate_room(world,payload)
 		return _move_room(world,payload)
@@ -477,14 +662,25 @@ func _move(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 		world.facts.floors.overrides[str(found.floor_id)].doors.erase(found.door)
 		var request: Dictionary = payload.duplicate(true)
 		request.id = id
-		request.room_id = before.room_id
+		request.room_id = ""
 		request.definition_id = str(payload.get("definition_id",before.definition_id))
+		if kind=="build_rotate":
+			request.cell = before.cell.duplicate()
+			request.floor_id = int(found.floor_id)
+		if request.has("rotation") and not request.has("edge"): request.edge = ["south","west","north","east"][posmod(int(request.rotation),4)]
+		if not request.has("edge"): request.edge = ("north" if int(before.get("interior_side",-1))>0 else "south") if before.axis=="x" else ("west" if int(before.get("interior_side",-1))>0 else "east")
 		var placed: Dictionary = _add_door(world,request)
 		if placed.ok:
 			var current: Dictionary = _door(world,id).door
 			current.paid_cost = before.get("paid_cost",0)
 			current.used = before.get("used",false)
-			return _success(0,0,[id],[int(found.floor_id)])
+			current.ownership = before.get("ownership","purchased")
+			placed.price = 0
+			placed.refund = 0
+			if placed.structure_seeds.has(str(found.floor_id)): placed.structure_seeds[str(found.floor_id)].append_array(Structure.door_sides(before))
+			else: placed.structure_seeds[str(found.floor_id)] = Structure.door_sides(before)
+			if not int(found.floor_id) in placed.floors: placed.floors.append(int(found.floor_id))
+			return placed
 		return placed
 	return BuildGeometry.failure("移动对象不存在")
 
@@ -504,37 +700,41 @@ func _resize_room(world: WorldState, payload: Dictionary) -> Dictionary:
 	if not _remodel_application: return BuildGeometry.failure("请通过安全改建安排调整房间内格")
 	var room: Dictionary = world.facts.rooms.get(str(payload.get("target_id","")),{})
 	if room.is_empty(): return BuildGeometry.failure("原房间已不存在")
+	if not room.get("structure_valid",true): return BuildGeometry.failure("原房间结构已失效")
 	var busy: String = _busy(world,room.id)
 	if not busy.is_empty(): return BuildGeometry.failure(busy)
-	var shape: Dictionary = BuildGeometry.shape(payload,_room_type(room.kind).min_inner_size)
+	var shape: Dictionary = BuildGeometry.shape(payload,[1,1])
 	if not shape.ok: return shape
-	var before: Array = BuildGeometry.cells(room)
-	var payments: Dictionary = room.get("cell_payments",{}).duplicate(true)
-	if payments.is_empty():
-		for cell: Array in before: payments["%d:%d" % [int(cell[0]),int(cell[1])]] = {"paid_cost":int(room.get("paid_cost",0))/maxi(1,before.size()),"used":_used(room)}
-	var price: int = 0
-	var refund: int = 0
-	var next_payments: Dictionary = {}
-	for cell: Array in shape.cells:
-		var key: String = "%d:%d" % [int(cell[0]),int(cell[1])]
-		if payments.has(key): next_payments[key] = payments[key]
-		else:
-			var amount: int = int(content.balance.floor_cost_cell)+int(content.balance.room_fitout_cost_cell)
-			next_payments[key] = {"paid_cost":amount,"used":false}
-			price += amount
-	for key: String in payments:
-		if not next_payments.has(key): refund += int(payments[key].paid_cost)*(80 if payments[key].used else 100)/100
+	var added: int = _replace_outline(world,int(room.floor_id),BuildGeometry.room_walls(room),shape.wall_edges,str(room.id))
 	room.origin = shape.origin
 	room.size = shape.size
 	room.cells = shape.cells
 	room.wall_edges = shape.wall_edges
-	room.cell_payments = next_payments
+	room.erase("cell_payments")
 	room.paid_cost = 0
-	for payment: Dictionary in next_payments.values(): room.paid_cost += int(payment.paid_cost)
-	return _success(price,refund,[room.id],[int(room.floor_id)])
+	return _success(added*int(content.balance.wall_cost_edge),0,[room.id],[int(room.floor_id)])
+
+func _replace_outline(world: WorldState, floor_id: int, previous: Array, next: Array, room_id: String) -> int:
+	var layout: Dictionary = world.facts.floors.overrides[str(floor_id)]
+	var retained: Dictionary = Structure.units(layout.get("wall_edges",[]))
+	var original: Dictionary = retained.duplicate()
+	var shared: Dictionary = {}
+	for other: Dictionary in world.facts.rooms.values():
+		if int(other.floor_id)==floor_id and other.id!=room_id and other.get("structure_valid",true): shared.merge(Structure.units(BuildGeometry.room_walls(other)))
+	for key: String in Structure.units(previous):
+		if not shared.has(key): retained.erase(key)
+	var additions: Dictionary = Structure.units(next)
+	var added: int = 0
+	for key: String in additions:
+		if not retained.has(key):
+			retained[key] = additions[key]
+			if not original.has(key): added += 1
+	layout.wall_edges = Structure.edges(retained)
+	return added
 
 func _transform_room(world: WorldState, room: Dictionary, delta: Vector2i, turns: int, target_floor: int) -> Dictionary:
 	var previous_floor: int = int(room.floor_id)
+	var previous_walls: Array = BuildGeometry.room_walls(room)
 	var old_origin: Vector2i = Vector2i(int(room.origin[0]),int(room.origin[1]))
 	var old_size: Array = room.size.duplicate()
 	var new_cells: Array = []
@@ -571,6 +771,10 @@ func _transform_room(world: WorldState, room: Dictionary, delta: Vector2i, turns
 	room.cells = shape.cells
 	room.wall_edges = shape.wall_edges
 	room.floor_id = target_floor
+	_replace_outline(world,previous_floor,previous_walls,shape.wall_edges if target_floor==previous_floor else [],str(room.id))
+	if target_floor!=previous_floor:
+		HospitalSpace.materialize_layout(world,target_floor)
+		_replace_outline(world,target_floor,[],shape.wall_edges,str(room.id))
 	if room.has("cell_payments"): room.cell_payments = moved_payments
 	var changed: Array = [room.id]
 	for id: String in ignored:
@@ -598,8 +802,11 @@ func _transform_room(world: WorldState, room: Dictionary, delta: Vector2i, turns
 		var b: Vector2i = a+(Vector2i(int(door.span),0) if door.axis=="x" else Vector2i(0,int(door.span)))
 		var aa: Vector2i = _rotate_vertex(a,old_size,turns)+old_origin+delta
 		var bb: Vector2i = _rotate_vertex(b,old_size,turns)+old_origin+delta
+		var inward: Vector2i = (Vector2i.DOWN if door.axis=="x" else Vector2i.RIGHT)*int(door.get("interior_side",-1))
 		door.cell = [mini(aa.x,bb.x),mini(aa.y,bb.y)]
 		door.axis = "x" if aa.y==bb.y else "y"
+		for turn: int in turns: inward = Vector2i(-inward.y,inward.x)
+		door.interior_side = inward.y if door.axis=="x" else inward.x
 		moved_doors.append(door)
 		changed.append(door.id)
 	if not world.facts.floors.overrides.has(str(target_floor)):
@@ -627,19 +834,10 @@ func _demolish(world: WorldState, payload: Dictionary) -> Dictionary:
 	if not busy.is_empty():
 		return BuildGeometry.failure(busy)
 	if world.facts.rooms.has(id):
-		for facility: Dictionary in world.facts.facilities.values():
-			if facility.get("room_id","")==id:
-				return BuildGeometry.failure("请先搬出或拆除房间内实际设施")
+		if not world.facts.rooms[id].get("structure_valid",true): return BuildGeometry.failure("原房间已失效，请直接选择实际墙边")
 		var room: Dictionary = world.facts.rooms[id]
-		var refund: int = _refund(room)
-		var changed: Array = [id]
-		for door: Dictionary in world.facts.floors.overrides[str(int(room.floor_id))].doors.duplicate():
-			if door.room_id==id:
-				refund += _refund(door)
-				changed.append(door.id)
-				world.facts.floors.overrides[str(int(room.floor_id))].doors.erase(door)
-		world.facts.rooms.erase(id)
-		return _success(0,refund,changed,[int(room.floor_id)])
+		# Room is a structural result. Removing the outline keeps furnishings.
+		return _change_walls(world,{"floor_id":int(room.floor_id),"edges":BuildGeometry.room_walls(room)},true)
 	if world.facts.facilities.has(id):
 		var facility: Dictionary = world.facts.facilities[id]
 		world.facts.facilities.erase(id)
@@ -648,10 +846,11 @@ func _demolish(world: WorldState, payload: Dictionary) -> Dictionary:
 	if found.is_empty():
 		return BuildGeometry.failure("拆除对象不存在；土地不能出售或撤销")
 	world.facts.floors.overrides[str(found.floor_id)].doors.erase(found.door)
-	var reason: String = "" if _deferred_checks else _public_door(world,world.facts.rooms[found.door.room_id])
-	if not reason.is_empty():
-		return BuildGeometry.failure("不能封掉房间唯一公共出口")
-	return _success(0,_refund(found.door),[id],[int(found.floor_id)])
+	# Removing the door also removes its aperture; the original wall remains.
+	# Actual trapped actors are rejected by the ordinary safety comparison.
+	var result: Dictionary = _success(0,0,[id],[int(found.floor_id)])
+	result.structure_seeds = {str(found.floor_id):Structure.door_sides(found.door)}
+	return result
 
 func _refund(record: Dictionary) -> int:
 	if record.has("cell_payments"):
@@ -750,8 +949,8 @@ func _door(world: WorldState, id: String) -> Dictionary:
 func _exists(world: WorldState, id: String) -> bool:
 	return world.facts.rooms.has(id) or world.facts.facilities.has(id) or not _door(world,id).is_empty()
 
-func _public_door(world: WorldState, room: Dictionary, checker: HospitalSpace = null) -> String:
-	if checker==null: checker = HospitalSpace.new(content)
+func _public_door(world: WorldState, room: Dictionary, _checker: HospitalSpace = null) -> String:
+	if not room.get("structure_valid",true): return ""
 	var floor_id: int = int(room.floor_id)
 	for door: Dictionary in world.facts.floors.overrides[str(floor_id)].get("doors",[]):
 		if door.room_id!=room.id:
@@ -762,14 +961,10 @@ func _public_door(world: WorldState, room: Dictionary, checker: HospitalSpace = 
 				continue
 			var public: bool = true
 			for other: Dictionary in world.facts.rooms.values():
-				if int(other.floor_id)==floor_id and BuildGeometry.contains(other,side):
+				if int(other.floor_id)==floor_id and other.get("structure_valid",true) and BuildGeometry.contains(other,side):
 					public = false
 			if public and not side in world.facts.floors.overrides[str(floor_id)].get("blocked",[]):
-				var subject: Dictionary = {"id":"readonly-public-access","species_id":"S49","location":{"kind":"floor","floor_id":floor_id,"cell":side},"facing":0.0}
-				if not checker.static_reason(world,subject,floor_id,Vector2i(int(side[0]),int(side[1]))).is_empty():
-					continue
-				if floor_id!=1 or checker._floor_route(world,subject,floor_id,Vector2i(int(side[0]),int(side[1])),Vector2i(47,93),[],{},true,{},true).get("ok",false):
-					return ""
+				return ""
 	return "至少一扇房门须通向本层已取得的公共空间"
 
 func _safety(previous: WorldState, candidate: WorldState, floor_id: int) -> Dictionary:
@@ -784,6 +979,8 @@ func _safety(previous: WorldState, candidate: WorldState, floor_id: int) -> Dict
 			var public: String = _public_door(candidate,room,checker)
 			if not public.is_empty():
 				return BuildGeometry.failure(public)
+	var door_error: String = door_connections_error(candidate,floor_id)
+	if not door_error.is_empty(): return BuildGeometry.failure(door_error)
 	for actor: Dictionary in candidate.facts.actors.values():
 		if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id:
 			continue
@@ -791,6 +988,17 @@ func _safety(previous: WorldState, candidate: WorldState, floor_id: int) -> Dict
 		if not checked.ok:
 			return checked
 	return {"ok":true}
+
+func door_connections_error(candidate: WorldState, floor_id: int) -> String:
+	for door: Dictionary in candidate.facts.floors.overrides[str(floor_id)].doors:
+		var inside_room: Dictionary = candidate.facts.rooms.get(str(door.room_id),{})
+		if inside_room.is_empty(): continue
+		for offset: int in int(door.span):
+			var sides: Array[Vector2i] = Structure.door_sides(door,offset)
+			if not BuildGeometry.contains(inside_room,[sides[0].x,sides[0].y]): return "门后侧须指向所属房间"
+			for other: Dictionary in candidate.facts.rooms.values():
+				if other.id!=inside_room.id and int(other.floor_id)==floor_id and other.get("structure_valid",true) and BuildGeometry.contains(other,[sides[1].x,sides[1].y]): return "不能在共墙开门直接连接两个房间"
+	return ""
 
 func actor_safety(previous: WorldState, candidate: WorldState, actor: Dictionary, checker: HospitalSpace = null, previous_checker: HospitalSpace = null) -> Dictionary:
 	# Real actors use the same complete route authority; no proxy enters WorldState.
@@ -814,6 +1022,12 @@ func actor_safety(previous: WorldState, candidate: WorldState, actor: Dictionary
 
 func _target_basis(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
+	if kind in ["build_wall","build_remove_wall"]:
+		var requested: Dictionary = _wall_request(payload)
+		if not requested.ok: return {}
+		var existing: Dictionary = Structure.units(world.facts.floors.overrides.get(str(payload.get("floor_id",1)),{}).get("wall_edges",[]))
+		for key: String in Structure.units(requested.edges): result[key] = existing.has(key)
+		return result
 	var id: String = str(payload.get("target_id",""))
 	if kind=="build_facility" and not str(payload.get("inventory_id","")).is_empty():
 		return world.facts.inventory.get("build_items",{}).get(payload.inventory_id,{}).duplicate(true)
@@ -821,7 +1035,7 @@ func _target_basis(world: WorldState, kind: String, payload: Dictionary) -> Dict
 		return {"history":world.facts.get("build_history",[]).back().get("transaction_id","")} if not world.facts.get("build_history",[]).is_empty() else {}
 	if not id.is_empty():
 		var record: Dictionary = world.facts.rooms.get(id,world.facts.facilities.get(id,_door(world,id).get("door",{})))
-		for field: String in ["id","kind","definition_id","floor_id","origin","size","cells","cell","rotation","room_id","paid_cost","ownership","grade"]:
+		for field: String in ["id","kind","definition_id","floor_id","origin","size","cells","cell","rotation","room_id","paid_cost","ownership","grade","interior_side","structure_valid","open_intent"]:
 			if record.has(field):
 				result[field] = record[field].duplicate(true) if record[field] is Array or record[field] is Dictionary else record[field]
 	return result
@@ -837,7 +1051,7 @@ func _settlement_marker(world: WorldState) -> Array:
 
 func _reference_marker(world: WorldState, ids: Array) -> Dictionary:
 	var result: Dictionary = {}
-	for collection: String in ["sessions","preparations","ward_stays","tickets","staff","departments","amenity_reservations","facility_reservations","maintenance_orders","upgrade_orders"]:
+	for collection: String in ["sessions","preparations","ward_stays","tickets","staff","amenity_reservations","facility_reservations","maintenance_orders","upgrade_orders"]:
 		for key: String in world.facts.get(collection,{}):
 			var record: Variant = world.facts[collection][key]
 			for id: String in ids:
@@ -854,12 +1068,32 @@ func _history(before: WorldState, after: WorldState, transaction_id: String, ids
 			if original!=current:
 				changes.append({"collection":collection,"id":id,"before":original.duplicate(true),"after":current.duplicate(true)})
 	var door_changes: Array = []
-	for id: String in ids:
+	var door_ids: Dictionary = {}
+	for state: WorldState in [before,after]:
+		for layout: Dictionary in state.facts.floors.overrides.values():
+			for door: Dictionary in layout.doors: door_ids[str(door.id)] = true
+	for id: String in door_ids:
 		var original: Dictionary = _door(before,id)
 		var current: Dictionary = _door(after,id)
 		if original!=current:
 			door_changes.append({"id":id,"before":original.duplicate(true),"after":current.duplicate(true)})
-	return {"transaction_id":transaction_id,"amount":amount,"tick":before.sim_tick,"changes":changes,"door_changes":door_changes,"settlements":_settlement_marker(after),"references":_reference_marker(after,ids),"changed_ids":ids.duplicate()}
+	var wall_changes: Array = []
+	for floor_key: String in after.facts.floors.overrides:
+		var previous: Array = before.facts.floors.overrides.get(floor_key,{}).get("wall_edges",[])
+		var current: Array = after.facts.floors.overrides[floor_key].get("wall_edges",[])
+		if previous!=current: wall_changes.append({"floor_id":int(floor_key),"before":previous.duplicate(true),"after":current.duplicate(true)})
+	var schedule_changes: Array = []
+	for id: String in after.facts.staff:
+		var previous: Dictionary = _schedule_fields(before.facts.staff.get(id,{}))
+		var current: Dictionary = _schedule_fields(after.facts.staff[id])
+		if previous!=current: schedule_changes.append({"staff_id":id,"before":previous,"after":current})
+	return {"transaction_id":transaction_id,"amount":amount,"tick":before.sim_tick,"changes":changes,"door_changes":door_changes,"wall_changes":wall_changes,"schedule_changes":schedule_changes,"settlements":_settlement_marker(after),"references":_reference_marker(after,ids),"changed_ids":ids.duplicate()}
+
+func _schedule_fields(staff: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for field: String in ["schedule","schedule_overrides"]:
+		if staff.has(field): result[field] = staff[field].duplicate(true)
+	return result
 
 func _undo(world: WorldState) -> Dictionary:
 	var history: Array = world.facts.get("build_history",[])
@@ -871,6 +1105,10 @@ func _undo(world: WorldState) -> Dictionary:
 	if _reference_marker(world,entry.changed_ids)!=entry.references:
 		return BuildGeometry.failure("对象的实际引用已变化，不能撤销")
 	var floors: Array = []
+	for change: Dictionary in entry.get("schedule_changes",[]):
+		if not world.facts.staff.has(change.staff_id) or _schedule_fields(world.facts.staff[change.staff_id])!=change.after or not _busy(world,change.staff_id).is_empty(): return BuildGeometry.failure("受影响班表或安全职责已改变，不能撤销")
+	for change: Dictionary in entry.get("wall_changes",[]):
+		if world.facts.floors.overrides[str(change.floor_id)].get("wall_edges",[])!=change.after: return BuildGeometry.failure("原墙边已经改变，不能撤销")
 	for change: Dictionary in entry.changes:
 		var current: Dictionary = _records(world,change.collection).get(change.id,{})
 		if current!=change.after or _used(current) or _used(change.before) or not _busy(world,change.id).is_empty():
@@ -894,9 +1132,23 @@ func _undo(world: WorldState) -> Dictionary:
 			world.facts.floors.overrides[str(current.floor_id)].doors.erase(current.door)
 		if not change.before.is_empty():
 			world.facts.floors.overrides[str(change.before.floor_id)].doors.append(change.before.door.duplicate(true))
+	for change: Dictionary in entry.get("wall_changes",[]):
+		world.facts.floors.overrides[str(change.floor_id)].wall_edges = change.before.duplicate(true)
+		if not int(change.floor_id) in floors: floors.append(int(change.floor_id))
+	for change: Dictionary in entry.get("schedule_changes",[]):
+		for field: String in ["schedule","schedule_overrides"]:
+			if change.before.has(field): world.facts.staff[change.staff_id][field] = change.before[field].duplicate(true)
+			else: world.facts.staff[change.staff_id].erase(field)
 	return _success(maxi(0,int(entry.amount)),maxi(0,-int(entry.amount)),entry.changed_ids.duplicate(),floors)
 
 func validate(world: WorldState) -> String:
+	for floor_key: String in world.facts.floors.overrides:
+		var layout: Dictionary = world.facts.floors.overrides[floor_key]
+		if layout.has("wall_edges"):
+			var wall_check: Dictionary = _wall_request({"edges":layout.wall_edges}) if layout.wall_edges is Array and not layout.wall_edges.is_empty() else {"ok":layout.wall_edges is Array}
+			if not wall_check.ok: return "独立墙边结构无效"
+		var door_error: String = door_connections_error(world,int(floor_key))
+		if not door_error.is_empty(): return door_error
 	if world.facts.has("build_history") and (not world.facts.build_history is Array or world.facts.build_history.size()>HISTORY_LIMIT):
 		return "建造撤销记录结构或数量无效"
 	if world.facts.has("build_transactions") and not world.facts.build_transactions is Dictionary:
@@ -925,9 +1177,13 @@ func validate(world: WorldState) -> String:
 		var definition: Dictionary = _room_type(str(room.get("kind","")))
 		if definition.is_empty() or not room.get("wall_edges") is Array:
 			return "建造房型或真实墙边定义缺失"
-		var actual: Dictionary = BuildGeometry.shape(room,definition.min_inner_size)
+		var actual: Dictionary = BuildGeometry.shape(room,[1,1])
 		if not actual.ok or actual.origin!=room.get("origin") or actual.size!=room.get("size") or actual.wall_edges!=room.wall_edges:
 			return "建造内格、无孔连通或真实墙边不一致"
+		if not room.get("structure_valid",true): continue
+		if not _public_door(world,room).is_empty(): return "合法房间缺少朝内的独占房门"
+		var structure_error: String = Structure.room_error(world,room)
+		if not structure_error.is_empty(): return structure_error
 		for cell: Array in actual.cells:
 			if not space.owned(world,int(room.floor_id),Vector2i(int(cell[0]),int(cell[1]))):
 				return "建造房间内格没有真实地面产权"

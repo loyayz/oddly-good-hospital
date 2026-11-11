@@ -28,7 +28,7 @@ func _add_alternate(x: Dictionary) -> bool:
 	var build: BuildService = BuildService.new(_content,x.space)
 	var room: CommandResult = build.execute(x.world,"build_room",{"id":"alternate_room","room_type_id":"gp","floor_id":1,"origin":[51,66],"size":[10,12],"door":{"definition_id":"DR04","edge":"south","offset":3}})
 	var asset: CommandResult = build.execute(x.world,"build_facility",{"id":"alternate_diagnosis","definition_id":"FUR02","floor_id":1,"cell":[56,69],"room_id":"alternate_room"})
-	x.world.facts.departments.units.general.room_ids.append("alternate_room")
+	x.world.facts.patient_experience.units.general.room_ids.append("alternate_room")
 	x.world.touch()
 	return room.accepted and asset.accepted
 

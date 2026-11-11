@@ -202,7 +202,7 @@ func _cold_restore(c: Dictionary) -> Dictionary:
 	c.sim.dispose()
 	c.world=WorldState.new(frozen.duplicate(true))
 	c.sim=HospitalSimulation.new(c.world,_content)
-	c.sim.clinic.departments=null
+	c.sim.clinic.experience=null
 	_simulations.append(c.sim)
 	return {"before_validation":before,"after_validation":c.world.validate(_content),"exact_facts":frozen==c.world.freeze(),"tick":c.world.sim_tick}
 

@@ -3,18 +3,6 @@
     48,
     87
   ],
-  "care_departments": [
-    {
-      "focus_specialty_id": "T10",
-      "id": "starter_department",
-      "name": "@zh:core.starter_layout.care_departments.starter_department.name",
-      "room_ids": [
-        "room_gp",
-        "room_physical",
-        "room_daily"
-      ]
-    }
-  ],
   "doctor_roster": [
     {
       "diagnosis": 1,
@@ -26,7 +14,7 @@
         {
           "kind": "outpatient",
           "pool": [
-            "diagnosis"
+            "room_gp"
           ]
         },
         {
@@ -35,7 +23,7 @@
         {
           "kind": "outpatient",
           "pool": [
-            "diagnosis"
+            "room_gp"
           ]
         }
       ],
@@ -54,15 +42,13 @@
         {
           "kind": "outpatient",
           "pool": [
-            "T01",
-            "T10"
+            "room_physical"
           ]
         },
         {
           "kind": "outpatient",
           "pool": [
-            "T01",
-            "T10"
+            "room_physical"
           ]
         },
         {
@@ -87,14 +73,13 @@
         {
           "kind": "outpatient",
           "pool": [
-            "diagnosis"
+            "room_gp"
           ]
         },
         {
           "kind": "outpatient",
           "pool": [
-            "T01",
-            "T10"
+            "room_physical"
           ]
         }
       ],
@@ -165,7 +150,7 @@
       ],
       "definition_id": "M37",
       "id": "cold_machine",
-      "room_id": "room_daily",
+      "room_id": "room_physical",
       "size": [
         2,
         2
@@ -186,7 +171,7 @@
     },
     {
       "anchor": [
-        56,
+        57,
         80
       ],
       "definition_id": "FUR07",
@@ -213,11 +198,11 @@
     {
       "anchor": [
         56,
-        87
+        74
       ],
       "definition_id": "SE04",
       "id": "staff_bed_a",
-      "room_id": "room_rest",
+      "room_id": "room_dormitory",
       "size": [
         1,
         2
@@ -226,11 +211,11 @@
     {
       "anchor": [
         59,
-        87
+        74
       ],
       "definition_id": "SE04",
       "id": "staff_bed_b",
-      "room_id": "room_rest",
+      "room_id": "room_dormitory",
       "size": [
         1,
         2
@@ -402,27 +387,10 @@
       },
       "id": "room_physical",
       "size": [
-        6,
+        13,
         6
       ],
-      "type": "T01"
-    },
-    {
-      "anchor": [
-        50,
-        85
-      ],
-      "door": {
-        "definition_id": "DR01",
-        "edge": "south",
-        "offset": 2
-      },
-      "id": "room_daily",
-      "size": [
-        5,
-        5
-      ],
-      "type": "T10"
+      "type": "treatment"
     },
     {
       "anchor": [
@@ -448,8 +416,8 @@
       ],
       "door": {
         "definition_id": "DR01",
-        "edge": "south",
-        "offset": 1
+        "edge": "east",
+        "offset": 2
       },
       "id": "room_toilet",
       "size": [
@@ -474,9 +442,26 @@
         4
       ],
       "type": "doctor_office"
+    },
+    {
+      "anchor": [
+        56,
+        73
+      ],
+      "door": {
+        "definition_id": "DR01",
+        "edge": "south",
+        "offset": 1
+      },
+      "id": "room_dormitory",
+      "size": [
+        4,
+        4
+      ],
+      "type": "dormitory"
     }
   ],
-  "schema_version": 9,
+  "schema_version": 10,
   "staff_spawn": [
     50,
     94

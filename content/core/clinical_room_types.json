@@ -2,10 +2,6 @@
   {
     "id": "operating_room",
     "max_sessions": 1,
-    "min_inner_size": [
-      8,
-      8
-    ],
     "name": "@zh:core.clinical_room_types.operating_room.name",
     "required_equipment_ids": [
       "EQ01"
@@ -20,10 +16,6 @@
       "EQ05"
     ],
     "id": "ward",
-    "min_inner_size": [
-      6,
-      6
-    ],
     "name": "@zh:core.clinical_room_types.ward.name",
     "required_equipment_ids": [],
     "requires_research": [

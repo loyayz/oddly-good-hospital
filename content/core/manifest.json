@@ -22,11 +22,11 @@
     },
     {
       "path": "blueprint_presets.json",
-      "sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c"
+      "sha256": "de7636b261d4e72ea60dfcb4b2b5673f74281b302e0d8e350af3513c723f4a9d"
     },
     {
       "path": "build_room_types.json",
-      "sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36"
+      "sha256": "332750b09f407efe281fc8d8c3086bd64692b5a7dd23e261f8900e6add579e36"
     },
     {
       "path": "chair_variants.json",
@@ -46,11 +46,11 @@
     },
     {
       "path": "clinical_practice_sources.json",
-      "sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2"
+      "sha256": "edd5a2244603df76c4f6154e6d8e586ba6a99f0cc396a21c1bea0885cc8c7402"
     },
     {
       "path": "clinical_room_types.json",
-      "sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c"
+      "sha256": "8d566550e8002d12d4bb00ada1448930c999df1ad69519f9b6b2eef5ebe47731"
     },
     {
       "path": "colleague_scenes.json",
@@ -126,7 +126,7 @@
     },
     {
       "path": "finance_views.json",
-      "sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31"
+      "sha256": "fbbead0a286bf4a5a1f388bce2aee264c2f79a72741b66524fd780e5e33fe38b"
     },
     {
       "path": "fit_examples.json",
@@ -174,7 +174,7 @@
     },
     {
       "path": "journey_reason_cards.json",
-      "sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c"
+      "sha256": "f7ad81cad06207abf562cb2c15fc7145ba06d8bfdab529a330e77f9e2c9320f3"
     },
     {
       "path": "layouts.json",
@@ -182,7 +182,7 @@
     },
     {
       "path": "locale/zh_CN.csv",
-      "sha256": "2a8153ce1a4a8da21241b3b517ab55ec7fb3dc6a62b95694cec1efc044aed6bd"
+      "sha256": "2c9b22c56d346c6dea41fde3d66bc74f3d85a00f5c98398dcf1d319691984a70"
     },
     {
       "path": "machines.json",
@@ -274,15 +274,15 @@
     },
     {
       "path": "rules.json",
-      "sha256": "d3a5c73d2fc71e2bcbc2b78a6598f6f7abea42ed48a20ea2d38b04bbf7c55ca3"
+      "sha256": "33e9307af9d3c2a0f527034c9bd550d47db74f64f298a59d7638d8f7d8c583e5"
     },
     {
       "path": "service_equipment.json",
-      "sha256": "f1b407c4334eab382fb13d15c958fadebd563dd33b1d45c6520bbb2c458b7160"
+      "sha256": "2d0812b0785adc88ca24e691979212d193a95fc40d45c3dd0ff5b0710f3b80fd"
     },
     {
       "path": "specialties.json",
-      "sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562"
+      "sha256": "6f6a6539aec74ed231a2cd963bc5e2a737ffbab66bb6ad6690fa28b7e4cb77ba"
     },
     {
       "path": "species.json",
@@ -318,7 +318,7 @@
     },
     {
       "path": "staff_support_rooms.json",
-      "sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6"
+      "sha256": "d73e53928a0d9e2cb9419862ca8704ef089c37db7e23133906812065d9225778"
     },
     {
       "path": "staff_talent_handlers.json",
@@ -334,7 +334,7 @@
     },
     {
       "path": "starter_layout.json",
-      "sha256": "32e1ed8fde205803858ec0a1a9d7667e2afb6f85372392464887a05bd3664db6"
+      "sha256": "81f05e641f8611bcb1c6b8eb10dfed207efe4e8e672ccc6f7aa0a3c65ebab074"
     },
     {
       "path": "stories.json",
@@ -406,7 +406,7 @@
     },
     {
       "path": "ward_scenes.json",
-      "sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16"
+      "sha256": "6568ddebe7014e1151113409d2f27745a7fec3e57ca8446f63dd10e52b8e060c"
     }
   ],
   "min_game_version": "1.97.0",

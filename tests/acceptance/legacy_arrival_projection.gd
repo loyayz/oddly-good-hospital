@@ -324,15 +324,15 @@ func _reference_basis(world: WorldState, shift: int) -> Dictionary:
 		result.transport_layout[id] = layout
 	result.floors = {}
 	for field: String in ["overrides","completed_top_floor","height_intervals"]: result.floors[field] = world.facts.floors.get(field)
-	result.departments = _reference_geometry_basis("departments",world.facts.get("departments",{}).get("units",{}),["id","room_ids","shared_room_ids","public_cells","entry","focus_id","intake_disease_ids","open"])
+	result.departments = _reference_geometry_basis("departments",world.facts.get("patient_experience",{}).get("units",{}),["id","room_ids","shared_room_ids","public_cells","entry","focus_id","intake_disease_ids","open"])
 	result.focus_active = {}
 	result.focus_ratings = {}
 	var clock: int = world.sim_tick/WorldState.TICKS_PER_DAY*WorldState.TICKS_PER_DAY+shift*_ticks(content.balance.schedule.shift_seconds)
 	for id: String in result.departments:
-		result.focus_active[id] = clock>=int(world.facts.departments.units[id].get("focus_ready_tick",0))
-		if departments!=null and not str(result.departments[id].get("focus_id","")).is_empty(): result.focus_ratings[id] = departments.call("aggregate_rating",world,id)
+		result.focus_active[id] = clock>=int(world.facts.patient_experience.units[id].get("focus_ready_tick",0))
+		if experience!=null and not str(result.departments[id].get("focus_id","")).is_empty(): result.focus_ratings[id] = experience.call("aggregate_rating",world,id)
 	result.talents = clinic.recruitment!=null
-	result.department_effects = clinic.departments!=null
+	result.department_effects = clinic.experience!=null
 	var scheduler: RefCounted = clinic.scheduler
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
@@ -491,8 +491,8 @@ func _schedule_visit_contexts(world: WorldState, bundle: Dictionary, facility_id
 		return contexts
 	var room_id: String = str(world.facts.facilities.get(facility_id,{}).get("room_id",""))
 	var disease_id: String = str(content.definition("treatment_bindings",binding_id).get("disease_id",""))
-	for department_id: String in world.facts.get("departments",{}).get("units",{}):
-		var department: Dictionary = world.facts.departments.units[department_id]
+	for department_id: String in world.facts.get("patient_experience",{}).get("units",{}):
+		var department: Dictionary = world.facts.patient_experience.units[department_id]
 		if not department.get("open",true) or not room_id in department.get("room_ids",[])+department.get("shared_room_ids",[]):
 			continue
 		var scope: Array = department.get("intake_disease_ids",[])

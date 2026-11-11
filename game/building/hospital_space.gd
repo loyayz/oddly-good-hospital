@@ -25,6 +25,7 @@ var guidance_queue_provider: WeakRef
 var movement: HospitalMovement
 var navigation: HospitalNavigation
 var public_areas: HospitalPublicAreas
+var room_use: HospitalRoomUse
 var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0,"static_path_hits":0,"static_path_builds":0,"materialized_floor_cells":0,"actor_index_builds":0,"actor_index_actor_visits":0,"reservation_index_builds":0,"reservation_index_updates":0,"door_candidates":0,"movement_candidates":0,"reservation_candidate_queries":0,"route_checks":0,"route_revalidations":0,"route_dispatch_scans":0,"route_dispatch_restores":0,"yield_attempts":0,"yield_candidates":0,"connector_topology_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
@@ -163,6 +164,7 @@ func _blocking_actor(world: WorldState, floor_id: int, rect: Rect2, allowed: Arr
 
 func _init(database: HospitalContent) -> void:
 	content = database
+	room_use = HospitalRoomUse.new(database)
 	movement = HospitalMovement.new(self)
 	navigation = HospitalNavigation.new(self)
 	public_areas = HospitalPublicAreas.new(self)
@@ -846,15 +848,17 @@ func _facility_region_reason(world: WorldState, facility: Dictionary, room: Dict
 	if facility.definition_id=="SE01":
 		# Guidance belongs to the desk, not its room label. Preserve real
 		# walls (including partial/concave walls and actual doorway gaps).
-		for actual_room: Dictionary in world.facts.rooms.values():
-			if int(actual_room.floor_id)!=int(facility.floor_id):continue
-			for wall: Dictionary in BuildGeometry.room_walls(actual_room):
-				var horizontal: bool=str(wall.axis)=="x"
-				var low: float=rect.position.y if horizontal else rect.position.x
-				var high: float=rect.end.y if horizontal else rect.end.x
-				var across_low: float=rect.position.x if horizontal else rect.position.y
-				var across_high: float=rect.end.x if horizontal else rect.end.y
-				if float(wall.line)>low and float(wall.line)<high and float(wall.high)>across_low and float(wall.low)<across_high:return "导诊操作区域跨越实际墙体"
+		var walls: Array = world.facts.floors.overrides.get(str(facility.floor_id),{}).get("wall_edges",[])
+		if not world.facts.floors.overrides.get(str(facility.floor_id),{}).has("wall_edges"):
+			for actual_room: Dictionary in world.facts.rooms.values():
+				if int(actual_room.floor_id)==int(facility.floor_id): walls.append_array(BuildGeometry.room_walls(actual_room))
+		for wall: Dictionary in walls:
+			var horizontal: bool=str(wall.axis)=="x"
+			var low: float=rect.position.y if horizontal else rect.position.x
+			var high: float=rect.end.y if horizontal else rect.end.x
+			var across_low: float=rect.position.x if horizontal else rect.position.y
+			var across_high: float=rect.end.x if horizontal else rect.end.y
+			if float(wall.line)>low and float(wall.line)<high and float(wall.high)>across_low and float(wall.low)<across_high:return "导诊操作区域跨越实际墙体"
 	elif not room.is_empty() and not room_contains(room,rect): return "展开、岗位或出口超出本房间"
 	var other: String = _blocking_facility(world,int(facility.floor_id),rect,str(facility.id))
 	return "" if other.is_empty() else "展开区域有其他实际设施："+other
@@ -1191,22 +1195,24 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 	if height>ceiling:
 		return {"ok":false,"reason":"门净高超过本层实际净高"}
 	var room: Dictionary = world.facts.rooms.get(door.room_id,{})
-	if room.is_empty():
-		return {"ok":false,"reason":"门缺少实际连续墙段"}
 	var opening: Rect2 = _door_rect(door,span)
 	var along: int = 0 if door.axis=="x" else 1
 	var continuous: bool = false
-	if room.has("wall_edges"):
+	var floor_walls: Variant = world.facts.floors.overrides.get(str(floor_id),{}).get("wall_edges")
+	# The floor index owns independent walls, including those not enclosing a room.
+	var geometry: FloorStaticGeometry = _navigation.floor_geometry(self,world,floor_id)
+	if floor_walls is Array or room.has("wall_edges"):
 		var door_line: int = int(door.cell[1-along])
-		for edge: Dictionary in room.wall_edges:
+		var local_walls: Array = (geometry._horizontal_walls if door.axis=="x" else geometry._vertical_walls).get(door_line,[]) if floor_walls is Array else room.wall_edges
+		continuous = span<=int(door.span)
+		for edge: Dictionary in local_walls:
 			if edge.axis==door.axis and int(edge.line)==door_line and int(edge.low)<=int(door.cell[along]) and int(edge.high)>=int(door.cell[along])+span:
 				continuous = true
-	else:
+	elif not room.is_empty():
 		continuous = int(door.cell[along])>=int(room.origin[along]) and int(door.cell[along])+span<=int(room.origin[along])+int(room.size[along])
 	if not continuous:
 		return {"ok":false,"reason":"门展开越过连续墙段或墙角"}
 	# Borrow only within this synchronous quote; live reservations are still read.
-	var geometry: FloorStaticGeometry = _navigation.floor_geometry(self,world,floor_id)
 	for other: Dictionary in movement_doors(world,actor,opening,members,floor_id,geometry):
 		if other.id!=door.id and opening.intersects(_door_rect(other,int(other.span)),false):
 			return {"ok":false,"reason":"门展开与另一扇门相交"}
@@ -1215,7 +1221,7 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 	var k: int = clearance(actor)
 	for id: String in members: k = maxi(k,clearance(world.facts.actors[id]))
 	var before: Rect2 = Rect2(opening.position-Vector2(0,k),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position-Vector2(k,0),Vector2(k,span))
-	var wall_depth: int = 0 if room.has("wall_edges") else 1
+	var wall_depth: int = 0 if floor_walls is Array or room.has("wall_edges") else 1
 	var after: Rect2 = Rect2(opening.position+Vector2(0,wall_depth),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position+Vector2(wall_depth,0),Vector2(k,span))
 	for side: Rect2 in [before,after]:
 		for cx: int in range(int(side.position.x),int(side.end.x)):

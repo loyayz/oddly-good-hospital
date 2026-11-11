@@ -72,6 +72,15 @@ char axis(const V& value) {
     if (result != "x" && result != "y") throw Unsupported("静态单格墙轴无效");
     return result[0];
 }
+void wall_edges(Scene& scene, const V& raw_edges, const std::string& owner) {
+    A edges = array(raw_edges);
+    for (int64_t j = 0; j < edges.size(); ++j) {
+        D edge = dictionary(edges.at(j));
+        Wall wall{owner, axis(edge.get("axis")), integer(edge.get("line")), integer(edge.get("low")), integer(edge.get("high"))};
+        if (wall.low >= wall.high) throw Unsupported("退化墙段沿原完整通行谓词");
+        scene.walls.push_back(std::move(wall));
+    }
+}
 void rooms(Scene& scene, const D& records) {
     A ids(records.keys());
     for (int64_t i = 0; i < ids.size(); ++i) {
@@ -80,13 +89,7 @@ void rooms(Scene& scene, const D& records) {
         Point origin = point(room.get("origin")), size = point(room.get("size"), true);
         V raw_edges = room.get("wall_edges");
         if (!raw_edges.nil()) {
-            A edges = array(raw_edges);
-            for (int64_t j = 0; j < edges.size(); ++j) {
-                D edge = dictionary(edges.at(j));
-                Wall wall{id, axis(edge.get("axis")), integer(edge.get("line")), integer(edge.get("low")), integer(edge.get("high"))};
-                if (wall.low >= wall.high) throw Unsupported("退化墙段沿原完整通行谓词");
-                scene.walls.push_back(std::move(wall));
-            }
+            wall_edges(scene, raw_edges, id);
         } else {
             scene.walls.push_back({id, 'x', origin.y, origin.x, origin.x + size.x});
             scene.walls.push_back({id, 'x', origin.y + size.y, origin.x, origin.x + size.x});
@@ -123,7 +126,9 @@ Scene parse(const V& raw_options) {
         scene.plots.push_back(plot);
     }
     for (int64_t i = 0; i < blocked.size(); ++i) scene.blocked.push_back(point(blocked.at(i)));
-    rooms(scene, dictionary(source.get("rooms")));
+    V independent_walls = layout.get("wall_edges");
+    if (independent_walls.nil()) rooms(scene, dictionary(source.get("rooms")));
+    else wall_edges(scene, independent_walls, "");
     obstacles(scene.facilities, dictionary(source.get("facilities")));
     obstacles(scene.connectors, dictionary(source.get("connectors")));
     A raw_doors = array(layout.get("doors")), quoted_doors = array(options.get("doors"));
@@ -197,9 +202,9 @@ V build_unit_static_masks(const V& raw_options) {
         if (id % SIDE + 1 < SIDE && available[id + 1]) { links[id] |= 4; links[id + 1] |= 2; }
         if (id + SIDE < LIMIT && available[id + SIDE]) { links[id] |= 8; links[id + SIDE] |= 1; }
     }
-    // Keep every room's independent wall: another room's opening cannot remove
-    // it. A single matching approved opening must cover the entire cross-cut;
-    // combining two partial door openings would change the original predicate.
+    // Floor walls have one physical source and use actual openings on that
+    // axis/line. Legacy room sources retain their original ownership matching.
+    // One approved opening must still cover the complete cross-cut.
     using OpeningKey = std::tuple<std::string, char, int>;
     std::map<OpeningKey, std::vector<SpatialBox>> by_wall;
     for (const Door& door : scene.doors) {
@@ -209,6 +214,7 @@ V build_unit_static_masks(const V& raw_options) {
         const int low = horizontal ? door.opening.x : door.opening.y;
         const int high = low + (horizontal ? door.opening.width : door.opening.height);
         by_wall[{door.room, door.axis, line}].push_back({{double(low), 0.0}, {double(high), 1.0}});
+        if (!door.room.empty()) by_wall[{"", door.axis, line}].push_back({{double(low), 0.0}, {double(high), 1.0}});
     }
     for (const Wall& wall : scene.walls) {
         if (wall.line <= 0 || wall.line >= SIDE) continue;

@@ -129,7 +129,7 @@ func _sync_geometry() -> void:
 	# usage and connector transport clocks remain live business facts elsewhere.
 	var rooms: Array = []
 	for room: Dictionary in world.facts.get("rooms",{}).values():
-		if int(room.floor_id)==observed_floor:
+		if int(room.floor_id)==observed_floor and room.get("structure_valid",true):
 			var shape: Dictionary = {"kind":room.kind,"wall_edges":room.get("wall_edges",[])}
 			if room.has("cells"):
 				shape.cells = room.cells
@@ -149,7 +149,8 @@ func _sync_geometry() -> void:
 		doors.append({"id":door.id,"cell":door.cell,"axis":door.axis,"span":adapted.get("span",door.span)})
 	var plots: Array = HospitalSpace.floor_plots(world,observed_floor)
 	var blocked: Array = world.facts.floors.overrides.get(str(observed_floor),{}).get("blocked",[])
-	var shapes: Array = [plots,blocked,doors,rooms,connectors]
+	var walls: Array = world.facts.floors.overrides.get(str(observed_floor),{}).get("wall_edges",[])
+	var shapes: Array = [plots,blocked,walls,doors,rooms,connectors]
 	if _same_visual_sources("geometry",[world,observed_floor,shapes]): return
 	var signature: String = JSON.stringify(shapes,"",true,true)
 	if signature==_geometry_signature:
@@ -178,51 +179,21 @@ func _sync_geometry() -> void:
 		for index: int in 3:
 			frame.add_child(_box(Vector3.ONE,Palette.OAK))
 		_door_frames[door.id] = frame
-	for room: Dictionary in rooms:
-		if room.has("cells"):
-			var tiles: MultiMesh = MultiMesh.new()
-			tiles.transform_format = MultiMesh.TRANSFORM_3D
-			# One static batch per room retains every actual cell, including gaps.
-			# This is decoration only; picking and clearance use the world facts.
-			var tile: MeshInstance3D = _box(Vector3(1.5,0.02,1.5),Palette.WARD_FLOOR if room.kind=="ward" else Palette.SURGERY_FLOOR)
-			tiles.mesh = tile.mesh
-			tile.free()
-			tiles.instance_count = room.cells.size()
-			var transforms: PackedFloat32Array = PackedFloat32Array()
-			transforms.resize(room.cells.size()*12)
-			for index: int in room.cells.size():
-				var position: Vector3 = _cell_position(room.cells[index],0.75)+Vector3.UP*0.03
-				var at: int = index*12
-				# MultiMesh's 3x4 row-major transform layout, with identity basis.
-				transforms[at] = 1.0
-				transforms[at+3] = position.x
-				transforms[at+5] = 1.0
-				transforms[at+7] = position.y
-				transforms[at+10] = 1.0
-				transforms[at+11] = position.z
-			tiles.buffer = transforms
-			var floor: MultiMeshInstance3D = MultiMeshInstance3D.new()
-			floor.multimesh = tiles
-			_decorations.add_child(floor)
-		else:
-			var floor: MeshInstance3D = _box(Vector3(float(room.size[0])*1.5,0.02,float(room.size[1])*1.5),Palette.WARD_FLOOR if room.kind=="ward" else Palette.SURGERY_FLOOR)
-			floor.position = _cell_position(room.origin,0)+Vector3(float(room.size[0])*0.75,0.03,float(room.size[1])*0.75)
-			_decorations.add_child(floor)
-		for edge: Dictionary in room.get("wall_edges",[]):
-			for along: int in range(int(edge.low),int(edge.high)):
-				var opening: bool = false
-				for door: Dictionary in doors:
-					var coordinate: int = int(door.cell[0] if door.axis=="x" else door.cell[1])
-					var line: int = int(door.cell[1] if door.axis=="x" else door.cell[0])
-					var span: int = int(door.span)
-					if door.axis==edge.axis and line==int(edge.line) and along>=coordinate and along<coordinate+span:
-						opening = true
-				if opening:
-					continue
-				var wall: MeshInstance3D = _box(Vector3(1.5,0.7,0.12) if edge.axis=="x" else Vector3(0.12,0.7,1.5),Palette.WALL)
-				wall.position = _cell_position([along,edge.line] if edge.axis=="x" else [edge.line,along],0)+(Vector3(0.75,0.35,0) if edge.axis=="x" else Vector3(0,0.35,0.75))
-				wall.set_meta("wall_edge",edge)
-				_decorations.add_child(wall)
+	# Room formation does not install flooring. Purchased finishes are drawn
+	# from SurfaceFinish by _sync_environment; every wall exists independently.
+	for edge: Dictionary in walls:
+		for along: int in range(int(edge.low),int(edge.high)):
+			var opening: bool = false
+			for door: Dictionary in doors:
+				var coordinate: int = int(door.cell[0] if door.axis=="x" else door.cell[1])
+				var line: int = int(door.cell[1] if door.axis=="x" else door.cell[0])
+				var span: int = int(door.span)
+				if door.axis==edge.axis and line==int(edge.line) and along>=coordinate and along<coordinate+span: opening = true
+			if opening: continue
+			var wall: MeshInstance3D = _box(Vector3(1.5,0.7,0.12) if edge.axis=="x" else Vector3(0.12,0.7,1.5),Palette.WALL)
+			wall.position = _cell_position([along,edge.line] if edge.axis=="x" else [edge.line,along],0)+(Vector3(0.75,0.35,0) if edge.axis=="x" else Vector3(0,0.35,0.75))
+			wall.set_meta("wall_edge",edge)
+			_decorations.add_child(wall)
 	for connector: Dictionary in connectors:
 		var base: Vector3 = _cell_position(connector.cell,0)
 		var w: float = float(connector.footprint[0])*HospitalSpace.CELL_METERS
@@ -880,7 +851,7 @@ func _pose(actor_id: String, presentation: Dictionary = {}) -> Dictionary:
 			return {"name":"recover","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
 		if visit.phase in ["outpatient","surgery"]:
 			return {"name":"work","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
-		if visit.phase in ["wake","transfer","recovery","round_wait","round"]:
+		if visit.phase in ["wake","transfer","recovery"]:
 			return {"name":"pause","time":0.5}
 		return {"name":"symptom","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
 	if presentation.working.has(actor_id):
@@ -1178,7 +1149,7 @@ func _update_case_props(actor_id: String, sessions_by_visit: Dictionary) -> void
 	if visit.final_result=="cured":
 		pose = "recovery_hold"
 		time = 0.5
-	elif visit.phase in ["wake","transfer","recovery","round_wait","round"]:
+	elif visit.phase in ["wake","transfer","recovery"]:
 		pose = "awaiting_result" if visit.binding_id=="B_S49_D23_M23" else "paused"
 	elif visit.phase in ["outpatient","surgery"]:
 		pose = "work"

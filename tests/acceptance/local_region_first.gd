@@ -15,7 +15,7 @@ class Probe extends HospitalPublicAreas:
 		if cost<0 or cost>maximum_travel_ticks: return {}
 		return {"floor_id":reference.floor_id,"cell":[1,1],"travel_ticks":cost}
 class Original extends Probe:
-	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false, _excluded_rooms: Array = []) -> Dictionary:
 		# Furniture-free standing areas remain valid for rest/return-to-waiting.
 		# Other purposes cannot select a region without a requested definition.
 		if not purpose in ["rest","waiting"]:

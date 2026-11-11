@@ -17,7 +17,6 @@ var _description: TextEdit
 var _inventory: CheckBox
 var _surfaces: CheckBox
 var _safe_transfer: CheckBox
-var _department: OptionButton
 var _result: Label
 var _image: TextureRect
 var _library: HospitalBlueprintLibrary
@@ -138,9 +137,6 @@ func build_controls() -> void:
 	_surfaces = CheckBox.new()
 	_surfaces.text = "同时购买美化材料并建立原装修工单"
 	add_child(_surfaces)
-	var departments: Array = [{"id":"","name":"暂不分配科室"}]
-	for item: Dictionary in simulation.world.facts.get("departments",{}).get("units",{}).values(): departments.append({"id":item.id,"name":item.name})
-	_department = choice("新房间所属运营科室",departments)
 	action("核对整张蓝图与库存报价",_blueprint_preview)
 	action("确认原子放置蓝图",func() -> void: _confirm("blueprint_place"))
 	action("取消当前草案",func() -> void:
@@ -148,7 +144,7 @@ func build_controls() -> void:
 		_result.text = "草案已取消，已确认安排保持原状态")
 	_result = note("草案不改变医院和资金。")
 	for input: SpinBox in [_floor,_x,_y,width,depth,offset]: input.value_changed.connect(func(_value: float) -> void: _invalidate())
-	for picker: OptionButton in [_rotation,_department,door_picker,door_kind,edge]: picker.item_selected.connect(func(_index: int) -> void: _invalidate())
+	for picker: OptionButton in [_rotation,door_picker,door_kind,edge]: picker.item_selected.connect(func(_index: int) -> void: _invalidate())
 	for toggle: CheckBox in [_safe_transfer,_inventory,_surfaces]: toggle.toggled.connect(func(_value: bool) -> void: _invalidate())
 	_rooms.multi_selected.connect(func(_index: int,_selected: bool) -> void: _invalidate())
 	_objects.multi_selected.connect(func(_index: int,_selected: bool) -> void: _invalidate())
@@ -199,8 +195,9 @@ func _fill_selection(list: ItemList, rooms: bool) -> void:
 	var collection: String = "rooms" if rooms else "facilities"
 	for id: String in simulation.world.ids(collection):
 		var item: Dictionary = simulation.world.facts[collection][id]
+		if rooms and not item.get("structure_valid",true): continue
 		if not rooms and not str(item.get("room_id","")).is_empty(): continue
-		var name: String = str(simulation.content.definition("build_room_types",str(item.get("kind",""))).get("name",id)) if rooms else str(simulation.content.facility_definition(item.definition_id).get("name",id))
+		var name: String = str(simulation.content.definition("build_room_types",str(item.get("kind",""))).get("name","空房间")) if rooms else str(simulation.content.facility_definition(item.definition_id).get("name",id))
 		entries.append([id,"%dF · %s · %s" % [int(item.floor_id),name,id]])
 	var current: Array = []
 	for index: int in list.item_count: current.append([str(list.get_item_metadata(index)),list.get_item_text(index)])
@@ -333,7 +330,7 @@ func _update() -> void:
 
 func _blueprint_preview() -> void:
 	_kind = "blueprint_place"
-	_draft = {"blueprint":_blueprint.duplicate(true),"floor_id":int(_floor.value),"cell":[int(_x.value),int(_y.value)],"use_inventory":_inventory.button_pressed,"include_surfaces":_surfaces.button_pressed,"department_id":selected(_department)}
+	_draft = {"blueprint":_blueprint.duplicate(true),"floor_id":int(_floor.value),"cell":[int(_x.value),int(_y.value)],"use_inventory":_inventory.button_pressed,"include_surfaces":_surfaces.button_pressed}
 	_preview = simulation.services.blueprints.preview(simulation.world,_draft)
 	var hospital_paid: int = 0
 	if _preview.ok:

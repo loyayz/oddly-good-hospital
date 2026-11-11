@@ -270,7 +270,7 @@ func _optional() -> Dictionary:
 	seat.old_owner_cannot_cancel = not x.l.call_patient(x.world,visit.id) and external==x.world.facts.moves.get(visit.actor_id,{})
 	seat.validation = x.world.validate(suite.content)
 	seat.ok = seat.ok and seat.old_owner_cannot_cancel and seat.validation.is_empty()
-	x.c.departments = null
+	x.c.experience = null
 	x.p.clinic = null
 	var guidance = preload("res://tests/acceptance/floor_guidance.gd").new()
 	guidance._content = suite.content

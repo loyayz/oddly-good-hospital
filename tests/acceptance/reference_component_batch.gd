@@ -220,8 +220,8 @@ func _failure_cleanup() -> Dictionary:
 func _configure(service: LegacyArrivalProjection) -> void:
 	service.clinic.scheduler = HospitalShiftScheduler.new(_content,service.space)
 	service.clinic.recruitment = RecruitmentService.new(_content,service.space)
-	service.clinic.departments = HospitalDepartments.new(_content,service.space)
-	service.departments = service.clinic.departments
+	service.clinic.experience = HospitalExperience.new(_content,service.space)
+	service.departments = service.clinic.experience
 
 func _capacity_failure() -> Dictionary:
 	var ctx: Dictionary = _context()

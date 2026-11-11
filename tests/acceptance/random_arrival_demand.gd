@@ -69,7 +69,7 @@ func _run() -> void:
 	service.boundaries(world)
 	_check("hold_uses_current_open_desks",held.accepted and world.facts.arrivals.plan.scale_numerator==1 and service.outpatient_allowance(world.facts.arrivals.plan)==16,world.facts.arrivals.plan)
 	world.facts.facilities.demand_desk2.open = true
-	world.facts.departments.units.general.open = false
+	world.facts.patient_experience.units.general.open = false
 	world.touch()
 	_check("closed_department_excluded",service.demand_desks(world)==1,service.capacity(world))
 	world.facts.rooms.demand_gp2.open = false

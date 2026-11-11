@@ -48,9 +48,9 @@ func run_case(world: WorldState, content: HospitalContent) -> Dictionary:
 	var checks: Dictionary = {
 		"actual_roster_matches_source":counts==content.balance.starting_staff and counts.get("doctor")==3 and counts.get("nurse")==2 and world.facts.staff.size()==6,
 		"actual_purchase_ledger":paid.construction==construction and paid.hiring==hiring and paid.supplies==supply_cost,
-		"starting_money":construction==12370 and hiring==1380 and supply_cost==1200 and cash==11050 and HospitalLedger.balance(world)==cash,
+		"starting_money":construction==9850 and hiring==1380 and supply_cost==1200 and cash==13570 and HospitalLedger.balance(world)==cash,
 		"preset_items":seats==5 and not world.facts.facilities.has("chair_6") and world.facts.facilities.has("warm_trolley") and world.facts.facilities.has("floor_guidance_desk") and world.facts.floors.overrides["1"].paths.is_empty(),
-		"current_staff_and_service_rates":wages==690 and indoor_cells==121 and service_stations==3 and is_equal_approx(operations,70.05) and is_equal_approx(expected_repairs,94.8) and maintenance==120,
-		"expectation_budget_only":is_equal_approx(daily_budget,974.85) and buffer_days>11.334 and buffer_days<11.336,
+		"current_staff_and_service_rates":wages==690 and indoor_cells==154 and service_stations==3 and is_equal_approx(operations,71.7) and is_equal_approx(expected_repairs,94.8) and maintenance==120,
+		"expectation_budget_only":is_equal_approx(daily_budget,976.5) and buffer_days>13.896 and buffer_days<13.897,
 		"read_only":world.freeze()==before}
 	return {"ok":not checks.values().has(false),"checks":checks,"roster":counts,"construction":construction,"hiring":hiring,"supplies":supply_cost,"cash":cash,"wages_per_day":wages,"indoor_cells":indoor_cells,"service_stations":service_stations,"operations_per_day":operations,"worst_risk_expected_repairs_per_day":expected_repairs,"maintenance_budget_per_day":maintenance,"expected_daily_budget":daily_budget,"zero_income_expected_buffer_days":buffer_days,"survival_guarantee":false}

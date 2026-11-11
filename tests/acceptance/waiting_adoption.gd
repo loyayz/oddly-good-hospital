@@ -231,7 +231,7 @@ func _clinical_call() -> Dictionary:
 		if v.get("phase","")=="wait_gp": break
 		builder._tick(c)
 	var ready: bool = v.get("phase","")=="wait_gp"
-	var x: Dictionary = {"world":c.world,"space":c.sim.space,"l":c.sim.services.waiting,"c":c.sim.clinic,"p":c.sim.services.departments}
+	var x: Dictionary = {"world":c.world,"space":c.sim.space,"l":c.sim.services.waiting,"c":c.sim.clinic,"p":c.sim.services.experience}
 	var request: bool = false
 	var quote: Dictionary = {}
 	for id: String in c.world.facility_ids("FUR09"):

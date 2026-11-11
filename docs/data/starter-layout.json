@@ -1,5 +1,5 @@
 {
-  "schema_version": 9,
+  "schema_version": 10,
   "id": "starter",
   "plot": [
     1,
@@ -37,36 +37,19 @@
     },
     {
       "id": "room_physical",
-      "type": "T01",
+      "type": "treatment",
       "anchor": [
         42,
         84
       ],
       "size": [
-        6,
+        13,
         6
       ],
       "door": {
         "edge": "south",
         "offset": 2,
         "definition_id": "DR04"
-      }
-    },
-    {
-      "id": "room_daily",
-      "type": "T10",
-      "anchor": [
-        50,
-        85
-      ],
-      "size": [
-        5,
-        5
-      ],
-      "door": {
-        "edge": "south",
-        "offset": 2,
-        "definition_id": "DR01"
       }
     },
     {
@@ -98,8 +81,8 @@
         4
       ],
       "door": {
-        "edge": "south",
-        "offset": 1,
+        "edge": "east",
+        "offset": 2,
         "definition_id": "DR01"
       }
     },
@@ -109,6 +92,23 @@
       "anchor": [
         36,
         79
+      ],
+      "size": [
+        4,
+        4
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 1,
+        "definition_id": "DR01"
+      }
+    },
+    {
+      "id": "room_dormitory",
+      "type": "dormitory",
+      "anchor": [
+        56,
+        73
       ],
       "size": [
         4,
@@ -159,7 +159,7 @@
         2,
         2
       ],
-      "room_id": "room_daily"
+      "room_id": "room_physical"
     },
     {
       "id": "rest_sofa",
@@ -178,7 +178,7 @@
       "id": "toilet_fixture",
       "definition_id": "FUR07",
       "anchor": [
-        56,
+        57,
         80
       ],
       "size": [
@@ -205,26 +205,26 @@
       "definition_id": "SE04",
       "anchor": [
         56,
-        87
+        74
       ],
       "size": [
         1,
         2
       ],
-      "room_id": "room_rest"
+      "room_id": "room_dormitory"
     },
     {
       "id": "staff_bed_b",
       "definition_id": "SE04",
       "anchor": [
         59,
-        87
+        74
       ],
       "size": [
         1,
         2
       ],
-      "room_id": "room_rest"
+      "room_id": "room_dormitory"
     },
     {
       "id": "doctor_office_desk",
@@ -403,7 +403,7 @@
         {
           "kind": "outpatient",
           "pool": [
-            "diagnosis"
+            "room_gp"
           ]
         },
         {
@@ -412,7 +412,7 @@
         {
           "kind": "outpatient",
           "pool": [
-            "diagnosis"
+            "room_gp"
           ]
         }
       ],
@@ -431,15 +431,13 @@
         {
           "kind": "outpatient",
           "pool": [
-            "T01",
-            "T10"
+            "room_physical"
           ]
         },
         {
           "kind": "outpatient",
           "pool": [
-            "T01",
-            "T10"
+            "room_physical"
           ]
         },
         {
@@ -464,32 +462,19 @@
         {
           "kind": "outpatient",
           "pool": [
-            "diagnosis"
+            "room_gp"
           ]
         },
         {
           "kind": "outpatient",
           "pool": [
-            "T01",
-            "T10"
+            "room_physical"
           ]
         }
       ],
       "fatigue": 0,
       "stress": 0,
       "treatment": 1
-    }
-  ],
-  "care_departments": [
-    {
-      "id": "starter_department",
-      "name": "综合诊疗科",
-      "room_ids": [
-        "room_gp",
-        "room_physical",
-        "room_daily"
-      ],
-      "focus_specialty_id": "T10"
     }
   ],
   "floor_id": "floor:1",

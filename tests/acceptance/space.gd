@@ -954,7 +954,7 @@ func _case_35(_t) -> Dictionary:
 	var bed_layouts: Dictionary = _bed_blueprint_contract()
 	if not bed_layouts.ok: return {"ok":false,"details":{"prerequisite":"内置病房真实床边职责、旋转与保存","bed_layouts":bed_layouts}}
 	var sim: HospitalSimulation = _fixture(true)
-	sim.clinic.departments = null
+	sim.clinic.experience = null
 	var arrival: CommandResult = _command(sim,"clinical_arrive",{"binding_id":"B_S49_D37_M37","arrival_key":"space_actual_outpatient","requested_plan_id":"P_D37_COMMON"})
 	var visit_id: String = str(arrival.changed_ids[0]) if arrival.accepted else ""
 	var begun: bool = _wait(sim,func() -> bool: return not _session(sim,"outpatient").is_empty(),2400)
@@ -1893,7 +1893,7 @@ func _surgery_fixture() -> HospitalSimulation:
 	# Staff the new template desk through its real dispatch before the later OR
 	# and ward hires arrive. Otherwise the sole OR nurse can take that job.
 	sim.services.floor_guidance.dispatch(world)
-	sim.clinic.departments = null
+	sim.clinic.experience = null
 	for research: Dictionary in content.catalog.research: sim.world.facts.research.append(research.id)
 	for id: String in sim.world.ids("staff"):
 		var staff: Dictionary = sim.world.facts.staff[id]

@@ -48,7 +48,7 @@ func run(content: HospitalContent) -> Dictionary:
 	var revoked: Dictionary = _pair(sim,movement,box)
 	var empty: Dictionary = _pair(sim,movement,Rect2(1,1,0.1,0.1))
 	var checks: Dictionary = {
-		"real_environment_worker_gate_preserved":sim.services.departments.sample_workers_enabled and sim.services.environment.get_script()==preload("res://game/operations/environment_service.gd") and sim.services.environment.space.get_script()==preload("res://game/building/hospital_space.gd"),
+		"real_environment_worker_gate_preserved":sim.services.experience.sample_workers_enabled and sim.services.environment.get_script()==preload("res://game/operations/environment_service.gd") and sim.services.environment.space.get_script()==preload("res://game/building/hospital_space.gd"),
 		"default_mode_collects_all_actors":both.full.blocker_actor_ids==["alpha","beta"],
 		"default_mode_collects_reservation":both.full.reservation_ids==["first_hit_facility"],
 		"first_mode_stops_after_true_actor_hit":both.first.blocker_actor_ids==["alpha"] and both.first.reservation_ids.is_empty(),

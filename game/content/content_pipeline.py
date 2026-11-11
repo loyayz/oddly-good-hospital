@@ -492,20 +492,26 @@ def design_sources():
         row["fit_profile_id"] = "FF03"
     for row in catalog["clinical_equipment"]:
         row["fit_profile_id"] = "FF04" if row["id"] == "EQ01" else "FF02"
-    room_types = []
-    for identifier, label in (("gp","诊断"),("research","研究"),("rest","员工休息"),("toilet","卫生间")):
-        match = re.search(label+r"(\d+)×(\d+)", simulation)
-        require(match is not None, "simulation room source", "missing support room geometry " + label)
-        room_types.append({"id":identifier,"name":label,"min_inner_size":list(map(int,match.groups())),"requires_research":[]})
-    for collection in ("specialties", "clinical_room_types", "staff_support_rooms"):
-        for row in catalog[collection]:
-            room_types.append({key:copy.deepcopy(row.get(key,[])) for key in ("id","name","min_inner_size","requires_research")})
-    catalog["build_room_types"] = room_types
+    catalog["build_room_types"] = read_json(ROOT/"docs/data/room-purposes.json")
+    starter = read_json(ROOT/"docs/data/starter-layout.json")
+    wall_units = set()
+    for room in starter["rooms"]:
+        x, y = room["anchor"]
+        width, height = room["size"]
+        for axis, line, low, high in (("x",y,x,x+width),("x",y+height,x,x+width),
+                                      ("y",x,y,y+height),("y",x+width,y,y+height)):
+            wall_units.update((axis,line,along) for along in range(low,high))
+    door_prices = {row["id"]: row["price"] for row in catalog["doors"]}
+    # The preset bill is a projection of the same real wall and door sources.
+    rules["starter_purchase"] = [
+        {"item":f"Structure walls {len(wall_units)} edges","amount":len(wall_units)*rules["wall_cost_edge"]},
+        {"item":"Six chosen doors","amount":sum(door_prices[room["door"]["definition_id"]] for room in starter["rooms"])},
+    ] + rules["starter_purchase"]
     catalog["tags"] = [{"id":tag,"kind":"filter"} for tag in sorted({tag for row in catalog["species"] for tag in row["tags"]})]
     catalog["preferences"] = [{"id":tag,"handler_id":"environment.preference@1"} for tag in sorted({tag for row in catalog["species"] for tag in row["preferences"]})]
     production = read_json(ROOT/"assets/models/stage01-production.json")
     assets = {"assets": production["assets"]}
-    return catalog, rules, read_json(ROOT/"docs/data/clinical-layouts.json"), read_json(ROOT/"docs/data/starter-layout.json"), assets
+    return catalog, rules, read_json(ROOT/"docs/data/clinical-layouts.json"), starter, assets
 
 
 def publish(destination: Path, check_only=False):

@@ -314,7 +314,7 @@ func _walls_reason(rect: Rect2, walls: Array) -> String:
 			continue
 		var opening: bool = false
 		for door: Dictionary in _doors:
-			if door.room_id!=wall.room_id or door.axis!=wall.axis or not door.ok:
+			if (not str(wall.room_id).is_empty() and door.room_id!=wall.room_id) or door.axis!=wall.axis or not door.ok:
 				continue
 			var line: float = door.opening.position.y if wall.axis=="x" else door.opening.position.x
 			var a: float = door.opening.position.x if wall.axis=="x" else door.opening.position.y
@@ -351,15 +351,17 @@ func dirty_regions(previous: RouteClearance) -> Array[Rect2i]:
 static func capture_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
 	var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
 	var source_layout: Dictionary = {"plots":layout.get("plots",[]).duplicate(true),"blocked":layout.get("blocked",[]).duplicate(true),"doors":[]}
+	if layout.has("wall_edges"): source_layout.wall_edges = layout.wall_edges.duplicate(true)
 	for door: Dictionary in layout.get("doors",[]):
 		var shape: Dictionary = {}
 		for field: String in ["id","definition_id","cell","span","axis","room_id"]:
 			shape[field] = door[field].duplicate() if door[field] is Array else door[field]
+		shape.interior_side = int(door.get("interior_side",-1))
 		source_layout.doors.append(shape)
 	var result: Dictionary = {"layout":source_layout,"rooms":{},"facilities":{},"connectors":{},"height":0.0,"door_height":float(space.content.balance.floors.clear_height_m) if world.facts.floors.has("completed_top_floor") and not layout.plots.is_empty() else 0.0,"occupancy":[]}
 	for id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[id]
-		if int(room.floor_id)==floor_id:
+		if int(room.floor_id)==floor_id and room.get("structure_valid",true):
 			result.rooms[id] = {"origin":room.origin.duplicate(),"size":room.size.duplicate()}
 			for field: String in ["cells","wall_edges"]:
 				if room.has(field):

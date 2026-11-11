@@ -27,7 +27,7 @@ func sync(world: WorldState) -> void:
 		signature.append([adaptation_id,adaptation.kind,adaptation.get("actor_id","") if adaptation.kind=="facility" else "",adaptation.get("staff_ids",[]),adaptation.get("footprint",[]),adaptation.get("span",0)])
 	for bed_id: String in world.facility_ids("SE04"):
 		var bed: Dictionary = world.facts.facilities[bed_id]
-		signature.append([bed_id,bed.get("failed",false),bed.get("stored",false),HospitalRemodel.blocked(world,bed_id),HospitalStaffWellbeing._is_staff_room(world.facts.rooms.get(bed.get("room_id",""),{}))])
+		signature.append([bed_id,bed.get("failed",false),bed.get("stored",false),HospitalRemodel.blocked(world,bed_id),HospitalStaffWellbeing._is_dormitory(world.facts.rooms.get(bed.get("room_id",""),{}))])
 	for bed_id: String in owners:
 		var staff_id: String = str(owners[bed_id].staff_id)
 		var staff: Dictionary = world.facts.staff.get(staff_id,{})
@@ -84,7 +84,7 @@ func sync(world: WorldState) -> void:
 		var geometry: Dictionary = geometry_eligibility.get_or_add(shape_key,{})
 		for bed_id: String in free_beds:
 			var bed: Dictionary = world.facts.facilities[bed_id]
-			if bed.get("stored",false) or bed.get("failed",false) or HospitalRemodel.blocked(world,bed_id) or not HospitalStaffWellbeing._is_staff_room(world.facts.rooms.get(bed.get("room_id",""),{})): continue
+			if bed.get("stored",false) or bed.get("failed",false) or HospitalRemodel.blocked(world,bed_id) or not HospitalStaffWellbeing._is_dormitory(world.facts.rooms.get(bed.get("room_id",""),{})): continue
 			# Only a confirmed fixed-geometry failure rejects another equal body.
 			# Successful pairs keep the original full live round trip, with no
 			# extra preflight; dynamic failures are never shared as rejections.

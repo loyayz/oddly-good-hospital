@@ -55,7 +55,7 @@ func matrix(modes:Array=[])->Dictionary:
    x.world.facts.floors.completed_top_floor["1:2"]=2;a.location.floor_id=2
   if mode=="legacy":x.world.facts.floors.erase("completed_top_floor");expected=0
   if mode=="custom_batch":expected=0
-  if mode=="closed":x.world.facts.departments.experience.subject_0.closed_tick=0;expected=1
+  if mode=="closed":x.world.facts.patient_experience.experience.subject_0.closed_tick=0;expected=1
   if mode=="non_floor":a.location={"kind":"outside"};expected=1
   x.world.touch()
   var row:Dictionary=observations(x,FullBatch.new() if mode=="custom_batch" else Batch.new());row.case=mode
@@ -109,7 +109,7 @@ func department_pair(broken:bool)->Dictionary:
  var a:Dictionary=_bind(WorldState.new(input.world.freeze()));var b:Dictionary=_bind(WorldState.new(input.world.freeze()))
  for x:Dictionary in [a,b]:
   x.e.waiting_life=x.l
-  for id:String in x.world.active_visit_ids():x.world.facts.departments.experience[id].next_anger_tick=0
+  for id:String in x.world.active_visit_ids():x.world.facts.patient_experience.experience[id].next_anger_tick=0
  a.p.sample_workers_enabled=false
  b.p.sample_worker_tasks=1
  if broken:

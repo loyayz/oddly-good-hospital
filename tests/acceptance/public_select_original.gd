@@ -7,7 +7,7 @@ extends HospitalPublicAreas
 # Original source public_areas.gd SHA256:
 # 5642782f1cb44249158a9ca40874faaebeb6a53b6faa0ae3a5462cb56fcc36ee
 
-func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false, _excluded_rooms: Array = []) -> Dictionary:
 	_ensure(world)
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {}

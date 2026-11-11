@@ -8,7 +8,7 @@ const ResearchJobs = preload("res://game/community/research_job_index.gd")
 var content: HospitalContent
 var space: HospitalSpace
 var clinic: HospitalClinic
-var departments: RefCounted
+var experience: RefCounted
 var environment: RefCounted
 var development: RefCounted
 var _research_jobs: RefCounted = ResearchJobs.new()
@@ -405,20 +405,13 @@ func take_events() -> Array[SimEvent]:
 # are provisional pacing values, not promises of completed treatment.
 func demand_desks(world: WorldState) -> int:
 	var count: int = 0
-	var units: Dictionary = world.facts.get("departments",{}).get("units",{})
 	for id: String in world.facility_ids("FUR02"):
 		var desk: Dictionary = world.facts.facilities[id]
 		var room: Dictionary = world.facts.rooms.get(str(desk.get("room_id","")),{})
 		if room.is_empty() or not bool(room.get("open",true)) or not bool(desk.get("open",true)) or not bool(desk.get("intake_open",true)):
 			continue
 		if HospitalRemodel.blocked(world,id): continue
-		var owned: bool = false
-		var open_owner: bool = false
-		for department: Dictionary in units.values():
-			if desk.room_id in department.get("room_ids",[])+department.get("shared_room_ids",[]):
-				owned = true
-				open_owner = open_owner or bool(department.get("open",true))
-		if owned and not open_owner: continue
+		if room.get("kind","")!="gp" or not room.get("structure_valid",true) or not room.get("open_intent",true): continue
 		count += 1
 	return count
 
@@ -687,8 +680,8 @@ func _deterministic_exit(world: WorldState, visit: Dictionary, ticket: Dictionar
 func _depart_wait(world: WorldState, visit: Dictionary, ticket: Dictionary, state: Dictionary, reason: String) -> void:
 	if state.selected:
 		return
-	if departments != null:
-		departments.call("retire_ticket",world,str(visit.id))
+	if experience != null:
+		experience.call("retire_ticket",world,str(visit.id))
 	if not clinic.call("depart_visit",world,str(visit.id),"abandoned"):
 		return
 	state.selected = true

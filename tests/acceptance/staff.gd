@@ -1005,7 +1005,7 @@ func _case_32(t) -> void:
 		x.l.environment = observations
 		x.p.environment = observations
 		x.world.facts.sim_tick = 10000
-		var experience: Dictionary = x.world.facts.departments.experience[visit.id]
+		var experience: Dictionary = x.world.facts.patient_experience.experience[visit.id]
 		experience.cause_clocks = {"construction_noise":0,"dirty":0}
 		x.p._sample_anger(x.world,visit,experience)
 		noise_results[chair_type] = {"seated":seated,"sources":experience.anger_sources.duplicate(true),"multiplier":x.l.noise_multiplier(x.world,visit.id)}

@@ -604,12 +604,6 @@
           "max_sessions": {
             "type": "integer"
           },
-          "min_inner_size": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array"
-          },
           "name": {
             "type": "string"
           },
@@ -637,7 +631,6 @@
         },
         "required": [
           "id",
-          "min_inner_size",
           "name",
           "required_equipment_ids",
           "requires_research",
@@ -3953,27 +3946,16 @@
     "specialties": {
       "items": {
         "properties": {
-          "doctor_qualification": {
-            "type": "string"
-          },
           "id": {
             "identity": true,
             "type": "string"
-          },
-          "min_inner_size": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array"
           },
           "name": {
             "type": "string"
           }
         },
         "required": [
-          "doctor_qualification",
           "id",
-          "min_inner_size",
           "name"
         ],
         "type": "object"
@@ -4374,12 +4356,6 @@
             "identity": true,
             "type": "string"
           },
-          "min_inner_size": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array"
-          },
           "name": {
             "type": "string"
           },
@@ -4402,7 +4378,6 @@
         "required": [
           "access",
           "id",
-          "min_inner_size",
           "name",
           "required_equipment_ids",
           "requires_research"
@@ -7227,12 +7202,6 @@
           "max_sessions": {
             "type": "integer"
           },
-          "min_inner_size": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array"
-          },
           "name": {
             "type": "string"
           },
@@ -7260,7 +7229,6 @@
         },
         "required": [
           "id",
-          "min_inner_size",
           "name",
           "required_equipment_ids",
           "requires_research",
@@ -12018,42 +11986,6 @@
           ],
           "type": "object"
         },
-        "care_departments": {
-          "properties": {
-            "focus_change_cost": {
-              "type": "integer"
-            },
-            "focus_change_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
-            "focus_min_ability": {
-              "type": "integer"
-            },
-            "focus_min_cases": {
-              "type": "integer"
-            },
-            "focus_min_score": {
-              "type": "integer"
-            },
-            "focus_work_multiplier": {
-              "type": "number"
-            },
-            "max_count": {
-              "type": "null"
-            }
-          },
-          "required": [
-            "focus_change_cost",
-            "focus_change_seconds",
-            "focus_min_ability",
-            "focus_min_cases",
-            "focus_min_score",
-            "focus_work_multiplier",
-            "max_count"
-          ],
-          "type": "object"
-        },
         "case_body": {
           "properties": {
             "active_until": {
@@ -12265,10 +12197,6 @@
               "minimum": 0,
               "type": "integer"
             },
-            "discharge_round_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
             "equipment_no_progress_referral_seconds": {
               "minimum": 0,
               "type": "integer"
@@ -12328,7 +12256,6 @@
             "clinic_guard_seconds",
             "complex_probability",
             "consult_seconds",
-            "discharge_round_seconds",
             "equipment_no_progress_referral_seconds",
             "max_beds_per_room",
             "max_ward_beds",
@@ -13352,6 +13279,16 @@
           ],
           "type": "object"
         },
+        "doctor_visits": {
+          "properties": {
+            "bedside_radius_cells": { "type": "integer", "minimum": 1 },
+            "interaction_seconds": { "type": "integer", "minimum": 1 },
+            "probability_bp": { "type": "integer", "minimum": 0, "maximum": 10000 },
+            "scan_seconds": { "type": "integer", "minimum": 1 }
+          },
+          "required": ["bedside_radius_cells", "interaction_seconds", "probability_bp", "scan_seconds"],
+          "type": "object"
+        },
         "door_safety_margin_m": {
           "type": "number"
         },
@@ -13971,9 +13908,6 @@
             "saving_notes"
           ],
           "type": "object"
-        },
-        "floor_cost_cell": {
-          "type": "integer"
         },
         "floors": {
           "properties": {
@@ -16596,29 +16530,6 @@
             },
             "weights": {
               "properties": {
-                "care_department": {
-                  "properties": {
-                    "clinical": {
-                      "type": "integer"
-                    },
-                    "environment": {
-                      "type": "integer"
-                    },
-                    "flow": {
-                      "type": "integer"
-                    },
-                    "patient": {
-                      "type": "integer"
-                    }
-                  },
-                  "required": [
-                    "clinical",
-                    "environment",
-                    "flow",
-                    "patient"
-                  ],
-                  "type": "object"
-                },
                 "doctor": {
                   "properties": {
                     "duty": {
@@ -16717,7 +16628,6 @@
                 }
               },
               "required": [
-                "care_department",
                 "doctor",
                 "hospital",
                 "patient",
@@ -16726,9 +16636,6 @@
               "type": "object"
             },
             "window_days": {
-              "type": "integer"
-            },
-            "wrong_department_penalty": {
               "type": "integer"
             }
           },
@@ -16750,8 +16657,7 @@
             "staff_job_limit",
             "staff_rest_coverage_weight",
             "weights",
-            "window_days",
-            "wrong_department_penalty"
+            "window_days"
           ],
           "type": "object"
         },
@@ -17058,9 +16964,6 @@
             "source"
           ],
           "type": "object"
-        },
-        "room_fitout_cost_cell": {
-          "type": "integer"
         },
         "save": {
           "properties": {
@@ -18080,10 +17983,6 @@
             "missing_bed_fallback": {
               "type": "string"
             },
-            "missing_bed_wait_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
             "player_meter": {
               "type": "boolean"
             },
@@ -18118,7 +18017,6 @@
             "mandatory_wait_only",
             "manual_wakeup",
             "missing_bed_fallback",
-            "missing_bed_wait_seconds",
             "player_meter",
             "room_type",
             "sharing",
@@ -18190,12 +18088,6 @@
             "assignment": {
               "type": "string"
             },
-            "doctor_equipment_id": {
-              "ref": [
-                "service_equipment"
-              ],
-              "type": "string"
-            },
             "emergency_care_preempts": {
               "type": "boolean"
             },
@@ -18233,7 +18125,6 @@
           },
           "required": [
             "assignment",
-            "doctor_equipment_id",
             "emergency_care_preempts",
             "individual_office_assignment",
             "maintenance",
@@ -19890,6 +19781,9 @@
         "zone_cooldown_seconds": {
           "minimum": 0,
           "type": "integer"
+        },
+        "wall_cost_edge": {
+          "type": "integer"
         }
       },
       "required": [
@@ -19905,7 +19799,6 @@
         "blueprints",
         "build_tryout",
         "camera_view",
-        "care_departments",
         "case_body",
         "casual_interaction",
         "chair_effects",
@@ -19931,13 +19824,13 @@
         "dialogue_presentation",
         "doctor_pay",
         "doctor_training",
+        "doctor_visits",
         "door_safety_margin_m",
         "environment",
         "equipment",
         "event_settings",
         "facility_magic",
         "finance_review",
-        "floor_cost_cell",
         "floors",
         "gp_seconds",
         "gratitude",
@@ -19986,7 +19879,6 @@
         "resident_retention",
         "resident_returns",
         "resume_note",
-        "room_fitout_cost_cell",
         "save",
         "schedule",
         "schema_version",
@@ -20029,7 +19921,8 @@
         "ward_neighbor_presentation",
         "wellbeing",
         "windup_seconds",
-        "zone_cooldown_seconds"
+        "zone_cooldown_seconds",
+        "wall_cost_edge"
       ],
       "type": "object"
     },
@@ -20111,27 +20004,16 @@
     "specialties.json": {
       "items": {
         "properties": {
-          "doctor_qualification": {
-            "type": "string"
-          },
           "id": {
             "identity": true,
             "type": "string"
-          },
-          "min_inner_size": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array"
           },
           "name": {
             "type": "string"
           }
         },
         "required": [
-          "doctor_qualification",
           "id",
-          "min_inner_size",
           "name"
         ],
         "type": "object"
@@ -20532,12 +20414,6 @@
             "identity": true,
             "type": "string"
           },
-          "min_inner_size": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array"
-          },
           "name": {
             "type": "string"
           },
@@ -20560,7 +20436,6 @@
         "required": [
           "access",
           "id",
-          "min_inner_size",
           "name",
           "required_equipment_ids",
           "requires_research"
@@ -20713,39 +20588,6 @@
         "camera_focus": {
           "items": {
             "type": "integer"
-          },
-          "type": "array"
-        },
-        "care_departments": {
-          "items": {
-            "properties": {
-              "focus_specialty_id": {
-                "ref": [
-                  "build_room_types",
-                  "specialties"
-                ],
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "room_ids": {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              }
-            },
-            "required": [
-              "focus_specialty_id",
-              "id",
-              "name",
-              "room_ids"
-            ],
-            "type": "object"
           },
           "type": "array"
         },
@@ -21108,7 +20950,6 @@
       },
       "required": [
         "camera_focus",
-        "care_departments",
         "doctor_roster",
         "entry",
         "floor_id",

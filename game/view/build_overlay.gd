@@ -24,7 +24,14 @@ func show_preview(draft: Dictionary, result: Dictionary, floor_id: int) -> void:
 	var color: Color = Color("4d719d") if result.get("ready",false) and result.get("ok",false) else Color("7a7d83")
 	if result.get("ready",false) and not result.get("ok",false):
 		color = Color("b85550")
-	if cells.is_empty():
+	if draft.get("kind","") in ["build_wall","build_remove_wall"]:
+		lines.surface_set_color(color)
+		for edge: Dictionary in draft.get("edges",[]):
+			var first: Array = [int(edge.low),int(edge.line)] if edge.axis=="x" else [int(edge.line),int(edge.low)]
+			var last: Array = [int(edge.high),int(edge.line)] if edge.axis=="x" else [int(edge.line),int(edge.high)]
+			lines.surface_add_vertex(_point(first))
+			lines.surface_add_vertex(_point(last))
+	elif cells.is_empty():
 		# The same rectangular cell grid needs one line per row/column, rather
 		# than drawing every shared edge twice and uploading 8 vertices/cell.
 		var low: Vector3 = _point(origin)

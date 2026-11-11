@@ -568,8 +568,8 @@ func run_import_overlay(t, content: HospitalContent, case_id: String = "CORE-54"
 	for id: String in staff: facts.staff[id] = {"id":id}
 	for id: String in staff:
 		for source: String in [old+":course",old+"_job",old+"/receipt","external:source",""]:
-			facts.departments.staff_consumed[id+":"+source] = true
-	facts.departments.staff_consumed["unmatched:key"] = true
+			facts.patient_experience.staff_consumed[id+":"+source] = true
+	facts.patient_experience.staff_consumed["unmatched:key"] = true
 	var before: Dictionary = facts.duplicate(true)
 	var control: Dictionary = _original_remap(library,facts,old,next)
 	var imported: Dictionary = library._remap_hospital(facts,old,next)
@@ -603,5 +603,5 @@ func _original_remap(library: HospitalLibrary, value: Dictionary, old: String, n
 				mapped = str(ids.get(id,id))+":"+mapped_source
 				break
 		consumed[mapped] = value.departments.staff_consumed[key]
-	rewritten.departments.staff_consumed = consumed
+	rewritten.patient_experience.staff_consumed = consumed
 	return rewritten

@@ -1,7 +1,7 @@
 #requires -Version 7.0
 [CmdletBinding()]
 param(
-    [ValidateSet('core','clinical','staff','operations','growth','space')][string[]]$Suite = @('core','clinical','staff','operations','growth','space'),
+    [ValidateSet('core','clinical','staff','operations','growth','space','room_construction','rooms_areas_guidance')][string[]]$Suite = @('core','clinical','staff','operations','growth','space','room_construction','rooms_areas_guidance'),
     [Alias('Case')][string[]]$CaseId = @(),
     [switch]$ListCases,
     [switch]$All,
@@ -19,9 +19,9 @@ if (-not $All -and -not $ListCases -and -not $PSBoundParameters.ContainsKey('Sui
 if ($All -and ($CaseId.Count -gt 0 -or $PSBoundParameters.ContainsKey('Suite'))) { throw '-All cannot be combined with -Case or -Suite.' }
 $CaseId = @($CaseId | ForEach-Object { $_.Split(',') } | ForEach-Object { $_.Trim().ToUpperInvariant() })
 if (@($CaseId | Sort-Object -Unique).Count -ne $CaseId.Count -or '' -in $CaseId) { throw 'Empty or duplicate acceptance case.' }
-$catalog = foreach ($topic in @('core','clinical','staff','operations','growth','space')) {
+$catalog = foreach ($topic in @('core','clinical','staff','operations','growth','space','room_construction','rooms_areas_guidance')) {
     foreach ($line in Get-Content -LiteralPath (Join-Path $PSScriptRoot "acceptance/$topic.gd")) {
-        if ($line -match '^\s*"((?:CORE|CLIN|STAFF|OPS|GROW|SPACE)-\d{2})"\s*:\s*"([^"]+)"') {
+        if ($line -match '^\s*"((?:CORE|CLIN|STAFF|OPS|GROW|SPACE|ROOM(?:-BUILD)?|AREA|GUIDE|LIFE|RESULT)-\d{2})"\s*:\s*"([^"]+)"') {
             [pscustomobject]@{ Suite=$topic; CaseId=$Matches[1]; Requirement=$Matches[2] }
         }
     }
@@ -77,6 +77,23 @@ $configuration.Replace('config/custom_user_dir_name="oddly-good-hospital"',('con
 $importArguments = @('--headless','--editor','--path',$target,'--import','--quit')
 $arguments = @('--headless','--path',$target,'--script','res://tests/acceptance/runner.gd','--') + $Suite
 foreach ($selectedCase in $CaseId) { $arguments += '--case=' + $selectedCase }
+$runtimeProfileRoot = Join-Path $target '.runtime-profile'
+$isolatedAppData = Join-Path $runtimeProfileRoot 'Roaming'
+$isolatedLocalAppData = Join-Path $runtimeProfileRoot 'Local'
+New-Item -ItemType Directory -Path $isolatedAppData,$isolatedLocalAppData -Force | Out-Null
+function Invoke-AcceptanceGodot([string[]]$EngineArguments, [string]$LogPath) {
+    $previousAppData = $env:APPDATA
+    $previousLocalAppData = $env:LOCALAPPDATA
+    try {
+        $env:APPDATA = $isolatedAppData
+        $env:LOCALAPPDATA = $isolatedLocalAppData
+        & $Godot @EngineArguments *> $LogPath
+        return $LASTEXITCODE
+    } finally {
+        $env:APPDATA = $previousAppData
+        $env:LOCALAPPDATA = $previousLocalAppData
+    }
+}
 $engineHash = (Get-FileHash -LiteralPath $Godot -Algorithm SHA256).Hash
 $nativeHash = (Get-FileHash -LiteralPath $native -Algorithm SHA256).Hash
 $mathNativeHash = (Get-FileHash -LiteralPath $mathNative -Algorithm SHA256).Hash
@@ -98,6 +115,7 @@ $fixtureHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($
 [ordered]@{
     head=(& git -C $repo rev-parse HEAD); cwd=$repo; project=$target; profile=$profile
     engine=$Godot; engine_sha256=$engineHash
+    environment=[ordered]@{APPDATA=$isolatedAppData;LOCALAPPDATA=$isolatedLocalAppData}
     native_sha256=$nativeHash; gmp_sha256=$mathNativeHash; mpfr_sha256=$mpfrNativeHash; runtime_sha256=$runtimeHashes; fixture_identity=$fixtureHash; rebuild_fixtures=[bool]$RebuildFixtures
     import_arguments=$importArguments; test_arguments=$arguments; source=$identity
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $target 'source-identity.json') -Encoding utf8NoBOM
@@ -111,8 +129,7 @@ $timingPath = Join-Path $target 'timing-summary.json'
 $timing | ConvertTo-Json | Set-Content -LiteralPath $timingPath -Encoding utf8NoBOM
 $importLog = Join-Path $target 'import.log'
 $importStarted = $runClock.ElapsedMilliseconds
-& $Godot @importArguments *> $importLog
-$importExit = $LASTEXITCODE
+$importExit = Invoke-AcceptanceGodot -EngineArguments $importArguments -LogPath $importLog
 $timing.import_ms = $runClock.ElapsedMilliseconds - $importStarted
 if ($importExit -ne 0 -or (Select-String -LiteralPath $importLog -Pattern 'SCRIPT ERROR:|Parse Error:|ERROR:' -Quiet)) {
     $timing.phase = 'import_failed'
@@ -126,8 +143,7 @@ $timing.phase = 'tests'
 $timing | ConvertTo-Json | Set-Content -LiteralPath $timingPath -Encoding utf8NoBOM
 $testLog = Join-Path $target 'execution.log'
 $testStarted = $runClock.ElapsedMilliseconds
-& $Godot @arguments *> $testLog
-$testExit = $LASTEXITCODE
+$testExit = Invoke-AcceptanceGodot -EngineArguments $arguments -LogPath $testLog
 $timing.tests_ms = $runClock.ElapsedMilliseconds - $testStarted
 $timing.ended_at_utc = [DateTimeOffset]::UtcNow.ToString('o')
 $timing.total_ms = $runClock.ElapsedMilliseconds

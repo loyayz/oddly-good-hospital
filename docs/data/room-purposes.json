@@ -1,0 +1,83 @@
+[
+  {
+    "id": "gp",
+    "name": "门诊室",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "treatment",
+    "name": "诊疗室",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "operating_room",
+    "name": "手术室",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "ward",
+    "name": "病房",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "doctor_office",
+    "name": "医生办公室",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "research",
+    "name": "研究室",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "rest",
+    "name": "员工休息室",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "dormitory",
+    "name": "员工宿舍",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  },
+  {
+    "id": "toilet",
+    "name": "卫生间",
+    "min_inner_size": [
+      1,
+      1
+    ],
+    "requires_research": []
+  }
+]
