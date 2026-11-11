@@ -106,8 +106,83 @@ func run_cases_selected(database:HospitalContent,selected:Array)->Dictionary:
 		elif id=="ANGER-SEAT-LIVE":rows[id]=live()
 		elif id=="ANGER-SEAT-FRIENDS":rows[id]=friends()
 		elif id=="ANGER-SEAT-FRIENDS-OWNERS":rows[id]=friends(["convoy","transit"])
+		elif id=="ANGER-FRIEND-PUBLIC":rows[id]=public_friend_ground()
+		elif id=="ANGER-FRIEND-PURPOSE":rows[id]=friend_purposes()
+		elif id=="ANGER-FRIEND-OUTSIDE":rows[id]=outside_friend_case()
 		else:return {"ok":false,"unknown_case":id}
 	return {"ok":not rows.is_empty() and rows.values().all(func(r:Dictionary)->bool:return r.ok),"cases":rows}
+
+var friend_family_input: Dictionary = {}
+var friend_family_source: Dictionary = {}
+
+func public_friend_ground() -> Dictionary:
+	var rows: Array=[]
+	for kind: String in ["wall","bucket_float_boundary"]:
+		var x: Dictionary=_input(kind);var w: WorldState=x.world;var before: Dictionary=w.freeze()
+		var friend: Dictionary=w.facts.actors.z_neighbor
+		var point:=Vector2i(roundi(friend.location.cell[0]),roundi(friend.location.cell[1]))
+		var region: Dictionary=x.space.public_areas.current_area(w,friend.id)
+		var public_ground: bool=x.space.public_areas.public_point(w,1,point)
+		var independent_public_ground: bool=x.space.room_use.public_point(w,1,point)
+		var compared: Dictionary=compare(w,"choice");var quotes: Array=[];var expected: Dictionary={"seat_A":kind=="bucket_float_boundary","seat_B":kind=="wall"}
+		var valid: bool=true
+		for quote: Dictionary in compared.after_quotes:
+			valid=valid and quote.score is int and quote.travel_ticks is int and quote.conditions.friendly_neighbor is bool and bool(quote.conditions.friendly_neighbor)==bool(expected[quote.facility_id])
+			var path: Dictionary=x.space._floor_route(w,w.facts.actors[w.facts.visits.choice.actor_id],1,Vector2i(int(quote.patient_cell[0]),int(quote.patient_cell[1])),point,[],{},true)
+			quotes.append({"facility":quote.facility_id,"friendly":quote.conditions.friendly_neighbor,"score":quote.score,"direct_path_ok":path.ok,"direct_walking_distance":path.get("walking_distance",-1)})
+		var row: Dictionary={"kind":kind,"raw_cell":friend.location.cell,"physical_point":point,"facility_use_area":region,"public_point":public_ground,"independent_room_public_point":independent_public_ground,"idle_public_friend":x.l._idle_public_friend(w,friend),"complete_candidates_and_scores_equal":compared.equal,"integer_scores_ticks_boolean_friend":valid,"quotes":quotes,"facts_rng_and_positions_unchanged":before==w.freeze(),"validation":w.validate(_content)}
+		row.ok=valid and public_ground and independent_public_ground and region.is_empty() and row.idle_public_friend and row.complete_candidates_and_scores_equal and row.facts_rng_and_positions_unchanged and row.validation.is_empty();rows.append(row)
+	return {"ok":rows.all(func(row: Dictionary)->bool:return row.ok),"rows":rows}
+
+func _purpose_observation(x: Dictionary, actor_id: String, label: String, expected: bool) -> Dictionary:
+	var before: Dictionary=x.world.freeze();var actor: Dictionary=x.world.facts.actors[actor_id]
+	var actual: bool=x.l._idle_public_friend(x.world,actor)
+	var original: FrozenLife=FrozenLife.new(_content,x.space)
+	var reference: bool=original._original_idle_public_friend(x.world,actor)
+	var row: Dictionary={"case":label,"actual":actual,"independent_reference":reference,"expected":expected,"location":actor.location.duplicate(true),"facts_rng_and_positions_unchanged":before==x.world.freeze(),"validation":x.world.validate(_content)}
+	row.ok=actual==expected and reference==expected and row.facts_rng_and_positions_unchanged and row.validation.is_empty()
+	return row
+
+func friend_purposes() -> Dictionary:
+	var rows: Array=[]
+	var private_input: Dictionary=_fixture()
+	HospitalFactory._add_room(private_input.world,{"id":"private_friend_room","type":"gp","anchor":[34,66],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},_content)
+	var patient: Dictionary=_visit(private_input,"private_friend",[37,69]);private_input.world.touch()
+	rows.append(_purpose_observation(private_input,patient.actor_id,"private_medical_ground",false))
+	rows.append(outside_friend_case())
+	var water: RefCounted=preload("res://tests/acceptance/water_availability_projection.gd").new();water._content=_content
+	var using_input: Dictionary=water._input("patient")
+	if not using_input.claimed or not using_input.validation.is_empty(): return {"ok":false,"failure_kind":"fixture","owner":"patient","validation":using_input.validation}
+	rows.append(_purpose_observation(using_input,using_input.user_id,"actual_patient_water_service",false))
+	water.family_input=friend_family_input;water.family_source=friend_family_source
+	var visitor: Dictionary=water._visitor_input(true)
+	if not visitor.claimed or not visitor.validation.is_empty(): return {"ok":false,"failure_kind":"fixture","owner":"visitor","validation":visitor.validation,"prerequisite":visitor.get("prerequisite",{})}
+	var stay: Dictionary={}
+	for candidate: Dictionary in visitor.world.facts.visitors.stays.values():
+		if candidate.actor_id==visitor.user_id: stay=candidate;break
+	# This calculation boundary keeps the existing waiting phase while its real
+	# task owner has claimed a service; phase alone cannot prove idle waiting.
+	stay.phase="waiting";visitor.world.touch(false)
+	rows.append(_purpose_observation(visitor,visitor.user_id,"waiting_companion_in_actual_water_service",false))
+	var need: Dictionary=stay.life_task;var work: int=int(need.remaining_ticks)
+	for tick: int in work:
+		visitor.l.advance_actor_need(visitor.world,visitor.user_id,need)
+		visitor.world.facts.sim_tick+=1;visitor.world.touch(false)
+	rows.append(_purpose_observation(visitor,visitor.user_id,"service_work_done_task_not_cleared",false))
+	visitor.c.visitors.waiting_life=weakref(visitor.l)
+	var cleanup_ticks: int=0
+	for tick: int in 200:
+		visitor.c.visitors._dispatch_life(visitor.world,stay)
+		if stay.life_task.is_empty(): break
+		visitor.space.advance(visitor.world);visitor.world.facts.sim_tick+=1;visitor.world.touch(false);cleanup_ticks+=1
+	var cleared: Dictionary=_purpose_observation(visitor,visitor.user_id,"task_owner_finished_safe_cleanup",true)
+	cleared.ok=cleared.ok and stay.life_task.is_empty() and not visitor.world.facts.moves.has(visitor.user_id);rows.append(cleared)
+	return {"ok":rows.all(func(row: Dictionary)->bool:return row.ok),"rows":rows,"visitor_prerequisite":visitor.prerequisite,"actual_service_work_ticks":work,"actual_safe_cleanup_ticks":cleanup_ticks,"scope":"Purpose qualification and public ground only. Water service advances through its real owner; original family input remains unchanged. No admission or ward return is claimed by the calculation prerequisite."}
+
+func outside_friend_case() -> Dictionary:
+	var outside: Dictionary=_fixture();var actor_id: String="outside_friend"
+	outside.world.facts.actors[actor_id]={"id":actor_id,"name":"院外朋友","species_id":"S49","location":{"kind":"outside"},"facing":0.0,"posture":"standing"};outside.world.touch()
+	return _purpose_observation(outside,actor_id,"outside_without_floor_fields",false)
 
 func live()->Dictionary:
 	var x:Dictionary=_fixture()

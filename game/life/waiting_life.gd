@@ -1317,17 +1317,18 @@ func _busy_friend_actors(world: WorldState) -> Dictionary:
 		if not _waiting_ticket(world,patient) or int(ticket.get("called_tick",-1))>=0 or world.facts.preparations.has(patient.id) or world.facts.get("waiting_life",{}).get("needs",{}).has(patient.id) or (floor_guidance!=null and floor_guidance.working(world,patient.id)):
 			busy[patient.actor_id] = true
 	for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
-		if not stay.phase in ["waiting","to_waiting"]: busy[stay.actor_id] = true
+		if not stay.phase in ["waiting","to_waiting"] or not stay.get("life_task",{}).is_empty(): busy[stay.actor_id] = true
 	return busy
 
 func _idle_public_friend(world: WorldState, actor: Dictionary) -> bool:
+	if actor.location.kind!="floor": return false
 	# A convoy follower has no own moves key. Query its real owner without
 	# cancelling, retargeting or otherwise changing the journey.
 	if world.facts.moves.has(actor.id) or not space.movement._member_owner(world,actor.id).is_empty(): return false
 	var busy: Dictionary = space.read_view(world,"waiting_busy_friends",_busy_friend_actors.bind(world))
 	if busy.has(actor.id): return false
-	var area: Dictionary = space.public_areas.current_area(world,actor.id)
-	return space.public_areas.area_valid(world,area,WAITING_ROOM_KINDS)
+	var point:=Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	return space.public_areas.public_point(world,int(actor.location.floor_id),point)
 
 func _conditions(world: WorldState, visit: Dictionary, facility: Dictionary, cell: Array, observation: Dictionary, actor_index: Variant = null) -> Dictionary:
 	var nearby: int = 0

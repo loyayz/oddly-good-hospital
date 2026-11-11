@@ -18,3 +18,14 @@
 入口：`--headless --path <repo> --script res://tests/acceptance/waiting_anger_reason_runner.gd -- <output.json> ANGER-SEAT-MATRIX ANGER-SEAT-BOUNDARIES ANGER-SEAT-LIVE ANGER-SEAT-FRIENDS`。运行时须与证据身份一致；本轮是 Godot 4.7.2，不能默认为系统 Godot 4.6.3。
 
 局部性能固定为 160 人、100 次已坐静音罩椅的布尔读取，只测完整摘要与布尔 API，不是完整 tick 或座位选择。仍需邻居才能决定的输入会使用原查询，不宣称消除所有全员扫描，也不建立新动态索引。
+
+## 公共地面与朋友资格
+
+2026-11-12 的正确性修复按现行房间区域规格与设计08§17.4区分设施使用区和公共地面。朋友的公共属性读取 `public_point`，不要求落在某件设施的三格使用区。移动、同行从者、患者实际目的和家属生活任务仍排除闲等；院外和乘梯不读取不存在的楼面字段。
+
+- ANGER-FRIEND-PUBLIC：保留 STAFF-42 原 wall 与 bucket_float_boundary 坐标、原两把椅子、真实路径和完整分数比较。直接记录两个公共点与空设施区映射；wall 的两椅友好条件分别 false/true，精确小数边界分别 true/false。
+- ANGER-FRIEND-PURPOSE：私人医疗房点、无楼面字段的院外主体、实际患者取水、保持 waiting 阶段但实际使用生活设施的合法陪同。家属的服务按真实工作tick推进，生活所有者安全清理任务之后才恢复闲等；原完整事实文件只读。该家属用例复用水查询专项的已接纳陪同计算前提，不证明入院或回病房。
+
+后一选择器额外传 `--family-input=<原qualified轮次的r1.json.final.bin>`，记录内容指纹与原始哈希。现有 ANGER-SEAT-FRIENDS-OWNERS 继续通过真实移动覆盖同行与乘梯。独立全量oracle从原目的事实及房间公共地面读取资格，不调用生产的闲等朋友判定或邻居索引；完整候选、评分和原正负路径断言保留。
+
+ANGER-FRIEND-OUTSIDE 只执行院外输入边界，供该前提变化后的独立复验；不重复已验证的家属工时和安全收尾。

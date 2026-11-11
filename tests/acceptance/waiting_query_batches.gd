@@ -1,8 +1,8 @@
 extends "res://tests/acceptance/staff_fixtures.gd"
 
-# Independent pre-index candidate loop and neighborhood calculation are frozen
-# from adcea18. They compare complete quotes, rather than feeding expected scores
-# back through the optimized candidate lookup.
+# The full pre-index candidate and neighborhood loops retain adcea18's shape.
+# Friend qualification follows design §17.4 purpose facts and public ground,
+# independently of the optimized friend predicate and neighborhood index.
 class CountedSpace extends HospitalSpace:
 	var condition_scope: bool = false
 	var condition_routes: int = 0
@@ -110,11 +110,22 @@ class FrozenLife extends CountedLife:
 			var pair: Array = [visit.actor_id,actor.id]
 			pair.sort()
 			var relationship: Variant = world.facts.get("relationships",{}).get(":".join(pair),{})
-			if relationship is Dictionary and relationship.get("kind","")=="friend" and not world.facts.moves.has(actor.id): friendly = true
+			if relationship is Dictionary and relationship.get("kind","")=="friend" and _original_idle_public_friend(world,actor): friendly = true
 		return {"quiet":float(observation.noise)<=0,"less_crowded":nearby<int(content.balance.patient_behavior.crowded_neighbors_min),"friendly_neighbor":friendly,
 			"calm_available":facility.definition_id=="FUR49" and float(visit.anger)>=float(content.balance.seat_choice.calm_minimum_anger) and not visit.get("chair_calm_claimed",false),
 			"noise_reduction":facility.definition_id=="FUR50" and float(observation.noise)>0,"clean_ground":bool(observation.clean),
 			"decor_nearby":observation.get("decor_nearby",false),"casual_scene_nearby":observation.get("casual_scene_nearby",false)}
+
+	func _original_idle_public_friend(world: WorldState, actor: Dictionary) -> bool:
+		if actor.location.kind!="floor" or world.facts.moves.has(actor.id) or not space.movement._member_owner(world,actor.id).is_empty(): return false
+		for patient: Dictionary in world.facts.visits.values():
+			if patient.actor_id!=actor.id: continue
+			var ticket: Dictionary=world.facts.tickets.get(patient.get("ticket_id",""),{})
+			if not _waiting_ticket(world,patient) or int(ticket.get("called_tick",-1))>=0 or world.facts.preparations.has(patient.id) or world.facts.waiting_life.needs.has(patient.id): return false
+		for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
+			if stay.actor_id==actor.id and (not stay.phase in ["waiting","to_waiting"] or not stay.get("life_task",{}).is_empty()): return false
+		var point:=Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+		return space.room_use.public_point(world,int(actor.location.floor_id),point)
 
 func run(t, database: HospitalContent) -> void:
 	var result: Dictionary = run_cases(database)

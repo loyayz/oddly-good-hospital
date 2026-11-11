@@ -88,7 +88,7 @@ func _pair(x: Dictionary) -> Dictionary:
 	actual.source=x.world;original.source=x.world
 	return {"a":ProbeWaiting.new(_content,actual),"b":OriginalWaiting.new(_content,original),"aspace":actual,"bspace":original}
 
-func _visitor_input() -> Dictionary:
+func _visitor_input(require_public: bool = false) -> Dictionary:
 	if family_input.is_empty(): return {"claimed":false,"validation":"Missing unchanged real family boundary"}
 	var original: Dictionary=family_input.facts.duplicate(true)
 	var relative: Dictionary={}
@@ -105,6 +105,7 @@ func _visitor_input() -> Dictionary:
 		var stay: Dictionary=x.world.facts.visitors.stays[relative.id];var actor: Dictionary=x.world.facts.actors[stay.actor_id]
 		var layout: Dictionary=x.space.facility_layout(x.world,id);var floor_id: int=int(layout.floor_id)
 		var cell: Array=layout.patient_cell.duplicate()
+		if require_public and not x.space.public_areas.public_point(x.world,floor_id,Vector2i(int(cell[0]),int(cell[1]))): continue
 		# This is an explicit calculation boundary, not a simulated arrival.
 		x.world.facts.moves.erase(actor.id);actor.location={"kind":"floor","floor_id":floor_id,"cell":cell,"height_m":0.0}
 		actor.posture="standing";actor.erase("support_facility_id")
