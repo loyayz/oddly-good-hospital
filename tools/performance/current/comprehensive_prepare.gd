@@ -253,17 +253,70 @@ func _deploy_initial_core(sim: HospitalSimulation) -> Dictionary:
 	for index: int in 120: actors.append("bench_patient_%04d"%index)
 	var rooms: Dictionary={}
 	for room: Dictionary in world.facts.rooms.values(): rooms.get_or_add(int(room.floor_id),[]).append(room)
+	var desks: Dictionary={}
+	for id: String in world.facility_ids("SE01"):
+		var facility: Dictionary=world.facts.facilities[id]
+		desks.get_or_add(int(facility.floor_id),[]).append(id)
 	var candidates: Array=[]
-	for y: int in range(6,91,2):
-		for x: int in range(6,91,2): candidates.append([x,y])
+	for y: int in 96:
+		for x: int in 96: candidates.append([x,y])
+	var ordered: Dictionary={}
+	var patient_ordinals: Dictionary={}
+	var same_floors: bool=true
 	var records: Array=[]
 	for id: String in actors:
 		var actor: Dictionary=world.facts.actors[id]
 		if actor.location.kind!="floor": return {"ok":false,"reason":"Original core actor is not on its initial floor","actor_id":id}
 		var floor_id: int=int(actor.location.floor_id)
 		var original: Dictionary=actor.location.duplicate(true)
+		var anchor: Dictionary={"kind":"original_location","source_id":id,"source_field":"location.cell","floor_id":floor_id,"cell":original.cell.duplicate(),"basis":"No assigned room; retain the original initial-location preference."}
+		if world.facts.staff.has(id):
+			var staff: Dictionary=world.facts.staff[id]
+			var assignment: Dictionary=sim.clinic.scheduler.assignment(world,id,sim.clinic.scheduler.shift_index(world))
+			if not assignment.pools.is_empty():
+				var room: Dictionary=world.facts.rooms.get(str(assignment.pools[0]),{})
+				if room.is_empty(): return {"ok":false,"reason":"Initial staff room assignment has no actual room","actor_id":id}
+				anchor={}
+				if int(room.floor_id)==floor_id:
+					for door: Dictionary in HospitalSpace.floor_layout(world,floor_id).doors:
+						if door.get("room_id","")==room.id and (anchor.is_empty() or str(door.id)<str(anchor.source_id)):
+							anchor={"kind":"scheduled_room_door","source_id":door.id,"source_field":"door.cell","room_id":room.id,"floor_id":floor_id,"cell":door.cell.duplicate()}
+				else:
+					# A ward nurse keeps its original floor and must really commute.
+					for connection_id: String in world.ids("connectors"):
+						var connection: Dictionary=world.facts.connectors[connection_id]
+						if HospitalTransit.has_stop(connection,floor_id) and HospitalTransit.has_stop(connection,int(room.floor_id)):
+							anchor={"kind":"cross_floor_assignment_connector","source_id":connection_id,"source_field":"connector.anchor","room_id":room.id,"target_floor_id":int(room.floor_id),"floor_id":floor_id,"cell":connection.anchor.duplicate()};break
+				if anchor.is_empty(): return {"ok":false,"reason":"No actual door or connecting landing for the staff assignment","actor_id":id}
+			elif staff.role=="nurse":
+				anchor={}
+				for facility_id: String in world.facility_ids(str(sim.content.balance.staff_work_bases.nurse_equipment_id)):
+					var facility: Dictionary=world.facts.facilities[facility_id]
+					if int(facility.floor_id)!=floor_id or world.facts.rooms.has(facility.get("room_id","")): continue
+					var layout: Dictionary=sim.space.facility_layout(world,facility_id)
+					if not layout.operator_cells.is_empty():
+						anchor={"kind":"current_floor_nursing_handoff","source_id":facility_id,"source_field":"facility_layout.operator_cells[0]","floor_id":floor_id,"cell":layout.operator_cells[0].duplicate()};break
+				if anchor.is_empty(): return {"ok":false,"reason":"No current-floor public nursing base for the unassigned nurse","actor_id":id}
+		else:
+			var local_desks: Array=desks.get(floor_id,[])
+			if local_desks.size()!=2: return {"ok":false,"reason":"Expected both retained real desks on the patient's original floor","actor_id":id,"desks":local_desks}
+			var ordinal: int=int(patient_ordinals.get(floor_id,0))
+			patient_ordinals[floor_id]=ordinal+1
+			var desk_id: String=str(local_desks[ordinal%local_desks.size()])
+			anchor={"kind":"current_floor_guidance_nearby","source_id":desk_id,"source_field":"facility_layout.patient_cell","floor_id":floor_id,"cell":sim.space.facility_layout(world,desk_id).patient_cell.duplicate(),"floor_patient_ordinal":ordinal,"basis":"Alternating initial proximity only; no desk selection, queue number or arrival is supplied."}
+		var origin: Vector2=Vector2(float(anchor.cell[0]),float(anchor.cell[1]))
+		var order_key: String=JSON.stringify(anchor.cell)
+		if not ordered.has(order_key):
+			var options: Array=candidates.duplicate()
+			options.sort_custom(func(a:Array,b:Array)->bool:
+				var da: float=Vector2(float(a[0]),float(a[1])).distance_squared_to(origin)
+				var db: float=Vector2(float(b[0]),float(b[1])).distance_squared_to(origin)
+				return da<db if da!=db else int(a[1])<int(b[1]) if a[1]!=b[1] else int(a[0])<int(b[0]))
+			ordered[order_key]=options
 		var cell: Array=[]
-		for candidate: Array in candidates:
+		var checked: int=0
+		for candidate: Array in ordered[order_key]:
+			checked+=1
 			if _initial_public_cell(sim,id,floor_id,candidate,rooms.get(floor_id,[])):
 				cell=candidate;break
 		if cell.is_empty(): return {"ok":false,"reason":"No complete same-floor public body position; preserve all bodies and workload","actor_id":id,"records":records}
@@ -271,7 +324,8 @@ func _deploy_initial_core(sim: HospitalSimulation) -> Dictionary:
 		expected.actors[id].location=actor.location.duplicate(true)
 		sim.space.sync_actor(world,id)
 		var bounds: Rect2=sim.space.body_rectangle(actor)
-		records.append({"actor_id":id,"role":world.facts.staff[id].role if world.facts.staff.has(id) else "patient","original_location":original,"declared_location":actor.location.duplicate(true),"body_dimensions":sim.space.body(actor).duplicate(true),"bounds_size_cells":[bounds.size.x,bounds.size.y]})
+		same_floors=same_floors and int(actor.location.floor_id)==int(original.floor_id)
+		records.append({"actor_id":id,"role":world.facts.staff[id].role if world.facts.staff.has(id) else "patient","original_location":original,"declared_location":actor.location.duplicate(true),"anchor":anchor,"original_anchor_distance_cells":Vector2(float(original.cell[0]),float(original.cell[1])).distance_to(origin),"declared_anchor_distance_cells":Vector2(float(cell[0]),float(cell[1])).distance_to(origin),"checked_candidates":checked,"body_dimensions":sim.space.body(actor).duplicate(true),"bounds_size_cells":[bounds.size.x,bounds.size.y]})
 	world.touch(false);expected.world_revision=world.revision
 	var unchanged: bool=expected==world.facts
 	var clear: bool=true
@@ -281,7 +335,7 @@ func _deploy_initial_core(sim: HospitalSimulation) -> Dictionary:
 	var validation: String=world.validate(sim.content)
 	var building: String=sim.services.building.validate(world)
 	var schedule: String=sim.clinic.scheduler.validate(world)
-	return {"ok":actors.size()==152 and unchanged and clear and validation.is_empty() and building.is_empty() and schedule.is_empty(),"tick":world.sim_tick,"count":actors.size(),"same_floors":true,"only_locations_and_revision_changed":unchanged,"all_full_bodies_public_and_clear":clear,"validation":validation,"building_validation":building,"schedule_validation":schedule,"records":records,"boundary":"Initial same-floor location declaration after real construction and before the first simulation step. North y6/8 candidates precede later rows. No companion, body, journey, attendance, progress, reservation or random fact is supplied or changed."}
+	return {"ok":actors.size()==152 and same_floors and unchanged and clear and validation.is_empty() and building.is_empty() and schedule.is_empty(),"tick":world.sim_tick,"count":actors.size(),"same_floors":same_floors,"only_locations_and_revision_changed":unchanged,"all_full_bodies_public_and_clear":clear,"candidate_cells_per_anchor":candidates.size(),"validation":validation,"building_validation":building,"schedule_validation":schedule,"records":records,"boundary":"Initial same-floor location declaration after real construction and before the first simulation step. Complete floor-grid candidates are ordered by the recorded real business anchor, squared distance, y and x; no nearest-N cutoff or runtime cache. No companion, body, journey, attendance, progress, reservation or random fact is supplied or changed."}
 
 func _initial_public_cell(sim: HospitalSimulation, id: String, floor_id: int, cell: Array, rooms: Array) -> bool:
 	var bounds: Rect2=sim.space._actor_rect(sim.world.facts.actors[id],Vector2(float(cell[0]),float(cell[1])))
