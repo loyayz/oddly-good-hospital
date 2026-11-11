@@ -5,6 +5,7 @@ extends RefCounted
 const PREFIX: String = "comprehensive160-v1-"
 const STUDENT: String = "bench_staff_0015"
 const RESEARCHER: String = "bench_staff_0011"
+const CLEANERS: Array = ["bench_staff_0028","bench_staff_0029","bench_staff_0030","bench_staff_0031"]
 const RESEARCH_DESK: String = "comprehensive_research_desk"
 const TRAINING_DESK: String = "comprehensive_training_desk"
 const MAINTENANCE_ITEM: String = "bench_room_2_12_0"
@@ -15,9 +16,15 @@ func enqueue(sim: HospitalSimulation, measured_index: int) -> void:
 	if measured_index<0: return
 	var world: WorldState = sim.world
 	if not submitted.has("schedule"):
+		var shift: int=sim.clinic.scheduler.shift_index(world)
 		var schedule: Array = world.facts.staff[STUDENT].schedule.duplicate(true)
-		schedule[sim.clinic.scheduler.shift_index(world)] = {"kind":"training","pools":[],"locked":false}
-		_send(sim,"schedule","apply_schedule",{"id":PREFIX+"schedule","basis":sim.clinic.scheduler._basis(world),"changes":[{"staff_id":STUDENT,"schedule":schedule}]})
+		schedule[shift] = {"kind":"training","pools":[],"locked":false}
+		var changes: Array=[{"staff_id":STUDENT,"schedule":schedule}]
+		for id: String in CLEANERS:
+			var cleaning_schedule: Array=world.facts.staff[id].schedule.duplicate(true)
+			cleaning_schedule[shift]={"kind":"work","pools":[],"locked":false}
+			changes.append({"staff_id":id,"schedule":cleaning_schedule})
+		_send(sim,"schedule","apply_schedule",{"id":PREFIX+"schedule","basis":sim.clinic.scheduler._basis(world),"changes":changes})
 		var training_quote: Dictionary=sim.services.development.preview(world,STUDENT,"treatment","course")
 		_send(sim,"training","train_staff",{"staff_id":STUDENT,"track":"treatment","desk_id":TRAINING_DESK,"confirmed_quote":training_quote.get("basis",{})})
 		_send(sim,"maintenance","maintenance_order",{"facility_id":MAINTENANCE_ITEM})
