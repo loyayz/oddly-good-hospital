@@ -79,7 +79,7 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 				# Warm the empty-queue arrival, using the same real-body snake
 				# geometry as dispatch. Never inspect live membership or reserve a tail.
 				var context: Dictionary=_queue_context(world,desk_id)
-				var first: Dictionary=QueueLayout.snake_next(context.facility,[],_queue_body(actor))
+				var first: Dictionary=QueueLayout.snake_next(context.facility,[],_queue_body(world,actor,desk_id))
 				if not first.is_empty():goals[Vector2i(roundi(first.cell[0]),roundi(first.cell[1]))]=true
 				var cell: Array=space.facility_layout(world,desk_id).patient_cell
 				goals[Vector2i(roundi(cell[0]),roundi(cell[1]))]=true
@@ -417,7 +417,6 @@ func _queue_context(world: WorldState, desk_id: String) -> Dictionary:
 	var facility: Dictionary=world.facts.facilities.get(desk_id,{})
 	if facility.is_empty():return {}
 	var base: Dictionary=facility.duplicate()
-	base.queue_front_cell=space.facility_layout(world,desk_id).patient_cell.duplicate()
 	var result: Dictionary={"facility":base}
 	_queue_contexts[desk_id]=result
 	return result
@@ -471,13 +470,8 @@ func _queue_position_allowed(world: WorldState, actor_id: String, desk_id: Strin
 	var geometry: RouteClearance=space.navigation.structural_clearance(world,actor,int(world.facts.facilities[desk_id].floor_id))
 	return geometry.position_reason(ConvoyTrail.point(slot)).is_empty()
 
-func _queue_body(actor: Dictionary) -> Dictionary:
-	var shapes: Array=[]
-	var sample: Dictionary=actor.duplicate()
-	for facing: float in [0.0,PI*0.5,PI,PI*1.5]:
-		sample.facing=facing
-		shapes.append(space._actor_rect(sample,Vector2.ZERO))
-	return {"shapes":shapes}
+func _queue_body(world: WorldState, actor: Dictionary, desk_id: String) -> Dictionary:
+	return space.guidance_body(world,actor,desk_id)
 
 func _queue_point(world: WorldState, actor_id: String, desk_id: String, _visit_id: String="") -> Dictionary:
 	var context: Dictionary=_queue_context(world,desk_id)
@@ -487,14 +481,14 @@ func _queue_point(world: WorldState, actor_id: String, desk_id: String, _visit_i
 		var bodies: Array=[]
 		for row: Dictionary in _queue_members(world,desk_id):
 			var id: String=str(world.facts.visits[row.visit_id].actor_id)
-			ids.append(id);bodies.append(_queue_body(world.facts.actors[id]))
+			ids.append(id);bodies.append(_queue_body(world,world.facts.actors[id],desk_id))
 		var packing: Dictionary=QueueLayout.snake(context.facility,bodies)
 		var positions: Dictionary={}
 		for i: int in range(ids.size()):positions[ids[i]]=packing.placements[i]
 		_queue_batches[desk_id]={"packing":packing,"positions":positions,"bodies":bodies}
 	var bank: Dictionary=_queue_batches[desk_id]
 	var point: Dictionary=bank.positions.get(actor_id,{})
-	if point.is_empty():point=QueueLayout.snake_append(bank.packing,_queue_body(world.facts.actors[actor_id]))
+	if point.is_empty():point=QueueLayout.snake_append(bank.packing,_queue_body(world,world.facts.actors[actor_id],desk_id))
 	if point.is_empty():return {}
 	var result: Dictionary=point.duplicate()
 	result.floor_id=int(context.facility.floor_id)
@@ -745,6 +739,14 @@ func _gather_counter(world: WorldState, visit: Dictionary, current: Dictionary) 
 		if not world.facts.moves.has(nurse): space.request_move(world,nurse,int(layout.floor_id),layout.operator_cells[0])
 		visit.waiting_reason = "等待导诊护士真实到台"
 		return false
+	var post: Dictionary=space.guidance_patient_post(world,str(current.desk_id),visit.actor_id)
+	var patient: Dictionary=world.facts.actors[visit.actor_id]
+	if float(patient.facing)!=float(post.facing):
+		if not _queue_admission_clear(world,visit.actor_id,int(layout.floor_id),layout.patient_cell,float(post.facing)):
+			visit.waiting_reason="等待真实患者身体可安全面向导诊台"
+			return false
+		patient.facing=float(post.facing)
+		space.sync_actor(world,visit.actor_id)
 	# Service begins only with both bodies really present and the original
 	# full live preflight/reservation accepted in this dispatch boundary.
 	var reason: String = space.reserve_facility(world,str(current.desk_id),visit.actor_id,"floor_guide:"+visit.id,[nurse])

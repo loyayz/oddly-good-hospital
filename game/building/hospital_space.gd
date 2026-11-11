@@ -4,6 +4,7 @@ extends RefCounted
 signal reservation_updated(world: WorldState, id: String)
 
 const CELL_METERS: float = 1.5
+const GuidanceQueueLayout = preload("res://game/operations/guidance_queue_layout.gd")
 var content: HospitalContent
 var _convoy_owner: Dictionary = {}
 var _convoy_members: Dictionary = {}
@@ -616,6 +617,7 @@ func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
 		if reservation.has(field):
 			layout[field] = reservation[field]
 	if facility.definition_id=="SE01":
+		if not reservation.has("patient_cell"): layout.patient_cell=guidance_patient_post(world,facility_id).cell
 		var nurses: Array=reservation.get("staff_ids",[]).duplicate()
 		if not reservation.has("operator_cells"):
 			var nurse: String=str(world.facts.get("floor_guidance",{}).get("desks",{}).get(facility_id,{}).get("nurse_id",""))
@@ -703,6 +705,33 @@ func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bo
 		if not body_rectangle(moving).intersects(rectangle,false): return elapsed
 	return ticks
 
+func guidance_body(world: WorldState, actor: Dictionary, facility_id: String = "") -> Dictionary:
+	var shapes: Array=[]
+	var sample: Dictionary=actor.duplicate()
+	for facing: float in [0.0,PI*0.5,PI,PI*1.5]:
+		sample.facing=facing
+		shapes.append(_actor_rect(sample,Vector2.ZERO))
+	var result: Dictionary={"shapes":shapes,"clearance":clearance(actor)}
+	var frozen: Dictionary=world.facts.adaptations.get(facility_id,{})
+	if frozen.get("kind","")=="facility" and frozen.get("actor_id","")==actor.id and frozen.has("patient_cell"):
+		result.frozen_cell=frozen.patient_cell.duplicate()
+		result.frozen_facing=float(actor.facing)
+		result.frozen_shape=_actor_rect(actor,Vector2.ZERO)
+	return result
+
+func guidance_patient_post(world: WorldState, facility_id: String, actor_id: String = "") -> Dictionary:
+	var shape:=Rect2(Vector2.ZERO,Vector2.ONE)
+	var data: Dictionary={"clearance":1,"shapes":[shape,shape,shape,shape]}
+	if not actor_id.is_empty(): data=guidance_body(world,world.facts.actors[actor_id],facility_id)
+	var post: Dictionary=GuidanceQueueLayout.patient_post(world.facts.facilities[facility_id],data)
+	if not actor_id.is_empty() and not post.is_empty():
+		# Reconstruct at the published actor cell through the exact body owner.
+		# Subtracting a shape offset and adding it back can round by one ulp.
+		var actual: Dictionary=world.facts.actors[actor_id].duplicate()
+		actual.facing=float(post.facing)
+		post.rect=_actor_rect(actual,Vector2(float(post.cell[0]),float(post.cell[1])))
+	return post
+
 func guidance_operator_cell(world: WorldState, facility_id: String, nurse_id: String = "") -> Array:
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var k: int = 1 if nurse_id.is_empty() else clearance(world.facts.actors[nurse_id])
@@ -735,6 +764,7 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 	if not bed_owner.is_empty() and bed_owner.staff_id!=actor_id: return {"ok":false,"reason":"他人个人床"}
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var actor: Dictionary = world.facts.actors[actor_id]
+	var guidance_post: Dictionary=guidance_patient_post(world,facility_id,actor_id) if facility.definition_id=="SE01" else {}
 	var reference: Dictionary = _route_queries.back().reference if not _route_queries.is_empty() and _route_queries.back().world==world else {}
 	if geometry_only: reference = {"fits":{}}
 	var reference_key: String = ""
@@ -743,6 +773,9 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		for staff_id: String in staff_ids:
 			bodies.append(body(world.facts.actors[staff_id]))
 		reference_key = JSON.stringify([facility_id,bodies])
+		if not guidance_post.is_empty():
+			var post: Rect2=guidance_post.rect
+			reference_key=JSON.stringify([facility_id,bodies,guidance_post.cell,guidance_post.facing,[post.position.x,post.position.y,post.size.x,post.size.y]])
 		if reference.fits.has(reference_key):
 			var saved: Dictionary = reference.fits[reference_key].duplicate(true)
 			saved.actor_id = actor_id
@@ -813,10 +846,13 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 			else:
 				operators.append([x-staff_size,y+1] if index==0 else [x+w,y if index==1 else y+h-staff_size])
 	if facility.definition_id=="SE01":
-		patient_cell = _adapted_front(facility,footprint,actor_clearance)
+		patient_cell = guidance_post.cell.duplicate()
 		if staff_ids.is_empty(): operators=[guidance_operator_cell(world,facility_id)]
 		else: operators[0]=guidance_operator_cell(world,facility_id,str(staff_ids[0]))
 	var regions: Array = [[x,y,w,h],[patient_cell[0],patient_cell[1],actor_clearance,actor_clearance],[repair[0],repair[1],1,1]]
+	if not guidance_post.is_empty():
+		var post: Rect2=guidance_post.rect
+		regions[1]=[post.position.x,post.position.y,post.size.x,post.size.y]
 	for index: int in staff_ids.size():
 		var k: int = clearance(world.facts.actors[staff_ids[index]])
 		regions.append([operators[index][0],operators[index][1],k,k])
@@ -864,8 +900,8 @@ func _facility_geometry_view(world: WorldState, facility: Dictionary) -> Diction
 # Built geometry is fixed within the owning read-only query scope. Dynamic
 # bodies and reservation permissions still run in the original region order.
 func _facility_region_reason(world: WorldState, facility: Dictionary, room: Dictionary, area: Array, rect: Rect2) -> String:
-	for cx: int in range(int(area[0]),int(area[0])+int(area[2])):
-		for cy: int in range(int(area[1]),int(area[1])+int(area[3])):
+	for cx: int in range(floori(rect.position.x),ceili(rect.end.x)):
+		for cy: int in range(floori(rect.position.y),ceili(rect.end.y)):
 			if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(facility.floor_id),{}).get("blocked",[]):
 				return "展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]
 	if facility.definition_id=="SE01":

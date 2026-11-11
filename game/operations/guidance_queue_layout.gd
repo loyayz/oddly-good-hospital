@@ -180,7 +180,7 @@ static func snake(facility: Dictionary, bodies: Array) -> Dictionary:
 		2:edge+=Vector2(size.x*0.5,0)
 		3:edge+=Vector2(size.x,size.y*0.5)
 	var width: float=size.x if front.x==0 else size.y
-	var result: Dictionary={"placements":[],"front":front,"right":right,"edge":edge,"width":width,"row":0,"row_top":0.0,"bottom":0.0,"single":false,"front_anchor":facility.get("queue_front_cell",[]).duplicate()}
+	var result: Dictionary={"placements":[],"front":front,"right":right,"edge":edge,"origin":origin,"size":size,"rotation":turn,"width":width,"row":0,"row_top":0.0,"bottom":0.0,"single":false,"front_anchor":facility.get("queue_front_cell",[]).duplicate()}
 	for body: Dictionary in bodies:
 		var placement: Dictionary=snake_append(result,body)
 		if placement.is_empty():return {}
@@ -206,11 +206,32 @@ static func snake_append(packing: Dictionary, body: Dictionary) -> Dictionary:
 		# edge. Borrow only its normal coordinate; the actual body remains
 		# centered on the desk and retains its own engine shape offset.
 		var anchor: Array=packing.get("front_anchor",[])
+		if body.has("clearance"):
+			var k: int=int(body.clearance)
+			var origin: Vector2=packing.origin
+			var extent: Vector2=packing.size
+			match int(packing.rotation):
+				1:anchor=[origin.x-k,origin.y]
+				2:anchor=[origin.x,origin.y-k]
+				3:anchor=[origin.x+extent.x,origin.y]
+				_:anchor=[origin.x,origin.y+extent.y]
 		if anchor.size()==2:
 			var anchor_point:=Vector2(float(anchor[0]),float(anchor[1]))
 			var shape_front: float=shape.position.dot(front)+minf(0.0,shape.size.x*front.x)+minf(0.0,shape.size.y*front.y)
 			row_top=anchor_point.dot(front)-Vector2(packing.edge).dot(front)+shape_front
 		local=Rect2(Vector2(-size.x*0.5,row_top),size)
+		if body.has("frozen_cell"):
+			# An already working service retains its exact original point and
+			# orientation. Its physical body, not its old integer reservation box,
+			# supplies the geometry for the remaining actual queue.
+			facing=float(body.frozen_facing)
+			shape=body.frozen_shape
+			size=_snake_size(shape,right,front)
+			var fixed:=Vector2(float(body.frozen_cell[0]),float(body.frozen_cell[1]))
+			var low: Vector2=fixed+shape.position-Vector2(packing.edge)
+			var high: Vector2=low+shape.size
+			local=Rect2(Vector2(minf(low.dot(right),high.dot(right)),minf(low.dot(front),high.dot(front))),size)
+			row_top=local.position.y
 	else:
 		var previous: Rect2=rows.back().local_rect
 		var lateral_facing: float=atan2(-right.x*direction,-right.y*direction)
@@ -249,6 +270,9 @@ static func snake_append(packing: Dictionary, body: Dictionary) -> Dictionary:
 	var b: Vector2=packing.edge+right*local.end.x+front*local.end.y
 	var rect:=Rect2(a.min(b),(a-b).abs())
 	var cell: Vector2=rect.position-shape.position
+	if rows.is_empty() and body.has("frozen_cell"):
+		cell=Vector2(float(body.frozen_cell[0]),float(body.frozen_cell[1]))
+		rect=Rect2(cell+shape.position,shape.size)
 	return {"cell":[cell.x,cell.y],"facing":facing,"rect":rect,"row":row,"local_rect":local,"row_top":row_top,"single":single}
 
 # Only an actual accepted queue member is appended. This is deliberately
@@ -262,6 +286,10 @@ static func snake_accept(packing: Dictionary, placement: Dictionary) -> void:
 
 static func snake_next(facility: Dictionary, bodies: Array, body: Dictionary) -> Dictionary:
 	return snake_append(snake(facility,bodies),body)
+
+# The service post is exactly the first actual-body placement of the same snake.
+static func patient_post(facility: Dictionary, body: Dictionary) -> Dictionary:
+	return snake_next(facility,[],body)
 
 static func _snake_shape(body: Dictionary, facing: float) -> Rect2:
 	return body.shapes[posmod(roundi(facing/(PI*0.5)),4)]

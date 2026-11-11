@@ -1143,9 +1143,16 @@ func _validate_shapes() -> String:
 				return "门展开队列包络无效"
 		if reservation.kind=="facility" and (not reservation.get("facility_id") is String or not _point(reservation.get("footprint")) or not _point(reservation.get("patient_cell")) or not reservation.get("operator_cells") is Array or not _point(reservation.get("repair_cell"))):
 			return "实际设施展开几何无效"
-		for area: Variant in reservation.regions:
+		for ordinal: int in reservation.regions.size():
+			var area: Variant=reservation.regions[ordinal]
 			if not area is Array or area.size()!=4:
 				return "实际预约区域无效"
+			var continuous_patient: bool=reservation.kind=="facility" and ordinal==1 and facts.facilities.get(str(reservation.get("facility_id","")),{}).get("definition_id","")=="SE01"
+			if continuous_patient:
+				for number: Variant in area:
+					if not (number is int or number is float) or not is_finite(float(number)) or float(number)<0.0 or float(number)>1000000000000: return "导诊患者预约矩形数值无效"
+				if float(area[2])<=0.0 or float(area[3])<=0.0 or not is_finite(float(area[0])+float(area[2])) or not is_finite(float(area[1])+float(area[3])): return "导诊患者预约矩形尺寸无效"
+				continue
 			for number: Variant in area:
 				if not _natural(number):
 					return "实际预约区域数值无效"
