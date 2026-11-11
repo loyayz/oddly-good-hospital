@@ -1,0 +1,385 @@
+{
+  "scope": "EnvironmentSampleBatch local preparation, not Simulation.step or whole160 acceptance. Plain timed copies do not contain count hooks.",
+  "baseline_commit": "41f96ac3e2d8fddc0c8b03baaf7db3c9753a25fb",
+  "source": [
+    {
+      "path": "game/operations/environment_sample_batch.gd",
+      "sha256": "8fa65cd4f6e2de8c2efd6ace6ede566fd97a37eff8dab24fd853e97323f933a9",
+      "matches_executed_source": true
+    },
+    {
+      "path": "tests/acceptance/environment_empty_batch.gd",
+      "sha256": "72d817b85e325877b8cbba71552df7e8bcabbc334da955539229e2c4115720b7",
+      "matches_executed_source": true
+    },
+    {
+      "path": "tests/acceptance/environment_empty_batch.md",
+      "sha256": "817df8d63f58ca39c0c26178b75ae7be8ea5da1ae41869876660c507b3201154",
+      "matches_executed_source": true
+    },
+    {
+      "path": "tools/performance/prepare_experience_sample_probe.py",
+      "sha256": "373ae3eac0b79e8ded569b021441cd225449e45793834eba3f15516e9aeeab5e",
+      "matches_executed_source": true
+    },
+    {
+      "path": "tools/performance/experience_sample_probe.gd",
+      "sha256": "8486e620113c28c5c0d1d2c88145a9c524066ce310c1f79339cd3aed8a99286e",
+      "matches_executed_source": true
+    },
+    {
+      "path": "tools/performance/experience_sample_probe.gd.uid",
+      "sha256": "b3c7766329e9c1cd8990fbd2e1fd5c6c4896a0d29c9dd9a2480dcd4bc9698bd5",
+      "matches_executed_source": true
+    }
+  ],
+  "input": {
+    "input_sha256": "752924c562f275804cee40cbd2a8760f8f0780cab3276a04330db63a2866e780",
+    "input_population": {
+      "patients": 128,
+      "present": 160,
+      "staff": 32,
+      "unowned": [],
+      "visitors": 0
+    },
+    "input_tick": 633,
+    "input_validation": "",
+    "boundary": "The unchanged real comprehensive input after Simulation initialization and experience.ensure; each pair owns fresh services and naturally warms on the identical facts, without advancing time or inventing cached origins."
+  },
+  "environment": {
+    "engine": {
+      "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643",
+      "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64.exe": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424"
+    },
+    "native": {
+      "libgcc_s_seh-1.dll": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+      "libgmp-10.dll": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+      "libmpfr-6.dll": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+      "libwinpthread-1.dll": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5",
+      "oddly_good_platform.windows.x86_64.dll": "86978835fbce69d625e51b0f69c7e18748dce1682a4e295e2512a2d155e3369e"
+    },
+    "environment": {
+      "APPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\58bd1707d4b745dd8e572cdc21d50794\\.runtime-profile\\Roaming",
+      "LOCALAPPDATA": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\58bd1707d4b745dd8e572cdc21d50794\\.runtime-profile\\Local",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  "main_thread_policy": {
+    "applied": true,
+    "error": 0,
+    "group": 0,
+    "hybrid": true,
+    "mask_hex": "fc03",
+    "reason": "performance_cores"
+  },
+  "functional": {
+    "growth": {
+      "passed": true,
+      "elapsed_ms": 960,
+      "body_ms": 960,
+      "setup_ms": 0,
+      "requirement": "docs/design/08-hospital-life.md §4；正向来源交集、按来源覆盖与同次主体观察"
+    },
+    "growth_suite_elapsed_ms": 1347,
+    "env_cases": {
+      "ENV-EMPTY-DEPARTMENT": true,
+      "ENV-EMPTY-GUARDS": true,
+      "ENV-EMPTY-LIVE": true,
+      "ENV-EMPTY-MATRIX": true,
+      "ENV-EMPTY-PREPARATION": true,
+      "ENV-EMPTY-RANGE": true
+    },
+    "environment_process_elapsed_ms": 3820.022,
+    "script_errors": false
+  },
+  "preparation": {
+    "started_at_utc": "2026-11-11T19:54:28.0172674+00:00",
+    "ended_at_utc": "2026-11-11T19:55:06.7912911+00:00",
+    "phase": "finished",
+    "completed": true,
+    "preparation_ms": 12398,
+    "import_ms": 21594,
+    "tests_ms": 4771,
+    "total_ms": 38775
+  },
+  "local_process_elapsed_ms": 8636.385,
+  "iterations_each_version_each_round": 200,
+  "warmup_each_version_each_round": 10,
+  "rounds": [
+    {
+      "repeat": 1,
+      "order": [
+        "a",
+        "b"
+      ],
+      "observations_equal_every_call": true,
+      "work_equal_every_call": true,
+      "a": {
+        "calls": 200,
+        "max_us": 1726,
+        "mean_us": 1311.395,
+        "p50_us": 1299,
+        "p95_us": 1449,
+        "total_us": 262279
+      },
+      "b": {
+        "calls": 200,
+        "max_us": 1687,
+        "mean_us": 1321.09,
+        "p50_us": 1309,
+        "p95_us": 1477,
+        "total_us": 264218
+      },
+      "last_counts": {
+        "a": {
+          "consumed": 128,
+          "jobs": 4,
+          "main_empty": 120,
+          "requested": 128,
+          "worker_requests": 8
+        },
+        "b": {
+          "consumed": 128,
+          "jobs": 4,
+          "main_empty": 120,
+          "requested": 128,
+          "worker_requests": 8
+        }
+      },
+      "facts_and_validation": {
+        "a": {
+          "facts_unchanged": true,
+          "validation": ""
+        },
+        "b": {
+          "facts_unchanged": true,
+          "validation": ""
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "order": [
+        "b",
+        "a"
+      ],
+      "observations_equal_every_call": true,
+      "work_equal_every_call": true,
+      "a": {
+        "calls": 200,
+        "max_us": 1821,
+        "mean_us": 1341.71,
+        "p50_us": 1317,
+        "p95_us": 1578,
+        "total_us": 268342
+      },
+      "b": {
+        "calls": 200,
+        "max_us": 1888,
+        "mean_us": 1328.655,
+        "p50_us": 1299,
+        "p95_us": 1559,
+        "total_us": 265731
+      },
+      "last_counts": {
+        "a": {
+          "consumed": 128,
+          "jobs": 4,
+          "main_empty": 120,
+          "requested": 128,
+          "worker_requests": 8
+        },
+        "b": {
+          "consumed": 128,
+          "jobs": 4,
+          "main_empty": 120,
+          "requested": 128,
+          "worker_requests": 8
+        }
+      },
+      "facts_and_validation": {
+        "a": {
+          "facts_unchanged": true,
+          "validation": ""
+        },
+        "b": {
+          "facts_unchanged": true,
+          "validation": ""
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "order": [
+        "a",
+        "b"
+      ],
+      "observations_equal_every_call": true,
+      "work_equal_every_call": true,
+      "a": {
+        "calls": 200,
+        "max_us": 1903,
+        "mean_us": 1342.91,
+        "p50_us": 1319,
+        "p95_us": 1584,
+        "total_us": 268582
+      },
+      "b": {
+        "calls": 200,
+        "max_us": 1864,
+        "mean_us": 1342.935,
+        "p50_us": 1312,
+        "p95_us": 1562,
+        "total_us": 268587
+      },
+      "last_counts": {
+        "a": {
+          "consumed": 128,
+          "jobs": 4,
+          "main_empty": 120,
+          "requested": 128,
+          "worker_requests": 8
+        },
+        "b": {
+          "consumed": 128,
+          "jobs": 4,
+          "main_empty": 120,
+          "requested": 128,
+          "worker_requests": 8
+        }
+      },
+      "facts_and_validation": {
+        "a": {
+          "facts_unchanged": true,
+          "validation": ""
+        },
+        "b": {
+          "facts_unchanged": true,
+          "validation": ""
+        }
+      }
+    }
+  ],
+  "timing_evidence": "Original per-round aggregate totals, mean, P50, P95 and maximum retained in raw.zip/local-prepare-original.json. Individual-call timing arrays were not recorded and are not reconstructed.",
+  "untimed_direct_container_observations": {
+    "a": {
+      "counts": {
+        "allocated_jobs": 4,
+        "consumed": 128,
+        "empty_result_coverage_maps": 120,
+        "jobs": 4,
+        "main_empty": 120,
+        "observations": 128,
+        "requested": 128,
+        "result_arrays": 128,
+        "result_coverage_maps": 128,
+        "scope": "Distinct reachable containers observed by identity before consume; seed entries count actual keys. Not total allocator calls, process allocations, bytes, or GC time. Borrowed coverage values inside seed entries are excluded.",
+        "seed_entries": 16,
+        "seed_floors": 4,
+        "seed_maps": 9,
+        "sources_arrays": 128,
+        "worker_requests": 8
+      },
+      "facts_unchanged": true,
+      "validation": ""
+    },
+    "b": {
+      "counts": {
+        "allocated_jobs": 4,
+        "consumed": 128,
+        "empty_result_coverage_maps": 1,
+        "jobs": 4,
+        "main_empty": 120,
+        "observations": 128,
+        "requested": 128,
+        "result_arrays": 128,
+        "result_coverage_maps": 9,
+        "scope": "Distinct reachable containers observed by identity before consume; seed entries count actual keys. Not total allocator calls, process allocations, bytes, or GC time. Borrowed coverage values inside seed entries are excluded.",
+        "seed_entries": 16,
+        "seed_floors": 4,
+        "seed_maps": 9,
+        "sources_arrays": 128,
+        "worker_requests": 8
+      },
+      "facts_unchanged": true,
+      "validation": ""
+    }
+  },
+  "conclusion": {
+    "elapsed_improvement_established": false,
+    "retained_for_simpler_less_duplicate_work": true,
+    "direct_result_coverage_maps_a": 128,
+    "direct_result_coverage_maps_b": 9,
+    "arithmetic_reduction": 119,
+    "zero_worker_seed_skip_exercised_by_160_timing": false,
+    "limits": [
+      "Identity counts cover distinct reachable result/seed containers, not allocator calls, all allocations, bytes or GC time.",
+      "The unchanged initial160 boundary has 8 worker requests in both versions; seed floors/entries/maps remain 4/16/9.",
+      "Zero-worker behavior is covered by the dedicated legal fixture and source ownership, without a whole160 elapsed claim.",
+      "No new full-window or full-game performance result is provided."
+    ]
+  },
+  "archive": {
+    "path": "raw.zip",
+    "sha256": "bab57fe44bd3feaf26550ea8b95e5fa2353a025bc35220ed20658d20b2b5e34c",
+    "bytes": 135668,
+    "entries": {
+      "local-prepare-original.json": {
+        "sha256": "87baf8fb5b587a9bdaa573f1068a2b5217e70df6355bb6da65b4a0695f3f24fe",
+        "bytes": 22213
+      },
+      "environment-results.json": {
+        "sha256": "e3f6b1756f38bb6bb17182dbca7a69fe6fd7e453df6874f6fec91e9429c287a6",
+        "bytes": 25757
+      },
+      "local-protocol.json": {
+        "sha256": "d62a51ce84bc102c1f8bf8ac5ec58d76e600dcb60785e6d908ccf9b1fa9121d2",
+        "bytes": 3734
+      },
+      "local-prepare.log": {
+        "sha256": "83cf0b082206af2aa236c83064fbcfa76be1e00a4aa3558574b2f65965d9481c",
+        "bytes": 75
+      },
+      "environment.log": {
+        "sha256": "830c035c6e30959a040f4eeaa65a96af5e46740fb0348d60d8e1461209480a98",
+        "bytes": 16273
+      },
+      "growth-results.json": {
+        "sha256": "120a7f2b790f7563e8b52d2bc0d092f4b6470d888eb560767840a69a7adadb96",
+        "bytes": 192544
+      },
+      "growth-execution.log": {
+        "sha256": "c6d92d7f7466cdf1e540638b88e8dd09e2131ca78cc4267257240c55be7315aa",
+        "bytes": 194
+      },
+      "acceptance-timing.json": {
+        "sha256": "72e30e5db2dbc128319fe815e7b047b40eefd726302100adb3c3d351f30306e1",
+        "bytes": 259
+      },
+      "acceptance-status.json": {
+        "sha256": "b697e6b2036edefcc1468b6d4399c689b7809d601ecab08b1072d0ee304f95c7",
+        "bytes": 192
+      },
+      "acceptance-full-source-identity.json": {
+        "sha256": "40c0f82cd43906030bdc45e69a2caa4014b069d0b36e00c8e710e7fa7ea6b0a0",
+        "bytes": 388755
+      },
+      "variant-manifest.json": {
+        "sha256": "7cf002eeb4d5279c6f5d0c09b735d93f48be1acc81726796887ea174835ba2df",
+        "bytes": 1745
+      },
+      "baseline-environment_sample_batch.gd": {
+        "sha256": "4d88946f0d23f06ad0a1973f86e9ffacebcc517c7b025c857851f5982ecc969b",
+        "bytes": 21514
+      },
+      "baseline-source-identity.json": {
+        "sha256": "072eb682e118a85e4406bd25345fad88cec4cd5f810a38ce00dd1e9aea074921",
+        "bytes": 414
+      },
+      "experience_sample_probe.gd.uid": {
+        "sha256": "b3c7766329e9c1cd8990fbd2e1fd5c6c4896a0d29c9dd9a2480dcd4bc9698bd5",
+        "bytes": 20
+      }
+    }
+  }
+}

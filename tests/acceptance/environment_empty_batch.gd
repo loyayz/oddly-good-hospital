@@ -21,6 +21,13 @@ func observations(x:Dictionary,batch:RefCounted)->Dictionary:
  x.space.begin_route_query(x.world,{},false);x.e.begin_query(x.world)
  var prepared:bool=batch.prepare(x.world,x.e,ids,4,true)
  var output:Dictionary={};var direct:Dictionary={}
+ var coverage_maps:Array=[];var observations_owned:Array=[];var sources_owned:Array=[];var readonly_empty:int=0
+ for item:Array in batch._observations.values():
+  var observation:Dictionary=item[Batch.ResultSlot.OBSERVATION];var coverage:Dictionary=item[Batch.ResultSlot.COVERAGE]
+  if not coverage_maps.any(func(value:Dictionary)->bool:return is_same(value,coverage)):coverage_maps.append(coverage)
+  if not observations_owned.any(func(value:Dictionary)->bool:return is_same(value,observation)):observations_owned.append(observation)
+  if not sources_owned.any(func(value:Array)->bool:return is_same(value,observation.sources)):sources_owned.append(observation.sources)
+  if coverage.is_empty() and coverage.is_read_only():readonly_empty+=1
  if prepared:
   batch.begin_apply()
   for id:String in ids:
@@ -31,7 +38,7 @@ func observations(x:Dictionary,batch:RefCounted)->Dictionary:
   batch.end_apply(x.e)
  x.e.end_query();x.space.end_route_query()
  var report:Dictionary=batch.report()
- return {"ok":output==direct and before==x.world.freeze() and x.world.validate(_content).is_empty(),"values":output,"direct_equal":output==direct,"readonly":before==x.world.freeze(),"validation":x.world.validate(_content),"main_empty":report.get("last_batch",{}).get("main_empty_observations",0),"jobs":report.get("last_batch",{}).get("jobs",[]).size(),"consumed":report.consumed,"closed":x.space._route_queries.is_empty() and x.e._query_depth==0}
+ return {"ok":output==direct and before==x.world.freeze() and x.world.validate(_content).is_empty(),"values":output,"direct_equal":output==direct,"readonly":before==x.world.freeze(),"validation":x.world.validate(_content),"main_empty":report.get("last_batch",{}).get("main_empty_observations",0),"jobs":report.get("last_batch",{}).get("jobs",[]).size(),"allocated_jobs":batch._jobs.size(),"containers":{"coverage":coverage_maps.size(),"observations":observations_owned.size(),"sources":sources_owned.size(),"readonly_empty":readonly_empty},"consumed":report.consumed,"closed":x.space._route_queries.is_empty() and x.e._query_depth==0}
 
 func matrix(modes:Array=[])->Dictionary:
  var rows:Array=[]
@@ -122,6 +129,22 @@ func department_pair(broken:bool)->Dictionary:
  for x:Dictionary in [input,a,b]:x.e.waiting_life=null;x.l.environment=null
  return result
 
+func preparation_reuse()->Dictionary:
+ var x:Dictionary=fixture();var batch:RefCounted=Batch.new();var rows:Array=[];var worker_id:int=0
+ for state:String in ["empty_cold","mixed","empty_warm","mixed_again"]:
+  if state in ["mixed","mixed_again"]:_facility(x,"light","FUR19",[41,78])
+  if state=="empty_warm":x.world.facts.facilities.erase("light");x.world.invalidate_geometry()
+  var row:Dictionary=observations(x,batch);row.state=state
+  var empty:bool=state in ["empty_cold","empty_warm"]
+  row.ok=row.ok and row.closed and row.main_empty==(2 if empty else 1) and row.jobs==(0 if empty else 1)
+  row.ok=row.ok and row.allocated_jobs==(0 if state=="empty_cold" else 1) and row.containers.observations==2 and row.containers.sources==2
+  if empty:row.ok=row.ok and row.containers.coverage==1 and row.containers.readonly_empty==2
+  if state=="mixed":worker_id=batch._jobs[0].get_instance_id()
+  if state in ["empty_warm","mixed_again"]:row.ok=row.ok and batch._jobs[0].get_instance_id()==worker_id
+  rows.append(row)
+ x.e.waiting_life=null;x.l.environment=null
+ return {"ok":rows.all(func(r:Dictionary)->bool:return r.ok),"rows":rows,"scope":"All observations equal native sample_at; empty batches retain independent observations/sources and share only immutable empty coverage. Native workers are created only for actual requests and reused across empty batches."}
+
 func run_selected(c:HospitalContent,selected:Array)->Dictionary:
  _content=c;var cases:Dictionary={}
  for id:String in selected:
@@ -131,5 +154,6 @@ func run_selected(c:HospitalContent,selected:Array)->Dictionary:
   elif id=="ENV-EMPTY-LIVE":cases[id]=live()
   elif id=="ENV-EMPTY-DEPARTMENT":
    var rows:Array=[department_pair(false),department_pair(true)];cases[id]={"ok":rows.all(func(r:Dictionary)->bool:return r.ok),"rows":rows}
+  elif id=="ENV-EMPTY-PREPARATION":cases[id]=preparation_reuse()
   else:return {"ok":false,"unknown_case":id}
  return {"ok":not cases.is_empty() and cases.values().all(func(r:Dictionary)->bool:return r.ok),"cases":cases}

@@ -159,13 +159,6 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 	if requests.is_empty():
 		_last = {"ok":true,"jobs":[],"requested":0,"processed":0,"consumed":0}
 		return false
-	var count: int = mini(4,mini(maxi(1,task_count),requests.size()))
-	stamp = Time.get_ticks_usec() if _diagnostics else 0
-	if _content!=source.content:
-		_jobs = []
-		_content = source.content
-	while _jobs.size()<count: _jobs.append(SampleJob.new(_content))
-	_mark("initialization_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	# These are the only lazy source builders that can touch WorldState's
 	# operation indexes. Complete them on main before any job is dispatched.
@@ -186,19 +179,28 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 	# requested result, and dispatch only the requests that still need sampling.
 	var worker_requests: Array = _prepare_empty_samples(world,source,requests,observation_bounds)
 	var main_empty: int = requests.size()-worker_requests.size()
-	count = mini(4,mini(maxi(1,task_count),worker_requests.size()))
+	var count: int = mini(4,mini(maxi(1,task_count),worker_requests.size()))
+	_mark("preparation_us",stamp)
+	stamp = Time.get_ticks_usec() if _diagnostics else 0
+	if _content!=source.content:
+		_jobs = []
+		_content = source.content
+	while _jobs.size()<count: _jobs.append(SampleJob.new(_content))
+	_mark("initialization_us",stamp)
+	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	# Copy the historical mappings once. Workers share this immutable seed and
-	# write only their own overlays; completed coverage values stay borrowed.
+	# write only their own overlays. A fully source-free batch has no borrower.
 	var coverage_seed: Dictionary = {}
-	for floor_id: int in source._coverage_cache:
-		coverage_seed[floor_id] = {"coverage":source._coverage_cache[floor_id].coverage.duplicate()}
-	for floor_id: int in source._query.coverage:
-		var previous: Dictionary = coverage_seed.get_or_add(floor_id,{"coverage":{}})
-		previous.coverage.merge(source._query.coverage[floor_id],true)
-	for entry: Dictionary in coverage_seed.values():
-		entry.coverage.make_read_only()
-		entry.make_read_only()
-	coverage_seed.make_read_only()
+	if count>0:
+		for floor_id: int in source._coverage_cache:
+			coverage_seed[floor_id] = {"coverage":source._coverage_cache[floor_id].coverage.duplicate()}
+		for floor_id: int in source._query.coverage:
+			var previous: Dictionary = coverage_seed.get_or_add(floor_id,{"coverage":{}})
+			previous.coverage.merge(source._query.coverage[floor_id],true)
+		for entry: Dictionary in coverage_seed.values():
+			entry.coverage.make_read_only()
+			entry.make_read_only()
+		coverage_seed.make_read_only()
 	for index: int in count:
 		var low: int = worker_requests.size()*index/count
 		var high: int = worker_requests.size()*(index+1)/count
@@ -306,6 +308,10 @@ func _prepare_empty_samples(world: WorldState, source: HospitalEnvironment, requ
 	var pending: Array = []
 	var rules: Dictionary = source.content.balance.environment
 	var template: Dictionary = {"value":clampi(int(rules.base)+int(rules.clean_bonus),0,100),"noise":0,"dirt":0,"clean":true,"water":false,"light":false,"quiet":true,"moist":false,"dry":false,"cool":false,"sources":[],"subject_id":"","reference":false,"status":"current"}
+	# Consumers only enumerate coverage; every mutable observation remains owned
+	# by its subject, while the identical empty mapping can be borrowed safely.
+	var empty_coverage: Dictionary = {}
+	empty_coverage.make_read_only()
 	var surfaces: Dictionary = world.facts.get("environment",{}).get("surfaces",{})
 	for request: Array in requests:
 		var floor_id: int = int(request[RequestSlot.FLOOR_ID])
@@ -331,7 +337,7 @@ func _prepare_empty_samples(world: WorldState, source: HospitalEnvironment, requ
 		observation.sources = []
 		observation.subject_id = str(request[RequestSlot.ACTOR_ID])
 		observation.reference = observation.subject_id.is_empty()
-		_observations[str(request[RequestSlot.VISIT_ID])] = [observation,{}]
+		_observations[str(request[RequestSlot.VISIT_ID])] = [observation,empty_coverage]
 	return pending
 
 func _run_job(index: int) -> void:
