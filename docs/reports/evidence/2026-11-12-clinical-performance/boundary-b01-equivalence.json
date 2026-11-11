@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "checks": {
+    "same_complete_source_input": true,
+    "one_normal_real_step_each": true,
+    "complete_world_and_all_ordered_events_equal": true,
+    "same_cold_initialization": true,
+    "world_validation_passed": true,
+    "trace_stack_complete": true,
+    "readonly_full179_facts_unchanged": true,
+    "base_b01_unchanged": true,
+    "game/building/hospital_movement.gd_inverse_exact": true,
+    "game/building/hospital_transit.gd_inverse_exact": true
+  },
+  "final_bin_sha256": "f8f05675796b87493715f06af53bc4cb43af54b094ccce828d6876a736bb79a2",
+  "record_count": 1870,
+  "contact_calls": 305,
+  "omitted_clear_contact_records": 37,
+  "scope": "Only an external new copy. One readonly dump and two cold normal Runtime processes with one real step each, no commands or actor manipulation. Source hooks observe original bodies once; two complete ending envelopes must match."
+}
