@@ -56,6 +56,8 @@ python -X utf8 -B tools/performance/current/campaign160.py --engine <Godot控制
 
 [床停点局部验证](../../../docs/reports/2026-11-12-bed-destination-query-performance.md)记录选例结果、三对纯查询耗时、独立计数及原始归档，分别标明完整终态的实际人数、合法查询分布和未测范围。
 
+`prepare_movement_contacts_probe.py` 与 `movement_contacts_probe.gd` 比较接触查询的单侧排序候选复用。完整输入、可逆A/B来源、普通／首接触两种模式、全部原Move及local corners、独立全事实oracle、分离计数和三对查询流程见[专项说明](../../../tests/acceptance/movement_contacts_candidates.md)。原始完整终态没有本步已接受扫掠，不为性能输入伪造该事实；两侧非空与历史扫掠由功能边界覆盖。该工具只测接触子查询，不能作为160人整步验收。
+
 `prepare_clinical_diagnostic.py prepare --base-project <冻结工程> --output <新诊断工程> --input <原输入> --reference <完整plain轮次目录>` 构造可逆的临床计时诊断。原代码的逐 tick 探视扣减和终结清零分别记录，首个观察器错误保留步前、步后及实际分支当刻的家属、病房、患者、身体、移动、医疗和让位事实；独立几何只读取实际房间格与完整身体，不调用业务报价或移动。移除注入后原文件及方法体逐字节还原。诊断继续使用 `--profile-stages`、原 1000＋6000 窗口及业务覆盖门槛；即使覆盖断言失败，也须执行 `verify --project <诊断工程> --diagnostic-output <诊断轮次目录> --reference <plain轮次目录>`，独立核对完整世界和有序事件二进制哈希、阶段记录、源码、输入、引擎与原生库。带 hook 的整步耗时及阶段占比只用于归因，不能作为优化收益或性能达标证据。
 
 同一业务实现的 plain 与诊断运行可用 `--outcome-reference <plain目录>` 核对完整终态和有序事件编码哈希，旧参数 `--exact-reference` 兼容。该参数是业务输出见证，与已经退役的临床容量 reference 算法无关，不要求新规则与旧内核逐帧一致。`paired160.py` 默认只记录两个版本的完整输出，只有明确要求全部输出相同时才用 `--require-outcome-equality`；仍须分别满足需求定义的业务结果。
