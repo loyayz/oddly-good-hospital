@@ -174,6 +174,9 @@ def main():
             finally:
                 if process.poll() is None:
                     stop_owned_process_tree(process)
+                write(output / "status.json", {"state": "engine_exited", "repeat": repeat,
+                                               "engine_launcher_pid": process.pid,
+                                               "engine_returncode": process.returncode})
         elapsed = time.perf_counter() - started
         data = read(result_path) if result_path.exists() else {}
         raw = (output / f"r{repeat}.log").read_text(encoding="utf-8")

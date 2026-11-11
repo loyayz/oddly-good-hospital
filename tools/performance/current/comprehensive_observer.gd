@@ -120,6 +120,27 @@ func _terminal_companion_retired(world: WorldState, ward: Dictionary, actor_id: 
 		if family.actor_id==actor_id or family.visit_id==ward.visit_id and family.purpose=="companion": return false
 	return true
 
+func _terminal_family(world: WorldState, family: Dictionary) -> bool:
+	if _terminal_visit(world,str(family.visit_id)): return true
+	for ward: Dictionary in world.facts.ward_stays.values():
+		if ward.visit_id==family.visit_id: return false
+	return true
+
+func _observe_ward_visit_progress(old: Dictionary, family: Dictionary, world: WorldState, bucket: Dictionary, id: String) -> void:
+	var remaining: int=int(family.remaining_ticks)
+	var delta: int=int(old.remaining_ticks)-remaining
+	if delta<=0: return
+	var terminal: bool=_terminal_family(world,family)
+	# Dispatch cancels a terminal visit by setting zero before visitor work.
+	# Even 1 -> 0 is cancellation here, not the final effective visit tick.
+	if terminal and remaining==0 and family.phase in ["leaving","outside"] and not family.return_ward_first: return
+	var phase_allows: bool=not old.phase in ["outside","leaving"] and family.phase!="outside" and (family.phase!="leaving" or remaining==0)
+	var effective: bool=not terminal and delta==1 and remaining>=0 and phase_allows and str(family.life_phase).is_empty() and family.inside_ward and family.patient_in_ward and not family.medical and not family.yielding and not family.ward_phase in ["to_surgery","reserved","transfer","return_preop"]
+	if not effective:
+		_error("Effective visit time advanced outside its legal ward interval for "+id)
+		return
+	_work(bucket,"effective_ward_visit",1)
+
 func _progress(state: Dictionary, id: String, kind: String, remaining: int, total: int) -> void:
 	state.progress[id]={"kind":kind,"remaining":remaining,"total":total}
 
@@ -146,6 +167,9 @@ func observe(before: Dictionary, world: WorldState, result: TickResult, measured
 			bucket.work.staff_life=int(bucket.work.get("staff_life",0))+1
 	for id: String in after.progress:
 		var now: Dictionary=after.progress[id]
+		# Ward-visit progress has an unworked terminal reset; its owner-specific
+		# transition above is the only source of effective visit work.
+		if now.kind=="effective_ward_visit": continue
 		var old: Dictionary=before.progress.get(id,{})
 		var amount: int=maxi(0,int(old.remaining)-int(now.remaining)) if not old.is_empty() and old.kind==now.kind else maxi(0,int(now.total)-int(now.remaining))
 		if amount>0: bucket.work[now.kind]=int(bucket.work.get(now.kind,0))+amount
@@ -244,8 +268,7 @@ func _observe_clinical(before: Dictionary, after: Dictionary, world: WorldState,
 		if family.inside_ward and not old.inside_ward: _work(bucket,"family_ward_entry:"+str(family.purpose))
 		if old.overlaps_ward and not family.overlaps_ward: _work(bucket,"family_ward_exit:"+str(family.purpose))
 		if before.actors.get(actor_id,[])!=after.actors.get(actor_id,[]): _work(bucket,"family_movement:"+str(family.purpose))
-		if family.purpose=="ward_visit" and int(family.remaining_ticks)<int(old.remaining_ticks):
-			if not family.inside_ward or not family.patient_in_ward or family.medical or family.yielding or family.ward_phase in ["to_surgery","reserved","transfer","return_preop"]: _error("Effective visit time advanced outside its legal ward interval for "+id)
+		if family.purpose=="ward_visit": _observe_ward_visit_progress(old,family,world,bucket,id)
 		if old.return_ward_first and not family.return_ward_first and not family.inside_ward and not _terminal_visit(world,str(family.visit_id)): _error("Companion skipped real ward return after life service for "+id)
 		if old.return_ward_first and family.return_ward_first and str(family.life_phase).is_empty() and family.own_family_move and family.destination.get("kind","")=="surgery_outside": _error("Companion selected OR before its required post-life ward return for "+id)
 		if family.destination.get("kind","")=="surgery_outside" and not family.inside_ward and before.actors.get(actor_id,[])==after.actors.get(actor_id,[]) and family.phase=="waiting": _work(bucket,"family_surgery_wait:"+str(family.purpose))

@@ -1,0 +1,442 @@
+{
+	"checks": {
+		"active_identity_cleared": {
+			"details": {
+				"errors": [
+					"Fixed companion identity changed during stay stay"
+				],
+				"expected_rejection": true
+			},
+			"passed": true
+		},
+		"active_identity_kept": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"active_identity_replaced": {
+			"details": {
+				"errors": [
+					"Fixed companion identity changed during stay stay"
+				],
+				"expected_rejection": true
+			},
+			"passed": true
+		},
+		"future_care_does_not_exclude": {
+			"details": {
+				"actual": false,
+				"expected": false
+			},
+			"passed": true
+		},
+		"nonmedical_session": {
+			"details": {
+				"actual": false,
+				"expected": false
+			},
+			"passed": true
+		},
+		"not_yielding": {
+			"details": {
+				"actual": false
+			},
+			"passed": true
+		},
+		"other_floor_care": {
+			"details": {
+				"actual": false,
+				"expected": false
+			},
+			"passed": true
+		},
+		"other_visit_care": {
+			"details": {
+				"actual": false,
+				"expected": false
+			},
+			"passed": true
+		},
+		"other_ward_care": {
+			"details": {
+				"actual": false,
+				"expected": false
+			},
+			"passed": true
+		},
+		"retired_identity_departed": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"retired_identity_leaving": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"retired_identity_ward_referral": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"return_departed_outside": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"return_leaving_outside": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"return_wait_surgery_inside": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"return_wait_surgery_outside": {
+			"details": {
+				"errors": [
+					"Companion skipped real ward return after life service for family"
+				],
+				"expected_rejection": true
+			},
+			"passed": true
+		},
+		"return_ward_referral_outside": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"same_ward_care": {
+			"details": {
+				"actual": true,
+				"expected": true
+			},
+			"passed": true
+		},
+		"same_ward_outpatient": {
+			"details": {
+				"actual": true,
+				"expected": true
+			},
+			"passed": true
+		},
+		"terminal_actor_still_present": {
+			"details": {
+				"errors": [
+					"Fixed companion identity changed during stay stay"
+				],
+				"expected_rejection": true
+			},
+			"passed": true
+		},
+		"terminal_family_still_present": {
+			"details": {
+				"errors": [
+					"Fixed companion identity changed during stay stay"
+				],
+				"expected_rejection": true
+			},
+			"passed": true
+		},
+		"terminal_nonempty_replacement": {
+			"details": {
+				"errors": [
+					"Fixed companion identity changed during stay stay"
+				],
+				"expected_rejection": true
+			},
+			"passed": true
+		},
+		"terminal_other_family_role_remains": {
+			"details": {
+				"errors": [],
+				"expected_rejection": false
+			},
+			"passed": true
+		},
+		"unrelated_yield": {
+			"details": {
+				"actual": false
+			},
+			"passed": true
+		},
+		"ward_visit_already_leaving_not_work": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_departing_partial_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_historical_zero_not_work": {
+			"details": {
+				"effective_work": 0,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_initial_history_not_work": {
+			"details": {
+				"effective_work": 0,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_legal_effective_tick": {
+			"details": {
+				"effective_work": 1,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 1
+			},
+			"passed": true
+		},
+		"ward_visit_legal_final_effective_tick": {
+			"details": {
+				"effective_work": 1,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 1
+			},
+			"passed": true
+		},
+		"ward_visit_medical_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_missing_ward_cancel": {
+			"details": {
+				"effective_work": 0,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_nonterminal_jump_to_zero": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_nonterminal_multiple_ticks": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_outside_final_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_outside_patient_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_outside_visitor_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_patient_away_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_prefix_cancellation_not_work": {
+			"details": {
+				"errors": [],
+				"prefix": {
+					"effective_ward_visit": 1,
+					"family_ward_exit:ward_visit": 1
+				},
+				"sample": {
+					"effective_ward_visit": 1
+				}
+			},
+			"passed": true
+		},
+		"ward_visit_prefix_sample_separate": {
+			"details": {
+				"errors": [],
+				"prefix": {
+					"effective_ward_visit": 1,
+					"family_ward_exit:ward_visit": 1
+				},
+				"sample": {
+					"effective_ward_visit": 1
+				}
+			},
+			"passed": true
+		},
+		"ward_visit_terminal_300_to_zero": {
+			"details": {
+				"effective_work": 0,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_terminal_after_dispatch_no_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_terminal_one_to_zero": {
+			"details": {
+				"effective_work": 0,
+				"errors": [],
+				"expected_rejection": false,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_terminal_partial_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_terminal_zero_wrong_phase": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"ward_visit_yielding_decrement": {
+			"details": {
+				"effective_work": 0,
+				"errors": [
+					"Effective visit time advanced outside its legal ward interval for family"
+				],
+				"expected_rejection": true,
+				"expected_work": 0
+			},
+			"passed": true
+		},
+		"yield_request_age_-1": {
+			"details": {
+				"actual": false,
+				"age_ticks": -1
+			},
+			"passed": true
+		},
+		"yield_request_age_0": {
+			"details": {
+				"actual": true,
+				"age_ticks": 0
+			},
+			"passed": true
+		},
+		"yield_request_age_1": {
+			"details": {
+				"actual": true,
+				"age_ticks": 1
+			},
+			"passed": true
+		},
+		"yield_request_age_2": {
+			"details": {
+				"actual": false,
+				"age_ticks": 2
+			},
+			"passed": true
+		}
+	},
+	"passed": true,
+	"scope": "Observer computation boundaries only; no production steps, completed clinical services or business coverage are claimed."
+}

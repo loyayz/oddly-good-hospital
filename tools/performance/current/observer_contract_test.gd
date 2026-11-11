@@ -1,6 +1,12 @@
 extends SceneTree
 
 const Observer = preload("res://tools/performance/current/comprehensive_observer.gd")
+
+class SnapshotObserver extends "res://tools/performance/current/comprehensive_observer.gd":
+	var next_snapshot: Dictionary={}
+	func capture(_world: WorldState) -> Dictionary:
+		return next_snapshot.duplicate(true)
+
 var _content: HospitalContent
 var _checks: Dictionary = {}
 
@@ -15,6 +21,8 @@ func _run() -> void:
 		_medical_cases()
 		_identity_cases()
 		_return_cases()
+		_ward_visit_cases()
+		_ward_visit_bucket_case()
 	var passed: bool=not _checks.is_empty()
 	for row: Dictionary in _checks.values(): passed=passed and bool(row.passed)
 	var result: Dictionary={"passed":passed,"checks":_checks,"scope":"Observer computation boundaries only; no production steps, completed clinical services or business coverage are claimed."}
@@ -122,3 +130,79 @@ func _return_cases() -> void:
 		observer._observe_clinical(before,after,world,{"work":{}})
 		var rejected: bool=observer.errors.any(func(message: String)->bool:return message.begins_with("Companion skipped real ward return"))
 		_check("return_"+str(row.phase)+("_inside" if row.inside else "_outside"),rejected==bool(row.reject) and observer.errors.size()==(1 if row.reject else 0),{"errors":observer.errors,"expected_rejection":row.reject})
+
+func _ward_visit_snapshot(world: WorldState, remaining: int, row: Dictionary = {}) -> Dictionary:
+	var snapshot: Dictionary=_frame()
+	snapshot.tick=world.sim_tick
+	snapshot.inventory_units=int(world.facts.inventory.units)
+	snapshot.supply_orders=world.facts.inventory.get("orders",{}).keys()
+	snapshot.staff_recovery={}
+	snapshot.ledger={}
+	snapshot.progress={"visitor:family":{"kind":"effective_ward_visit","remaining":remaining,"total":remaining}}
+	for id: String in world.facts.ledger.entries: snapshot.ledger[id]=true
+	snapshot.actors["patient"]=["outside",0,[],""]
+	snapshot.visits["visit"]={"phase":world.facts.visits.visit.phase,"result":"","attempt_ids":[],"diagnosis":{},"old_score_present":false}
+	snapshot.families["family"]={"actor_id":"short_visitor","visit_id":"visit","purpose":"ward_visit","phase":row.get("family_phase","visiting"),"remaining_ticks":remaining,"life_phase":"","return_ward_first":false,"destination":{},"own_family_move":false,"inside_ward":row.get("inside",true),"overlaps_ward":row.get("inside",true),"patient_in_ward":row.get("patient_inside",true),"medical":row.get("medical",false),"ward_phase":row.get("ward_phase","waiting_surgery"),"yielding":row.get("yielding",false)}
+	return snapshot
+
+func _ward_visit_world(row: Dictionary) -> WorldState:
+	var world: WorldState=_world(str(row.get("visit_phase","wait_surgery")))
+	world.facts.visits.visit.actor_id="patient"
+	world.facts.actors["patient"]={"id":"patient","location":{"kind":"outside"}}
+	if row.get("ward_present",true): world.facts.ward_stays["stay"]={"id":"stay","visit_id":"visit"}
+	return world
+
+func _ward_visit_cases() -> void:
+	var rows: Array=[
+		{"name":"terminal_300_to_zero","old":300,"new":0,"old_visit_phase":"wait_surgery","visit_phase":"ward_referral","family_phase":"leaving","inside":false,"work":0,"reject":false},
+		{"name":"terminal_one_to_zero","old":1,"new":0,"old_visit_phase":"wait_surgery","visit_phase":"leaving","family_phase":"leaving","inside":false,"work":0,"reject":false},
+		{"name":"missing_ward_cancel","old":300,"new":0,"ward_present":false,"family_phase":"leaving","inside":false,"work":0,"reject":false},
+		{"name":"terminal_partial_decrement","old":300,"new":299,"visit_phase":"ward_referral","family_phase":"leaving","work":0,"reject":true},
+		{"name":"terminal_zero_wrong_phase","old":300,"new":0,"visit_phase":"ward_referral","work":0,"reject":true},
+		{"name":"legal_effective_tick","old":300,"new":299,"work":1,"reject":false},
+		{"name":"legal_final_effective_tick","old":1,"new":0,"family_phase":"leaving","work":1,"reject":false},
+		{"name":"nonterminal_jump_to_zero","old":300,"new":0,"family_phase":"leaving","work":0,"reject":true},
+		{"name":"nonterminal_multiple_ticks","old":4,"new":2,"work":0,"reject":true},
+		{"name":"outside_visitor_decrement","old":300,"new":299,"inside":false,"work":0,"reject":true},
+		{"name":"outside_patient_decrement","old":300,"new":299,"patient_inside":false,"work":0,"reject":true},
+		{"name":"medical_decrement","old":300,"new":299,"medical":true,"work":0,"reject":true},
+		{"name":"yielding_decrement","old":300,"new":299,"yielding":true,"work":0,"reject":true},
+		{"name":"patient_away_decrement","old":300,"new":299,"ward_phase":"to_surgery","work":0,"reject":true},
+		{"name":"departing_partial_decrement","old":300,"new":299,"family_phase":"leaving","work":0,"reject":true},
+		{"name":"already_leaving_not_work","old":300,"new":299,"old_family_phase":"leaving","work":0,"reject":true},
+		{"name":"outside_final_decrement","old":1,"new":0,"family_phase":"outside","work":0,"reject":true},
+		{"name":"initial_history_not_work","old":300,"new":300,"inside":false,"work":0,"reject":false},
+		{"name":"historical_zero_not_work","old":0,"new":0,"family_phase":"leaving","inside":false,"work":0,"reject":false},
+		{"name":"terminal_after_dispatch_no_decrement","old":300,"new":300,"old_visit_phase":"wait_surgery","visit_phase":"ward_referral","work":0,"reject":false}]
+	for row: Dictionary in rows:
+		var world: WorldState=_ward_visit_world(row)
+		var observer: SnapshotObserver=SnapshotObserver.new(_content)
+		var before: Dictionary=_ward_visit_snapshot(world,int(row.old),row)
+		before.visits.visit.phase=str(row.get("old_visit_phase",world.facts.visits.visit.phase))
+		before.families.family.phase=str(row.get("old_family_phase","visiting"))
+		observer.next_snapshot=_ward_visit_snapshot(world,int(row.new),row)
+		var events: Array[SimEvent]=[]
+		observer.observe(before,world,TickResult.new(world.sim_tick,world.revision,events),true)
+		var work: int=int(observer.sample.work.get("effective_ward_visit",0))
+		var rejected: bool=observer.errors.any(func(message: String)->bool:return message.begins_with("Effective visit time advanced outside"))
+		_check("ward_visit_"+str(row.name),work==int(row.work) and rejected==bool(row.reject) and observer.errors.size()==(1 if row.reject else 0),{"effective_work":work,"expected_work":row.work,"errors":observer.errors,"expected_rejection":row.reject})
+
+func _ward_visit_bucket_case() -> void:
+	var row: Dictionary={"ward_present":true}
+	var world: WorldState=_ward_visit_world(row)
+	var observer: SnapshotObserver=SnapshotObserver.new(_content)
+	var events: Array[SimEvent]=[]
+	var before: Dictionary=_ward_visit_snapshot(world,300)
+	observer.next_snapshot=_ward_visit_snapshot(world,299)
+	observer.observe(before,world,TickResult.new(world.sim_tick,world.revision,events),false)
+	var prefix_only: bool=int(observer.prefix.work.get("effective_ward_visit",0))==1 and int(observer.sample.work.get("effective_ward_visit",0))==0
+	before=_ward_visit_snapshot(world,299)
+	observer.next_snapshot=_ward_visit_snapshot(world,298)
+	observer.observe(before,world,TickResult.new(world.sim_tick,world.revision,events),true)
+	_check("ward_visit_prefix_sample_separate",prefix_only and int(observer.prefix.work.get("effective_ward_visit",0))==1 and int(observer.sample.work.get("effective_ward_visit",0))==1 and observer.errors.is_empty(),{"prefix":observer.prefix.work,"sample":observer.sample.work,"errors":observer.errors})
+	world.facts.visits.visit.phase="ward_referral"
+	before=_ward_visit_snapshot(world,300)
+	before.visits.visit.phase="wait_surgery"
+	observer.next_snapshot=_ward_visit_snapshot(world,0,{"family_phase":"leaving","inside":false})
+	observer.observe(before,world,TickResult.new(world.sim_tick,world.revision,events),false)
+	_check("ward_visit_prefix_cancellation_not_work",int(observer.prefix.work.get("effective_ward_visit",0))==1 and int(observer.sample.work.get("effective_ward_visit",0))==1 and observer.errors.is_empty(),{"prefix":observer.prefix.work,"sample":observer.sample.work,"errors":observer.errors})
