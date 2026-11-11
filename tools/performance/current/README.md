@@ -50,6 +50,12 @@ python -X utf8 -B tools/performance/current/campaign160.py --engine <Godot控制
 
 [两步工具资格记录](../../../docs/reports/evidence/2026-11-12-clinical-performance/hotpath-overlay-smoke.json)保存0＋2步的18项独立校验、来源与运行环境身份、原始文件哈希和具体耗时。完整世界及有序事件与相应原始两步窗口一致；这项检查不替代完整业务覆盖和性能测量。
 
+`prepare_bed_destination_probe.py prepare --baseline <基线提交> --output <新overlay目录> --input <完整R1终态.bin> --reference <原R1目录>`只生成两份床查询源的A/B及独立counted版本，不复制完整工程、不运行引擎。B仅移植声明的床查询函数，其他在研改动排除；完整函数逆变换与counter移除均核对原字节。`install --overlay <overlay> --project <基线冻结工程> --variant a/b/a_counted/b_counted --record <新安装记录.json>`先校验基线全部game与docs/data Git对象、原生库及完整输入，再安装对应源；其他业务源存在差异时拒绝。
+
+`bed_destination_probe.gd --input=<完整终态.bin> --output=<新结果.json> --mode=plain/counted --iterations=1000`从保留全部角色、设施、预约、身份和随机流的事实中，只读取合法地面角色及已发行原Move。非地面和待发行Move单独列出，不将其改造成合法查询。普通goal、原局部路径停点及当前完整身体查询分别记录，全事实Oracle、完整世界只读校验和结果哈希在计时外执行；plain三个独立进程对分别比较，counted进程只记录实际view和goal-region次数，不提供耗时。此局部查询结果不替代完整160人模拟步或业务覆盖。
+
+[床停点局部验证](../../../docs/reports/2026-11-12-bed-destination-query-performance.md)记录选例结果、三对纯查询耗时、独立计数及原始归档，分别标明完整终态的实际人数、合法查询分布和未测范围。
+
 `prepare_clinical_diagnostic.py prepare --base-project <冻结工程> --output <新诊断工程> --input <原输入> --reference <完整plain轮次目录>` 构造可逆的临床计时诊断。原代码的逐 tick 探视扣减和终结清零分别记录，首个观察器错误保留步前、步后及实际分支当刻的家属、病房、患者、身体、移动、医疗和让位事实；独立几何只读取实际房间格与完整身体，不调用业务报价或移动。移除注入后原文件及方法体逐字节还原。诊断继续使用 `--profile-stages`、原 1000＋6000 窗口及业务覆盖门槛；即使覆盖断言失败，也须执行 `verify --project <诊断工程> --diagnostic-output <诊断轮次目录> --reference <plain轮次目录>`，独立核对完整世界和有序事件二进制哈希、阶段记录、源码、输入、引擎与原生库。带 hook 的整步耗时及阶段占比只用于归因，不能作为优化收益或性能达标证据。
 
 同一业务实现的 plain 与诊断运行可用 `--outcome-reference <plain目录>` 核对完整终态和有序事件编码哈希，旧参数 `--exact-reference` 兼容。该参数是业务输出见证，与已经退役的临床容量 reference 算法无关，不要求新规则与旧内核逐帧一致。`paired160.py` 默认只记录两个版本的完整输出，只有明确要求全部输出相同时才用 `--require-outcome-equality`；仍须分别满足需求定义的业务结果。

@@ -503,7 +503,7 @@ func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: 
 
 func _build_reservation_view(world: WorldState) -> Dictionary:
 	query_counts.reservation_index_builds += 1
-	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{},"destination_claims":{}}
+	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{},"destination_claims":{},"destination_claim_floors":{}}
 	for id: String in world.facts.adaptations: _index_reservation(world,view,id,world.facts.adaptations[id])
 	return view
 
@@ -552,6 +552,11 @@ func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members:
 
 func _index_reservation(world: WorldState, view: Dictionary, id: String, reservation: Dictionary) -> void:
 	query_counts.reservation_index_updates += 1
+	var previous_floor: int = int(view.destination_claims.get(id,0))
+	if previous_floor>0:
+		var remaining: int = int(view.destination_claim_floors[previous_floor])-1
+		if remaining==0: view.destination_claim_floors.erase(previous_floor)
+		else: view.destination_claim_floors[previous_floor] = remaining
 	view.destination_claims.erase(id)
 	for key: String in view.reservation_keys.get(id,[]):
 		view.index.remove(key)
@@ -560,6 +565,7 @@ func _index_reservation(world: WorldState, view: Dictionary, id: String, reserva
 		view.reservation_keys.erase(id)
 		return
 	var keys: Array = []
+	var destination_claim: bool = false
 	for ordinal: int in reservation.get("regions",[]).size():
 		var area: Array = reservation.regions[ordinal]
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
@@ -567,9 +573,13 @@ func _index_reservation(world: WorldState, view: Dictionary, id: String, reserva
 		view.index.update(key,int(reservation.floor_id),rect)
 		var blocks_passage: bool=ordinal==0 or not RouteClearance.is_soft_bed(world,reservation)
 		view.regions[key] = {"reservation":reservation,"reservation_id":id,"rect":rect,"blocks_passage":blocks_passage}
-		if not blocks_passage: view.destination_claims[id]=true
+		if not blocks_passage: destination_claim = true
 		keys.append(key)
 	view.reservation_keys[id] = keys
+	if destination_claim:
+		var floor_id: int = int(reservation.floor_id)
+		view.destination_claims[id] = floor_id
+		view.destination_claim_floors[floor_id] = int(view.destination_claim_floors.get(floor_id,0))+1
 
 func _reservation_regions(world: WorldState, floor_id: int, rect: Rect2) -> Array:
 	if world.facts.adaptations.is_empty(): return []
@@ -610,11 +620,27 @@ func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Re
 func has_bed_destination_claims(world: WorldState) -> bool:
 	# This summary belongs to the same current reservation view. Door and
 	# ordinary facility claims still run all physical passage checks.
-	return not world.facts.adaptations.is_empty() and not reservation_view(world).destination_claims.is_empty()
+	return not bed_destination_view(world).is_empty()
+
+# A read-only borrower for one synchronous check. Actual owner updates still
+# maintain this view; no borrower survives a move or a world/facts replacement.
+# Floor zero asks for the complete summary, without imposing a floor limit.
+func bed_destination_view(world: WorldState, floor_id: int = 0) -> Dictionary:
+	if world.facts.adaptations.is_empty(): return {}
+	var view: Dictionary = reservation_view(world)
+	if view.destination_claims.is_empty() or floor_id>0 and not view.destination_claim_floors.has(floor_id): return {}
+	return view
 
 func bed_destination_blocker(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> String:
-	if not has_bed_destination_claims(world): return ""
-	for region: Dictionary in _reservation_regions(world,floor_id,rect):
+	var view: Dictionary = bed_destination_view(world,floor_id)
+	if view.is_empty(): return ""
+	return _bed_destination_blocker_in_view(view,actor_id,floor_id,rect,members)
+
+func _bed_destination_blocker_in_view(view: Dictionary, actor_id: String, floor_id: int, rect: Rect2, members: Array) -> String:
+	if not view.destination_claim_floors.has(floor_id): return ""
+	query_counts.reservation_candidate_queries += 1
+	for key: String in view.index.candidates(floor_id,rect):
+		var region: Dictionary = view.regions[key]
 		if bool(region.blocks_passage) or RouteClearance.reservation_allows(region.reservation,actor_id,members): continue
 		if rect.intersects(region.rect,false): return str(region.reservation_id)
 	return ""

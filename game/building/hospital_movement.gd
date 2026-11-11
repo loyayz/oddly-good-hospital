@@ -472,9 +472,10 @@ func _bed_tail_append(tail: Dictionary, point: Vector2) -> void:
 	tail.left=float(tail.left)-used
 
 func _bed_goal_blocker(world: WorldState, actor: Dictionary, movement: Dictionary) -> String:
-	if not space.has_bed_destination_claims(world): return ""
+	var claims: Dictionary = space.bed_destination_view(world,int(movement.target_floor))
+	if claims.is_empty(): return ""
 	for region: Rect2 in _bed_goal_regions(world,actor,movement):
-		var blocker: String=space.bed_destination_blocker(world,actor.id,int(movement.target_floor),region,movement.get("members",[actor.id]))
+		var blocker: String=space._bed_destination_blocker_in_view(claims,actor.id,int(movement.target_floor),region,movement.get("members",[actor.id]))
 		if not blocker.is_empty(): return blocker
 	return ""
 
@@ -483,7 +484,14 @@ func _bed_goal_blocker(world: WorldState, actor: Dictionary, movement: Dictionar
 # choosing them, so an unavailable post cannot hide the other legal side.
 # Passage along the segments remains soft; only their stops hold use rights.
 func _bed_local_path_blocker(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array) -> String:
-	if not space.has_bed_destination_claims(world): return ""
+	var claims: Dictionary = space.bed_destination_view(world)
+	if claims.is_empty(): return ""
+	var relevant: bool = false
+	for segment: Dictionary in path:
+		if claims.destination_claim_floors.has(int(segment.floor_id)):
+			relevant = true
+			break
+	if not relevant: return ""
 	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
 	var sample: Dictionary=actor.duplicate()
 	for index: int in path.size():
@@ -491,7 +499,7 @@ func _bed_local_path_blocker(world: WorldState, actor: Dictionary, movement: Dic
 		var target: Vector2=ConvoyTrail.point(segment.cell)
 		if target==origin and index<path.size()-1: continue
 		if target!=origin: sample.facing=atan2(target.x-origin.x,target.y-origin.y)
-		var held: String=space.bed_destination_blocker(world,actor.id,int(segment.floor_id),space._actor_rect(sample,target),movement.get("members",[actor.id]))
+		var held: String=space._bed_destination_blocker_in_view(claims,actor.id,int(segment.floor_id),space._actor_rect(sample,target),movement.get("members",[actor.id]))
 		if not held.is_empty(): return held
 		origin=target
 	return ""
