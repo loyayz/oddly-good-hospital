@@ -9,10 +9,15 @@ func population_current(world: WorldState) -> Dictionary:
 	var unclassified: Array = result.unowned.duplicate()
 	result.erase("unowned")
 	var others: Array = []
+	# Equipment, floor construction and renovation units share the production
+	# contractor lifecycle; all four work-owner collections are valid identities.
+	var orders: Dictionary = world.facts.get("maintenance",{}).get("jobs",{}).duplicate()
+	orders.merge(world.facts.get("maintenance",{}).get("upgrades",{}))
+	orders.merge(world.facts.get("floors",{}).get("orders",{}))
+	for renovation: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+		for unit: Dictionary in renovation.units: orders[unit.id]=unit
 	for id: String in unclassified.duplicate():
 		var contractor: Dictionary = world.facts.get("maintenance",{}).get("contractors",{}).get(id,{})
-		var orders: Dictionary = world.facts.get("maintenance",{}).get("jobs",{}).duplicate()
-		orders.merge(world.facts.get("maintenance",{}).get("upgrades",{}))
 		var actor: Dictionary = world.facts.actors[id]
 		var order: Dictionary = orders.get(contractor.get("job_id",""),{})
 		var valid: bool = contractor.get("id","")==id and not order.is_empty() and actor.get("service_role","")=="mechanic" and not world.facts.staff.has(id)
@@ -116,7 +121,7 @@ func _run() -> void:
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
-	var comprehensive: bool = envelope.get("scenario","")=="comprehensive160-clinical-family-v2"
+	var comprehensive: bool = envelope.get("scenario","")=="comprehensive160-clinical-family-v3"
 	var observer = load("res://tools/performance/current/comprehensive_observer.gd").new(content) if comprehensive else null
 	var operations = load("res://tools/performance/current/comprehensive_operations.gd").new() if comprehensive else null
 	if require_coverage and not comprehensive:

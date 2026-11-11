@@ -176,7 +176,7 @@ func observe(before: Dictionary, world: WorldState, result: TickResult, measured
 			_completed_exams[visit_id]=int(_completed_exams.get(visit_id,0))+1
 			var historical: bool=bool(_initial_visits.get(visit_id,{}).get("diagnosis",{}).get("exam_completed",false))
 			if int(_completed_exams[visit_id])+(1 if historical else 0)>1: _error("More than one completed examination for "+visit_id)
-		if event.kind in ["command_applied","command_rejected"] and str(event.details.get("command_id","")).begins_with("comprehensive160-v2-"):
+		if event.kind in ["command_applied","command_rejected"] and str(event.details.get("command_id","")).begins_with("comprehensive160-v3-"):
 			bucket.commands[event.details.command_id]={"kind":event.kind,"tick":event.sim_tick,"details":event.details.duplicate(true)}
 			if event.kind=="command_rejected": _error("Measured command rejected: "+str(event.details.command_id)+" "+str(event.details.get("result",{})))
 	var population: int=world.present_actor_count()
@@ -270,7 +270,7 @@ func report(world: WorldState) -> Dictionary:
 	_check(coverage,"renovation",int(work.get("renovation",0)),1,"actual work milliseconds")
 	_check(coverage,"maintenance",int(work.get("maintenance",0)),1,"actual work milliseconds")
 	_check(coverage,"upgrade",int(work.get("upgrade",0)),1,"actual work milliseconds")
-	var schedule_command: Dictionary=sample.commands.get("comprehensive160-v2-schedule",{})
+	var schedule_command: Dictionary=sample.commands.get("comprehensive160-v3-schedule",{})
 	_check(coverage,"schedule",1 if schedule_command.get("kind","")=="command_applied" else 0,1,"applied production command")
 	_check(coverage,"purchase",int(sample.ledger.get("supply_purchase",{}).get("count",0)),1,"new paid supply receipt")
 	_check(coverage,"clinical_consumption",int(sample.consumed_units),1,"new Attempt committed supply units")
@@ -290,7 +290,7 @@ func report(world: WorldState) -> Dictionary:
 	var output_errors: Array=errors.duplicate()
 	if not facts_error.is_empty(): output_errors.append(facts_error)
 	for key: String in missing: output_errors.append("No measured activity: "+key)
-	return {"schema":2,"scenario":"comprehensive160-clinical-family-v2","coverage_pass":output_errors.is_empty() and int(sample.steps)>0,"coverage":coverage,"errors":output_errors,"invariant_failure_counts":_error_counts.duplicate(),"uncovered":missing,"prefix":prefix.duplicate(true),"sample":sample.duplicate(true),"sample_first_tick":_sample_first_tick,"sample_last_tick":_sample_last_tick,"initial_core_ids":_initial_core.keys(),"initial_visit_boundaries":_initial_visits,"completed_examinations":_completed_exams,"present_min":_minimum_population,"present_max":_maximum_population,"natural_additional_actors":_external_ids,"scope":"Only sample deltas establish coverage. Historical input and prefix are separate. Measured entries, effective visit progress, original-doctor review, real ward return, completed examinations, actual attempts, outcomes and fees are recorded; work progress alone is not a cured or complete-job claim.","not_covered_by_this_scenario":["UI/rendering","save persistence","quarterly/full-day cycles","every possible clinical plan","all clinical/family acceptance boundaries"]}
+	return {"schema":3,"scenario":"comprehensive160-clinical-family-v3","coverage_pass":output_errors.is_empty() and int(sample.steps)>0,"coverage":coverage,"errors":output_errors,"invariant_failure_counts":_error_counts.duplicate(),"uncovered":missing,"prefix":prefix.duplicate(true),"sample":sample.duplicate(true),"sample_first_tick":_sample_first_tick,"sample_last_tick":_sample_last_tick,"initial_core_ids":_initial_core.keys(),"initial_visit_boundaries":_initial_visits,"completed_examinations":_completed_exams,"present_min":_minimum_population,"present_max":_maximum_population,"natural_additional_actors":_external_ids,"scope":"Only sample deltas establish coverage. Historical input and prefix are separate. Measured entries, effective visit progress, original-doctor review, real ward return, completed examinations, actual attempts, outcomes and fees are recorded; work progress alone is not a cured or complete-job claim.","not_covered_by_this_scenario":["UI/rendering","save persistence","quarterly/full-day cycles","every possible clinical plan","all clinical/family acceptance boundaries"]}
 
 func _check(coverage: Dictionary, key: String, actual: int, lower_bound: int, unit: String) -> void:
 	coverage[key]={"covered":actual>=lower_bound,"actual":actual,"lower_bound":lower_bound,"unit":unit}

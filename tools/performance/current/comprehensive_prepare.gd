@@ -2,7 +2,8 @@ extends "res://tools/performance/acceptance/fixtures/prepare_inputs.gd"
 
 const Operations = preload("res://tools/performance/current/comprehensive_operations.gd")
 const ClinicalInputs = preload("res://tools/performance/current/comprehensive_clinical_inputs.gd")
-const SCENARIO: String = "comprehensive160-clinical-family-v2"
+const SCENARIO: String = "comprehensive160-clinical-family-v3"
+const WARD_OPENING: Dictionary={"bench_staff_0025":"bench_room_1_03","bench_staff_0027":"bench_room_3_03"}
 var _setup: Dictionary = {"commands":[],"initial_cohorts":[],"added_facilities":[],"moved_facilities":[],"errors":[],"limitations":[]}
 var _failure_boundary_path: String=""
 var _preparation_events: Array=[]
@@ -99,45 +100,33 @@ func _construct(content: HospitalContent, output: String) -> Dictionary:
 	_setup.commands.append({"kind":"arrivals_intake","open":false,"stage":"employee_opening","result":closed.to_record()})
 	if not closed.accepted:
 		sim.dispose();return {"ok":false,"reason":"Cannot close normal intake for employee opening","setup":_setup}
-	_setup.staff_preparation=await _prepare_guidance_staff(sim)
+	_setup.staff_preparation=await _prepare_employee_staff(sim)
 	if not _setup.staff_preparation.ok:
-		sim.dispose();return {"ok":false,"reason":"Eight real guidance nurses did not finish opening preparation","setup":_setup}
+		var failure: Dictionary=_save_failed_boundary(sim,"Real guidance and ward-nurse opening preparation did not finish",[],_setup.staff_preparation)
+		sim.dispose();return failure.merged({"setup":_setup})
 	var cohorts: Dictionary=ClinicalInputs.prepare(pending,world,content)
 	if not cohorts.ok: sim.dispose();return cohorts.merged({"setup":_setup})
 	_setup.initial_cohorts=cohorts.historical
 	_setup.fresh_gp_cohorts=cohorts.fresh
-	var immutable_patients: PackedByteArray=var_to_bytes(pending)
-	var preop_ids: Array=[]
-	for index: int in ClinicalInputs.PREOP_COUNT: preop_ids.append("bench_visit_%04d"%index)
-	_setup.preop_join=_join_patient_batch(sim,pending,preop_ids,"preop")
-	if not _setup.preop_join.ok: sim.dispose();return _setup.preop_join.merged({"setup":_setup})
-	_setup.preop_deployment=_deploy_initial_core(sim,_setup.preop_join.actor_ids,"preop")
-	if not _setup.preop_deployment.ok: sim.dispose();return _setup.preop_deployment.merged({"setup":_setup})
-	_setup.family_preparation=await _prepare_inpatient_family(sim,preop_ids)
-	if not _setup.family_preparation.ok: sim.dispose();return _setup.family_preparation.merged({"setup":_setup})
-	if immutable_patients!=var_to_bytes(pending): sim.dispose();return {"ok":false,"reason":"Read-only deferred patient input changed during real inpatient preparation"}
-	_setup.deferred_patients_preserved=true
-	var family_count: int=int(_setup.family_preparation.population.visitors)
-	var additional: Dictionary=ClinicalInputs.add_fresh(pending,8-family_count,content)
+	var additional: Dictionary=ClinicalInputs.add_fresh(pending,content)
 	if not additional.ok: sim.dispose();return additional
 	_setup.additional_fresh_patients=additional.records
 	for row: Dictionary in additional.records: original_bodies[row.actor_id]=row.body_dimensions.duplicate(true)
-	var remaining: Array=[]
-	for id: String in pending.visits:
-		if not id in preop_ids: remaining.append(id)
-	remaining.sort()
-	_setup.patient_join=_join_patient_batch(sim,pending,remaining,"patients")
+	var all_patients: Array=pending.visits.keys()
+	all_patients.sort()
+	_setup.patient_join=_join_patient_batch(sim,pending,all_patients,"patients")
 	if not _setup.patient_join.ok: sim.dispose();return _setup.patient_join.merged({"setup":_setup})
 	var patient_deployment: Dictionary=_deploy_initial_core(sim,_setup.patient_join.actor_ids,"patients")
 	var staff_stage: Dictionary=staff_deployment.duplicate();staff_stage.erase("records")
 	var patient_stage: Dictionary=patient_deployment.duplicate();patient_stage.erase("records")
-	_setup.initial_deployment={"ok":staff_deployment.ok and _setup.preop_deployment.ok and patient_deployment.ok,"count":staff_deployment.count+_setup.preop_deployment.count+patient_deployment.get("count",0),"staff_stage":staff_stage,"preop_stage":_setup.preop_deployment,"patient_stage":patient_stage,"records":staff_deployment.records+_setup.preop_deployment.records+patient_deployment.get("records",[]),"boundary":"Each patient is placed only at its own first-step declaration. Real employees, admitted patients, relatives and journeys are not repositioned by later cohort joins."}
+	_setup.initial_deployment={"ok":staff_deployment.ok and patient_deployment.ok,"count":staff_deployment.count+patient_deployment.get("count",0),"staff_stage":staff_stage,"patient_stage":patient_stage,"records":staff_deployment.records+patient_deployment.get("records",[]),"boundary":"All original 120 patients and eight additional full-body fresh patients join once, before any patient's first step. Participating employees and their actual work, locations, travel and clocks remain unchanged."}
 	for key: String in ["same_floors","only_locations_and_revision_changed","all_full_bodies_public_and_clear"]: _setup.initial_deployment[key]=staff_deployment.get(key,false) and patient_deployment.get(key,false)
 	_setup.initial_deployment.validation_scope="Each cohort at its own initial declaration, not a requirement that actual final work posts be public waiting cells. Final world/build/schedule validation is separate."
 	if not patient_deployment.ok:
 		sim.dispose();return {"ok":false,"reason":"New patient public deployment failed","setup":_setup}
 	for row: Dictionary in _setup.initial_cohorts+_setup.fresh_gp_cohorts:
 		row.freeze_location=world.facts.actors[world.facts.visits[row.visit_id].actor_id].location.duplicate(true)
+	_setup.clinical_start={"joined_tick":world.sim_tick,"original_patients":120,"additional_fresh_patients":8,"total_patients":128,"patient_steps":_steps-int(_setup.patient_join.joined_step),"ward_stays":world.facts.ward_stays.size(),"attempts":world.facts.attempts.size(),"sessions":world.facts.sessions.size(),"preparations":world.facts.preparations.size(),"scope":"No patient, admission, relative or clinical work is advanced during preparation. Saved diagnostic history is declared input. Real admission, family decisions, visits and all clinical progress must execute after this boundary."}
 	# The worn spare is declared at the complete patient input boundary. The
 	# employee-only opening phase cannot consume the sample's maintenance job.
 	world.facts.facilities[Operations.MAINTENANCE_ITEM].condition=float(content.balance.maintenance_dispatch.manual_threshold)
@@ -149,8 +138,6 @@ func _construct(content: HospitalContent, output: String) -> Dictionary:
 			var source: String="comprehensive-initial-dirt-%d-%d"%[floor_id,index]
 			var dirt: String=sim.services.environment.spawn_dirt(world,"CL01",source,source+":scatter",floor_id,[40+index*2,83])
 			if dirt.is_empty(): _setup.errors.append("No lawful initial dirt location: "+source)
-	for stay: Dictionary in world.facts.visitors.stays.values():
-		if world.facts.actors[stay.actor_id].location.kind!="outside": fixture.visitor_ids.append(str(stay.actor_id))
 	var reopened: CommandResult=_intake(sim,true,"comprehensive-setup-intake-open")
 	_setup.commands.append({"kind":"arrivals_intake","open":true,"result":reopened.to_record(),"scope":"No simulation step follows the final patient declaration before the input freezes."})
 	if not reopened.accepted: sim.dispose();return {"ok":false,"reason":"Cannot restore normal intake after preparing the complete population"}
@@ -163,19 +150,19 @@ func _construct(content: HospitalContent, output: String) -> Dictionary:
 	var beds: int=world.facility_ids("EQ05").size()
 	var rules: Dictionary=_comprehensive_rules(sim)
 	var core_identity: Dictionary=_core_body_audit(world,content,original_bodies)
-	var family_identity: Dictionary=_family_identity(world,fixture.visitor_ids)
-	var ok: bool=validation.is_empty() and rules.ok and core_identity.ok and _setup.errors.is_empty() and retained and beds==24 and layout.rooms==64 and layout.facilities==1361 and layout.service_objects==161 and layout.props==1200 and population.staff==32 and population.patients+population.visitors==128 and population.visitors==family_count and population.present==160 and family_identity.ok
+	var family_input: Dictionary={"present":population.visitors,"stays":world.facts.visitors.stays.size(),"requests":world.facts.visitors.requests.size(),"coverage_established":false,"scope":"No family result or body is supplied. Sampled production entry and effective ward-visit work must establish both roles; an empty initial family collection is not family coverage."}
+	var no_patient_progress: bool=_steps==int(_setup.patient_join.joined_step) and world.sim_tick==int(_setup.patient_join.joined_tick) and world.facts.ward_stays.is_empty() and world.facts.attempts.is_empty() and world.facts.sessions.is_empty() and world.facts.preparations.is_empty() and world.facts.visitors.stays.is_empty() and world.facts.visitors.requests.is_empty()
+	var ok: bool=validation.is_empty() and rules.ok and core_identity.ok and _setup.errors.is_empty() and retained and beds==24 and layout.rooms==64 and layout.facilities==1361 and layout.service_objects==161 and layout.props==1200 and population.staff==32 and population.patients==128 and population.visitors==0 and population.present==160 and no_patient_progress
 	var identity: Dictionary=_identity()
 	for path: String in ["res://tools/performance/current/comprehensive_prepare.gd","res://tools/performance/current/comprehensive_clinical_inputs.gd","res://tools/performance/current/comprehensive_operations.gd","res://tools/performance/current/comprehensive_observer.gd"]: identity.sources[path]=FileAccess.get_sha256(path)
-	var metadata: Dictionary={"ok":ok,"population":population,"family_identity":family_identity,"layout":layout,"care_beds":beds,"original_entities_retained":retained,"room_rules":rules,"core_identity":core_identity,"setup":_setup,"validation":validation,"actual_preparation_steps":_steps,"source_tick":world.sim_tick,"scenario":SCENARIO,"identity":identity}
+	var metadata: Dictionary={"ok":ok,"population":population,"family_input":family_input,"no_patient_progress":no_patient_progress,"layout":layout,"care_beds":beds,"original_entities_retained":retained,"room_rules":rules,"core_identity":core_identity,"setup":_setup,"validation":validation,"actual_preparation_steps":_steps,"source_tick":world.sim_tick,"scenario":SCENARIO,"identity":identity}
 	if ok:
 		var file: FileAccess=FileAccess.open(output,FileAccess.WRITE)
 		if file==null: sim.dispose();return {"ok":false,"reason":"Cannot publish new complete input"}
 		file.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":fixture.floors,"visitor_ids":fixture.visitor_ids,"fixture_migration":fixture.migration,"scenario":SCENARIO,"comprehensive_setup":_setup})
 		file.close();metadata.input=output;metadata.input_sha256=FileAccess.get_sha256(output)
 	else:
-		var file: FileAccess=FileAccess.open(output+".blocked.bin",FileAccess.WRITE)
-		if file!=null: file.store_var({"facts":world.freeze(),"setup":_setup});file.close()
+		metadata.merge(_save_failed_boundary(sim,"Complete initial boundary did not qualify",all_patients,{}),true)
 	sim.dispose();return metadata
 
 # Fixture patients have not participated in any step. Hold their full immutable
@@ -202,7 +189,9 @@ func _defer_initial_patients(world: WorldState) -> Dictionary:
 	world.touch(false)
 	return pending
 
-func _guidance_opening_state(sim: HospitalSimulation) -> Dictionary:
+func _employee_opening_state(sim: HospitalSimulation, work: Dictionary) -> Dictionary:
+	var world: WorldState=sim.world
+	var required: int=ceili(float(sim.content.balance.staff_work_bases.preparation_seconds)/WorldState.TICK_SECONDS)
 	var rows: Array=[]
 	var ready: int=0
 	var nurses: Dictionary={}
@@ -211,13 +200,33 @@ func _guidance_opening_state(sim: HospitalSimulation) -> Dictionary:
 		var nurse_id: String=str(desk.get("nurse_id",""))
 		var staff: Dictionary=sim.world.facts.staff.get(nurse_id,{})
 		var usable: bool=sim.services.floor_guidance._desk_usable(sim.world,id)
-		var prepared: bool=staff.get("base_prepared",false) and staff.get("base_task",{}).is_empty()
+		var actual_work: int=int(work.get(nurse_id,{}).get("nursing_preparation_work_ticks",0))
+		var prepared: bool=staff.get("base_prepared",false) and staff.get("base_task",{}).is_empty() and actual_work>=required
 		if usable and prepared: ready+=1
 		if not nurse_id.is_empty(): nurses[nurse_id]=true
-		rows.append({"desk_id":id,"floor_id":sim.world.facts.facilities[id].floor_id,"nurse_id":nurse_id,"usable":usable,"base_prepared":prepared,"nurse_location":sim.world.facts.actors.get(nurse_id,{}).get("location",{}).duplicate(true),"reason":desk.get("reason","")})
-	return {"ok":rows.size()==8 and ready==8 and nurses.size()==8,"ready_desks":ready,"distinct_nurses":nurses.size(),"desks":rows}
+		rows.append({"desk_id":id,"floor_id":sim.world.facts.facilities[id].floor_id,"nurse_id":nurse_id,"usable":usable,"base_prepared":prepared,"actual_base_work_ticks":actual_work,"nurse_location":sim.world.facts.actors.get(nurse_id,{}).get("location",{}).duplicate(true),"reason":desk.get("reason","")})
+	var wards: Array=[]
+	var ward_ready: int=0
+	for nurse_id: String in WARD_OPENING:
+		var room_id: String=WARD_OPENING[nurse_id]
+		var room: Dictionary=world.facts.rooms[room_id]
+		var bench_id: String=room_id+"_2"
+		var bench: Dictionary=world.facts.facilities[bench_id]
+		var staff: Dictionary=world.facts.staff[nurse_id]
+		var actor: Dictionary=world.facts.actors[nurse_id]
+		var assignment: Dictionary=sim.services.scheduler.assignment(world,nurse_id,sim.services.scheduler.shift_index(world))
+		var actual_work: int=int(work.get(nurse_id,{}).get("nursing_preparation_work_ticks",0))
+		var at_workbench: bool=bench.definition_id=="SE06" and sim.space.at(world,nurse_id,int(bench.floor_id),bench.operator_cells[0]) and not world.facts.moves.has(nurse_id)
+		var in_ward: bool=actor.location.kind=="floor" and int(actor.location.floor_id)==int(room.floor_id) and sim.space.room_contains(room,sim.space.body_rectangle(actor))
+		var can_start: bool=staff.role=="nurse" and "q_ward" in staff.certificates and staff.on_shift and sim.clinic._can_start(world,staff) and not sim.clinic._staff_busy(world,nurse_id)
+		var prepared: bool=staff.get("base_prepared",false) and staff.get("base_task",{}).is_empty() and staff.get("life_task",{}).get("phase","idle")=="idle" and actual_work>=required
+		var correct_pool: bool=assignment.get("kind","")=="work" and assignment.get("pools",[])==[room_id]
+		var usable: bool=at_workbench and in_ward and can_start and prepared and correct_pool and room.get("structure_valid",true) and room.get("open_intent",true) and not bench.failed
+		if usable: ward_ready+=1
+		wards.append({"nurse_id":nurse_id,"ward_id":room_id,"workbench_id":bench_id,"usable":usable,"at_workbench":at_workbench,"in_ward":in_ward,"can_start":can_start,"base_prepared":staff.get("base_prepared",false),"actual_base_work_ticks":actual_work,"assignment":assignment.duplicate(true),"original_pool_preserved":correct_pool,"nurse_location":actor.location.duplicate(true)})
+	return {"ok":rows.size()==8 and ready==8 and nurses.size()==8 and ward_ready==WARD_OPENING.size(),"ready_desks":ready,"distinct_nurses":nurses.size(),"desks":rows,"ready_ward_nurses":ward_ready,"ward_nurses":wards}
 
-func _prepare_guidance_staff(sim: HospitalSimulation) -> Dictionary:
+func _prepare_employee_staff(sim: HospitalSimulation) -> Dictionary:
 	var world: WorldState=sim.world
 	var started: int=Time.get_ticks_usec()
 	var first_step: int=_steps
@@ -226,12 +235,12 @@ func _prepare_guidance_staff(sim: HospitalSimulation) -> Dictionary:
 	for id: String in world.ids("staff"):
 		var staff: Dictionary=world.facts.staff[id]
 		rows[id]={"staff_id":id,"role":staff.role,"hired_tick":staff.get("hired_tick",0),"initial_location":world.facts.actors[id].location.duplicate(true),"initial_amenity_clock":staff.get("amenity_clock",{}).duplicate(true),"initial_last_rest_end_tick":staff.get("last_rest_end_tick",-1),"movement_steps":0,"transit_steps":0,"actual_floor_distance_cells":0.0,"nursing_preparation_work_ticks":0,"first_base_prepared_tick":-1,"first_guidance_arrival_tick":-1,"assigned_job_steps":0}
-	var state: Dictionary=_guidance_opening_state(sim)
+	var state: Dictionary=_employee_opening_state(sim,rows)
 	while not state.ok:
 		var previous: Dictionary={}
 		for id: String in rows: previous[id]={"location":world.facts.actors[id].location.duplicate(true),"moving":world.facts.moves.has(id)}
 		var advanced: Dictionary=await _advance(sim)
-		if not advanced.ok: return advanced.merged({"elapsed_us":Time.get_ticks_usec()-started,"start_tick":first_tick,"end_tick":world.sim_tick,"actual_steps":_steps-first_step,"last_guidance_state":state,"staff":rows.values(),"scope":"Unmeasured 32-person opening preparation; never counted as 160-person coverage."})
+		if not advanced.ok: return advanced.merged({"elapsed_us":Time.get_ticks_usec()-started,"start_tick":first_tick,"end_tick":world.sim_tick,"actual_steps":_steps-first_step,"last_opening_state":state,"staff":rows.values(),"scope":"Unmeasured 32-person opening preparation; never counted as 160-person coverage."})
 		var worked: Dictionary=sim.services.development.worked_staff()
 		for id: String in rows:
 			var actor: Dictionary=world.facts.actors[id]
@@ -243,7 +252,7 @@ func _prepare_guidance_staff(sim: HospitalSimulation) -> Dictionary:
 			if staff.role=="nurse" and worked.has(id): rows[id].nursing_preparation_work_ticks+=1
 			if staff.get("base_prepared",false) and int(rows[id].first_base_prepared_tick)<0: rows[id].first_base_prepared_tick=world.sim_tick
 			if not str(staff.get("active_job_id","")).is_empty(): rows[id].assigned_job_steps+=1
-		state=_guidance_opening_state(sim)
+		state=_employee_opening_state(sim,rows)
 		for desk: Dictionary in state.desks:
 			if desk.usable and desk.base_prepared and rows.has(desk.nurse_id) and int(rows[desk.nurse_id].first_guidance_arrival_tick)<0: rows[desk.nurse_id].first_guidance_arrival_tick=world.sim_tick
 		if world.facts.actors.size()!=32 or not world.facts.visits.is_empty() or world.facts.arrivals.intake_open:
@@ -251,13 +260,14 @@ func _prepare_guidance_staff(sim: HospitalSimulation) -> Dictionary:
 	var required: int=ceili(float(sim.content.balance.staff_work_bases.preparation_seconds)/WorldState.TICK_SECONDS)
 	var actual_work: bool=true
 	for desk: Dictionary in state.desks: actual_work=actual_work and int(rows[desk.nurse_id].nursing_preparation_work_ticks)>=required
+	for ward: Dictionary in state.ward_nurses: actual_work=actual_work and int(rows[ward.nurse_id].nursing_preparation_work_ticks)>=required
 	for id: String in rows:
 		rows[id].final_location=world.facts.actors[id].location.duplicate(true)
 		rows[id].final_amenity_clock=world.facts.staff[id].get("amenity_clock",{}).duplicate(true)
 		rows[id].final_last_rest_end_tick=world.facts.staff[id].get("last_rest_end_tick",-1)
 		rows[id].final_life_task=world.facts.staff[id].get("life_task",{}).duplicate(true)
 	var validation: String=world.validate(sim.content)
-	return {"ok":state.ok and actual_work and validation.is_empty(),"start_tick":first_tick,"end_tick":world.sim_tick,"actual_steps":_steps-first_step,"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"validation":validation,"required_preparation_work_ticks":required,"all_guidance_nurses_have_actual_work":actual_work,"guidance":state,"staff":rows.values(),"scope":"Real 32-person opening preparation only. Normal intake is closed; all travel and preparation execute in production steps. Not 160-person performance or sample coverage."}
+	return {"ok":state.ok and actual_work and validation.is_empty(),"start_tick":first_tick,"end_tick":world.sim_tick,"actual_steps":_steps-first_step,"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"validation":validation,"required_preparation_work_ticks":required,"all_required_nurses_have_actual_work":actual_work,"opening":state,"staff":rows.values(),"scope":"Real 32-person opening preparation only. Eight guidance desks and both original ward nurses must be simultaneously usable after actual arrival and base work. Normal intake is closed; all travel, preparation, clocks and life duties execute unchanged. No patient or family step is advanced and no 160-person coverage is claimed."}
 
 func _join_patient_batch(sim: HospitalSimulation, pending: Dictionary, visit_ids: Array, name: String) -> Dictionary:
 	var world: WorldState=sim.world
@@ -308,37 +318,7 @@ func _join_patient_batch(sim: HospitalSimulation, pending: Dictionary, visit_ids
 	for actor_id: String in actors: _setup.join_ticks[actor_id]=world.sim_tick
 	var unlock_after: int=int(world.facts.research_progress.first_profile_b_tick)
 	var arrival_recorded: bool=profile_b_arrivals.is_empty() or unlock_after>=0 and unlock_after<=world.sim_tick
-	return {"ok":active_facts_preserved and clocks and arrival_recorded,"name":name,"joined_tick":world.sim_tick,"elapsed_us":Time.get_ticks_usec()-started,"patient_count":ids.size(),"actor_ids":actors,"population":population_of(world),"existing_actor_and_visit_facts_preserved":active_facts_preserved,"fresh_clocks_start_at_join":clocks,"queues":queues,"research_arrival":{"owner":"HospitalResearch.record_arrival","profile_b_visit_ids":profile_b_arrivals,"first_profile_b_tick_before":unlock_before,"first_profile_b_tick_after":unlock_after,"valid":arrival_recorded},"scope":"One first-step input declaration, with each Visit's actual arrival recorded through the existing research owner. Saved diagnostic history is separate from later real prefix/sample GP work. Previously participating bodies, travel, ward/family ownership and work are unchanged. Complete body placement and world validation follow before this cohort's first step."}
-
-func _prepare_inpatient_family(sim: HospitalSimulation, preop_ids: Array) -> Dictionary:
-	var started: int=Time.get_ticks_usec()
-	var first_step: int=_steps
-	var first_tick: int=sim.world.sim_tick
-	var admissions: Dictionary={}
-	while true:
-		var world: WorldState=sim.world
-		for ward: Dictionary in world.facts.ward_stays.values():
-			if ward.get("visit_id","") in preop_ids and ward.has("admitted_tick"):
-				if not admissions.has(ward.id): admissions[ward.id]={"ward_id":ward.id,"visit_id":ward.visit_id,"bed_id":ward.bed_id,"admitted_tick":ward.admitted_tick,"first_observed_tick":world.sim_tick,"companion_evaluated":ward.get("companion_evaluated",false),"companion_qualified":ward.get("companion_qualified",false)}
-		var actual_ids: Array=[]
-		var roles: Dictionary={"companion":0,"ward_visit":0}
-		for family: Dictionary in world.facts.visitors.stays.values():
-			var actor: Dictionary=world.facts.actors[family.actor_id]
-			if actor.location.kind!="outside":
-				actual_ids.append(str(family.actor_id))
-				roles[family.purpose]=int(roles.get(family.purpose,0))+1
-		var all_patients_present: bool=true
-		for id: String in preop_ids:
-			var visit: Dictionary=world.facts.visits.get(id,{})
-			all_patients_present=all_patients_present and not visit.is_empty() and not visit.get("phase","") in ["leaving","departed","continuation_leaving","continuation_outside"] and world.facts.actors.get(str(visit.get("actor_id","")),{}).get("location",{}).get("kind","outside")!="outside"
-		if not all_patients_present: return _family_failure(sim,"An initial preoperative patient left before the fixed population boundary; do not replace a participating patient",preop_ids,{"actual_steps":_steps-first_step,"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()})
-		if int(roles.companion)>0 and int(roles.ward_visit)>0:
-			if actual_ids.size()>8: return _family_failure(sim,"Actual relatives exceed the retained 120-patient construction boundary; preserve this failed preparation without suppressing requests",preop_ids,{"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()})
-			var validation: String=world.validate(sim.content)
-			return {"ok":validation.is_empty(),"start_tick":first_tick,"end_tick":world.sim_tick,"actual_steps":_steps-first_step,"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"roles":roles,"actor_ids":actual_ids,"actual_admissions":admissions.values(),"pending_requests":world.facts.visitors.requests.duplicate(true),"validation":validation,"scope":"Actual production admission, independent 80% and daily 30% decisions, and real entry. Freeze the first boundary with both roles present; no result, request, body, ward recovery or clinical work is supplied or cancelled to reach this boundary."}
-		var advanced: Dictionary=await _advance(sim)
-		if not advanced.ok: return _family_failure(sim,str(advanced.reason),preop_ids,advanced.merged({"elapsed_us":Time.get_ticks_usec()-started,"population":population_of(world),"roles":roles,"actual_admissions":admissions.values()}))
-	return {"ok":false,"reason":"Inpatient family preparation ended without a qualified boundary"}
+	return {"ok":active_facts_preserved and clocks and arrival_recorded,"name":name,"joined_tick":world.sim_tick,"joined_step":_steps,"elapsed_us":Time.get_ticks_usec()-started,"patient_count":ids.size(),"actor_ids":actors,"population":population_of(world),"existing_actor_and_visit_facts_preserved":active_facts_preserved,"fresh_clocks_start_at_join":clocks,"queues":queues,"research_arrival":{"owner":"HospitalResearch.record_arrival","profile_b_visit_ids":profile_b_arrivals,"first_profile_b_tick_before":unlock_before,"first_profile_b_tick_after":unlock_after,"valid":arrival_recorded},"scope":"One first-step input declaration, with each Visit's actual arrival recorded through the existing research owner. Saved diagnostic history is separate from later real prefix/sample GP work. Previously participating bodies, travel, ward/family ownership and work are unchanged. Complete body placement and world validation follow before this cohort's first step."}
 
 # The step and watchdog order matches the inherited preparer. Only the returned
 # completed events are copied after each actual step, outside simulated work.
@@ -357,7 +337,7 @@ func _advance(simulation: HospitalSimulation) -> Dictionary:
 	await process_frame
 	return {"ok":true}
 
-func _family_failure(sim: HospitalSimulation, reason: String, visit_ids: Array, context: Dictionary) -> Dictionary:
+func _save_failed_boundary(sim: HospitalSimulation, reason: String, visit_ids: Array, context: Dictionary) -> Dictionary:
 	var world: WorldState=sim.world
 	var affected: Array=[]
 	for id: String in visit_ids:
@@ -374,32 +354,9 @@ func _family_failure(sim: HospitalSimulation, reason: String, visit_ids: Array, 
 	_progress("failed_business_boundary",{"tick":world.sim_tick,"reason":reason,"file":_failure_boundary_path,"event_count":_preparation_events.size(),"visits":affected})
 	return context.merged({"ok":false,"reason":reason,"tick":world.sim_tick,"complete_preparation_steps":_steps,"affected_visits":affected,"family_requests":world.facts.visitors.requests.duplicate(true),"ward_stays":world.facts.ward_stays.duplicate(true),"failure_boundary_json":_failure_boundary_path+".json","failure_boundary_bin":_failure_boundary_path+".bin"},true)
 
-func _family_identity(world: WorldState, actor_ids: Array) -> Dictionary:
-	var roles: Dictionary={"companion":0,"ward_visit":0}
-	var seen: Dictionary={}
-	var records: Array=[]
-	var ok: bool=true
-	for family: Dictionary in world.facts.visitors.stays.values():
-		if not family.actor_id in actor_ids: continue
-		var visit: Dictionary=world.facts.visits[family.visit_id]
-		var actor: Dictionary=world.facts.actors[family.actor_id]
-		var ward: Dictionary={}
-		for candidate: Dictionary in world.facts.ward_stays.values():
-			if candidate.get("visit_id","")==visit.id: ward=candidate;break
-		var key: String=str(visit.id)+":"+str(family.purpose)
-		var valid: bool=not seen.has(key) and family.purpose in ["companion","ward_visit"] and not ward.is_empty() and ward.has("admitted_tick") and actor.get("relative_of","")==visit.actor_id and actor.location.kind!="outside"
-		var bed_owner: String=str(world.facts.adaptations.get(str(ward.get("bed_id","")),{}).get("owner_id",""))
-		valid=valid and bed_owner==str(ward.get("id",""))
-		if family.purpose=="companion": valid=valid and ward.get("companion_evaluated",false) and ward.get("companion_qualified",false) and ward.get("companion_actor_id","")==actor.id
-		seen[key]=true
-		roles[family.purpose]=int(roles.get(family.purpose,0))+1
-		ok=ok and valid
-		records.append({"actor_id":actor.id,"visit_id":visit.id,"ward_id":ward.get("id",""),"bed_owner_id":bed_owner,"purpose":family.purpose,"location":actor.location.duplicate(true),"valid":valid})
-	return {"ok":ok and seen.size()==actor_ids.size() and roles.companion>0 and roles.ward_visit>0,"roles":roles,"records":records}
-
 func _core_body_audit(world: WorldState, content: HospitalContent, original: Dictionary) -> Dictionary:
 	var records: Array=[]
-	var ok: bool=original.size()>=152
+	var ok: bool=original.size()==160
 	for id: String in original:
 		var actor: Dictionary=world.facts.actors.get(id,{})
 		var current: Dictionary=content.actor_body(actor) if not actor.is_empty() else {}
@@ -459,8 +416,8 @@ func _build(sim: HospitalSimulation, key: String, draft: Dictionary) -> bool:
 
 func _deploy_initial_core(sim: HospitalSimulation, actors: Array, phase: String) -> Dictionary:
 	var world: WorldState=sim.world
-	var expected_count: int=actors.size()
-	if actors.is_empty() or not phase in ["staff","preop","patients"]: return {"ok":false,"reason":"Empty or unknown first-step cohort","phase":phase,"records":[]}
+	var expected_count: int=32 if phase=="staff" else 128
+	if actors.is_empty() or not phase in ["staff","patients"]: return {"ok":false,"reason":"Empty or unknown first-step cohort","phase":phase,"records":[]}
 	if phase=="staff" and (actors.size()!=32 or world.sim_tick!=0 or not world.facts.moves.is_empty()): return {"ok":false,"reason":"Employees have already started real movement","count":actors.size(),"records":[]}
 	if phase!="staff":
 		if not _setup.staff_preparation.ok: return {"ok":false,"reason":"Employee opening is incomplete","records":[]}

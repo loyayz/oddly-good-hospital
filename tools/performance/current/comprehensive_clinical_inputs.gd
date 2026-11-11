@@ -84,11 +84,10 @@ static func body_compatible_binding(content: HospitalContent, profile: String, o
 			if content.actor_body({"species_id":binding.species_id,"body_binding_id":binding.id})==dimensions: return binding
 	return {}
 
-static func add_fresh(pending: Dictionary, count: int, content: HospitalContent) -> Dictionary:
-	if count<0 or count>8: return {"ok":false,"reason":"Additional fresh patient count is outside the declared fixed-population construction boundary"}
+static func add_fresh(pending: Dictionary, content: HospitalContent) -> Dictionary:
 	var ids: Array=[]
 	var original: Dictionary=pending.visits["bench_visit_0104"]
-	for ordinal: int in count:
+	for ordinal: int in 8:
 		var index: int=120+ordinal
 		var visit_id: String="bench_visit_%04d"%index
 		var actor_id: String="bench_patient_%04d"%index
@@ -103,5 +102,5 @@ static func add_fresh(pending: Dictionary, count: int, content: HospitalContent)
 		pending.visits[visit_id]=visit
 		pending.actors[actor_id]=actor
 		pending.receipts[visit_id]=visit_id
-		ids.append({"visit_id":visit_id,"actor_id":actor_id,"body_dimensions":content.actor_body(actor),"scope":"Additional full-body fresh patient declared before its first step; balances actual admitted family count to the fixed total of 160, without removing any participating body or request."})
+		ids.append({"visit_id":visit_id,"actor_id":actor_id,"body_dimensions":content.actor_body(actor),"scope":"One of eight fixed additional full-body fresh patients, declared with all original 120 patients before any patient step. Family and other natural actors later join through unchanged production rules, without replacing or removing any actor or request."})
 	return {"ok":true,"records":ids}

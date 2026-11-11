@@ -160,6 +160,8 @@ def main():
             process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=environment,
                                        creationflags=subprocess.CREATE_NO_WINDOW)
             try:
+                write(output / "status.json", {"state": "running", "repeat": repeat, "command": command,
+                                               "engine_launcher_pid": process.pid})
                 while process.poll() is None:
                     time.sleep(2)
                     messages = log_path.read_text(encoding="utf-8")
