@@ -584,10 +584,11 @@ func _schedule_route(world: WorldState, movement: Dictionary) -> void:
 	else:
 		_ready_routes.push({"id":movement.actor_id,"tick":int(movement.request_sequence)})
 
-func _queue_route(world: WorldState, movement: Dictionary) -> void:
+func _queue_route(world: WorldState, movement: Dictionary, preserve_order: bool = false) -> void:
 	_ensure_route_queue(world)
-	world.facts.move_request_next = int(world.facts.get("move_request_next",0))+1
-	movement.request_sequence = world.facts.move_request_next
+	if not preserve_order or not movement.has("request_sequence"):
+		world.facts.move_request_next = int(world.facts.get("move_request_next",0))+1
+		movement.request_sequence = world.facts.move_request_next
 	movement.route_pending = true
 	_schedule_route(world,movement)
 
@@ -848,7 +849,8 @@ func _initial_route_cursor(actor: Dictionary, path: Array, world: WorldState = n
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:
 	var remaining: Array = movement.path.slice(int(movement.cursor))
 	movement.route_waypoint = {"floor_id":floor_id,"cell":cell.duplicate(),"continuation":remaining}
-	_queue_route(world,movement)
+	# A temporary stop belongs to the original journey, not a new request.
+	_queue_route(world,movement,true)
 
 # Only an obstacle actually encountered by this movement triggers a local
 # detour. Future landings and queues do not enter this floor query.

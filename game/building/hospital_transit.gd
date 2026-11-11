@@ -255,7 +255,7 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 			_stand_aside(space,world,connection,actor,movement,members,offsets)
 		return
 	if not at_entry:
-		space.movement._queue_route(world,movement)
+		space.movement._queue_route(world,movement,true)
 		return
 	var waiting: Array = _waiting(space,world,connection.id)
 	if waiting.is_empty() or waiting[0]!=actor.id:
@@ -506,7 +506,7 @@ static func _begin_convoy(space: HospitalSpace, world: WorldState, actor: Dictio
 		movement.waiting_reason="登梯前队列尚未沿入口成一直线"
 		# The regular route planner brings the real trail back through the
 		# canonical outside approach; admission then issues a new ticket.
-		space.movement._queue_route(world,movement)
+		space.movement._queue_route(world,movement,true)
 		return
 	var waiting: Array=_waiting(space,world,connection.id)
 	if waiting.is_empty() or waiting[0]!=actor.id: return

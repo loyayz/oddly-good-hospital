@@ -1,0 +1,350 @@
+{
+  "requirement": [
+    "docs/design/01-simulation.md §3",
+    "docs/specs/26-10/2026-10-19-task-navigation-movement.md §4",
+    "tests/acceptance/transit_presence.md A41"
+  ],
+  "scope": "Preserve movement.request_sequence through temporary ground waypoints and rejoining the same connector entry. Actual departure still cancels its transport ticket; real return receives a new one. No busy-branch, capacity, body or alighting-rule change.",
+  "working_directory": "C:\\code\\loyayz\\oddly-good-hospital",
+  "engine": {
+    "path": "C:\\programs\\godot\\Godot_v4.7.2-stable_win64_console.exe",
+    "sha256": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643",
+    "version": "4.7.2-stable (official)"
+  },
+  "source_identity": {
+    "baseline": {
+      "project": ".cache/transit-waypoint-order-20261112/baseline",
+      "source_identity_sha256": "a35252b560b5b82b73bd28a8f9a49d2d5862ace9e0385b044451e8a1b361b6b7",
+      "source_files": {
+        "game/building/hospital_movement.gd": "d300258e28328d06006996ca93d49f8382505db92d5ce2c9f6eb98098a84e496",
+        "game/building/hospital_transit.gd": "1e941117210dacc1e63532d78574bedcf911f52f8c0fc01d644bd39cdfa1f4ae",
+        "tests/acceptance/transit_waypoint_order.gd": "a478240081dadc8a63d787f3f416d3e12666491e0e878013818499353c9379f1",
+        "tests/acceptance/transit_presence.gd": "954858ba5e2d6b480aae63fc17129dcb84977b9a4af10cb235cd47e3cd46b51a"
+      },
+      "content_manifest_sha256": "4ec46deae213ef567370b1117051175b8e85e8dfc7b625e55e6a9a9b8ca2a146"
+    },
+    "fixed": {
+      "project": ".cache/transit-waypoint-order-20261112/fixed",
+      "source_identity_sha256": "a7ee18afbf49f59808b9437753f0d49dafc7702da3b5551c7ea0df70d6f0407b",
+      "source_files": {
+        "game/building/hospital_movement.gd": "fe5eaeedbdf4d38620ced02a29e4c8da56abf5a7dcb39951fd181c099f01a5de",
+        "game/building/hospital_transit.gd": "b980ca7467e23a6a147d29f76e95599b97efba125f769c4de3b1fca0e39ebcf7",
+        "tests/acceptance/transit_waypoint_order.gd": "a478240081dadc8a63d787f3f416d3e12666491e0e878013818499353c9379f1",
+        "tests/acceptance/transit_presence.gd": "954858ba5e2d6b480aae63fc17129dcb84977b9a4af10cb235cd47e3cd46b51a"
+      },
+      "content_manifest_sha256": "4ec46deae213ef567370b1117051175b8e85e8dfc7b625e55e6a9a9b8ca2a146"
+    }
+  },
+  "baseline": {
+    "expected_assertion_failure": true,
+    "exit_code": 1,
+    "elapsed_seconds": 6.83,
+    "started_utc": "2026-11-11T19:48:26.703548+00:00",
+    "ended_utc": "2026-11-11T19:48:33.291893+00:00",
+    "time_origin": "UTC file creation/last-write timestamps of the streamed execution log; elapsed from process wrapper",
+    "command": [
+      "C:\\programs\\godot\\Godot_v4.7.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\transit-waypoint-order-20261112\\baseline",
+      "--script",
+      "res://tests/acceptance/transit_waypoint_order.gd",
+      "--",
+      "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\transit-waypoint-order-20261112\\baseline\\result.json",
+      "waypoint_solo,waypoint_convoy,aside_solo,aside_convoy"
+    ],
+    "cases": [
+      {
+        "selector": "waypoint_solo",
+        "passed": false,
+        "body_ms": 271,
+        "original_sequence": 1,
+        "submitted_sequence": 2,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 1,
+          "sequence": 1,
+          "to": 2
+        },
+        "committed_transit_ticket": 2,
+        "checkpoints": {
+          "actual_arrival_tick": 253,
+          "actual_departure_tick": 2,
+          "submitted_tick": 1
+        },
+        "failed_checks": [
+          "departed_restore_keeps_original_movement",
+          "no_new_request_identity",
+          "original_request_sequence",
+          "request_order_through_waypoint_and_return",
+          "resume_keeps_original_sequence"
+        ],
+        "validation": ""
+      },
+      {
+        "selector": "waypoint_convoy",
+        "passed": false,
+        "body_ms": 587,
+        "original_sequence": 1,
+        "submitted_sequence": 2,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 1,
+          "sequence": 1,
+          "to": 2
+        },
+        "committed_transit_ticket": 2,
+        "checkpoints": {
+          "actual_arrival_tick": 269,
+          "actual_departure_tick": 2,
+          "submitted_tick": 1
+        },
+        "failed_checks": [
+          "departed_restore_keeps_original_movement",
+          "no_new_request_identity",
+          "original_request_sequence",
+          "request_order_through_waypoint_and_return",
+          "resume_keeps_original_sequence"
+        ],
+        "validation": ""
+      },
+      {
+        "selector": "aside_solo",
+        "passed": false,
+        "body_ms": 180,
+        "original_sequence": 2,
+        "submitted_sequence": 3,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 2,
+          "sequence": 2,
+          "to": 1
+        },
+        "committed_transit_ticket": 3,
+        "checkpoints": {
+          "actual_arrival_tick": 157,
+          "actual_departure_tick": 2,
+          "submitted_tick": 0
+        },
+        "failed_checks": [
+          "departed_restore_keeps_original_movement",
+          "no_new_request_identity",
+          "original_request_sequence",
+          "request_order_through_waypoint_and_return",
+          "resume_keeps_original_sequence"
+        ],
+        "validation": ""
+      },
+      {
+        "selector": "aside_convoy",
+        "passed": false,
+        "body_ms": 507,
+        "original_sequence": 2,
+        "submitted_sequence": 3,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 2,
+          "sequence": 2,
+          "to": 1
+        },
+        "committed_transit_ticket": 3,
+        "checkpoints": {
+          "actual_arrival_tick": 203,
+          "actual_departure_tick": 2,
+          "submitted_tick": 0
+        },
+        "failed_checks": [
+          "departed_restore_keeps_original_movement",
+          "no_new_request_identity",
+          "original_request_sequence",
+          "request_order_through_waypoint_and_return",
+          "resume_keeps_original_sequence"
+        ],
+        "validation": ""
+      }
+    ]
+  },
+  "fixed": {
+    "order_cases": [
+      {
+        "selector": "waypoint_solo",
+        "passed": true,
+        "body_ms": 266,
+        "original_sequence": 1,
+        "submitted_sequence": 1,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 1,
+          "sequence": 1,
+          "to": 2
+        },
+        "committed_transit_ticket": 2,
+        "checkpoints": {
+          "actual_arrival_tick": 253,
+          "actual_departure_tick": 2,
+          "submitted_tick": 1
+        },
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "waypoint_convoy",
+        "passed": true,
+        "body_ms": 577,
+        "original_sequence": 1,
+        "submitted_sequence": 1,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 1,
+          "sequence": 1,
+          "to": 2
+        },
+        "committed_transit_ticket": 2,
+        "checkpoints": {
+          "actual_arrival_tick": 269,
+          "actual_departure_tick": 2,
+          "submitted_tick": 1
+        },
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "aside_solo",
+        "passed": true,
+        "body_ms": 178,
+        "original_sequence": 2,
+        "submitted_sequence": 2,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 2,
+          "sequence": 2,
+          "to": 1
+        },
+        "committed_transit_ticket": 3,
+        "checkpoints": {
+          "actual_arrival_tick": 157,
+          "actual_departure_tick": 2,
+          "submitted_tick": 0
+        },
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "aside_convoy",
+        "passed": true,
+        "body_ms": 507,
+        "original_sequence": 2,
+        "submitted_sequence": 2,
+        "prior_transit_ticket": {
+          "connector_id": "connector_00000001",
+          "from": 2,
+          "sequence": 2,
+          "to": 1
+        },
+        "committed_transit_ticket": 3,
+        "checkpoints": {
+          "actual_arrival_tick": 203,
+          "actual_departure_tick": 2,
+          "submitted_tick": 0
+        },
+        "failed_checks": [],
+        "validation": ""
+      }
+    ],
+    "presence_cases": [
+      {
+        "selector": "solo_leave_return",
+        "passed": true,
+        "real_ticks": 252,
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "convoy_leave_return",
+        "passed": true,
+        "real_ticks": 208,
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "present_order_solo",
+        "passed": true,
+        "real_ticks": 216,
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "present_order_convoy",
+        "passed": true,
+        "real_ticks": 277,
+        "failed_checks": [],
+        "validation": ""
+      },
+      {
+        "selector": "three_consecutive_opposing_rounds",
+        "passed": true,
+        "failed_checks": [],
+        "validation": ""
+      }
+    ],
+    "executions": [
+      {
+        "label": "order",
+        "started_utc": "2026-11-11T19:49:41.547811+00:00",
+        "ended_utc": "2026-11-11T19:49:48.376703+00:00",
+        "elapsed_seconds": 6.829,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\transit-waypoint-order-20261112\\fixed",
+          "--script",
+          "res://tests/acceptance/transit_waypoint_order.gd",
+          "--",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\transit-waypoint-order-20261112\\fixed\\order.json",
+          "waypoint_solo,waypoint_convoy,aside_solo,aside_convoy"
+        ]
+      },
+      {
+        "label": "presence",
+        "started_utc": "2026-11-11T19:49:48.377372+00:00",
+        "ended_utc": "2026-11-11T19:49:58.017842+00:00",
+        "elapsed_seconds": 9.64,
+        "exit_code": 0,
+        "fatal": false,
+        "command": [
+          "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+          "--headless",
+          "--path",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\transit-waypoint-order-20261112\\fixed",
+          "--script",
+          "res://tests/acceptance/transit_presence.gd",
+          "--",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\transit-waypoint-order-20261112\\fixed\\presence.json",
+          "leave_solo,leave_convoy,order_solo,order_convoy,repeated"
+        ]
+      }
+    ],
+    "script_errors": false
+  },
+  "restore_scope": "Real GameSession pause and complete frozen facts restored into fresh WorldState and HospitalSimulation at pending-waypoint and actual-departure boundaries. Save-manager UI/disk snapshot protocol not exercised.",
+  "artifacts": {
+    ".cache/transit-waypoint-order-20261112/baseline/result.json": "e74258bc0c5e2de213b042fe0371b04c9afd921551b855d613fe00ad947f1f95",
+    ".cache/transit-waypoint-order-20261112/baseline/execution.log": "fd5155e2e02f4cb2dbe6651fa92f5d6b59f577d448276dc7fd924a81a6737978",
+    ".cache/transit-waypoint-order-20261112/baseline/import.log": "d535b37dd4d1a78bd7858f1116b6c46ca027db22479ab4f91f9f2471614f7c8c",
+    ".cache/transit-waypoint-order-20261112/fixed/order.json": "5ddd60de25cd19e482ab906d5857e78dbd23d33492d41e08b153b47ee0ad4f24",
+    ".cache/transit-waypoint-order-20261112/fixed/order.log": "d69239f7715c11501daf2d05e6718a17718ddae6269f2f7325ecd51972ed5111",
+    ".cache/transit-waypoint-order-20261112/fixed/presence.json": "12be81e1a19acd09302b3b9b1eb0a53884aea5961e173e6a1224ff5547ace8a9",
+    ".cache/transit-waypoint-order-20261112/fixed/presence.log": "e2086a73f59314291808be50950e0c957f312a2f5c48a76bef9e1e39c0d6e6ee",
+    ".cache/transit-waypoint-order-20261112/fixed/import.log": "6e100021ba8eff345c5a6c54b24c97fd6b68168914a9552c7af6b90a60c2abed",
+    ".cache/transit-waypoint-order-20261112/fixed/execution-times.json": "c3430744deb5258498163288837e8d6de89abf436362930c705ab5a4088c3ee0"
+  },
+  "not_proven": [
+    "Full gameplay regression",
+    "160-person performance qualification",
+    "Arbitrary-density starvation freedom",
+    "Ordinary local_move exit blockage cause"
+  ]
+}
