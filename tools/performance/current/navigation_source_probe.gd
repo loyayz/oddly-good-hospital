@@ -87,7 +87,7 @@ func _budget(runtime: Dictionary) -> Dictionary:
 	var recorded: int=0
 	for entry: Dictionary in cache._sources.values(): recorded+=int(entry.charge)
 	var target: int=int(runtime.space.content.balance.pathfinding.graph_cache_target_bytes)
-	var total: int=cache._source_charged+cache._floor_charged+cache._charged+cache._query_charged
+	var total: int=cache.total_charge()
 	_check(recorded==cache._source_charged and total<=target and cache._source_charged<=target/4,"Original cache accounting/allowance differs")
 	return {"target_bytes":target,"source_charged":cache._source_charged,"source_charge_sum":recorded,"total_charged":total,"resident_sources":cache._sources.size(),"used":cache._used}
 

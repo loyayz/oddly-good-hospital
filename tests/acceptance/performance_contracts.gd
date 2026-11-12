@@ -364,6 +364,6 @@ func _case_08(content: HospitalContent) -> Dictionary:
 	var rebuilt: Dictionary=space.route(world,"navigation_visit",1,[48,84],[],{},true)
 	var rebuilt_cold: Dictionary=HospitalSpace.new(content).route(world,"navigation_visit",1,[48,84],[],{},true)
 	checks.evicted_borrower_and_rebuild=not actual._blocked.has(Vector2i(48,84)) and rebuilt.get("ok",false) and rebuilt==rebuilt_cold and world.freeze()==before
-	var charge: int=cache._charged+cache._query_charged+cache._source_charged+cache._floor_charged
+	var charge: int=cache.total_charge()
 	checks.original_cache_allowance=charge<=int(content.balance.pathfinding.graph_cache_target_bytes)
 	return {"checks":checks,"route":rebuilt,"cache_charge":charge}

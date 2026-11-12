@@ -76,11 +76,11 @@ func run_case(suite: RefCounted) -> Dictionary:
 	cache.small = true
 	var tiny: Dictionary = sim.prepare_floor_static(1)
 	cache.graph(space,world,1,actor,[],{})
-	checks.budget_eviction_is_complete_and_nonnegative = tiny.complete and not tiny.retained and cache._floor_geometries.is_empty() and cache._floor_charged==0 and cache._entries.is_empty() and cache._charged==0 and cache._query_charged==0
+	checks.budget_eviction_is_complete_and_nonnegative = tiny.complete and not tiny.retained and cache._floor_geometries.is_empty() and cache._floor_charged==0 and cache._entries.is_empty() and cache._charged==0 and cache._query_charged==0 and cache._body_entries.is_empty() and cache.total_charge()==0
 	cache.small = false
 	var fallback: Dictionary = space.route(world,actor.id,2,[48,84],[],{},true)
 	var expected: Dictionary = HospitalSpace.new(suite.content).route(world,actor.id,2,[48,84],[],{},true)
-	checks.eviction_keeps_lazy_fallback = fallback.ok and fallback==expected and cache._floor_charged>0 and cache._floor_charged+cache._charged+cache._query_charged<=target
+	checks.eviction_keeps_lazy_fallback = fallback.ok and fallback==expected and cache._floor_charged>0 and cache.total_charge()<=target
 	var pressured: HospitalSpace = HospitalSpace.new(suite.content)
 	var pressure_cache: MemberPressureCache = MemberPressureCache.new()
 	pressured._navigation = pressure_cache
@@ -93,7 +93,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 	pressure_cache.armed = true
 	var under_pressure: RouteClearance = pressure_cache.clearance(pressured,world,1,actor,members,offsets)
 	var independent: RouteClearance = RouteClearance.new(HospitalSpace.new(suite.content),world,actor,1,members,offsets)
-	checks.group_member_trim_waits_for_publication = pressure_cache.pressure and pressure_cache._entries.is_empty() and pressure_cache._query_charged==0 and pressure_cache._charged==0 and pressure_cache._floor_charged==0 and under_pressure.reason(Vector2i(40,85))==independent.reason(Vector2i(40,85))
+	checks.group_member_trim_waits_for_publication = pressure_cache.pressure and pressure_cache._entries.is_empty() and pressure_cache._query_charged==0 and pressure_cache._charged==0 and pressure_cache._floor_charged==0 and pressure_cache._body_entries.is_empty() and pressure_cache.total_charge()==0 and under_pressure.reason(Vector2i(40,85))==independent.reason(Vector2i(40,85))
 	before = world.freeze()
 	var loaded: HospitalSimulation = HospitalSimulation.new(WorldState.new(before.duplicate(true)),suite.content)
 	var restored: Dictionary = loaded.prepare_floor_static(2)

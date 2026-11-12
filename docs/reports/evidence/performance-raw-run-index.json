@@ -278,12 +278,21 @@
       "warm_iterations_per_arm": 500,
       "archive": "2026-11-12-structural-cache-micro/micro.zip",
       "archive_sha256": "dfd0e23ec68fed2955f3e360eda58ba6976dca60040c4b92a54c5fb61dabdf6c",
-      "publication": "with this index revision",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "performance_pass": null,
       "input_override_sha256": "a227e44e6be832023fbfb19e3dc2cebbda0ca57bd0379652f1c6e6c12535a50d",
-      "scope": "Three actual missing envelopes; isolated candidate only, cold cost higher, no whole-step claim"
+      "scope": "Three actual missing envelopes; isolated candidate only, cold cost higher, no whole-step claim",
+      "publication_commit": "acac8277f21f4f6298706b864fa520e183f899df",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "dfd0e23ec68fed2955f3e360eda58ba6976dca60040c4b92a54c5fb61dabdf6c",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/acac8277f21f4f6298706b864fa520e183f899df/docs/reports/evidence/2026-11-12-structural-cache-micro/micro.zip",
+        "bytes": 1699759,
+        "members": 44,
+        "verified_utc": "2026-11-12T10:45:10.069859+00:00",
+        "commit": "acac8277f21f4f6298706b864fa520e183f899df"
+      }
     }
   ],
   "latest_three_raw_run_ids": [

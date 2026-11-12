@@ -42,7 +42,7 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 	var observed: Dictionary=space.navigation._observed_floors
 	space.navigation._observed_floors={}
 	var cache: NavigationCache=space._navigation
-	var charge_before: int=cache._charged+cache._query_charged+cache._source_charged+cache._floor_charged
+	var charge_before: int=cache.total_charge()
 	var anchors: Array[Vector2i]=[]
 	for id: String in world.ids("connectors"):
 		var connection: Dictionary=world.facts.connectors[id]
@@ -89,7 +89,7 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 					var result: Dictionary=cache.cached_floor_path(space,world,floor_id,actor,graph,graph.geometry,anchor,goal)
 					attempted+=1
 					if result.get("ok",false): reachable+=1
-	var charge_after: int=cache._charged+cache._query_charged+cache._source_charged+cache._floor_charged
+	var charge_after: int=cache.total_charge()
 	space.navigation._observed_floors=observed
 	return {"elapsed_usec":Time.get_ticks_usec()-started,"body_envelopes":seen.size(),"lift_anchors":lift_anchor_count,"entry_anchors":entry_anchor_count,"desks":desks.size(),"path_requests":attempted,"reachable":reachable,"path_builds":int(space.query_counts.static_path_builds)-builds_before,"path_hits":int(space.query_counts.static_path_hits)-hits_before,"cache_charge_before":charge_before,"cache_charge_after":charge_after,"cache_budget":int(content.balance.pathfinding.graph_cache_target_bytes)}
 

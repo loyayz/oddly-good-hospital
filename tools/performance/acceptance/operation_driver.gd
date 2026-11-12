@@ -52,11 +52,11 @@ func start(operation: Dictionary) -> Dictionary:
 			observer._emit("view_rebuild_started", {"operation":current,"old_generation":state.previous_generation,"new_generation":state.generation,"resources":state.before_resources,"fact_revision_before":state.source_revision,"kind_of_reclamation":"original bind/release_tree and current-view reconstruction"})
 		"navigation_evict":
 			var cache = app._simulation.space._navigation
-			state.before_entries = cache._entries.size()
-			state.before_charge = cache._charged+cache._query_charged
+			state.before_entries = cache._entries.size()+cache._body_entries.size()
+			state.before_charge = cache.total_charge()
 			cache._trim(0)
-			state.after_entries = cache._entries.size()
-			state.after_charge = cache._charged+cache._query_charged
+			state.after_entries = cache._entries.size()+cache._body_entries.size()
+			state.after_charge = cache.total_charge()
 			if int(state.after_entries)!=0 or int(state.after_charge)!=0: return _failure("Original navigation trim did not settle its accounting")
 			state.minimum_tick = app._simulation.world.sim_tick+int(current.get("minimum_followup_steps",1))
 			observer._emit("navigation_evicted", {"operation":current,"before_entries":state.before_entries,"after_entries":state.after_entries,"before_allowance_bytes":state.before_charge,"after_allowance_bytes":state.after_charge,"bytes_kind":"original eviction allowance; not measured allocation/residency","routes_and_reservations":"preserved"})

@@ -160,9 +160,13 @@ func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, tar
 	return query.reason(Vector2i(target)) if target==target.floor() else query.sweep_reason(target,target)
 
 func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
+	var allow_body_cache: bool=members.is_empty() and offsets.is_empty()
 	if actor.has("_convoy_size") or members.size()==1 and members[0]==actor.id: members = []
 	var query: RouteClearance = space._navigation.cached_static_geometry(space,world,floor_id,actor) if members.is_empty() else null
-	if query==null: query = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,space._navigation.floor_source(space,world,floor_id))
+	if query==null:
+		if allow_body_cache:
+			query=space._navigation.static_body(space,world,floor_id,actor)
+		else:query=RouteClearance.new(space,world,actor,floor_id,members,offsets,false,space._navigation.floor_source(space,world,floor_id))
 	return query
 
 # This synchronous projection retains the original floor and connector owners.

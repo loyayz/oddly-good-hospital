@@ -1,0 +1,50 @@
+{
+  "body-03-validity/structural_body_resident.gd": {
+    "bytes": 8978,
+    "sha256": "c31a360f78ab9071e8c599a9d787dee924f411c9b26723026fd7579341b368f9"
+  },
+  "body-03-validity/host-after.json": {
+    "bytes": 30710,
+    "sha256": "cf5253ef75d9118a86ae580526478e7f30876d96d4565b14a383cb43f2227a8c"
+  },
+  "body-03-validity/identity.json": {
+    "bytes": 642078,
+    "sha256": "70a429ad59e3fd74b4717a8707d69692d13170fed3c101f3d71461b2fbd049f7"
+  },
+  "body-03-validity/run_structural_cache_selected.gd": {
+    "bytes": 1142,
+    "sha256": "2686d4b44755ad6399f7ad17be2090edd3838a38db07916c31b7e5496e838d7a"
+  },
+  "body-03-validity/navigation_cache.gd": {
+    "bytes": 41149,
+    "sha256": "f67bebbc9a78dbb79089902010b68ccda2d793c17f39d0176a282c87535b033f"
+  },
+  "body-03-validity/host-before.json": {
+    "bytes": 30709,
+    "sha256": "b99a7eea5edb448149f17a226ec007976bd8c58cfe3e2b4fb5b4364eb6304881"
+  },
+  "body-03-validity/hospital_navigation.gd": {
+    "bytes": 61312,
+    "sha256": "48f3b469753f3c5b557f0420e84953dc08fc3fce41011eedb635366239c6cbb2"
+  },
+  "body-03-validity/result.json": {
+    "bytes": 1120,
+    "sha256": "906b0dc8e60d4ac46268fdd1cda46275201bc0a00b1da16c9b88f8ae2737140e"
+  },
+  "body-03-validity/engine/engine.log": {
+    "bytes": 73,
+    "sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+  },
+  "body-03-validity/engine/process.json": {
+    "bytes": 1628,
+    "sha256": "8dd94904df8c8d9a378f53a18754cf2fd4f7ddacd12a04b872f699933702b6ac"
+  },
+  "final/structural_body_resident.gd": {
+    "bytes": 8978,
+    "sha256": "c31a360f78ab9071e8c599a9d787dee924f411c9b26723026fd7579341b368f9"
+  },
+  "final/report.md": {
+    "bytes": 3627,
+    "sha256": "949093013823e7c2c6479770266d889b418690939a853fb8562e69c54a92da4e"
+  }
+}

@@ -2,6 +2,55 @@ class_name NavigationCache
 extends RefCounted
 
 
+var _body_entries: Dictionary={}
+var _body_charged: int=0
+var body_stats: Dictionary={"builds":0,"hits":0,"evictions":0,"source_replacements":0}
+const HELD_FIELDS: Array[String]=["source","_plots","_blocked","_doors","_facilities","_connectors","_reservations","_members","_walls","_dependencies","_facility_cells","_connector_cells","_open_door_cells","_closed_door_cells","_horizontal_walls","_vertical_walls"]
+
+func static_body(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
+	# _source_record checks weak World ownership and current geometry revision.
+	var record: Dictionary=_source_record(space,world,floor_id)
+	var source: Dictionary=record.static_source
+	var key: String=JSON.stringify([floor_id,space.body(actor),actor.has("_convoy_size"),actor.get("_convoy_size",null),actor.get("posture","standing")],"",true,true)
+	var entry: Dictionary=_body_entries.get(key,{})
+	if not entry.is_empty() and entry.source!=source:
+		_body_charged-=int(entry.charge);_body_entries.erase(key);entry={};body_stats.source_replacements+=1
+	if entry.is_empty():
+		_defer_trim+=1
+		var geometry: RouteClearance=RouteClearance.new(space,world,actor,floor_id,[],{},false,source)
+		_defer_trim-=1
+		body_stats.builds+=1
+		# Count every held container, even aliases to floors and duplicate sources.
+		var payload: Array=[key,source]
+		for field: String in HELD_FIELDS:payload.append(geometry.get(field))
+		var charge: int=16384+maxi(_held_charge(payload),var_to_bytes(payload).size()*8)
+		entry={"source":source,"geometry":geometry,"charge":charge,"used":0}
+		_body_charged+=charge
+	else:body_stats.hits+=1
+	_used+=1;entry.used=_used;_body_entries[key]=entry
+	var result: RouteClearance=entry.geometry
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
+	# Even if this entry cannot fit, the complete synchronous borrower survives.
+	return result
+
+func _held_charge(value: Variant) -> int:
+	if value is Dictionary:
+		var charge: int=128+value.size()*128
+		for key: Variant in value:charge+=_held_charge(key)+_held_charge(value[key])
+		return charge
+	if value is Array:
+		var charge: int=128+value.size()*64
+		for child: Variant in value:charge+=_held_charge(child)
+		return charge
+	if value is String or value is StringName:return 128+str(value).to_utf8_buffer().size()*4
+	# Scalars and fixed-size vector/rectangle values; no strong Object is retained.
+	assert(not value is Object)
+	return 128
+
+
+func total_charge() -> int:
+	return _charged+_query_charged+_source_charged+_floor_charged+_body_charged
+
 var _entries: Dictionary = {}
 var _sources: Dictionary = {}
 # Only the lookup text is memoized. No source payload or world is retained
@@ -152,7 +201,7 @@ func _freeze_source_payload(value: Variant) -> void:
 # caller. Reclaim only source records here; never evict that graph mid-update.
 func _trim_source_payloads(target: int, _counts: Dictionary = {}) -> void:
 	_prune_sources()
-	var allowance: int = maxi(0,mini(target/4,target-_floor_charged-_charged-_query_charged))
+	var allowance: int = maxi(0,mini(target/4,target-_floor_charged-_charged-_query_charged-_body_charged))
 	if _source_charged<=allowance: return
 	var keys: Array = _sources.keys()
 	keys.sort_custom(func(a: String,b: String)->bool:return int(_sources[a].used)<int(_sources[b].used))
@@ -266,7 +315,7 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 
 func _trim(target: int, counts: Dictionary = {}) -> void:
 	var available: int=maxi(0,target-_floor_charged-_source_charged)
-	if _floor_charged+_source_charged<=maxi(0,target/4) and _charged+_query_charged<=available and _query_charged<=available/4: return
+	if _floor_charged+_source_charged<=maxi(0,target/4) and _charged+_query_charged+_body_charged<=available and _query_charged<=available/4: return
 	# Limit shared floor ownership to one quarter of the same existing target,
 	# then give graphs/queries the remainder. Never increase the total allowance.
 	_prune_sources()
@@ -284,7 +333,7 @@ func _trim(target: int, counts: Dictionary = {}) -> void:
 		_floor_geometries.erase(version)
 		counts["cache_floor_evictions"] = int(counts.get("cache_floor_evictions",0))+1
 	target = maxi(0,target-_floor_charged-_source_charged)
-	if _charged+_query_charged<=target and _query_charged<=target/4: return
+	if _charged+_query_charged+_body_charged<=target and _query_charged<=target/4: return
 	counts["cache_trims"] = int(counts.get("cache_trims",0))+1
 	var keys: Array = _entries.keys()
 	# Keep hits allocation-free. Sort recency only when memory actually needs
@@ -299,17 +348,21 @@ func _trim(target: int, counts: Dictionary = {}) -> void:
 			entry.erase("queries")
 			entry.erase("estimates")
 			entry.erase("structural_paths")
-	for key: String in keys:
-		var entry: Dictionary = _entries[key]
-		if _charged+_query_charged<=target: break
-		_charged -= int(entry.charge)
-		_query_charged -= int(entry.get("query_charge",0))
-		_entries.erase(key)
-		# Geometry equality proofs belong to the resident graph, while the
-		# latest live floor facts retain their identity after graph eviction.
-		for source: Dictionary in _sources.values():
-			source.graphs.erase(key)
-		counts["cache_graph_evictions"] = int(counts.get("cache_graph_evictions",0))+1
+	var resident: Array = []
+	for key: String in keys: resident.append({"kind":"graph","key":key,"used":int(_entries[key].used)})
+	for key: String in _body_entries: resident.append({"kind":"body","key":key,"used":int(_body_entries[key].used)})
+	resident.sort_custom(func(a: Dictionary,b: Dictionary)->bool:return int(a.used)<int(b.used))
+	for item: Dictionary in resident:
+		if _charged+_query_charged+_body_charged<=target: break
+		var key: String=item.key
+		if item.kind=="body":
+			_body_charged-=int(_body_entries[key].charge);_body_entries.erase(key)
+			body_stats.evictions+=1
+			continue
+		var entry: Dictionary=_entries[key]
+		_charged-=int(entry.charge);_query_charged-=int(entry.get("query_charge",0));_entries.erase(key)
+		for source: Dictionary in _sources.values():source.graphs.erase(key)
+		counts["cache_graph_evictions"]=int(counts.get("cache_graph_evictions",0))+1
 	_prune_sources()
 
 func _prune_sources() -> void:

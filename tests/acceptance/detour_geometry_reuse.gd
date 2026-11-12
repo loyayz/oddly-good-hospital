@@ -28,14 +28,14 @@ func run(suite: RefCounted) -> Dictionary:
  var blocked: Dictionary = sim.space.movement._detour_return_path(sim.world,actor,movement,Vector2(35,70))
  var checks: Dictionary = {"all_occupied_targets_rejected":blocked.is_empty(),"one_geometry_for_many_candidates":navigation.acquisitions==1,"no_graph_build":sim.space._navigation._entries.is_empty(),"decision_readonly":sim.world.freeze()==original}
  var blocked_acquisitions: int = navigation.acquisitions
- # Changing the boundary must not retain a clearance object or a path result.
+ # Each call reacquires current static proof; dynamic body/path results are not cached.
  for x: int in range(36,46): sim.world.facts.actors.erase("blocker_"+str(x))
  sim.world.touch()
  var before: int = navigation.acquisitions
  original = sim.world.freeze()
  var released: Dictionary = sim.space.movement._detour_return_path(sim.world,actor,movement,Vector2(35,70))
  checks.released_actor_uses_first_original_cell = released.get("index",-1)==0
- checks.new_call_acquires_again = navigation.acquisitions==before+1 and not is_same(navigation.geometries[0],navigation.geometries.back())
+ checks.new_call_acquires_again = navigation.acquisitions==before+1
  checks.release_decision_readonly = sim.world.freeze()==original
  # A new static obstacle blocks the common first leg. The return helper
  # must reject it; actual side movement belongs to the movement state machine.
