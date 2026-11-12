@@ -63,3 +63,24 @@ body-01 唯一失败是测试前提：恢复 World 的 runtime geometry_revision
 源码提交 `1e5bb6e3c0883836275aeab74e64847255fd8a06`，复用原终态输入 SHA256 `41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68`，原 plain_v4 无插桩驱动、0 prefix/8 steps、0.1模拟步、4 workers、observed floor 1，原内容/引擎/原生库未变。新独立进程与HOME/XDG/TMP；请求app策略，Linux实际platform_default。进程5.418秒、exit0；完整World/RNG/有序事件与业务结果等于之前独立plain8，最终文件SHA256 `6ecee78b194a7925938549383dc9fb87f222a3843d901d790fe83ac7aeaeb93d`。仅为限定边界整合验证，不由8个样本声称性能通过。
 
 [原始包](evidence/2026-11-12-structural-body-cache/plain8.zip) 1183484字节、24成员，SHA256 `687a50dcf912ac8cd8bd0ce28166ec490a229285ad24b4ca93ac84d57baea59c`；[逐成员清单](evidence/2026-11-12-structural-body-cache/plain8.members.json)及[对比结果](evidence/2026-11-12-structural-body-cache/plain8.comparison.json)。本地CRC及全部成员字节/SHA已核验；持久发布后实际下载读回，之后才开始下一完整窗口。此前功能selected与validity-correction两包已从1e5bb6e实际下载校验，分别102和12成员均匹配。
+
+## 同一固定负载的完整plain窗口
+
+执行源码仍为1e5bb6e，文档HEAD57d3434。上轮plain8已从57d3434实际下载核验全部24成员后，才启动本轮。原75f5e1d输入、1000 prefix＋6000 measured、原plain_v4无插桩、4 workers、observed1及原固定命令和门槛保持不变。7000条enter/complete连续记录和实际tick完整；完整World/RNG/有序事件、prefix/sample/business均与旧完整plain相等，final仍为`41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68`。
+
+|指标|本轮|原门槛|
+|---|---:|---:|
+|P95|92.693ms|≤10ms|
+|P99|125.094ms|≤15ms|
+|max|319.587ms|≤30ms|
+|真实模拟速度|1.46705×|≥0.99×|
+
+分位数已另从6000条原始step按最近秩重算。6000测量样本全部属于连续密集段，实际人数最小164、中位165、最大170，达到144人及1000样本要求。全部测量与dense统计相同，未用轻负载稀释。测量wall408.983917秒（含观察记录），prefix69.809693秒，模拟loop478.793610秒，进程484.228秒。原始结果`complete=false`、`performance_pass=null`、exit1：运行完整，但业务覆盖仅29/31，且上述三个延迟门槛均失败；不是中断，也不是验收通过，合格重复仍0/3。
+
+缺失仍为upgrade和effective_ward_visit；原升级命令在tick1633因真实合法维修位不可用被拒。本轮未修改该脚本或预约安全规则，也未将陪同入病房充作有效探视。此前独立命令边界的合法拒绝原因另见current-mixed-full报告，不能把历史细节冒称本轮新因果捕获。
+
+旧无插桩完整plain P95/P99为96.160/130.222ms。本轮92.693/125.094ms只是观察值差异，单个窗口不能排除机器波动，也包含先前door微优化与本次缓存差异，不能归为单一变更的稳定收益；更不能把3条重复API微基准收益套到全窗。当前延迟仍显著超标。
+
+本轮预加载记录直接确认：观察层1的9地块、64墙段、16门、348阻挡设施、1连接器完整准备并驻留，4条导诊固定路径都可达；整套准备38.707ms发生在模拟采样前。不是此前预加载未执行。
+
+[完整原始包](evidence/2026-11-12-structural-body-cache/full-plain.zip) 1244635字节、24成员，SHA256 `4b6e8bd31b22ecf58dbaa584470cfe5b8714c574bb4fb25cc1d59d4cfac2ed63`；[manifest](evidence/2026-11-12-structural-body-cache/full-plain.members.json)、[完整状态对比](evidence/2026-11-12-structural-body-cache/full-plain.comparison.json)、[派生摘要](evidence/2026-11-12-structural-body-cache/full-plain.summary.json)。本地CRC/全成员核验通过。停止于本次结果，先持久备份并实际读回，没有启动第二轮、GUI/GPU/音频或发行长验收。

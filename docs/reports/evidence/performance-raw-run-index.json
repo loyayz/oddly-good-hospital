@@ -304,21 +304,48 @@
       "archive": "2026-11-12-structural-body-cache/plain8.zip",
       "archive_sha256": "687a50dcf912ac8cd8bd0ce28166ec490a229285ad24b4ca93ac84d57baea59c",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "performance_pass": null,
       "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68",
-      "scope": "8 real steps; full World/RNG/ordered events and business equality only; not a complete performance window"
+      "scope": "8 real steps; full World/RNG/ordered events and business equality only; not a complete performance window",
+      "publication_commit": "57d3434569360c6abacd4d66deb9f10e0f1773af",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "687a50dcf912ac8cd8bd0ce28166ec490a229285ad24b4ca93ac84d57baea59c",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/57d3434569360c6abacd4d66deb9f10e0f1773af/docs/reports/evidence/2026-11-12-structural-body-cache/plain8.zip",
+        "bytes": 1183484,
+        "members": 24,
+        "verified_utc": "2026-11-12T11:09:57.588341+00:00",
+        "commit": "57d3434569360c6abacd4d66deb9f10e0f1773af"
+      }
+    },
+    {
+      "id": "cloud-structural-body-full-plain",
+      "kind": "plain_fixed_load_integrated_cache_diagnostic",
+      "full_window": true,
+      "prefix": 1000,
+      "measured_steps": 6000,
+      "source_commit": "1e5bb6e3c0883836275aeab74e64847255fd8a06",
+      "execution_head": "57d3434569360c6abacd4d66deb9f10e0f1773af",
+      "archive": "2026-11-12-structural-body-cache/full-plain.zip",
+      "archive_sha256": "4b6e8bd31b22ecf58dbaa584470cfe5b8714c574bb4fb25cc1d59d4cfac2ed63",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "latency_acceptance": false,
+      "business_coverage": "29/31",
+      "scope": "One original fixed-load plain window, not isolated causal AB performance proof."
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-structural-corpus8",
     "cloud-structural-cache-micro",
-    "cloud-structural-body-plain8"
+    "cloud-structural-body-plain8",
+    "cloud-structural-body-full-plain"
   ],
   "latest_three_complete_window_ids": [
-    "cloud-recovery-full-plain",
     "cloud-recovery-full-root-stages",
-    "cloud-movement-full-narrow"
+    "cloud-movement-full-narrow",
+    "cloud-structural-body-full-plain"
   ],
   "comparison_warning": "Kinds and observer modes differ. Do not infer optimization gains by comparing different kinds or count short qualifications as complete performance windows."
 }
