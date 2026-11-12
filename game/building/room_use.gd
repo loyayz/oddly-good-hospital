@@ -22,10 +22,6 @@ func _ensure(world: WorldState) -> void:
 	if _world!=null and _world.get_ref()==world and _revision==world.geometry_revision and is_same(_facts,world.facts): return
 	_world=weakref(world); _facts=world.facts; _revision=world.geometry_revision
 	_facilities.clear(); _rooms_by_kind.clear(); _room_cells.clear(); _by_cell.clear(); _plots.clear(); _waiting_cells.clear()
-	for floor_key: String in world.facts.floors.overrides:
-		var owned: Dictionary={}
-		for plot: Array in HospitalSpace.floor_plots(world,int(floor_key)): owned[Vector2i(int(plot[0]),int(plot[1]))]=true
-		_plots[int(floor_key)]=owned
 	for id: String in world.ids("rooms"):
 		var room: Dictionary=world.facts.rooms[id]
 		if room.get("structure_valid",true):
@@ -51,7 +47,12 @@ func room_at(world: WorldState, floor_id: int, point: Vector2i) -> String:
 
 func public_point(world: WorldState, floor_id: int, point: Vector2i) -> bool:
 	_ensure(world)
-	if point.x<0 or point.y<0 or point.x>=96 or point.y>=96 or not _plots.get(floor_id,{}).has(Vector2i(point.x/32,point.y/32)): return false
+	if point.x<0 or point.y<0 or point.x>=96 or point.y>=96: return false
+	if not _plots.has(floor_id):
+		var owned: Dictionary={}
+		for plot: Array in HospitalSpace.floor_plots(world,floor_id): owned[Vector2i(int(plot[0]),int(plot[1]))]=true
+		_plots[floor_id]=owned
+	if not _plots[floor_id].has(Vector2i(point.x/32,point.y/32)): return false
 	var room: Dictionary=world.facts.rooms.get(_by_cell.get(floor_id,{}).get(point,""),{})
 	return room.is_empty() or room.get("kind","") in ["rest","toilet"]
 

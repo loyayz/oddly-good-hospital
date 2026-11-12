@@ -62,3 +62,7 @@ Godot4.7.2固定源码中Array.sort→Variant::OP_LESS→Vector3::<按x/y/z精�
 运行入口：`tests/acceptance/run_floor_wait_order.gd`，模式sequence/query/fixtures/flow/waypoint/waypoint_reference/derived。Linux guard及完整参数在raw包中；失败模式保持失败，不隐藏已有问题。
 
 定向原始包：[selected.zip](evidence/2026-11-12-floor-wait-order/selected.zip)，2,965,892字节，104成员，SHA256 `ad994ae90461252562b2d0f1cc70f93948a31c50656df4053acef5e9234493fd`。[成员清单](evidence/2026-11-12-floor-wait-order/selected.members.json)及[分项状态](evidence/2026-11-12-floor-wait-order/selected.summary.json)。本地CRC/逐成员读回通过；此前micro已在a73cba9远端实际下载核验。
+
+### 后续需求核验：中途安全撤离
+
+排序提交后另查现行公共设施规格第150行（2026-11-10 a1dabfdd引入）：本任务真实地面行程到达任一合法安全占地即可结束移动，不必继续到预选整数终点，并不要求设施区域成员。waypoint03/reference04已证明正式本need请求、14次真实推进、合法World、单人地面段、原时钟及safe_wait=true；current_area={}却因contains门槛拒绝结束，支持独立业务缺陷结论，而非仅fixture缺区域资格。外国所有者保护仍正确；该测试未逐步累计到达前零工作，也未证明远目标是调度自然选择。旧失败原始证据保留；下一批仅分离fallback安全完成接口，不放宽一般设施区域到场。排序等价及STAFF-74既有通过范围不变。
