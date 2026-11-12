@@ -1,0 +1,138 @@
+{
+  "ok": true,
+  "base_commit": "2e57de8e39ea7af616fc1d5cdff291517ecc10f6",
+  "production_change": "game/building/hospital_movement.gd",
+  "movement_sha256": "fd9d720d6c7688eff475bb15968c64a3e4fcdeb0a2acb8878c00619e1e556ca4",
+  "input_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+  "source_restored_after_observation": true,
+  "plain_traced_full_world_rng_events_equal": true,
+  "final_sha256": "4de4fc8af69271b1374fd9be4dcc1bbce93265598c900654ade65065dc30638f",
+  "initial_tick": 7633,
+  "final_tick": 7641,
+  "steps": 8,
+  "initial_present": 166,
+  "final_present": 166,
+  "actual_patient13_displacement_steps": 6,
+  "alight_success_tick": 7640,
+  "connection_after": {
+    "anchor": [
+      86,
+      44
+    ],
+    "assigned_actor_id": "bench_patient_0119",
+    "failed": false,
+    "floor_id": 1,
+    "from": 1,
+    "id": "benchmark_lift",
+    "pending_failure": false,
+    "phase": "empty_riding",
+    "remaining_ticks": 30,
+    "riders": [],
+    "ticket_next": 43,
+    "to": 4
+  },
+  "workers238239_displacement_steps": [
+    0,
+    0
+  ],
+  "long_sampling": false,
+  "performance_pass": null,
+  "evidence_zip_sha256": "48279d2eb77a42c9af9b4e57575691d7cd2e6cf4c65a32ed60e8c194383d332e",
+  "members": [
+    {
+      "path": ".cache/boundary-project/transport-diagnostic-identity.json",
+      "bytes": 66861,
+      "sha256": "2ed91f87c1427e62ffb113c73cfbaa6bad3f0b3a3031bba743d9ccacfbab497f"
+    },
+    {
+      "path": "detail8-overlay.json",
+      "bytes": 4594,
+      "sha256": "f90243743ab380d830f4ee357b00eb2ca69a1cd24ee1345b261312d9d06aaf25"
+    },
+    {
+      "path": "detailed8/engine.log",
+      "bytes": 355,
+      "sha256": "0774bffdcd76462c510366135cfe1455900704ad38ab4969cbe8ad9e0711baff"
+    },
+    {
+      "path": "detailed8/process.json",
+      "bytes": 1529,
+      "sha256": "05cf31c952c1b65fc340dd12a6c71d137cd63d6302aa65b8eddc54dfc24e77ef"
+    },
+    {
+      "path": "detailed8/result.json",
+      "bytes": 36672,
+      "sha256": "776036aae0acbd4e6cf71219b06bb15fb28c7f9cf90892aa787d2db8289c0bd3"
+    },
+    {
+      "path": "detailed8/result.json.execution.json",
+      "bytes": 2011,
+      "sha256": "7bf5ddfc2da6438ada676379c894308fb7e95806b53941cee3131d0cca9f2d83"
+    },
+    {
+      "path": "detailed8/result.json.initial.json",
+      "bytes": 15047,
+      "sha256": "e5f9f0d41edc1647815b024582af2c506cd4356e53cf4a0913a95cf1065fc5b7"
+    },
+    {
+      "path": "detailed8/result.json.steps.ndjson",
+      "bytes": 1400,
+      "sha256": "f3bdbca7fe26e7442923892de8d6e652cd4cd649a8317c20130dd61af5c2665d"
+    },
+    {
+      "path": "detailed8/result.json.transport.json",
+      "bytes": 378077,
+      "sha256": "4b8c9dd446b70b9d9beb5f99d10aee25ca70f9170d5e0050f1de3fd5b14fe1e3"
+    },
+    {
+      "path": "detailed8/summary.json",
+      "bytes": 1756,
+      "sha256": "455b635413084e498a25bf69d074f95c5a46856e993f4aaf6c609059cf6146c4"
+    },
+    {
+      "path": "input-identity.json",
+      "bytes": 311992,
+      "sha256": "56c32c1aec5827f65207be6cbafa6b935a4b15d9223ffac1823e8ad0bf1bc2ff"
+    },
+    {
+      "path": "plain8/engine.log",
+      "bytes": 355,
+      "sha256": "e6010f76bffe8c255ff8c0fe5958d51b95611cef7c979c66c47159ca8043abd9"
+    },
+    {
+      "path": "plain8/process.json",
+      "bytes": 1513,
+      "sha256": "c743ba9080fd6dcfcf0d451f05ed05d4e308863a59a5d48510d3be8b0512f10c"
+    },
+    {
+      "path": "plain8/result.json",
+      "bytes": 36671,
+      "sha256": "228f2d46114634eb78229430e12a758437c3faa9b83f84756e0617aa2c97faba"
+    },
+    {
+      "path": "plain8/result.json.execution.json",
+      "bytes": 2011,
+      "sha256": "4600666c9143c8ae47e2fa248c3598f7f449567ade165a7c80bc9f83c4c8820c"
+    },
+    {
+      "path": "plain8/result.json.initial.json",
+      "bytes": 15047,
+      "sha256": "e5f9f0d41edc1647815b024582af2c506cd4356e53cf4a0913a95cf1065fc5b7"
+    },
+    {
+      "path": "plain8/result.json.steps.ndjson",
+      "bytes": 1400,
+      "sha256": "3e7d59b3be23179f5016a360c1062f8f9b4f67013788ec910c45b77c880b479c"
+    },
+    {
+      "path": "run_detail8.py",
+      "bytes": 4874,
+      "sha256": "b38aa5d81f43afe980d54bf44bfb1c70f7d6725ac70c9da3a221f7a03f178d99"
+    },
+    {
+      "path": "run_fixed_boundary.py",
+      "bytes": 3099,
+      "sha256": "1f280e4e41235f472d0ee6bdd8b95a262d7278bf3fc10d9da67de0a407bb0633"
+    }
+  ]
+}
