@@ -27,3 +27,22 @@ plain包已从3c3da32实际下载核验24成员后，运行唯一观察版。隔
 计时exclusive=body_raw−直接child已测wrapper，仅用于本次观测分区，不是净生产CPU。门控、传播/返回等未测观察开销仍在残差。5次root flush分别20.131/18.085/33.838/18.404/17.219ms，全部留在真实outer step内，不能删除长帧或直接用该观察版做性能比较；inclusive不可相加。
 
 [观察原始包](evidence/2026-11-12-waiting-hot-boundary/observer.zip) 1562701字节、56成员，SHA256 `f83106189f981ba8f23c165cdd7c367a268a73bc5abfd39632f4c97148846df3`；[成员清单](evidence/2026-11-12-waiting-hot-boundary/observer.members.json)、[资格对比](evidence/2026-11-12-waiting-hot-boundary/observer.comparison.json)、[5根span与6owner分析](evidence/2026-11-12-waiting-hot-boundary/observer.analysis.json)。本地CRC/每成员字节及SHA核验通过。所有实际trace、源变换、helper、准备/校验控制器、parser输出与进程身份均保留；overlay已还原并停止，没有生产修改、第二次重放或全窗重复。
+
+## 六次实际安全点调用的内部细分
+
+前一观察包已从e538da4实际下载验证56成员后，仅执行一次新的同热史细分观察；没有重跑plain。原1000+1253、固定命令与完整原逻辑不变，仍与plain的完整World/RNG/有序事件、业务和逐步非计时数据相等。最终仍53af4f26…de1f、覆盖22/31、exit1。进程158.521秒，parse无修正；两次离线语料读取/顺序验证没有模拟或服务查询。
+
+六次真实floor_waiting_point均拥有9地块，原循环每次9216次public_point谓词（由捕获facts与逐字保留循环推导，不是额外探测计数）。实际完整候选分别8256/8256/8320/8320/8256/8256。前后Typed Vector2i数组无丢失、全序严格等于原origin.distance_squared_to与y/x comparator；29次safe中23次false都没有reach，6次reach全部第一次成功即停止，返回原安全点。
+
+|已测边界，六次合计|wall span|
+|---|---:|
+|完整公共候选枚举|95.110ms|
+|原sort_custom排序|116.190ms|
+|safe薄包装（含已嵌套safe_wait，不再相加）|5.033ms|
+|实际can_reach|1.737ms|
+
+57次toilets.leave仅0.326ms。该语料中枚举和排序都是实际显著工作，不能只怪寻路。候选顺序、公共房间语义、真实body/safety/权限/可达判断与期限保持；拟优化应先在这6份真实完整排序输入上等价测量，不靠减少候选或分散业务提交。
+
+**采集成本限制必须保留：**6次floor raw1028.526ms，扣已测handler后347.420ms，未分类exclusive129.817ms；freeze357.965ms、序列化/写321.347ms等已单列observer-only。floor_save持有的payload可能在finish计时后才析构/释放大容器，落入父残差，分配与CPU缓存扰动也不可数值消除。因此129.817ms不能叫生产self CPU，也不能归到排序。本轮waiting raw1136.927ms/扣已测handler后418.701ms不是生产性能比较，root flush36.474ms留在outer step中；算式通过不等于完整捕获了采集生命周期。
+
+[细分原始包](evidence/2026-11-12-waiting-hot-boundary/breakdown.zip) 4083348字节、68成员，SHA256 `5ab55f5a70c725248d6c19ddc03a4da7dc4a4ab540e355ec7d9dbd96366d1b0f`；[manifest](evidence/2026-11-12-waiting-hot-boundary/breakdown.members.json)、[资格](evidence/2026-11-12-waiting-hot-boundary/breakdown.comparison.json)、[分项/语料检查](evidence/2026-11-12-waiting-hot-boundary/breakdown.analysis.json)。保留6份实际pre-World、origin/actor、前后点序列、全部短路attempt和原返回。它们是合成游戏的完整事实输入，不是热缓存或完整外部事件包；完整状态资格仍以外层plain最终文件比较负责。本地CRC/每成员核验通过，overlay还原、引擎已停，没有实施优化或新增微基准。

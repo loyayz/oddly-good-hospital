@@ -1,0 +1,20 @@
+{
+  "checks": {
+    "business": true,
+    "sample_business": true,
+    "prefix_business": true,
+    "errors": true,
+    "complete": true,
+    "full_world_rng_events_equal": true,
+    "2253_rows": true,
+    "non_timing_steps_equal": true,
+    "five_roots": true,
+    "stack_parent_arithmetic": true,
+    "six_exact_actors": true,
+    "six_corpora": true
+  },
+  "qualified": true,
+  "rows": 1408,
+  "final_sha256": "53af4f26c2b95307ba9357c33b44b02951544b86629deb32d76735e569d1de1f",
+  "scope": "Hot-history truncated observer; flush stays in outer step, inclusive sums forbidden; not acceptance."
+}

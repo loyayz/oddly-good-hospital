@@ -385,15 +385,45 @@
       "archive": "2026-11-12-waiting-hot-boundary/observer.zip",
       "archive_sha256": "f83106189f981ba8f23c165cdd7c367a268a73bc5abfd39632f4c97148846df3",
       "local_crc_member_readback_verified": true,
+      "remote_readback_verified": true,
+      "performance_pass": null,
+      "scope": "Exact original hot history, 5 waiting spans only. Full behavior equality; observer overhead and flush retained, not acceptance.",
+      "publication_commit": "e538da4d02df88dd40d944df5fc3bd334c641af6",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "f83106189f981ba8f23c165cdd7c367a268a73bc5abfd39632f4c97148846df3",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/e538da4d02df88dd40d944df5fc3bd334c641af6/docs/reports/evidence/2026-11-12-waiting-hot-boundary/observer.zip",
+        "bytes": 1562701,
+        "members": 56,
+        "verified_utc": "2026-11-12T11:45:10.373710+00:00",
+        "commit": "e538da4d02df88dd40d944df5fc3bd334c641af6"
+      }
+    },
+    {
+      "id": "cloud-waiting-fallback-breakdown",
+      "kind": "six_real_floor_fallback_calls_decomposition_and_corpus",
+      "full_window": false,
+      "prefix": 1000,
+      "measured_steps": 1253,
+      "observer_world_ticks": [
+        2881,
+        2885
+      ],
+      "detailed_world_tick": 2883,
+      "actual_corpus_calls": 6,
+      "source_commit": "1e5bb6e3c0883836275aeab74e64847255fd8a06",
+      "archive": "2026-11-12-waiting-hot-boundary/breakdown.zip",
+      "archive_sha256": "5ab55f5a70c725248d6c19ddc03a4da7dc4a4ab540e355ec7d9dbd96366d1b0f",
+      "local_crc_member_readback_verified": true,
       "remote_readback_verified": false,
       "performance_pass": null,
-      "scope": "Exact original hot history, 5 waiting spans only. Full behavior equality; observer overhead and flush retained, not acceptance."
+      "scope": "Exact behavior equality; corpus is not warm-cache state; 129.817ms unclassified cleanup/observer residual remains; not acceptance."
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-structural-body-full-plain",
     "cloud-waiting-hot-boundary-plain",
-    "cloud-waiting-hot-boundary-observer"
+    "cloud-waiting-hot-boundary-observer",
+    "cloud-waiting-fallback-breakdown"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-root-stages",
