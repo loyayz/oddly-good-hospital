@@ -1,0 +1,100 @@
+{
+  "production": "1098bf427363de92d66889488577b841babb826f0ea139ee69a4bbf4326fd56f",
+  "final_test": "8b5f213c18a36bd77c682b98835dad7b957921c2f217d6e1ce639b4cb2cb23eb",
+  "helper_executable_lines_equal_to_measured_candidate": true,
+  "floor_function_inverse_exact": true,
+  "uid_unchanged": true,
+  "selected_results": {
+    "derived03": {
+      "returncode": 1,
+      "wall_seconds": 2.410794735998934,
+      "reaped": true,
+      "ok": false,
+      "errors": [
+        "derived public floor independently complete"
+      ]
+    },
+    "fixtures03": {
+      "returncode": 0,
+      "wall_seconds": 3.115665422999882,
+      "reaped": true,
+      "ok": true,
+      "errors": []
+    },
+    "flow01": {
+      "returncode": -15,
+      "wall_seconds": 2.6375786940006947,
+      "reaped": true
+    },
+    "flow02": {
+      "returncode": 1,
+      "wall_seconds": 2.8098775779999414,
+      "reaped": true,
+      "ok": false,
+      "errors": [
+        "safe_fallback_before_busy_waypoint"
+      ]
+    },
+    "parse01": {
+      "returncode": 0,
+      "wall_seconds": 3.010358965000705,
+      "reaped": true
+    },
+    "parse02": {
+      "returncode": 0,
+      "wall_seconds": 2.8102586530003464,
+      "reaped": true
+    },
+    "parse03": {
+      "returncode": 0,
+      "wall_seconds": 3.1119650840009854,
+      "reaped": true
+    },
+    "parse04": {
+      "returncode": 0,
+      "wall_seconds": 2.809032376000687,
+      "reaped": true
+    },
+    "query01": {
+      "returncode": -15,
+      "wall_seconds": 16.088602149000508,
+      "reaped": true
+    },
+    "query02": {
+      "returncode": 1,
+      "wall_seconds": 16.416407541999433,
+      "reaped": true,
+      "ok": false,
+      "errors": [
+        "room_public_to_private"
+      ]
+    },
+    "sequence01": {
+      "returncode": 0,
+      "wall_seconds": 4.822898135998912,
+      "reaped": true,
+      "ok": true,
+      "errors": []
+    },
+    "waypoint-reference04": {
+      "returncode": 1,
+      "wall_seconds": 2.809286839001288,
+      "reaped": true,
+      "ok": false,
+      "errors": [
+        "safe_fallback_before_busy_waypoint"
+      ]
+    },
+    "waypoint03": {
+      "returncode": 1,
+      "wall_seconds": 2.90943173100095,
+      "reaped": true,
+      "ok": false,
+      "errors": [
+        "safe_fallback_before_busy_waypoint"
+      ]
+    }
+  },
+  "status": "sorting equivalence and STAFF-74 pass; independently confirmed derived-floor public enumeration gap; intermediate-waypoint expectation uncovered because current_area membership premise is absent, not classified as production bug",
+  "scope": "No micro, long history, full performance window, native rebuild or gameplay changes beyond sorting."
+}

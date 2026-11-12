@@ -498,15 +498,25 @@ func floor_waiting_point(world: WorldState, actor_id: String) -> Dictionary:
 			for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32):
 				var point: Vector2i=Vector2i(x,y)
 				if space.room_use.public_point(world,floor_id,point): points.append(point)
-	points.sort_custom(func(a: Vector2i,b: Vector2i)->bool:
-		var da: float=origin.distance_squared_to(Vector2(a))
-		var db: float=origin.distance_squared_to(Vector2(b))
-		return da<db if da!=db else a.y<b.y if a.y!=b.y else a.x<b.x)
+	_sort_floor_waiting_points(points,origin)
 	for point: Vector2i in points:
 		var cell: Array=[point.x,point.y]
 		if safe_wait(world,actor_id,floor_id,cell) and space.can_reach(world,actor_id,floor_id,cell):
 			return {"floor_id":floor_id,"cell":cell}
 	return {}
+
+# Complete public candidates have exact integer coordinates in 0..95.
+# Keep the original Vector2 distance precision and literal y/x tie order.
+func _sort_floor_waiting_points(points: Array, origin: Vector2) -> void:
+	var decorated: Array[Vector3]=[]
+	for point: Vector2i in points:
+		var distance: float=origin.distance_squared_to(Vector2(point))
+		decorated.append(Vector3(distance,point.y,point.x))
+	decorated.sort()
+	for i: int in decorated.size():
+		points[i]=Vector2i(int(decorated[i].z),int(decorated[i].y))
+	# Release temporary ordering keys before live safety/reachability checks.
+	decorated.clear()
 
 func room_exit_point(world: WorldState, actor_id: String) -> Dictionary:
 	var actor: Dictionary=world.facts.actors[actor_id]

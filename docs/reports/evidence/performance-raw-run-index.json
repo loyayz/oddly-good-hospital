@@ -441,9 +441,19 @@
       "archive": "2026-11-12-floor-wait-order/micro.zip",
       "archive_sha256": "4969ba559b22e99628a7b5f8eceea4ba95fc93c4b9a6e92ff916f7f74ba4056a",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "performance_pass": null,
-      "scope": "Pure sorting lifecycle only; all full sequences equal captured order, no World/simulation, not whole-step gain."
+      "scope": "Pure sorting lifecycle only; all full sequences equal captured order, no World/simulation, not whole-step gain.",
+      "publication_commit": "a73cba90b68d94a11d86cf792b8f83b93a7b122a",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "4969ba559b22e99628a7b5f8eceea4ba95fc93c4b9a6e92ff916f7f74ba4056a",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/a73cba90b68d94a11d86cf792b8f83b93a7b122a/docs/reports/evidence/2026-11-12-floor-wait-order/micro.zip",
+        "bytes": 1460882,
+        "members": 29,
+        "verified_utc": "2026-11-12T12:07:30.734774+00:00",
+        "commit": "a73cba90b68d94a11d86cf792b8f83b93a7b122a"
+      }
     }
   ],
   "latest_three_raw_run_ids": [

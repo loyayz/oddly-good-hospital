@@ -21,3 +21,44 @@ Godot4.7.2固定源码中Array.sort→Variant::OP_LESS→Vector3::<按x/y/z精�
 
 ## 原始证据
 [固定原始包](evidence/2026-11-12-floor-wait-order/micro.zip) 1460882字节、29成员，SHA256 `4969ba559b22e99628a7b5f8eceea4ba95fc93c4b9a6e92ff916f7f74ba4056a`；[member manifest](evidence/2026-11-12-floor-wait-order/micro.members.json)、[36对total/median分析](evidence/2026-11-12-floor-wait-order/micro.analysis.json)。保留1440次原始微秒、15边界、完整6语料、固定plan、原/候选脚本、引擎/host/命令及parser/进程信息。本地CRC/逐成员验证通过，未删除旧包，未修改生产。候选order.gd SHA256 `505f0195f896d086db4481beb17991b00868e652fee759b853851d9768ff3ead`。
+
+## 排序整合：实施前范围与选例
+
+本次只将已测排序接入 floor_waiting_point，完整枚举、公共点定义、原 Vector2 距离、y/x 平局、safe_wait && can_reach 的顺序及短路、同层返回位置全部保留；不加缓存、不改 native。实际交接是到期且当前占地不安全的 fallback_travel；原期限、票号、移动所有者、真实安全到达后80 tick 使用不变。依据公共设施规格148–156/164及医院日常§17。
+
+选例：最终生产排序 helper 的15个纯边界与6份captured全序；同一正式 floor_waiting_point 对照原比较器，核完整序列、实际安全/可达调用轨迹、首个通过与只读World/RNG，包含冷World/facts替换/公共房间/派生上层边界；STAFF-74门及连接锚点真实撤离、存档恢复和80tick，并观察 floor_waiting_point 实际命中；只调用 safe_fallback_before_busy_waypoint 的两种所有权边界，不运行完整arrival专题。已有micro测量只在整合helper与已测候选体逐字一致时复用，不重跑micro或历史性能窗口。先parser/diffcheck，再选例；失败保留原日志。
+
+## 生产整合定向结果
+
+已最小接入 `_sort_floor_waiting_points`，helper实际语句与已测候选一致，仅清理注释。反向替换helper调用后，floor_waiting_point完整枚举/查询循环与整合前逐字一致。无新缓存或native改动。
+
+通过：生产helper的15个纯计算边界及6份captured全序；6真实World查询完整候选和safe/reach调用轨迹、首个通过短路、返回位置、World/RNG未变；恢复到另一个World及同World替换facts（复用服务，不冒称全新服务冷缓存）；公共toilet→doctor_office→rest边界；STAFF-74门口和连接锚点两个变体全部原断言，包括真实撤离、完整存档恢复、80tick真实使用、到达前零工作，并实际命中floor_waiting_point两次。最终parser通过。
+
+前提失败保留：query01/flow01使用旧waiting房型，被当前正式建房拒绝，guard终止并回收。仅新runner适配为合法toilet/rest房型；query02误用office ID，最终改为doctor_office后fixture通过。旧waypoint用例无可用卫生间时现在直接结束尝试，未进入所需fallback前提；新runner提供合法卫生间并明确原期限+451输入后真实调度到fallback_travel，未伪造到达/工作。
+
+**独立既有缺口与未覆盖边界，分别报告：**
+
+1. `derived_upper_without_override`：合法完整World，completed_top_floor声明第二层拥有[1,2]地块但无显式override。独立应有1024个无房间公共点；原/新在排序前均得到0候选，随后仍调用排序helper处理空数组；没有候选比较或safe/reach调用。room_use当前仅为overrides构建_plots，与floor_plots派生所有权不一致。保留失败，不把双空当正确。
+2. `safe_fallback_before_busy_waypoint`：到期后本需求真实行走14步至[39.8000030517578,78]，safe_wait=true但current_area={}，原/新均仍fallback_travel、remaining_ticks=0。原比较器独立对照同失败；本需求所有权正确、无detour/convoy，但新合法房型前提在该处没有current_area成员资格，未满足当前owns_arrival的contains前提。外国owner变体正确保持移动。该观测只能证明当前适配未覆盖原预期的中途完成，不能仅凭双失败判定生产bug；保留为前提/契约解释不足，不放宽期望、不改业务，也不把STAFF-74成功解释为任意安全中途终止已通过。
+
+最终选择性结果不是全组/全性能通过。旧失败、前提修正、最终代码、查询原始轨迹、命令/exit/log/host、实际耗时与UID原字节校验均保存；未动既有UID，未运行micro/2253历史/完整窗口。完整6语料来自已持久核验micro输入。
+
+进程实耗（秒，含加载与退出，不是函数性能）：
+
+- derived03: exit 1, 2.411s, reaped=True。
+- fixtures03: exit 0, 3.116s, reaped=True。
+- flow01: exit -15, 2.638s, reaped=True。
+- flow02: exit 1, 2.810s, reaped=True。
+- parse01: exit 0, 3.010s, reaped=True。
+- parse02: exit 0, 2.810s, reaped=True。
+- parse03: exit 0, 3.112s, reaped=True。
+- parse04: exit 0, 2.809s, reaped=True。
+- query01: exit -15, 16.089s, reaped=True。
+- query02: exit 1, 16.416s, reaped=True。
+- sequence01: exit 0, 4.823s, reaped=True。
+- waypoint-reference04: exit 1, 2.809s, reaped=True。
+- waypoint03: exit 1, 2.909s, reaped=True。
+
+运行入口：`tests/acceptance/run_floor_wait_order.gd`，模式sequence/query/fixtures/flow/waypoint/waypoint_reference/derived。Linux guard及完整参数在raw包中；失败模式保持失败，不隐藏已有问题。
+
+定向原始包：[selected.zip](evidence/2026-11-12-floor-wait-order/selected.zip)，2,965,892字节，104成员，SHA256 `ad994ae90461252562b2d0f1cc70f93948a31c50656df4053acef5e9234493fd`。[成员清单](evidence/2026-11-12-floor-wait-order/selected.members.json)及[分项状态](evidence/2026-11-12-floor-wait-order/selected.summary.json)。本地CRC/逐成员读回通过；此前micro已在a73cba9远端实际下载核验。
