@@ -823,6 +823,8 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 				else: _remember_failure(world,movement,str(quote.reason))
 			else: _route_failures.erase(id)
 			continue
+		if waypoint.has("prefix") and movement.has("transit_ticket"):
+			movement.transit_wait={"sequence":movement.request_sequence,"cell":waypoint.cell.duplicate()}
 		movement.path = quote.path
 		if not waypoint.is_empty():
 			movement.path.append_array(waypoint.continuation)
@@ -885,7 +887,9 @@ func _initial_route_cursor(actor: Dictionary, path: Array, world: WorldState = n
 func queue_waypoint_prefix(world: WorldState, movement: Dictionary, prefix: Array, owner: Dictionary) -> void:
 	var actor: Dictionary=world.facts.actors[movement.actor_id]
 	var last: Dictionary=prefix[-1]
-	movement.route_waypoint={"floor_id":last.floor_id,"cell":last.cell.duplicate(),"continuation":movement.path.slice(int(movement.cursor)).duplicate(true),"prefix":prefix.duplicate(true),"binding":{"origin":actor.location.cell.duplicate(),"sequence":movement.request_sequence,"target_floor":movement.target_floor,"target_cell":movement.target_cell.duplicate(),"connector_id":owner.connector_id,"trip_sequence":owner.trip_sequence}}
+	movement.route_waypoint={"floor_id":last.floor_id,"cell":last.cell.duplicate(),"continuation":movement.path.slice(int(movement.cursor)).duplicate(true),"prefix":prefix.duplicate(true),"binding":{"origin":actor.location.cell.duplicate(),"sequence":movement.request_sequence,"target_floor":movement.target_floor,"target_cell":movement.target_cell.duplicate(),"connector_id":owner.connector_id}}
+	for key: String in ["trip_sequence","selected_id","selected_request","selected_ticket","waiting_ticket","retreat_actor","retreat_request","retreat_target"]:
+		if owner.has(key): movement.route_waypoint.binding[key]=owner[key]
 	_queue_route(world,movement,true)
 
 func _bounded_prefix_clear(world: WorldState, actor: Dictionary, movement: Dictionary, points: Array) -> bool:
@@ -904,13 +908,13 @@ func _waypoint_prefix_valid(world: WorldState, movement: Dictionary, waypoint: D
 	var actor: Dictionary=world.facts.actors[movement.actor_id]
 	var binding: Dictionary=waypoint.binding
 	if actor.location.kind!="floor" or actor.posture!="standing" or actor.has("support_facility_id") or float(actor.location.get("height_m",0))!=0: return false
-	if movement.has("convoy") or movement.has("local_move") or movement.has("detour") or movement.has("transit_ticket") or movement.get("members",[actor.id])!=[actor.id] or not movement.get("offsets",{}).is_empty(): return false
+	if movement.has("convoy") or movement.has("local_move") or movement.has("detour") or movement.get("members",[actor.id])!=[actor.id] or not movement.get("offsets",{}).is_empty(): return false
 	if binding.sequence!=movement.request_sequence or binding.origin!=actor.location.cell or binding.target_floor!=movement.target_floor or binding.target_cell!=movement.target_cell: return false
 	if waypoint.continuation!=movement.path.slice(int(movement.cursor)) or waypoint.continuation.is_empty(): return false
 	var segment: Dictionary=waypoint.continuation[0]
 	if segment.kind!="connector" or segment.connector_id!=binding.connector_id or int(segment.from)!=int(actor.location.floor_id): return false
 	var connection: Dictionary=world.facts.connectors.get(binding.connector_id,{})
-	if connection.is_empty() or int(connection.get("trip_sequence",-1))!=int(binding.trip_sequence) or int(connection.to)!=int(actor.location.floor_id) or not HospitalTransit._landing_in_use(connection,int(actor.location.floor_id)): return false
+	if connection.is_empty() or not HospitalTransit.contact_owner_valid(space,world,movement,binding): return false
 	return _bounded_prefix_clear(world,actor,movement,waypoint.prefix)
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array, transit_owned: bool = false) -> void:
@@ -1326,6 +1330,11 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		# An intention alone cannot clear this contact. Only an actually clear
 		# next step lets the other body leave without another local manoeuvre.
 		if next!=origin and _local_path_clear(world,other,[_floor_point(other,next)]): return
+	# Only Transit can lend a waiting body to its selected actual contact.
+	# This is after effective-departure protection, before choosing a bypass.
+	for id: String in contact.blocker_actor_ids:
+		var other: Dictionary=world.facts.actors.get(id,{})
+		if not other.is_empty() and HospitalTransit.yield_to_selected(space,world,other,world.facts.moves.get(id,{}),actor,movement,contact.requested_motion): return
 	if movement.get("local_move",{}).has("rejoin") and not bool(movement.local_move.get("retreat",false)):
 		# A blocked B is an attempted target, not earned route progress. Try C
 		# only after the existing single local mover has been considered.

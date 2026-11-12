@@ -1,0 +1,13 @@
+{
+  "sources": {
+    "game/building/hospital_movement.gd": "44737bb11b98a4f182d4e8640f37c00fe932b0957101a36427e4a97bbd5d288e",
+    "game/building/hospital_transit.gd": "1ae100d9d6f585bf7d67c93fc4341f77b9e8eef6399ca1847424ac7f4e6f8a9d",
+    "game/sim/world_state.gd": "85da088f3e658205f69ccc8dd102da065542273c5faad131d8079ab9de554e81"
+  },
+  "UID_count": 663,
+  "UID_unchanged": true,
+  "engine_processes": [],
+  "plain_reaped": true,
+  "observer_reaped": true,
+  "qualification": true
+}

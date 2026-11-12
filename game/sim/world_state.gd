@@ -1136,10 +1136,19 @@ func _validate_shapes() -> String:
 			if not waypoint is Dictionary or not _natural(waypoint.get("floor_id",-1)) or not _point(waypoint.get("cell")) or not waypoint.get("continuation") is Array:
 				return "临时让位路线无效"
 			if waypoint.has("prefix"):
-				if not movement.get("route_pending",false) or movement.has("local_move") or movement.has("detour") or movement.has("convoy") or movement.has("transit_ticket"): return "有限让位前缀拥有者无效"
+				if not movement.get("route_pending",false) or movement.has("local_move") or movement.has("detour") or movement.has("convoy"): return "有限让位前缀拥有者无效"
 				if not waypoint.prefix is Array or waypoint.prefix.is_empty() or waypoint.prefix.size()>2 or not waypoint.get("binding") is Dictionary: return "有限让位前缀结构无效"
 				var binding: Dictionary=waypoint.binding
-				if not _point(binding.get("origin")) or not _natural(binding.get("sequence",-1)) or not _natural(binding.get("target_floor",-1)) or not _point(binding.get("target_cell")) or not binding.get("connector_id") is String or not _natural(binding.get("trip_sequence",-1)): return "有限让位前缀绑定无效"
+				if not _point(binding.get("origin")) or not _natural(binding.get("sequence",-1)) or not _natural(binding.get("target_floor",-1)) or not _point(binding.get("target_cell")) or not binding.get("connector_id") is String: return "有限让位前缀绑定无效"
+				if binding.has("retreat_actor"):
+					if not binding.has("waiting_ticket") or not binding.retreat_actor is String or not _natural(binding.get("retreat_request",-1)) or not _point(binding.get("retreat_target")) or binding.has("trip_sequence") or binding.has("selected_id") or binding.has("selected_request") or binding.has("selected_ticket"): return "实际退行候位绑定无效"
+				elif binding.has("retreat_request") or binding.has("retreat_target"): return "实际退行候位绑定字段无效"
+				elif binding.has("selected_id"):
+					if not binding.has("waiting_ticket") or binding.has("trip_sequence") or not binding.selected_id is String or not _natural(binding.get("selected_request",-1)) or not _natural(binding.get("selected_ticket",-1)): return "召入让位绑定无效"
+				elif binding.has("selected_request") or binding.has("selected_ticket") or not _natural(binding.get("trip_sequence",-1)): return "下客让位绑定无效"
+				if binding.has("waiting_ticket"):
+					if not _natural(binding.waiting_ticket): return "候位让行票绑定无效"
+				elif movement.has("transit_ticket"): return "候位让行缺少票绑定"
 				for point: Variant in waypoint.prefix:
 					if not point is Dictionary or point.get("kind")!="floor" or point.get("floor_id")!=waypoint.floor_id or not _point(point.get("cell")): return "有限让位前缀角点无效"
 				if waypoint.prefix[-1].cell!=waypoint.cell: return "有限让位前缀终点无效"

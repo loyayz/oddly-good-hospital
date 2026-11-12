@@ -350,11 +350,11 @@ static func _ticket_valid(space: HospitalSpace, world: WorldState, movement: Dic
 		if segment.kind=="connector": return segment.connector_id==ticket.connector_id and segment.from==ticket.from and segment.to==ticket.to
 	return false
 
-static func _waiting_position(space: HospitalSpace, world: WorldState, movement: Dictionary) -> bool:
+static func _waiting_position(space: HospitalSpace, world: WorldState, movement: Dictionary, pending_prefix: bool = false) -> bool:
 	var ticket: Dictionary=movement.transit_ticket
 	var connection: Dictionary=world.facts.connectors[ticket.connector_id]
 	if _at_landing(space,world,connection,movement,ticket): return true
-	if not movement.has("transit_wait") or movement.get("route_pending",false) or movement.has("local_move") or movement.has("detour"): return false
+	if not movement.has("transit_wait") or (movement.get("route_pending",false) and not pending_prefix) or movement.has("local_move") or movement.has("detour"): return false
 	if not space.at(world,movement.actor_id,int(ticket.from),movement.transit_wait.cell): return false
 	var members: Array=movement.get("members",[movement.actor_id])
 	var poses: Dictionary=ConvoyTrail.positions(movement.convoy,members) if movement.has("convoy") else {}
@@ -463,9 +463,15 @@ static func _alight(space: HospitalSpace, world: WorldState, connection: Diction
 # Only an actual retreat collision requests this connector-owned handoff.
 # It does not make connector waiters generic locally movable bodies.
 static func yield_to_retreat(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, retreating: Dictionary, retreat: Dictionary, motion: Vector2) -> bool:
+	return _yield_contact(space,world,actor,movement,retreating,retreat,motion,false)
+
+static func yield_to_selected(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, selected: Dictionary, journey: Dictionary, motion: Vector2) -> bool:
+	return _yield_contact(space,world,actor,movement,selected,journey,motion,true)
+
+static func _yield_contact(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, retreating: Dictionary, retreat: Dictionary, motion: Vector2, summoned: bool) -> bool:
 	if actor.get("location",{}).get("kind")!="floor" or actor.get("posture")!="standing" or float(actor.location.get("height_m",0))!=0.0 or actor.has("support_facility_id"): return false
 	if movement.is_empty() or movement.get("members",[actor.id])!=[actor.id] or not movement.get("offsets",{}).is_empty(): return false
-	for key: String in ["convoy","detour","transit_ticket","local_move","route_waypoint"]:
+	for key: String in ["convoy","detour","local_move","route_waypoint"]:
 		if movement.has(key): return false
 	if movement.get("route_pending",false): return false
 	var cursor: int=int(movement.get("cursor",-1))
@@ -474,23 +480,51 @@ static func yield_to_retreat(space: HospitalSpace, world: WorldState, actor: Dic
 	var segment: Dictionary=path[cursor]
 	var connection: Dictionary=world.facts.connectors.get(segment.connector_id,{})
 	var floor_id: int=int(actor.location.floor_id)
-	if connection.is_empty() or not _landing_in_use(connection,floor_id) or connection.phase=="empty_riding" or int(connection.to)!=floor_id or int(segment.from)!=floor_id or actor.id in connection.riders: return false
+	if connection.is_empty() or int(segment.from)!=floor_id or actor.id in connection.riders: return false
+	if movement.has("transit_ticket") and not _ticket_valid(space,world,movement): return false
+	var waiting_contact: bool=not summoned and movement.has("transit_ticket") and _waiting_position(space,world,movement)
+	if summoned:
+		if connection.phase!="idle" or int(connection.floor_id)!=floor_id or connection.get("assigned_actor_id","")!=retreating.id or actor.id==retreating.id: return false
+		if not movement.has("transit_ticket") or not _ticket_valid(space,world,retreat): return false
+	elif not waiting_contact:
+		if not _landing_in_use(connection,floor_id) or connection.phase=="empty_riding" or int(connection.to)!=floor_id: return false
 	if retreating.get("location",{}).get("kind")!="floor" or int(retreating.location.floor_id)!=floor_id or retreating.get("posture")!="standing": return false
-	if retreat.get("members",[retreating.id])!=[retreating.id] or retreat.has("convoy") or not bool(retreat.get("local_move",{}).get("retreat",false)): return false
-	var target: Dictionary=retreat.local_move.get("target",{})
+	if retreat.get("members",[retreating.id])!=[retreating.id] or retreat.has("convoy") or (not summoned and not bool(retreat.get("local_move",{}).get("retreat",false))): return false
+	var target: Dictionary=retreat.get("local_move",{}).get("target",{})
+	if summoned and target.is_empty():
+		var current: int=int(retreat.get("cursor",-1))
+		if current>=0 and current<retreat.get("path",[]).size(): target=retreat.path[current]
 	if target.get("kind")!="floor" or int(target.floor_id)!=floor_id: return false
 	var next_connection: Dictionary={}
 	for point: Dictionary in retreat.path.slice(int(retreat.cursor)):
 		if point.kind=="connector":
 			next_connection=point
 			break
-	if next_connection.get("connector_id","")!=connection.id or int(next_connection.get("from",-1))!=floor_id: return false
-	var incoming_id: String=connection.get("primary_actor_id","")
-	var incoming: Dictionary=world.facts.moves.get(incoming_id,{})
-	if incoming.is_empty() or incoming.has("convoy"): return false
-	var exit: Rect2=space._unit_rect(world,world.facts.actors[incoming_id],ConvoyTrail.point(connection.anchor),connection.riders,incoming.get("offsets",{}))
+	if not waiting_contact and (next_connection.get("connector_id","")!=connection.id or int(next_connection.get("from",-1))!=floor_id): return false
+	var owner: Dictionary={"connector_id":connection.id}
+	var exit: Rect2
+	if waiting_contact:
+		if not space.movement._local_floor_segment(retreating,retreat) or retreating.has("support_facility_id") or float(retreating.location.get("height_m",0))!=0.0: return false
+		owner.retreat_actor=retreating.id
+		owner.retreat_request=retreat.request_sequence
+		owner.retreat_target=target.cell.duplicate()
+		var service: Dictionary=_waiting_contact_exit(space,world,connection,floor_id)
+		if not service.ok: return false
+		exit=service.rect
+	elif summoned:
+		exit=_selected_entry(space,world,connection,retreating.id)
+		owner.selected_id=retreating.id
+		owner.selected_request=retreat.request_sequence
+		owner.selected_ticket=retreat.transit_ticket.sequence
+	else:
+		var incoming_id: String=connection.get("primary_actor_id","")
+		var incoming: Dictionary=world.facts.moves.get(incoming_id,{})
+		if incoming.is_empty() or incoming.has("convoy"): return false
+		exit=space._unit_rect(world,world.facts.actors[incoming_id],ConvoyTrail.point(connection.anchor),connection.riders,incoming.get("offsets",{}))
+		owner.trip_sequence=int(connection.trip_sequence)
 	var retreat_body: Rect2=space._actor_rect(retreating,ConvoyTrail.point(retreating.location.cell))
-	if not retreat_body.intersects(exit,false): return false
+	if not summoned and not waiting_contact and not retreat_body.intersects(exit,false): return false
+	if movement.has("transit_ticket"): owner.waiting_ticket=movement.transit_ticket.sequence
 	var corridor: Rect2=retreat_body.merge(space._actor_rect(retreating,ConvoyTrail.point(target.cell)))
 	var actual: Vector2=ConvoyTrail.point(actor.location.cell)
 	if motion.length()<0.001: return false
@@ -512,9 +546,59 @@ static func yield_to_retreat(space: HospitalSpace, world: WorldState, actor: Dic
 			if int(room.floor_id)==floor_id and rect.intersects(Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),false): public_space=false
 		if not public_space: continue
 		if not space.movement._bounded_prefix_clear(world,actor,movement,points): continue
-		space.movement.queue_waypoint_prefix(world,movement,points,{"connector_id":connection.id,"trip_sequence":int(connection.trip_sequence)})
+		space.movement.queue_waypoint_prefix(world,movement,points,owner)
 		return true
 	return false
+
+# Only the actual current service owner's envelope filters a proposed stop.
+# This is not a reservation of a future passenger's body or corridor.
+static func _waiting_contact_exit(space: HospitalSpace, world: WorldState, connection: Dictionary, floor_id: int) -> Dictionary:
+	var exit: Rect2
+	if _landing_in_use(connection,floor_id):
+		var primary: String=connection.get("primary_actor_id","")
+		var incoming: Dictionary=world.facts.moves.get(primary,{})
+		if incoming.is_empty() or incoming.has("convoy") or not primary in connection.get("riders",[]) or not world.facts.actors.has(primary): return {"ok":false}
+		exit=space._unit_rect(world,world.facts.actors[primary],ConvoyTrail.point(connection.anchor),connection.riders,incoming.get("offsets",{}))
+	elif connection.phase=="idle" and int(connection.floor_id)==floor_id and not str(connection.get("assigned_actor_id","")).is_empty():
+		exit=_selected_entry(space,world,connection,str(connection.assigned_actor_id))
+		if not exit.has_area(): return {"ok":false}
+	return {"ok":true,"rect":exit}
+
+static func contact_owner_valid(space: HospitalSpace, world: WorldState, movement: Dictionary, binding: Dictionary) -> bool:
+	var connection: Dictionary=world.facts.connectors.get(binding.connector_id,{})
+	var actor: Dictionary=world.facts.actors[movement.actor_id]
+	if connection.is_empty(): return false
+	if binding.has("waiting_ticket"):
+		if movement.get("transit_ticket",{}).get("sequence",-1)!=binding.waiting_ticket or not _ticket_valid(space,world,movement): return false
+	elif movement.has("transit_ticket"): return false
+	if binding.has("retreat_actor"):
+		if not binding.has("waiting_ticket"): return false
+		if not _waiting_position(space,world,movement,true): return false
+		var root: Dictionary=world.facts.actors.get(binding.retreat_actor,{})
+		var journey: Dictionary=world.facts.moves.get(binding.retreat_actor,{})
+		var local: Dictionary=journey.get("local_move",{})
+		if root.is_empty() or not space.movement._local_floor_segment(root,journey) or root.get("posture")!="standing" or root.has("support_facility_id") or float(root.location.get("height_m",0))!=0 or int(root.location.floor_id)!=int(actor.location.floor_id): return false
+		if journey.get("request_sequence",-1)!=binding.retreat_request or journey.has("convoy") or journey.get("members",[root.id])!=[root.id] or not local.get("retreat",false): return false
+		if local.get("target",{}).get("cell",[])!=binding.retreat_target or local.target.get("kind")!="floor" or int(local.target.get("floor_id",-1))!=int(actor.location.floor_id): return false
+		var service: Dictionary=_waiting_contact_exit(space,world,connection,int(actor.location.floor_id))
+		if not service.ok: return false
+		var prefix: Array=movement.route_waypoint.prefix
+		var previous: Vector2=ConvoyTrail.point(binding.origin) if prefix.size()==1 else ConvoyTrail.point(prefix[-2].cell)
+		var endpoint: Vector2=ConvoyTrail.point(prefix[-1].cell)
+		if _release_stop_rect(space,actor,endpoint,endpoint-previous).intersects(service.rect,false): return false
+		var start: Vector2=ConvoyTrail.point(root.location.cell)
+		var next: Vector2=space.movement._step_toward(start,ConvoyTrail.point(binding.retreat_target),space.walking_speed(root)*WorldState.TICK_SECONDS)
+		if next==start: return false
+		var sample: Dictionary=root.duplicate();sample.facing=atan2(next.x-start.x,next.y-start.y)
+		var body: Rect2=space._actor_rect(actor,ConvoyTrail.point(actor.location.cell))
+		return BodySweep.intersects(space._actor_rect(root,start),space._actor_rect(sample,next),body,body)
+	if binding.has("selected_id"):
+		var selected: Dictionary=world.facts.moves.get(binding.selected_id,{})
+		var body: Dictionary=world.facts.actors.get(binding.selected_id,{})
+		if not binding.has("waiting_ticket") or body.get("location",{}).get("kind")!="floor" or body.get("posture")!="standing" or body.has("support_facility_id") or float(body.location.get("height_m",0))!=0 or int(body.location.floor_id)!=int(actor.location.floor_id): return false
+		if selected.has("convoy") or selected.get("members",[binding.selected_id])!=[binding.selected_id]: return false
+		return connection.phase=="idle" and int(connection.floor_id)==int(actor.location.floor_id) and connection.get("assigned_actor_id","")==binding.selected_id and selected.get("request_sequence",-1)==binding.selected_request and selected.get("transit_ticket",{}).get("sequence",-1)==binding.selected_ticket and _ticket_valid(space,world,selected)
+	return int(connection.get("trip_sequence",-1))==int(binding.trip_sequence) and int(connection.to)==int(actor.location.floor_id) and _landing_in_use(connection,int(actor.location.floor_id))
 
 # Shape only; current static legality is checked at dispatch and real motion.
 static func _release_prefix_shape(origin: Vector2, points: Array, distance: float) -> bool:

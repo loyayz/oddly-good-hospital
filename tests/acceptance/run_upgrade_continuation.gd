@@ -75,6 +75,7 @@ func _run() -> void:
 	var fact_log:=FileAccess.open(directory+"/phase-facts.ndjson",FileAccess.WRITE)
 	fact_log.store_line(JSON.stringify(_phase_facts()))
 	var partial_restored: bool=false
+	var first_arrival_saved: bool=false
 	var steps: int=0
 	var work: int=0
 	var stop_reason: String="original_tick7633_limit"
@@ -91,6 +92,13 @@ func _run() -> void:
 			ordered.store_line(JSON.stringify({"tick":tick.sim_tick,"events":es}))
 			o=w.facts.maintenance.upgrades[ORDER]
 			var delta: int=previous-int(o.remaining_milli);work+=delta
+			# Log the first observable full-step work-cell boundary, without queries.
+			var arrival_location: Dictionary=w.facts.actors.get(working_actor,{}).get("location",{})
+			var observed_at_work_cell: bool=arrival_location.get("kind","")=="floor" and int(arrival_location.floor_id)==int(o.work_floor) and Vector2(float(arrival_location.cell[0]),float(arrival_location.cell[1])).distance_to(Vector2(float(o.work_cell[0]),float(o.work_cell[1])))<0.001
+			if not first_arrival_saved and observed_at_work_cell:
+				_save("first-observed-work-cell")
+				_json("first-observed-work-cell.json",{"tick":w.sim_tick,"worker_id":working_actor,"remaining_milli":int(o.remaining_milli),"step_work_milli":delta,"cumulative_work_milli":work,"positive_work_already_observed":work>0,"scope":"First observed full-step work-cell position; may already include actual work, not necessarily a before-work boundary"})
+				first_arrival_saved=true
 			if delta>0:
 				var loc: Dictionary=w.facts.actors.get(working_actor,{}).get("location",{})
 				checks.actual_attendance_for_work=checks.actual_attendance_for_work and loc.get("kind","")=="floor" and int(loc.floor_id)==int(o.work_floor) and Vector2(float(loc.cell[0]),float(loc.cell[1])).distance_to(Vector2(float(o.work_cell[0]),float(o.work_cell[1])))<0.001

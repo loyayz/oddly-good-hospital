@@ -1,0 +1,555 @@
+{
+  "actual-one-validation": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/validate_zero.gd",
+      "--",
+      "validate",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/actual-one-validation",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/actual-one01/final.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/actual-one01/final.bin",
+        "sha256": "31febd374bd555773f2887a98d43b58e69284c007d5ea68f305ffe839b81e2e9",
+        "bytes": 6708060
+      }
+    ]
+  },
+  "actual-one01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/observe_one.gd",
+      "--",
+      "observer",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/actual-one01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+        "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166",
+        "bytes": 6624892
+      }
+    ]
+  },
+  "budget01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic_budget.gd",
+      "--",
+      "budget",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/budget01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "generated fixture; historical input field is an unused reference argument",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    },
+    "generated_named_boundaries": {
+      "actual-generic-pending.bin": {
+        "sha256": "4e991811fcfe7f652037aa7c5f4cee1135d41461452b411439c01c385c6bed50",
+        "bytes": 66936
+      },
+      "actual-ticket-parked.bin": {
+        "sha256": "86bdc06d0d3e91e4237ae4a41953a03866d81d180aaf86d42bc1341356c686c8",
+        "bytes": 61404
+      },
+      "budget-pre.bin": {
+        "sha256": "eca7a38bd84ec6564c6b6d0fb7b2896e78185a77ee3705a00d9443b470edd4c6",
+        "bytes": 105924
+      },
+      "preWorld.bin": {
+        "sha256": "c41255a99e0fe90b80b8f7e2384c4bbd6542b5b9e1426917873b3bd8d3723eb0",
+        "bytes": 64092
+      },
+      "retreat-declaration-before.bin": {
+        "sha256": "d9519da2539ad0d3c8a7dd608ef64af70a80a8bff0dca37967ad52b314aa3b0b",
+        "bytes": 63888
+      }
+    }
+  },
+  "convoy01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/convoy_compat.gd",
+      "--",
+      "guards",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/convoy01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "generated fixture; historical input field is an unused reference argument",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    },
+    "generated_named_boundaries": {
+      "convoy-preWorld.bin": {
+        "sha256": "f06277c83c252224f6736b8fbd78361b38f2439070b5ab9d19631517be4e4d8e",
+        "bytes": 13720
+      }
+    }
+  },
+  "corner01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/omitted_corner_zero.gd",
+      "--",
+      "geometry",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/corner01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+        "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166",
+        "bytes": 6624892
+      }
+    ]
+  },
+  "edges01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic_edges.gd",
+      "--",
+      "edges",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/edges01",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic01/actual-generic-pending.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic01/actual-generic-pending.bin",
+        "sha256": "3f763a950ffd20dd985c946cf9009384707a6480c9b88db2084be44232bf6e7b",
+        "bytes": 19080
+      }
+    ]
+  },
+  "generic-rejection01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/observe_one.gd",
+      "--",
+      "observer",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic-rejection01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+        "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166",
+        "bytes": 6624892
+      }
+    ]
+  },
+  "generic01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic_declared.gd",
+      "--",
+      "generic",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "generated fixture; historical input field is an unused reference argument",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    },
+    "generated_named_boundaries": {
+      "actual-generic-pending.bin": {
+        "sha256": "3f763a950ffd20dd985c946cf9009384707a6480c9b88db2084be44232bf6e7b",
+        "bytes": 19080
+      },
+      "actual-ticket-parked.bin": {
+        "sha256": "4fcdb0fb1ca58889c86f049e1cded5dfda4e4b3c0d6f8d450416118c3093af3f",
+        "bytes": 14316
+      },
+      "preWorld.bin": {
+        "sha256": "1a3c045b7a3d1e68d44e75cfd671d55294b1b47aaf1718061f1b0622b82c42e7",
+        "bytes": 17004
+      },
+      "retreat-declaration-before.bin": {
+        "sha256": "b79b729fd497e07bd10d9030b6bd72ef319805763ff67a5823357efa81b6e4bd",
+        "bytes": 16800
+      }
+    }
+  },
+  "geometry01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/geometry_zero.gd",
+      "--",
+      "geometry",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/geometry01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+        "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166",
+        "bytes": 6624892
+      }
+    ]
+  },
+  "incoming-ticket01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/incoming_ticket_compat.gd",
+      "--",
+      "ticket",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/incoming-ticket01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "generated fixture; historical input field is an unused reference argument",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    },
+    "generated_named_boundaries": {
+      "actual-ticket-parked.bin": {
+        "sha256": "79c6ed9f0562fc80a63872018b644c4263537d551c1618cd43f091be83687d49",
+        "bytes": 17020
+      },
+      "preWorld.bin": {
+        "sha256": "143faf0255ea6df6bfb0a1b8f891bdade2331b215446f54e256980ff3aed54da",
+        "bytes": 19708
+      },
+      "retreat-declaration-before.bin": {
+        "sha256": "eb02aab75fdcdcfb9b0f8fc333fde3e7c35d3e50ef4a38a6e5af9581f7d74b44",
+        "bytes": 19504
+      }
+    }
+  },
+  "incoming01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/incoming_compat.gd",
+      "--",
+      "incoming",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/incoming01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/continuation01/final.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/continuation01/final.bin",
+        "sha256": "2991f379d1f1fb8eb7c4ca34eb255e9081ba76f8605f3e869f116a2056ba86f6",
+        "bytes": 5763368
+      }
+    ]
+  },
+  "natural01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic_flow.gd",
+      "--",
+      "natural",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/natural01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "generated fixture; historical input field is an unused reference argument",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    },
+    "generated_named_boundaries": {
+      "preWorld.bin": {
+        "sha256": "6c245fdcd0d0fece7aee8ea90a85bd939391b9849c987b6b5b65d46ad4e56204",
+        "bytes": 13736
+      }
+    }
+  },
+  "parse01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/observe_one.gd",
+      "--check-only"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "parser only; no World input consumed",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    }
+  },
+  "selected01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/selected_compat.gd",
+      "--",
+      "nurse",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/selected01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "generated fixture; historical input field is an unused reference argument",
+    "reference_argument": {
+      "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+      "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+    },
+    "generated_named_boundaries": {
+      "actual-pending.bin": {
+        "sha256": "1a479e90831f37cf8e6b7c2ec64d3ddc86bfd6f74abced1a83548167b9bbad17",
+        "bytes": 25048
+      },
+      "actual-published.bin": {
+        "sha256": "00ee2f38882b7c1daa478df9d0b59052b5280d2bb52f1d11d29e0db97a797513",
+        "bytes": 22980
+      },
+      "declaration-after.bin": {
+        "sha256": "e8ce8a276b6b09d60461ca6b5bb64af7ab1e088c8d3f121ba41cb05edbf1e2d0",
+        "bytes": 25700
+      },
+      "declaration-before.bin": {
+        "sha256": "a9a77da6d13dd0a555b9ffb57dcf90825da6175085d8931b56bf05dbd760ade0",
+        "bytes": 22324
+      },
+      "generated-before-initialization.bin": {
+        "sha256": "f01f9d940f6224e25c0d9af8c8e232634cfa5d2fb4a76a76240e819abfba12f5",
+        "bytes": 13100
+      },
+      "preWorld.bin": {
+        "sha256": "cd47e722f9a80b9d0cb58a7f7937a105870172cf2bd97a43d70daf0f5a73cd1d",
+        "bytes": 15904
+      }
+    }
+  },
+  "table01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/stage_table.gd",
+      "--",
+      "table",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/table01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/prefix-edges05/pending.bin",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic01/actual-generic-pending.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "locked_files_note": "root-stage native path in locked_files is historical locked metadata; actual project native above was independently hashed before each run.",
+    "input_kind": "read actual binary inputs",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/prefix-edges05/pending.bin",
+        "sha256": "cf5578b196bba42c89341efe1d640f7ad9fca6dbf089483ccf2dc8f855581fea",
+        "bytes": 5769624
+      },
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/generic01/actual-generic-pending.bin",
+        "sha256": "3f763a950ffd20dd985c946cf9009384707a6480c9b88db2084be44232bf6e7b",
+        "bytes": 19080
+      }
+    ]
+  },
+  "fixed32-parse01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/observe_32.gd",
+      "--check-only"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "input_kind": "parser only; no input read",
+    "actual_read_inputs": [],
+    "locked_files_note": "Historical root-stage native metadata is not the actual project native; actual native separately checked."
+  },
+  "fixed32-plain01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/observe_32.gd",
+      "--",
+      "plain",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/fixed32-plain01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "input_kind": "read actual complete binary input",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+        "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166",
+        "archived_equivalent": "fixed32-plain01/expected.bin",
+        "archived_sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+      }
+    ],
+    "locked_files_note": "Historical root-stage native metadata is not the actual project native; actual native separately checked."
+  },
+  "fixed32-observer01": {
+    "command": [
+      "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+      "--headless",
+      "--path",
+      "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "--script",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/observe_32.gd",
+      "--",
+      "observer",
+      "/workspace/scratch/6962cc21ddf3/transit-contact-owner-stage2-20261112/fixed32-observer01",
+      "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin"
+    ],
+    "actual_project_native": {
+      "path": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112/game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+      "sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379"
+    },
+    "input_kind": "read actual complete binary input",
+    "actual_read_inputs": [
+      {
+        "path": "/workspace/scratch/6962cc21ddf3/upgrade-summon-boundary-stage2-20261112/plain32/tick-7658-world.bin",
+        "sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166",
+        "archived_equivalent": "fixed32-observer01/expected.bin",
+        "archived_sha256": "bcd8d9edb7516a26dd7a8686e1c8fb5c6f302e496c5e9894ec35022bc1d17166"
+      }
+    ],
+    "locked_files_note": "Historical root-stage native metadata is not the actual project native; actual native separately checked."
+  }
+}
