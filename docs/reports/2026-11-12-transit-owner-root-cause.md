@@ -37,3 +37,13 @@
 ## 原始证据
 
 [否决探索原始包](evidence/2026-11-12-upgrade-handoff/stage6-rejected-exploration.zip)，1,768,299字节，49项，SHA256 `0d0781da277ad919ce60681a7a6bb92e218860b2a45bed484455266d658b4e3a`。含两次parser、flow01/02全部完整World/events/frames、精确源码与SHA、命令/状态/耗时、安全白名单host原值及否决原因。[逐成员清单](evidence/2026-11-12-upgrade-handoff/stage6.members.json)、[汇总](evidence/2026-11-12-upgrade-handoff/stage6.summary.json)。CRC和全部成员SHA已本地校验，发布后须再实际下载核验。没有采集挂载或cgroup身份映射，没有改写任何模拟结果。
+
+## 零步事实复核与因果更正
+
+后续只解码flow02已经保存的handoff/frames，没有再推进模拟或增加业务查询。276的预选点是[88,45]，计划前缀为[88,44]→[88,45]，但15步中没有到达该点。7635它已经转入普通局部退让，目标[86,44]；226也在该帧从原东向临时意图改变为西向。之后两个身体真实向西移动，7648下客完成时276仍在[86.599991,44]。
+
+因此，初版的15步解环依赖于随后既有floor局部避让连锁，**不能证明预选清退路径已执行成功，也不能声称226的临时退让意图全程不变**。原断言仅检查首步意图保持，原request/job/最终目标与冷恢复相等仍是已验证事实。当前frames未记录当时的MotionResult/返回分支，不能仅凭方向改变断言违规或认定具体接触原因；临时意图是否可变应依据真实接触规则，不能把意图当空间承诺。
+
+同样，未来下客footprint或另一演员打算走的走廊不是自动预约，不得为新修复发明全程禁入或重叠单调下降规则。候选终点须合格，真实每步仍核验完整身体、门、有效预约和已接受扫掠。无合法有限策略只说明该策略暂无解，不表示医院静态无路。
+
+[零步解码增量包](evidence/2026-11-12-upgrade-handoff/stage6-geometry-decode.zip)：117185字节、16项，SHA256 `3e4438c10aa6a795a5539bde0313cf1eecc6ad390da57cd33b829321af1197f8`。[成员清单](evidence/2026-11-12-upgrade-handoff/stage6.geometry.members.json)、[原始发现说明](evidence/2026-11-12-upgrade-handoff/stage6.geometry.findings.md)。原二进制来源保留在前一阶段包，解码源码、输入SHA、原输出、进程/身份及安全host元数据完整保留。两生产文件已从已备份探索精确恢复至正式HEAD，尚未实施新机制。
