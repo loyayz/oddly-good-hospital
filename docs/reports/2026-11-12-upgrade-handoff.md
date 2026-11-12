@@ -65,3 +65,15 @@ host采集新wrapper只读取CPU/内存/affinity/固定配额统计；node仅SHA
 - parser06与observe8-01均exit0，进程reaped。最终runner相对stage1仅新增两个直接观察函数与一个mode分支，逆变换后旧方法逐字相同；未改变此前升级/settle/compat逻辑。生产SHA不变，全部663 UID不变。stage1.zip未覆盖；增量完整包包含该不可变阶段备份及本次原始结果。
 
 [完整阶段包](evidence/2026-11-12-upgrade-handoff/stage2-observation.zip)：7688595字节，175项，SHA256 `48120f3a97d4f35d2f06b66cc0262f6435235e61d886ad9779bf278a257ea9fb`；[清单](evidence/2026-11-12-upgrade-handoff/stage2.members.json)、[阶段1汇总](evidence/2026-11-12-upgrade-handoff/stage1.summary.json)、[8步汇总](evidence/2026-11-12-upgrade-handoff/observe8.summary.json)。内含不可变stage1.zip（SHA927eff463edb0325eac7a2a27c28ed7a2581389e9bc9d8ff2d802c3d4c971313）。最新runner SHA256 `440540b3b325ff51098005cfffa9e8e302963b4f5c9d29adcf62190c5c0cfe59`。本地CRC/逐成员SHA通过；生产修复独立只读复核无提交阻碍，升级未完成边界不变。
+
+## 已授权有限续接计划
+从已读回备份的4046完整World冷恢复，先核所有事实与420支付/30000余量原样。不重复任何命令，不改目标、负载、步长或业务。每步轻量直接记录226原request/local/票、lift、订单，保存有序事件。最多3587步至原固定7633，升级完成即停；真实首次部分施工发生才保存并冷恢复核全等，明确记录恢复。异常立即停存，不在运行中改源码；不是新性能窗。
+
+## 原预算剩余3587步续接结果：升级仍未完成
+- 经stage2远端175项CRC/SHA读回后，按授权从4046完整事实冷恢复；所有World/RNG精确等于输入，原upgrade225/420材料账目/30000余量原样。新独立runner不改已发布父runner或生产，commands.json为空，未重复提交任何命令。
+- 正式全World .1s步进3587次，严格止于7633；133.589145秒功能进程，exit1，reaped，无timeout。保存3588帧逐步worker/request/local/ticket/lift/order直接事实、3587组按tick有序事件、完整起终World以及初始命令/账目依据。不是额外性能窗或原热史连续运行。
+- 终态仍travelling：226在1F[86.3999939,44]，目标2F[73,71]；remaining30000、started=false、工时0、等级0、无完成凭据。材料只原支付420，没有重复付款。原coverage要求≥1ms也未达到，真正升级完成、新病例读等级均不能声称通过。
+- 没有实际开工，部分施工保存恢复没有触发，明确未完成而非通过；actual_attendance_for_work的布尔未失败仅因无工作，不能视为已证明开工到场。未提前升等级、支付不重复、终态合法、原tick上限均通过。没有在运行中改源码、减负载、换目标或强清交通。
+- 完整末态已存，执行已停止、engine空闲，先封不可覆盖阶段3并等待持久备份，不追加重跑/长窗。后续仅按明确诊断证据决定下一步，不能把未到场自动归为死锁。
+
+[阶段3原始包](evidence/2026-11-12-upgrade-handoff/stage3-continuation.zip) 723566字节、29项，SHA256 `41e009f833229c312ecd122de685c2f794c7828b9acc5faaa0a02ba23fd3db14`；[成员清单](evidence/2026-11-12-upgrade-handoff/stage3.members.json)、[续接汇总](evidence/2026-11-12-upgrade-handoff/continuation.summary.json)。本地CRC/逐成员SHA通过。续接完整末态SHA256 `2991f379d1f1fb8eb7c4ca34eb255e9081ba76f8605f3e869f116a2056ba86f6`。

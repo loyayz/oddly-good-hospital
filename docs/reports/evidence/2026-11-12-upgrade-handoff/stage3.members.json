@@ -1,0 +1,142 @@
+[
+  {
+    "path": "continuation-summary.json",
+    "bytes": 3236,
+    "sha256": "28ff4f689b31d6519355c7e01940b2a59dd0779033915232e4d9506ca46bc966"
+  },
+  {
+    "path": "continuation01/commands.json",
+    "bytes": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "path": "continuation01/engine/engine.log",
+    "bytes": 73,
+    "sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+  },
+  {
+    "path": "continuation01/engine/process.json",
+    "bytes": 1635,
+    "sha256": "41f77a10c66c00e4611cdcd0069df877c7c65eea0b7a636032e18c3b6d393443"
+  },
+  {
+    "path": "continuation01/final.bin",
+    "bytes": 5763368,
+    "sha256": "2991f379d1f1fb8eb7c4ca34eb255e9081ba76f8605f3e869f116a2056ba86f6"
+  },
+  {
+    "path": "continuation01/host-after.json",
+    "bytes": 3543,
+    "sha256": "332910164d9b84f8cd24184bf2eb240e2327bad7cffea0d8e0bddf4aca10812e"
+  },
+  {
+    "path": "continuation01/host-before.json",
+    "bytes": 3543,
+    "sha256": "e7798d89615179dab2636d2c48a02bce015bcdaf66f82e47743dcec711129811"
+  },
+  {
+    "path": "continuation01/identity.json",
+    "bytes": 2210,
+    "sha256": "d0a76b8ae4b71ed4f479c38fa0c5e5928c97df10fa777d9f8163145f443a5228"
+  },
+  {
+    "path": "continuation01/initial-commitments.json",
+    "bytes": 46949,
+    "sha256": "0a871c8e6585f3aff1c0aa6f28359450d98e5efefbf4ce4f1d062ab1a288107f"
+  },
+  {
+    "path": "continuation01/ordered-events.ndjson",
+    "bytes": 492840,
+    "sha256": "b2566eedb85f34911cd48e3045b358a62c8eb79e763e5adaa82f2f9f86778ab8"
+  },
+  {
+    "path": "continuation01/phase-facts.ndjson",
+    "bytes": 7385705,
+    "sha256": "a4bf59bc03dcf83cd45742c20ffe7b96613e5520f4dd6975a971cdcf540f2275"
+  },
+  {
+    "path": "continuation01/progress.json",
+    "bytes": 2989,
+    "sha256": "167019cc36a912db584a6ffff960620ad047709c7782c9f4d1a66713decc6ddf"
+  },
+  {
+    "path": "continuation01/result.json",
+    "bytes": 1895,
+    "sha256": "955ca42d4f106d8101a10cd25557bc11d47d030c48d4ab43e6794bb251c7a05b"
+  },
+  {
+    "path": "continuation01/start.bin",
+    "bytes": 5919528,
+    "sha256": "964698a71036e34c5000b0ea4aa0035e2d875ba572bfc204564ce67811dac6fb"
+  },
+  {
+    "path": "continue-parse01/engine/engine.log",
+    "bytes": 73,
+    "sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+  },
+  {
+    "path": "continue-parse01/engine/process.json",
+    "bytes": 1468,
+    "sha256": "05c68b6d403b5cc5aa1f5e09d1fe57ccd84e499e004505969ee1676474880fb7"
+  },
+  {
+    "path": "continue-parse01/host-after.json",
+    "bytes": 3543,
+    "sha256": "8b518a49131e1ed80a40e6ac594b539e2d68bf3cbbe973ea97d1acc8dc7c8dd4"
+  },
+  {
+    "path": "continue-parse01/host-before.json",
+    "bytes": 3543,
+    "sha256": "584441502fef7a674741fa752f9a0230d1aed058fcda4747bfd5294f915c5952"
+  },
+  {
+    "path": "continue-parse01/identity.json",
+    "bytes": 2210,
+    "sha256": "d0a76b8ae4b71ed4f479c38fa0c5e5928c97df10fa777d9f8163145f443a5228"
+  },
+  {
+    "path": "stage2.durable-receipt.json",
+    "bytes": 462,
+    "sha256": "9e653069e705f6c7fd375ddea7c1f1de6b99b6a8878bfc607e73a2a17ece60ad"
+  },
+  {
+    "path": "stage3-source/docs/reports/2026-11-12-upgrade-handoff.md",
+    "bytes": 13981,
+    "sha256": "ad09556ba106bfcbbb66fdfd70af29db461eabbf6eb7783b5135f37257c1acdc"
+  },
+  {
+    "path": "stage3-source/game/clinic/clinical_runtime.gd",
+    "bytes": 158761,
+    "sha256": "ccd4751e5110f959d2b78fa670fda88acc0cc092cc85ec4d9838bee8a49f0ca1"
+  },
+  {
+    "path": "stage3-source/lifecycle_guard.py",
+    "bytes": 2114,
+    "sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7"
+  },
+  {
+    "path": "stage3-source/package.py",
+    "bytes": 5160,
+    "sha256": "88856460fa22fe22cc3516892b108b1815b83fef6795358a239504d2353ed1ab"
+  },
+  {
+    "path": "stage3-source/run_continuation.py",
+    "bytes": 2191,
+    "sha256": "8d6b4d0ee1def6e8f5d0911b78d3cfef3fd7d84d66afbbb40a40a43c7e8a5923"
+  },
+  {
+    "path": "stage3-source/tests/acceptance/run_upgrade_continuation.gd",
+    "bytes": 5199,
+    "sha256": "66b0a3c635744085e25305ff63f2f5f70ebc01bd0b13e7ebe0d7768ee9f5deb6"
+  },
+  {
+    "path": "stage3-source/tests/acceptance/run_upgrade_handoff.gd",
+    "bytes": 20972,
+    "sha256": "440540b3b325ff51098005cfffa9e8e302963b4f5c9d29adcf62190c5c0cfe59"
+  },
+  {
+    "path": "uid-before.json",
+    "bytes": 81127,
+    "sha256": "99b308989c732b884bd9d77a32ec44bb6116be3fd91aa29239a716cd13a28162"
+  }
+]
