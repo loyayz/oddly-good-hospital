@@ -1,0 +1,402 @@
+{
+  "archive": "mixed-b03-unqualified.zip",
+  "archive_sha256": "b809f33c3a9161de48cd66a8e386bb3db3009e051fd16e7e15284f6a534c661b",
+  "archive_bytes": 1623001,
+  "member_count": 57,
+  "summary": "mixed-b03-summary.json",
+  "summary_sha256": "a52eb76bcda8629ebcddb54c003f65b6ea146f000818bd609747f25b6eb41da2",
+  "members": {
+    "batch/protocol.json": {
+      "bytes": 318920,
+      "sha256": "f951bc394affef49189fd5ee578485f8c87b461a3b41856550aa904ae889c024",
+      "crc32": "6847227d",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/protocol.json"
+    },
+    "batch/status.json": {
+      "bytes": 71,
+      "sha256": "c30abaa5ab38f1a3809cb2e7269b3720e5e2436b16d3f867b8b3cb59be212880",
+      "crc32": "620a1a01",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/status.json"
+    },
+    "batch/summary.json": {
+      "bytes": 383991,
+      "sha256": "a8b844765e784dac1cddfa2aa4c459f2c6bc57130c36ba5e7655ffe0fb4fe4e6",
+      "crc32": "3cfb1cd7",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/summary.json"
+    },
+    "controller/run_candidate03_plain_batch.py": {
+      "bytes": 18332,
+      "sha256": "8e40898190dd29d148cf8e0150504ade2b75aa58e9c335505ce7b2ed8d0aa627",
+      "crc32": "0155fc15",
+      "source": ".cache/run_candidate03_plain_batch.py"
+    },
+    "freeze/freeze.json": {
+      "bytes": 573212,
+      "sha256": "bc0c6f516e0772af07761158b50597aa4cca0ecb729902b5d2ad8038ecf5e957",
+      "crc32": "80bc7150",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/freeze.json"
+    },
+    "freeze/freeze.py": {
+      "bytes": 13176,
+      "sha256": "9bf3fd17a0071777a49aa8d70c6385c708b9a72b5c0c3cc539013cbfe05cf4bc",
+      "crc32": "2b5a62a8",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/freeze.py"
+    },
+    "freeze/profiler-authority.json": {
+      "bytes": 17648,
+      "sha256": "d6a5c5537beecc979cc5cfb6a3e33b045704956875140807ba5c790a15731653",
+      "crc32": "52d17dc1",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/profiler-authority.json"
+    },
+    "freeze/source-identity.json": {
+      "bytes": 406140,
+      "sha256": "5ccadf9a7b02aaf4adb47c3e94cdb8d75e1cc070a0b30a809c85cf989d4a0a3f",
+      "crc32": "2f96c420",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/source-identity.json"
+    },
+    "freeze/source-inventory.json": {
+      "bytes": 143893,
+      "sha256": "a9c9831ee85ce7e6c57aa29f5592a1c05bbbba2c22458627b9c0f630cce69fe7",
+      "crc32": "a7a9d3f4",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/source-inventory.json"
+    },
+    "frozen-tools/campaign160.py": {
+      "bytes": 14742,
+      "sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+      "crc32": "7715ab89",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/tools/performance/current/campaign160.py"
+    },
+    "frozen-tools/comprehensive_observer.gd": {
+      "bytes": 26560,
+      "sha256": "cfe20062e11d8712c100b49e8e265a129ceb5459fe08e0329e0c5b7c547dfaf4",
+      "crc32": "62cca8a1",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/tools/performance/current/comprehensive_observer.gd"
+    },
+    "frozen-tools/comprehensive_operations.gd": {
+      "bytes": 3070,
+      "sha256": "1416ee8ce683971360ea4ffaefb35bdc2f2dfdb1ac3b8cebe5bf559c108422b2",
+      "crc32": "63795ff9",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/tools/performance/current/comprehensive_operations.gd"
+    },
+    "frozen-tools/parse_builtin_script_profile.py": {
+      "bytes": 5576,
+      "sha256": "635c7840023a86b2997d8fa1f3976f31f5b686c7e9635ac18b600c668df64412",
+      "crc32": "8766d8ed",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/tools/performance/current/parse_builtin_script_profile.py"
+    },
+    "frozen-tools/plain_v4.gd": {
+      "bytes": 16782,
+      "sha256": "a6ca441d0bc67153673adf5279ea2b100286b4834f9cceeb7907cb21acfc5506",
+      "crc32": "268136e9",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/tools/performance/current/plain_v4.gd"
+    },
+    "frozen-tools/prepare_builtin_script_profile.py": {
+      "bytes": 28043,
+      "sha256": "be80085f988041bc300a16899f5a8310495737d6712b7eaa728f70051a034d04",
+      "crc32": "08c73a06",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/project/tools/performance/current/prepare_builtin_script_profile.py"
+    },
+    "packaging/archive-script.py": {
+      "bytes": 16774,
+      "sha256": "1121ea92fd3b3dbdc01c20bac1a3ebdd67758f88d79eadb2adf859d32bee8156",
+      "crc32": "5dd873c1",
+      "source": ".cache/archive_mixed_b03.py"
+    },
+    "packaging/baseline-path-archive-script.py": {
+      "bytes": 16613,
+      "sha256": "4365048413356ad8e283308c28bcf643b83a354d4972a1f3a45bed1be762a0d0",
+      "crc32": "02a67b46",
+      "source": ".cache/archive_mixed_b03_schema02.py"
+    },
+    "packaging/baseline-path-error.json": {
+      "bytes": 503,
+      "sha256": "21925bb14204adaefe07466ac850d9e51f7cfc3bbc70567ac0a06f567c342c61",
+      "crc32": "d52ce84e",
+      "source": ".cache/archive_mixed_b03_schema02_error.json"
+    },
+    "packaging/initial-archive-script.py": {
+      "bytes": 15954,
+      "sha256": "845b2bd8197510e49b46c6a2dd40b08e452db2abc170510444896879996fe8f2",
+      "crc32": "452aac85",
+      "source": ".cache/archive_mixed_b03_schema01.py"
+    },
+    "packaging/initial-schema-error.json": {
+      "bytes": 424,
+      "sha256": "3ee0e731c08a66540d2641240a7a794f13f5d4dc78320502dc9e5340f5858809",
+      "crc32": "220f542a",
+      "source": ".cache/archive_mixed_b03_schema01_error.json"
+    },
+    "summary.json": {
+      "bytes": 23029,
+      "sha256": "a52eb76bcda8629ebcddb54c003f65b6ea146f000818bd609747f25b6eb41da2",
+      "crc32": "4d6e400d",
+      "source": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-b03-summary.json"
+    },
+    "tasks/mixed-r1/checked-result.json": {
+      "bytes": 70877,
+      "sha256": "1943bc2cda7c954b57990216304d5a800f9fb27ad2c037d571b5e8f2a0914027",
+      "crc32": "fd169b8f",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/checked-result.json"
+    },
+    "tasks/mixed-r1/engine.log": {
+      "bytes": 9098,
+      "sha256": "2813cdf092bcb7cc82945ac0e7a230c25d3df8502f68268ea27509be8539b3e5",
+      "crc32": "2b9bfbdc",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/engine.log"
+    },
+    "tasks/mixed-r1/process.json": {
+      "bytes": 2040,
+      "sha256": "5b3de988578a357a9aeb59f64224ad47501b39bd88f020133cc318367b520329",
+      "crc32": "c5030291",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/process.json"
+    },
+    "tasks/mixed-r1/r1.json": {
+      "bytes": 138722,
+      "sha256": "ee7a1681589a0a9dffe277ffa438e8ad8e35b437e94fdc06c11411cb4608c379",
+      "crc32": "be2bb391",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/r1.json"
+    },
+    "tasks/mixed-r1/r1.json.execution.json": {
+      "bytes": 2143,
+      "sha256": "fb9039c09cece602a168c978c24102ee3dcb45b2e529dc1b5a0bb0a4d2d79cb2",
+      "crc32": "23140bfa",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/r1.json.execution.json"
+    },
+    "tasks/mixed-r1/r1.json.initial.json": {
+      "bytes": 10727,
+      "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7",
+      "crc32": "c7318a35",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/r1.json.initial.json"
+    },
+    "tasks/mixed-r1/r1.json.steps.ndjson": {
+      "bytes": 1270123,
+      "sha256": "12ba41d05cb2bdddcc8e9605919b4cf9a8e85fb13aa007186cae98692590027f",
+      "crc32": "1db4ad51",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r1/r1.json.steps.ndjson"
+    },
+    "tasks/mixed-r2/checked-result.json": {
+      "bytes": 70879,
+      "sha256": "67b1553687a11962c72fe1c4415d775abe9429115955c85e088c0870a31a211f",
+      "crc32": "505bdcb8",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/checked-result.json"
+    },
+    "tasks/mixed-r2/engine.log": {
+      "bytes": 9096,
+      "sha256": "b5d09483ae2aca5bb5bac163b6837367cc3e39b1559e0432b0b6c4b69eb7d1d0",
+      "crc32": "8badf1c8",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/engine.log"
+    },
+    "tasks/mixed-r2/process.json": {
+      "bytes": 2040,
+      "sha256": "6df8c44d73a2661a3eba39c723f504c6a36892bd940b677bbb273a0fe5dcadc3",
+      "crc32": "830d4f47",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/process.json"
+    },
+    "tasks/mixed-r2/r1.json": {
+      "bytes": 138724,
+      "sha256": "3f070e12c23d4501686934277eb4514cf4adc8277925a678cde9942ca0192ab7",
+      "crc32": "c167aaeb",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/r1.json"
+    },
+    "tasks/mixed-r2/r1.json.execution.json": {
+      "bytes": 2143,
+      "sha256": "c47e93e865f706926bc1967098096f1618b57f436596aebf7b835efd297fc1a9",
+      "crc32": "00942012",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/r1.json.execution.json"
+    },
+    "tasks/mixed-r2/r1.json.initial.json": {
+      "bytes": 10727,
+      "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7",
+      "crc32": "c7318a35",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/r1.json.initial.json"
+    },
+    "tasks/mixed-r2/r1.json.steps.ndjson": {
+      "bytes": 1269887,
+      "sha256": "c45c321973fd6a17b07e11b48ebe53ef26b94f6e0bb2ee28971e07533daf7e74",
+      "crc32": "a7ff979b",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r2/r1.json.steps.ndjson"
+    },
+    "tasks/mixed-r3/checked-result.json": {
+      "bytes": 70890,
+      "sha256": "9c90b3320bd7d5c24b0e8da3480f4d556c4516f534f6216cc3b435238dcb9d9b",
+      "crc32": "3efab0ad",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/checked-result.json"
+    },
+    "tasks/mixed-r3/engine.log": {
+      "bytes": 9094,
+      "sha256": "81c5b49c0f606ea3407ff0157c429f68d66f38a4e028f74d38680bcd9fbd3352",
+      "crc32": "88616fb4",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/engine.log"
+    },
+    "tasks/mixed-r3/process.json": {
+      "bytes": 2039,
+      "sha256": "774f4e84e09b66adc19bd0552d487b33b481defd380dd82d5dca62fd5d71e9e0",
+      "crc32": "1ec3236c",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/process.json"
+    },
+    "tasks/mixed-r3/r1.json": {
+      "bytes": 138736,
+      "sha256": "c67280936266480bab06f6703870d7411b157677094bb51a5f5b750d332cb5cb",
+      "crc32": "489bdf32",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/r1.json"
+    },
+    "tasks/mixed-r3/r1.json.execution.json": {
+      "bytes": 2143,
+      "sha256": "7c5f0e3855dc633b2891032db28fd789d4faee633623d6398b0d9b0873910266",
+      "crc32": "0266213f",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/r1.json.execution.json"
+    },
+    "tasks/mixed-r3/r1.json.initial.json": {
+      "bytes": 10727,
+      "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7",
+      "crc32": "c7318a35",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/r1.json.initial.json"
+    },
+    "tasks/mixed-r3/r1.json.steps.ndjson": {
+      "bytes": 1269810,
+      "sha256": "a25e9fe287e3baa55afa969b6efcb2638b6fd26e02360bb7b73c5b945c0bd944",
+      "crc32": "e68100a0",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/mixed-r3/r1.json.steps.ndjson"
+    },
+    "tasks/smoke-mixed/checked-result.json": {
+      "bytes": 65339,
+      "sha256": "d73aa0c950b17304a47b9409715b260f7b928f9071b39aa40b825afce9a36f03",
+      "crc32": "bd79d371",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/checked-result.json"
+    },
+    "tasks/smoke-mixed/engine.log": {
+      "bytes": 354,
+      "sha256": "b228bc5e87294988ae9a7fa53e0263c70496789f5990a608eeefaa4d9e3ee877",
+      "crc32": "32021420",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/engine.log"
+    },
+    "tasks/smoke-mixed/process.json": {
+      "bytes": 2022,
+      "sha256": "7a468f8fa24d37afc4f5afd58187bb03b2223942ad29cd6b4220780c13b7db1c",
+      "crc32": "ccc78f8f",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/process.json"
+    },
+    "tasks/smoke-mixed/r1.json": {
+      "bytes": 196257,
+      "sha256": "1ec049f8801d253c66f44b6fec5ed2b91e758ca70eba723667e4901f75361299",
+      "crc32": "e4066695",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/r1.json"
+    },
+    "tasks/smoke-mixed/r1.json.execution.json": {
+      "bytes": 2318,
+      "sha256": "10e7d838ff7364aa9ba656e4abe10c18f86da82b3f7219bbbc1b6058e24f3926",
+      "crc32": "718ca701",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/r1.json.execution.json"
+    },
+    "tasks/smoke-mixed/r1.json.initial.json": {
+      "bytes": 10727,
+      "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7",
+      "crc32": "c7318a35",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/r1.json.initial.json"
+    },
+    "tasks/smoke-mixed/r1.json.steps.ndjson": {
+      "bytes": 345,
+      "sha256": "9ec4a631324fa13dfda1b141c34ab0371d16150811578afc6d2639fad58b8935",
+      "crc32": "beeec7af",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-mixed/r1.json.steps.ndjson"
+    },
+    "tasks/smoke-v3/checked-result.json": {
+      "bytes": 65350,
+      "sha256": "9fd158e4b22c61c74cadc31e24fc0f05c6be62270a3714d2bc211ff2335651a9",
+      "crc32": "a260b42a",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/checked-result.json"
+    },
+    "tasks/smoke-v3/engine.log": {
+      "bytes": 354,
+      "sha256": "ada68607486862b4725751c8ab00159fd7c637643c83179b595871fa969602f9",
+      "crc32": "6e56f893",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/engine.log"
+    },
+    "tasks/smoke-v3/process.json": {
+      "bytes": 2018,
+      "sha256": "5d8509a1694a2e009a0c9557b6904d15fc9000d62a72c157ee497fac82f112cc",
+      "crc32": "bc6e2306",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/process.json"
+    },
+    "tasks/smoke-v3/r1.json": {
+      "bytes": 171646,
+      "sha256": "9610aa4fcec1f9421ad4fd448382f2e584b5a7fdedf2359fb5f762b8985c4c7d",
+      "crc32": "5d3dbfd9",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/r1.json"
+    },
+    "tasks/smoke-v3/r1.json.execution.json": {
+      "bytes": 2331,
+      "sha256": "8da87a457a415fcd4414cb386791d7a08b5acec7ea0037eb9f247c58fe412335",
+      "crc32": "11294639",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/r1.json.execution.json"
+    },
+    "tasks/smoke-v3/r1.json.initial.json": {
+      "bytes": 10726,
+      "sha256": "265d0d06e692e2028689470cbc9ff74bab1c1485c2e4e0f2fb16618d793dc012",
+      "crc32": "ecdc780d",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/r1.json.initial.json"
+    },
+    "tasks/smoke-v3/r1.json.steps.ndjson": {
+      "bytes": 345,
+      "sha256": "6c6ff0b6dad2957d514bd712d7c53c8b171ba97fdba50af5f14ece5aa72b2308",
+      "crc32": "048f9c32",
+      "source": ".cache/performance160-clinical-family-20261112-candidate03/plain-batch01/smoke-v3/r1.json.steps.ndjson"
+    },
+    "manifest.json": {
+      "bytes": 18738,
+      "sha256": "5badbeefff3b1a40ddcab64b4b5aa32e9330f8a86361223275abd521995ab37b",
+      "crc32": "02e8a5cd",
+      "source": "generated archive manifest"
+    }
+  },
+  "references": {
+    "input": {
+      "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+      "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+      "member": "qualification/mixed-input01/mixed160.input.bin",
+      "member_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+      "member_bytes": 2220056,
+      "member_crc32": "6b7f7948"
+    },
+    "v3_input": {
+      "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+      "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+      "member": "inputs/original-v3-752924c5.input.bin",
+      "member_sha256": "752924c562f275804cee40cbd2a8760f8f0780cab3276a04330db63a2866e780",
+      "member_bytes": 1908900,
+      "member_crc32": "d18ecaee"
+    },
+    "final": {
+      "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-b01-unqualified.zip",
+      "archive_sha256": "4990bead51f8614dfcdf3d08d8deef5ddda477ae8d90dbc9af7ad15597c7ed0a",
+      "member": "run/r1.json.final.bin",
+      "member_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+      "member_bytes": 6848920,
+      "member_crc32": "51e2ac6f"
+    },
+    "smokes": {
+      "smoke-v3": {
+        "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+        "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+        "member": "qualification/v3-smoke01/r1.json.final.bin",
+        "member_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+        "member_bytes": 1835104,
+        "member_crc32": "d9aba0ff"
+      },
+      "smoke-mixed": {
+        "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+        "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+        "member": "qualification/mixed-smoke01/r1.json.final.bin",
+        "member_sha256": "21aff2546935022312333b67605680c491292575aaa845b07733db993a415a51",
+        "member_bytes": 1915924,
+        "member_crc32": "b8afc148"
+      }
+    }
+  },
+  "verification": {
+    "all_members_sha256_readback": true,
+    "all_members_crc32_readback": true,
+    "zip_crc_test": true
+  },
+  "scope": "Three complete 1000+6000-step plain CPU measurements; each preserves original exit 1, five coverage failures and failed latency targets. Not qualified repetitions, full regression, renderer/GPU or Release acceptance. Current dirty sources and later optimizations are excluded."
+}

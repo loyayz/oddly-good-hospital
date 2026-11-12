@@ -1,0 +1,652 @@
+{
+  "source_commit": "9368fc68cb67760dd8200c60edb0fcacbee395c6",
+  "source_count": 2350,
+  "source_map_sha256": "530a8e452cbaef51cb0071d6c5e0f459c9b3fee735ae4b9ce3fdd5c30218de3a",
+  "stage_identity_sha256": "5ccadf9a7b02aaf4adb47c3e94cdb8d75e1cc070a0b30a809c85cf989d4a0a3f",
+  "freeze_sha256": "bc0c6f516e0772af07761158b50597aa4cca0ecb729902b5d2ad8038ecf5e957",
+  "authority_sha256": "d6a5c5537beecc979cc5cfb6a3e33b045704956875140807ba5c790a15731653",
+  "source_transforms": [],
+  "native": {
+    "libgcc_s_seh-1.dll": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+    "libgmp-10.dll": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+    "libmpfr-6.dll": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+    "libwinpthread-1.dll": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5",
+    "oddly_good_platform.windows.x86_64.dll": "89d4e1db54ca8a52ee2ed7da5b5fdcc1917c0667d172ab89d2fe683bc1767af2"
+  },
+  "engine_executables": {
+    "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643",
+    "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64.exe": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424"
+  },
+  "input_reference": {
+    "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+    "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+    "member": "qualification/mixed-input01/mixed160.input.bin",
+    "member_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+    "member_bytes": 2220056,
+    "member_crc32": "6b7f7948"
+  },
+  "reference_v3_input": {
+    "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+    "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+    "member": "inputs/original-v3-752924c5.input.bin",
+    "member_sha256": "752924c562f275804cee40cbd2a8760f8f0780cab3276a04330db63a2866e780",
+    "member_bytes": 1908900,
+    "member_crc32": "d18ecaee"
+  },
+  "final_reference": {
+    "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-b01-unqualified.zip",
+    "archive_sha256": "4990bead51f8614dfcdf3d08d8deef5ddda477ae8d90dbc9af7ad15597c7ed0a",
+    "member": "run/r1.json.final.bin",
+    "member_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+    "member_bytes": 6848920,
+    "member_crc32": "51e2ac6f"
+  },
+  "scenario": "mixed160-clinical-ops-v1",
+  "main_thread_policy": "app",
+  "worker_tasks": 4,
+  "OMP_NUM_THREADS": "1",
+  "profile_stages": false,
+  "fresh_processes": true,
+  "os_caches_retained": true,
+  "complete_cpu_measurements": 3,
+  "qualified_repeats": 0,
+  "qualified": false,
+  "three_round_cpu_targets_pass": false,
+  "three_round_coverage_pass": false,
+  "cpu_targets": {
+    "sim_step_p95_ms": 10,
+    "sim_step_p99_ms": 15,
+    "sim_step_ordinary_max_ms": 30,
+    "sim_speed_ratio_min": 0.99
+  },
+  "rounds": [
+    {
+      "name": "mixed-r1",
+      "initial_tick": 633,
+      "final_tick": 7633,
+      "prefix_steps": 1000,
+      "sample_steps": 6000,
+      "completed_steps": 7000,
+      "raw_complete": false,
+      "returncode": 1,
+      "qualified": false,
+      "errors": [
+        "Comprehensive workload did not satisfy its business coverage contract"
+      ],
+      "metrics": {
+        "count": 6000,
+        "dense_intervals": {
+          "dense_sample_count": 6000,
+          "has_qualified_segment": true,
+          "minimum_qualified_samples": 1000,
+          "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+          "segments": [
+            {
+              "first_index": 1000,
+              "first_tick": 1634,
+              "last_index": 6999,
+              "last_tick": 7633,
+              "metrics": {
+                "count": 6000,
+                "max_us": 291635,
+                "mean_step_us": 70324.405,
+                "observation_logging_and_loop_wall_us": 37960814,
+                "p50_us": 68513,
+                "p95_us": 98014,
+                "p99_us": 120599,
+                "present_population": {
+                  "maximum": 171,
+                  "median": 166,
+                  "minimum": 165
+                },
+                "real_window_us_including_observation": 459907244,
+                "simulated_seconds": 600.0,
+                "simulation_seconds_per_wall_second": 1.30461089236507,
+                "sum_step_us": 421946430
+              },
+              "sample_count_qualified": true
+            }
+          ],
+          "threshold_present": 144
+        },
+        "first_sample_step_us": 291635,
+        "fresh_runtime_first_prefix_or_sample_step_us": 283329,
+        "max_us": 291635,
+        "mean_step_us": 70324.405,
+        "observation_logging_and_loop_wall_us": 37960530,
+        "p50_us": 68513,
+        "p95_us": 98014,
+        "p99_us": 120599,
+        "present_population": {
+          "maximum": 171,
+          "median": 166,
+          "minimum": 165
+        },
+        "real_window_us_including_observation": 459906960,
+        "simulated_seconds": 600.0,
+        "simulation_seconds_per_wall_second": 1.30461169798344,
+        "sum_step_us": 421946430
+      },
+      "cpu_checks": {
+        "p95": false,
+        "p99": false,
+        "ordinary_maximum": false,
+        "speed_1x_including_observation": true,
+        "dense_interval_samples": true,
+        "dense_interval_targets": false
+      },
+      "prefix_wall_us": 80890496,
+      "sample_wall_us": 459906960,
+      "all_wall_us": 540797456,
+      "initialization_us": 752198,
+      "process_wall_seconds": 546.4850690000021,
+      "final_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+      "result_sha256": "ee7a1681589a0a9dffe277ffa438e8ad8e35b437e94fdc06c11411cb4608c379",
+      "checked_result_sha256": "1943bc2cda7c954b57990216304d5a800f9fb27ad2c037d571b5e8f2a0914027"
+    },
+    {
+      "name": "mixed-r2",
+      "initial_tick": 633,
+      "final_tick": 7633,
+      "prefix_steps": 1000,
+      "sample_steps": 6000,
+      "completed_steps": 7000,
+      "raw_complete": false,
+      "returncode": 1,
+      "qualified": false,
+      "errors": [
+        "Comprehensive workload did not satisfy its business coverage contract"
+      ],
+      "metrics": {
+        "count": 6000,
+        "dense_intervals": {
+          "dense_sample_count": 6000,
+          "has_qualified_segment": true,
+          "minimum_qualified_samples": 1000,
+          "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+          "segments": [
+            {
+              "first_index": 1000,
+              "first_tick": 1634,
+              "last_index": 6999,
+              "last_tick": 7633,
+              "metrics": {
+                "count": 6000,
+                "max_us": 300453,
+                "mean_step_us": 66843.8325,
+                "observation_logging_and_loop_wall_us": 35942403,
+                "p50_us": 66136,
+                "p95_us": 90693,
+                "p99_us": 116717,
+                "present_population": {
+                  "maximum": 171,
+                  "median": 166,
+                  "minimum": 165
+                },
+                "real_window_us_including_observation": 437005398,
+                "simulated_seconds": 600.0,
+                "simulation_seconds_per_wall_second": 1.37298075205927,
+                "sum_step_us": 401062995
+              },
+              "sample_count_qualified": true
+            }
+          ],
+          "threshold_present": 144
+        },
+        "first_sample_step_us": 300453,
+        "fresh_runtime_first_prefix_or_sample_step_us": 277917,
+        "max_us": 300453,
+        "mean_step_us": 66843.8325,
+        "observation_logging_and_loop_wall_us": 35942130,
+        "p50_us": 66136,
+        "p95_us": 90693,
+        "p99_us": 116717,
+        "present_population": {
+          "maximum": 171,
+          "median": 166,
+          "minimum": 165
+        },
+        "real_window_us_including_observation": 437005125,
+        "simulated_seconds": 600.0,
+        "simulation_seconds_per_wall_second": 1.37298160976945,
+        "sum_step_us": 401062995
+      },
+      "cpu_checks": {
+        "p95": false,
+        "p99": false,
+        "ordinary_maximum": false,
+        "speed_1x_including_observation": true,
+        "dense_interval_samples": true,
+        "dense_interval_targets": false
+      },
+      "prefix_wall_us": 73718349,
+      "sample_wall_us": 437005125,
+      "all_wall_us": 510723474,
+      "initialization_us": 717470,
+      "process_wall_seconds": 516.1103503000049,
+      "final_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+      "result_sha256": "3f070e12c23d4501686934277eb4514cf4adc8277925a678cde9942ca0192ab7",
+      "checked_result_sha256": "67b1553687a11962c72fe1c4415d775abe9429115955c85e088c0870a31a211f"
+    },
+    {
+      "name": "mixed-r3",
+      "initial_tick": 633,
+      "final_tick": 7633,
+      "prefix_steps": 1000,
+      "sample_steps": 6000,
+      "completed_steps": 7000,
+      "raw_complete": false,
+      "returncode": 1,
+      "qualified": false,
+      "errors": [
+        "Comprehensive workload did not satisfy its business coverage contract"
+      ],
+      "metrics": {
+        "count": 6000,
+        "dense_intervals": {
+          "dense_sample_count": 6000,
+          "has_qualified_segment": true,
+          "minimum_qualified_samples": 1000,
+          "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+          "segments": [
+            {
+              "first_index": 1000,
+              "first_tick": 1634,
+              "last_index": 6999,
+              "last_tick": 7633,
+              "metrics": {
+                "count": 6000,
+                "max_us": 288649,
+                "mean_step_us": 66204.7758333333,
+                "observation_logging_and_loop_wall_us": 34843260,
+                "p50_us": 63754,
+                "p95_us": 90625,
+                "p99_us": 109410,
+                "present_population": {
+                  "maximum": 171,
+                  "median": 166,
+                  "minimum": 165
+                },
+                "real_window_us_including_observation": 432071915,
+                "simulated_seconds": 600.0,
+                "simulation_seconds_per_wall_second": 1.38865771916696,
+                "sum_step_us": 397228655
+              },
+              "sample_count_qualified": true
+            }
+          ],
+          "threshold_present": 144
+        },
+        "first_sample_step_us": 288649,
+        "fresh_runtime_first_prefix_or_sample_step_us": 243423,
+        "max_us": 288649,
+        "mean_step_us": 66204.7758333333,
+        "observation_logging_and_loop_wall_us": 34842977,
+        "p50_us": 63754,
+        "p95_us": 90625,
+        "p99_us": 109410,
+        "present_population": {
+          "maximum": 171,
+          "median": 166,
+          "minimum": 165
+        },
+        "real_window_us_including_observation": 432071632,
+        "simulated_seconds": 600.0,
+        "simulation_seconds_per_wall_second": 1.38865862871553,
+        "sum_step_us": 397228655
+      },
+      "cpu_checks": {
+        "p95": false,
+        "p99": false,
+        "ordinary_maximum": false,
+        "speed_1x_including_observation": true,
+        "dense_interval_samples": true,
+        "dense_interval_targets": false
+      },
+      "prefix_wall_us": 71371012,
+      "sample_wall_us": 432071632,
+      "all_wall_us": 503442644,
+      "initialization_us": 697584,
+      "process_wall_seconds": 509.1021089999995,
+      "final_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+      "result_sha256": "c67280936266480bab06f6703870d7411b157677094bb51a5f5b750d332cb5cb",
+      "checked_result_sha256": "9c90b3320bd7d5c24b0e8da3480f4d556c4516f534f6216cc3b435238dcb9d9b"
+    }
+  ],
+  "common_sample_business": {
+    "coverage": {
+      "actual_movement": {
+        "actual": 346383,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "observed real position changes"
+      },
+      "actual_surgical_ward_return": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual transfer-to-recovery handoffs in the reserved ward"
+      },
+      "bedside_care": {
+        "actual": 152,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "cleaning": {
+        "actual": 66300,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "clinical_consumption": {
+        "actual": 21,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "new Attempt committed supply units"
+      },
+      "companion_ward_entry": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual complete-body ward entries"
+      },
+      "completed_care": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_consult": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_examination": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "one actual examination completed per participating Visit"
+      },
+      "completed_gp": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_outpatient": {
+        "actual": 17,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_surgery": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_treatment_outcome": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual final patient departures with settled clinical outcome"
+      },
+      "completed_wake": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "effective_ward_visit": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "effective ticks while visitor and patient are actually in the ward"
+      },
+      "examination": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "floor_transport": {
+        "actual": 470,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual connector ticks"
+      },
+      "gp": {
+        "actual": 259,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "guidance": {
+        "actual": 649,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual nurse ticks"
+      },
+      "maintenance": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "original_doctor_review": {
+        "actual": 78,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual free review ticks"
+      },
+      "outpatient_treatment": {
+        "actual": 4635,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "purchase": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "new paid supply receipt"
+      },
+      "renovation": {
+        "actual": 32000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "research": {
+        "actual": 3000000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milli-ticks"
+      },
+      "schedule": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "applied production command"
+      },
+      "staff_life": {
+        "actual": 1950,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual shared-facility or sleep ticks"
+      },
+      "surgery": {
+        "actual": 2367,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "training": {
+        "actual": 540000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milli-ticks"
+      },
+      "upgrade": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "ward_recovery": {
+        "actual": 3596,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual recovery ticks"
+      }
+    },
+    "covered_count": 26,
+    "coverage_count": 31,
+    "uncovered": [
+      "examination",
+      "maintenance",
+      "upgrade",
+      "effective_ward_visit",
+      "completed_examination"
+    ],
+    "coverage_pass": false,
+    "invariant_failure_counts": {},
+    "sample_work": {
+      "actual_surgical_ward_return": 2,
+      "care": 152,
+      "cleaning": 66300,
+      "consult": 78,
+      "departed:abandoned": 4,
+      "departed:cured": 2,
+      "family_movement:companion": 3276,
+      "family_surgery_wait:companion": 1167,
+      "family_ward_entry:companion": 2,
+      "family_ward_exit:companion": 2,
+      "gp": 259,
+      "guidance": 649,
+      "outpatient": 4635,
+      "recovery": 3596,
+      "renovation": 32000,
+      "research": 3000000,
+      "staff_life": 1950,
+      "surgery": 2367,
+      "training": 540000,
+      "transport": 470,
+      "wake": 298
+    },
+    "sample_completed_services": {
+      "service_completed:care": 2,
+      "service_completed:consult": 1,
+      "service_completed:gp": 2,
+      "service_completed:outpatient": 17,
+      "service_completed:surgery": 2,
+      "service_completed:wake": 2
+    },
+    "new_attempts": 14,
+    "consumed_units": 21,
+    "purchased_units": 20,
+    "purchase_receipts": {
+      "amount": -400,
+      "count": 1
+    },
+    "sample_events": {
+      "arrival_opportunity_admitted": 4,
+      "attempt_committed": 14,
+      "command_applied": 7,
+      "ledger_settled": 42,
+      "patience_evaluated": 1025,
+      "patient_arrived": 4,
+      "patient_departed": 6,
+      "research_completed": 1,
+      "research_material_acquired": 1,
+      "research_opened": 1,
+      "service_completed:care": 2,
+      "service_completed:consult": 1,
+      "service_completed:gp": 2,
+      "service_completed:outpatient": 17,
+      "service_completed:surgery": 2,
+      "service_completed:wake": 2,
+      "service_queued": 9,
+      "service_started:care": 2,
+      "service_started:consult": 1,
+      "service_started:gp": 2,
+      "service_started:outpatient": 13,
+      "service_started:surgery": 1,
+      "service_started:wake": 2,
+      "tick_completed": 6000,
+      "wait_departure_selected": 107
+    }
+  },
+  "comparison": {
+    "baseline": "mixed B01, one plain measurement",
+    "baseline_summary_sha256": "9a0eb54c857d32f1a66b4c5089439b9b27847228c23067bf65a3c308c522bd31",
+    "baseline_source_commit": "7b2a7352f9e0c5af54024521a106a307e97fbd22",
+    "baseline_mean_step_us": 77896.9003333333,
+    "baseline_sample_wall_us": 506689203,
+    "baseline_p95_us": 109468,
+    "baseline_p99_us": 133030,
+    "baseline_max_us": 341767,
+    "baseline_prefix_wall_us": 82067898,
+    "baseline_raw_result_sha256": "334b6287b7719ba6c1b3185c0d6ade85aa4d083b5ef92d5ba282a4778930f3a2",
+    "mean_step_change_percent": [
+      -9.721176710407441,
+      -14.189355142547965,
+      -15.009742942231997
+    ],
+    "sample_wall_change_percent": [
+      -9.232926757272942,
+      -13.752824727153302,
+      -14.726497142272832
+    ],
+    "three_run_mean_step_us": 67791.00444444444,
+    "three_run_mean_sample_wall_us": 442994572.3333333,
+    "scope": "Same mixed input and final World/events, same native/engine/settings. Combined implementation and run variation only; no per-patch attribution, no comparison with the different v3 workload."
+  },
+  "smoke": [
+    {
+      "name": "smoke-v3",
+      "prefix_steps": 0,
+      "sample_steps": 2,
+      "process_wall_seconds": 5.4319445000001,
+      "returncode": 0,
+      "complete": true,
+      "errors": [],
+      "input_sha256": "752924c562f275804cee40cbd2a8760f8f0780cab3276a04330db63a2866e780",
+      "final_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+      "final_reference": {
+        "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+        "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+        "member": "qualification/v3-smoke01/r1.json.final.bin",
+        "member_sha256": "f332ee5b20de51ece182f79866f5780d4792652bdb8169e0b3d9900e5af091d7",
+        "member_bytes": 1835104,
+        "member_crc32": "d9aba0ff"
+      },
+      "scope": "Entry/result equivalence only; no CPU or complete business-coverage claim."
+    },
+    {
+      "name": "smoke-mixed",
+      "prefix_steps": 0,
+      "sample_steps": 2,
+      "process_wall_seconds": 5.429892200001632,
+      "returncode": 0,
+      "complete": true,
+      "errors": [],
+      "input_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+      "final_sha256": "21aff2546935022312333b67605680c491292575aaa845b07733db993a415a51",
+      "final_reference": {
+        "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+        "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+        "member": "qualification/mixed-smoke01/r1.json.final.bin",
+        "member_sha256": "21aff2546935022312333b67605680c491292575aaa845b07733db993a415a51",
+        "member_bytes": 1915924,
+        "member_crc32": "b8afc148"
+      },
+      "scope": "Entry/result equivalence only; no CPU or complete business-coverage claim."
+    }
+  ],
+  "raw_batch": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance160-clinical-family-20261112-candidate03\\plain-batch01",
+  "archive": "mixed-b03-unqualified.zip",
+  "scope": "Three complete 1000+6000-step plain CPU measurements; each preserves original exit 1, five coverage failures and failed latency targets. Not qualified repetitions, full regression, renderer/GPU or Release acceptance. Current dirty sources and later optimizations are excluded."
+}
