@@ -345,12 +345,27 @@
         "verified_utc": "2026-11-12T11:23:56.188657+00:00",
         "commit": "2c06e5d925391327a0813ff03e4f9019e708c6c4"
       }
+    },
+    {
+      "id": "cloud-waiting-hot-boundary-plain",
+      "kind": "bounded_original_hot_history_plain_baseline",
+      "full_window": false,
+      "prefix": 1000,
+      "measured_steps": 1253,
+      "source_commit": "1e5bb6e3c0883836275aeab74e64847255fd8a06",
+      "execution_head": "2220eb7a2f5c826aac89bb1ff7b9348b8dafe786",
+      "archive": "2026-11-12-waiting-hot-boundary/plain.zip",
+      "archive_sha256": "a5f482d04e0ad9ac1bf73901ec4696d127a49f16fb55145bd3a5bcac36901650",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "scope": "Stops after original tick2886; original1000 prefix preserves command timing. Not complete-window acceptance."
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-structural-cache-micro",
     "cloud-structural-body-plain8",
-    "cloud-structural-body-full-plain"
+    "cloud-structural-body-full-plain",
+    "cloud-waiting-hot-boundary-plain"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-root-stages",

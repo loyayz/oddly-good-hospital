@@ -1,0 +1,15 @@
+{
+  "checks": {
+    "executed_2253": true,
+    "records_2253_enter_complete": true,
+    "prefix_still_1000": true,
+    "sample_still_1253": true,
+    "non_timing_trace_equal": true,
+    "last_tick_2886": true
+  },
+  "diagnostic_trace_qualified": true,
+  "full_final_sha256": "53af4f26c2b95307ba9357c33b44b02951544b86629deb32d76735e569d1de1f",
+  "raw_complete": false,
+  "raw_performance_pass": null,
+  "scope": "Intentionally truncated hot-history diagnostic baseline, 1000 prefix plus 1253 sample. No pre-existing intermediate full-World binary exists to compare. Final binary saved for future observer comparison. Not full-window acceptance."
+}

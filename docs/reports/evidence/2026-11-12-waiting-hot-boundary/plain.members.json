@@ -1,0 +1,98 @@
+{
+  "dependency-full_narrow_v1.py": {
+    "bytes": 7603,
+    "sha256": "466419e44c6ccabfedff4d8aa931e35ec97d941312bcb846b10f9206a34afba9"
+  },
+  "host-after.json": {
+    "bytes": 30710,
+    "sha256": "7eb8ced6a3a1cc6ff8ed14fa31fa57875d82dd320c636b68fab05e4570b7af4f"
+  },
+  "identity.json": {
+    "bytes": 555548,
+    "sha256": "e865c9ea8757075b3e458be35d4f90d1bda89c14fc3f672b27319fb2371a027a"
+  },
+  "run_boundary.py": {
+    "bytes": 5982,
+    "sha256": "d4615d2bca4e19f7e3fba55ed85d13fe02271bd4d4db362eb6f12c9cda1a4615"
+  },
+  "dependency-qualify_v1.py": {
+    "bytes": 5983,
+    "sha256": "da12ae0c9ea4d3f5d796d84832342c2e2db51c63186c1a6f849ab5e45e133cbb"
+  },
+  "host-before.json": {
+    "bytes": 30710,
+    "sha256": "0ee73b6b3dfc12a5a5217d1885d25384cac79be93498c8709ce432c1a4cc4c2d"
+  },
+  "comparison.json": {
+    "bytes": 647,
+    "sha256": "262d4efb13d4a55a04048678d5715cefefc19c67887fc30dc6eafd401d904450"
+  },
+  "dependency-linux_guard_v2.py": {
+    "bytes": 2114,
+    "sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7"
+  },
+  "dependency-controller_v2.py": {
+    "bytes": 10217,
+    "sha256": "10b82734a87069043ddf292f2f905aa673392b0ec6d55ff83abff94a7a6e0677"
+  },
+  "dependency-prepare_v1.py": {
+    "bytes": 4969,
+    "sha256": "0b5fafb65747238ef317ee1823be31d31a972a384710a4bdce69cd1fffd57888"
+  },
+  "input.bin": {
+    "bytes": 2220056,
+    "sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca"
+  },
+  "plain/result.json.steps.ndjson": {
+    "bytes": 405163,
+    "sha256": "cdff92d90bda591a446ec146a22f2759159e7a7fc35fe8231d16c0a962d13678"
+  },
+  "plain/result.json.final.bin": {
+    "bytes": 4109840,
+    "sha256": "53af4f26c2b95307ba9357c33b44b02951544b86629deb32d76735e569d1de1f"
+  },
+  "plain/engine.log": {
+    "bytes": 3041,
+    "sha256": "0c138bd2babed65351a84382ea6af39cdc35c6ea61ed7c19df41901568147157"
+  },
+  "plain/result.json.initial.json": {
+    "bytes": 10727,
+    "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7"
+  },
+  "plain/process.json": {
+    "bytes": 1783,
+    "sha256": "e5680321a06c1284900e495db479a871f164b7cfc2b8a6220842bc8f7e49fae8"
+  },
+  "plain/result.json": {
+    "bytes": 217195,
+    "sha256": "1b75766446d62dc349542a1dee624a8165d4dca2b03e07a83bf2c86197fbec92"
+  },
+  "plain/result.json.execution.json": {
+    "bytes": 1947,
+    "sha256": "34e3da287d7aaaa62c369aead28b14ae7528ac35f25f04b9ff52acb13b893596"
+  },
+  "baseline/plain/result.json.steps.ndjson": {
+    "bytes": 1269205,
+    "sha256": "55ef487241778006a78a030a38e133a64a697d8ae69d365aea997229f712e657"
+  },
+  "baseline/plain/result.json": {
+    "bytes": 155309,
+    "sha256": "3c29487f48ddcdf0edcd3fafc64183ccf012d5b17bb6424d56a2ef8a71b52fb9"
+  },
+  "sources/tools/performance/current/plain_v4.gd": {
+    "bytes": 16782,
+    "sha256": "a6ca441d0bc67153673adf5279ea2b100286b4834f9cceeb7907cb21acfc5506"
+  },
+  "sources/game/building/navigation_cache.gd": {
+    "bytes": 41149,
+    "sha256": "f67bebbc9a78dbb79089902010b68ccda2d793c17f39d0176a282c87535b033f"
+  },
+  "sources/game/building/hospital_navigation.gd": {
+    "bytes": 61312,
+    "sha256": "48f3b469753f3c5b557f0420e84953dc08fc3fce41011eedb635366239c6cbb2"
+  },
+  "sources/game/operations/floor_guidance.gd": {
+    "bytes": 86196,
+    "sha256": "4ff75fd54c357fa889ae33fe8d36af8aa76f74d0786cd493f0ade197c6e40565"
+  }
+}
