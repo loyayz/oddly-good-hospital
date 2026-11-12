@@ -1,0 +1,92 @@
+{
+  "scope": "Fresh full-state one-step diagnosis plus narrow A41 recovery repair; no new full-window result",
+  "base_commit": "63b0c38fb68a450d12b01279805f7e860e15b419",
+  "fresh_input": {
+    "path": "C:/Users/cong/dot-work/ogh-full-mixed-20261112/plain-r1/result.json.final.bin",
+    "sha256": "e5c6b6e2d146187e8ba7edcd707802f8dc1d8c6287872ac734580d1e62a34c75",
+    "tick": 7633
+  },
+  "qualified_pre_patch_one_step": {
+    "steps": 1,
+    "full_world_rng_ordered_events_equal": true,
+    "final_sha256": "2f3ed8f30801c529b1d223deebca11ff72af5f32fdbbd811cc21fef7b28033f3",
+    "path": "C:\\Users\\cong\\dot-work\\ogh-fresh-worker226-20261112\\plain1\\result.json.final.bin"
+  },
+  "final_identity": {
+    "base_commit": "63b0c38fb68a450d12b01279805f7e860e15b419",
+    "files": {
+      "game/building/hospital_transit.gd": {
+        "executed_sha256": "648470f2bb2b6feb4c90ce5f5fc7a1eb50653143233dcb0a75e4fad4ac556024",
+        "final_lf_sha256": "2ead5adfdcd4be9c2530a0b3f6a20ba4bdf11b64616b4457a540a3b643489d73",
+        "only_line_endings_changed_after_tests": true
+      },
+      "tests/acceptance/transit_busy_recovery.gd": {
+        "executed_sha256": "2bdb120273c96865e1ccebb264ab3302a1f0b369f051a942dc1bd945ef728e72",
+        "final_lf_sha256": "b1056ff6a1b0783b4d303a31f3427b4164f641ad37d7af16867bd5f9ac2401a5",
+        "only_line_endings_changed_after_tests": true
+      }
+    },
+    "scope": "One landing recovery guard; no ticket, priority, collision, work or benchmark changes",
+    "borrowed_runtime_source_restoration_exact": true,
+    "native": {
+      "oddly_good_platform.windows.x86_64.dll": "ab025d4367b7a13264f8a33cfefa5c177e19f591cc62cf36c1ca01d0e805249b",
+      "libwinpthread-1.dll": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5",
+      "libgcc_s_seh-1.dll": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+      "libgmp-10.dll": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+      "libmpfr-6.dll": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47"
+    }
+  },
+  "members": {
+    "checks/identity-final.json": "5729092a4d6981c3caf3848054a9d1f478d147389a24e33ee857d31fcd5b0e15",
+    "checks/selected-runs.json": "28eed68bf3ebc9c15cfbffdcc3834fd83c6eb22fdfa81756566fbd2838a5ecde",
+    "checks/baseline/engine.log": "881c2bc529ede474d7c8ef51d41b93dbf384d3e44868c22b60f59f483cd51568",
+    "checks/baseline/process.json": "c29a85a9357d18e0cf641832c224c763b709a3382c9eafb7a2859cf85af8e058",
+    "checks/baseline/result.json": "72bba59a7648a61b4afacb612cdbc4850ade821eb97139495a93682f2851e82c",
+    "checks/baseline-final/engine.log": "b495e50538d8b3279d0566d0f0b960c77a874e87005bece8b9de70e87fee0c03",
+    "checks/baseline-final/process.json": "fe48876711b3420a63a1fba0176098bbeee930c30c213192024c2b40b5cafef4",
+    "checks/baseline-final/result.json": "365fd7b857d34201d36733b215f334de2fb558321b338c3e388fb45c6c34c9b8",
+    "checks/fixed-final/engine.log": "1c8706f5ff8259962a324f50851f97da9800a0fb1fcf926fe9991580a29233e7",
+    "checks/fixed-final/process.json": "b4fe399d3fb7635de6c80e8856a56e7b8d35ef554a7026c2690dbde977863f96",
+    "checks/fixed-final/result.json": "d5ec57669a6945b89c551da498840503bd4c02b4d4fc5597d366e8b05279bb86",
+    "checks/guarded/engine.log": "f312464e9a08d2e45e8aca4710c472a9477b83167151db1c97dfa7eba5ddb884",
+    "checks/guarded/process.json": "b2aa166419d215e6cb5e325be62566333bcf7c2014beed33bdfd7a42996e25c5",
+    "checks/guarded/result.json": "81e7622a51bcea43e2ead70e63b5a7e5814ded6a1cb5c8b0cc4c05a89338bd1c",
+    "checks/ownership/engine.log": "d22de30a21b3a428cdbf3eb8dd9afb92841a400f059756e9e82da867664bb578",
+    "checks/ownership/process.json": "81e17936b9790b76f7132e1a2bc013a257dbd96151966177e9feaeaf537beec8",
+    "checks/ownership/result.json": "6f8d340455423dcb983b85ce5e41ec00d8851f05ee7c5750440434a164e8b373",
+    "checks/patched/engine.log": "df41dda0a20189c8438580792b51b089e35b1ad1849118b0cb2fb422b2afca1e",
+    "checks/patched/process.json": "1cdc8dc7849b7b6a0dabb5b7a9c79f5e71c4cd5fe08c4b1dffc26483d488c889",
+    "checks/patched/result.json": "d55b32f076ff227d88265394aad0179ac1fed92b88a750c66185bb98d1686934",
+    "checks/portal/engine.log": "3eee52157e3ba76113f13df5dabe3ac7ef88a158cfc4eefb1037ed8d6008c737",
+    "checks/portal/process.json": "5749c4decb98dfd400ffef068d8e6a3e11dfce269774ef9caf5c1ca128ba518e",
+    "checks/portal/result.json": "de165f6ee9a63c5307f79538b9479b00910c3310b0e0e3f8314b16e88a7c3c5d",
+    "checks/presence/engine.log": "2f37f997fcfab7849e60519d417a2adbb5c8466b4a9def43a0b9017fddf2ad6b",
+    "checks/presence/process.json": "30b0630ecba94ab5591554df8e79f2522a8aa8e131d3c30df34f7ab46dad6d5b",
+    "checks/presence/result.json": "9980b5595154102c012aba4465d4311aed9be7c2e8452c61b73aee48d8268c75",
+    "checks/waypoint/engine.log": "ff15ae9078d4a87b5813dbaf51cccebb3d8904ce36b94e84f904b693f6b96dc1",
+    "checks/waypoint/process.json": "e3a8ceee63dcbccc64240dc00ab8871a48a97a6fe3494a0a1d793f6d83cfd54b",
+    "checks/waypoint/result.json": "d91c66608d06d3baa196a09fb45b6181558c083f9b83a5d0070840bfec6a5de6",
+    "fresh-one-step/comparison.json": "9a32c21b288f1bc6a728c42fdb12245a0484574cb1e534e9ca77522ab9f412a4",
+    "fresh-one-step/overlay.json": "315034c61f4240d3b335cc776a83d0bf982e1957812988ee5e58e400bc9150f0",
+    "fresh-one-step/plain1/engine.log": "d7f4001e20273ba661f425e9b11b0d75e14cb5542085fde082b2cd2a28e0eeaa",
+    "fresh-one-step/plain1/process.json": "de91e93b28977fc450b7cf2b0759900b95a37c2087cfb10385a2390c8d56c472",
+    "fresh-one-step/plain1/result.json": "72c3bbb012a5127acaafee69b0a3f1d80478da7eab4713cb8cf9a20b3f4ef8ed",
+    "fresh-one-step/plain1/result.json.execution.json": "0334dae0c0a1e2b8a7b2c6322ed89b133facfe3465c7cb7d6ca4646311f06402",
+    "fresh-one-step/plain1/result.json.initial.json": "3ade9c6706248334eafea2f5f697e916b9d24ec02c6d560d301392a5bceb0317",
+    "fresh-one-step/plain1/result.json.steps.ndjson": "e2747b394c3aaa569b6e7f008940cddfd82f13e207a74051633ee36725dbe7e1",
+    "fresh-one-step/trace1/engine.log": "db61b2b9c85dd1cc71b135127a3c0cbdb86b24898e59dc1a2a42f2938c647dee",
+    "fresh-one-step/trace1/process.json": "a285b69d3c4d4a92cf11994e3f33ff68bb88c570e8d5200f59f351cba63efd17",
+    "fresh-one-step/trace1/result.json": "5b464979a31a8039b0394c8ae9ede079bd74bde20de0c977acb6b4945d1da150",
+    "fresh-one-step/trace1/result.json.execution.json": "0334dae0c0a1e2b8a7b2c6322ed89b133facfe3465c7cb7d6ca4646311f06402",
+    "fresh-one-step/trace1/result.json.initial.json": "3ade9c6706248334eafea2f5f697e916b9d24ec02c6d560d301392a5bceb0317",
+    "fresh-one-step/trace1/result.json.maintenance.json": "df4079cc6d7ce342b48f831e955bbbfc702618c2f3e2619873f6457401244838",
+    "fresh-one-step/trace1/result.json.steps.ndjson": "95081abc77e172b7cfc212f813c74a35854b8e1b984d027a354216276408622e",
+    "fresh-one-step/trace1/result.json.transport.json": "65a2a6f45ad39cfd9cc0b47ad5691a454bfc5b151c17190681e2325d00a92fca",
+    "harness/run_transit_recovery_checks.py": "13744044262a16ed1bbaa6c3d3158e4a8175255e3e7b5592d388b2592321ac30",
+    "harness/run_fresh_worker226.py": "4439ce5ba46691d73c70e68e21f6db62e9518aa65ca25f6ae7c735999859efa2",
+    "final-source/game/building/hospital_transit.gd": "2ead5adfdcd4be9c2530a0b3f6a20ba4bdf11b64616b4457a540a3b643489d73",
+    "final-source/tests/acceptance/transit_busy_recovery.gd": "b1056ff6a1b0783b4d303a31f3427b4164f641ad37d7af16867bd5f9ac2401a5",
+    "baseline-source/hospital_transit.gd": "b980ca7467e23a6a147d29f76e95599b97efba125f769c4de3b1fca0e39ebcf7"
+  },
+  "archive_sha256": "3a49193a0426e5ca13bde36beb399727fdb17f6f9bae048aad81f40c29ef972f"
+}

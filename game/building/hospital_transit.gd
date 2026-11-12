@@ -250,12 +250,15 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 	if not movement.has("transit_ticket") and at_entry:
 		connection.ticket_next = int(connection.get("ticket_next",0))+1
 		movement.transit_ticket = {"connector_id":connection.id,"sequence":connection.ticket_next,"from":segment.from,"to":segment.to}
+	# Ground recovery waits for boarding/arrival at this landing, not for
+	# unrelated work to leave a globally idle car. Actual return still owns
+	# collision checks and admission; this never retains or grants a ticket.
+	if not at_entry and not _landing_in_use(connection,int(segment.from)):
+		space.movement._queue_route(world,movement,true)
+		return
 	if connection.phase!="idle":
 		if int(connection.to)==int(segment.from) and connection.phase!="empty_riding":
 			_stand_aside(space,world,connection,actor,movement,members,offsets)
-		return
-	if not at_entry:
-		space.movement._queue_route(world,movement,true)
 		return
 	var waiting: Array = _waiting(space,world,connection.id)
 	if waiting.is_empty() or waiting[0]!=actor.id:
@@ -292,6 +295,11 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 	movement.erase("transit_ticket")
 	connection.erase("assigned_actor_id")
 	movement.cursor += 1
+
+# An empty car has no boarding/alighting body. Boarding keeps its source
+# entrance, and a loaded arrival keeps its destination until safe release.
+static func _landing_in_use(connection: Dictionary, floor_id: int) -> bool:
+	return connection.phase=="boarding" and int(connection.from)==floor_id or connection.phase in ["boarding","riding","alighting"] and int(connection.to)==floor_id
 
 static func cancel_waiting(world: WorldState, movement: Dictionary) -> void:
 	var ticket: Dictionary = movement.get("transit_ticket",{})
@@ -498,15 +506,15 @@ static func _begin_convoy(space: HospitalSpace, world: WorldState, actor: Dictio
 	if not movement.has("transit_ticket") and at_entry:
 		connection.ticket_next=int(connection.get("ticket_next",0))+1
 		movement.transit_ticket={"connector_id":connection.id,"sequence":connection.ticket_next,"from":segment.from,"to":segment.to}
-	if connection.phase!="idle":
-		if int(connection.to)==int(segment.from) and connection.phase!="empty_riding":
-			_stand_aside_convoy(space,world,connection,actor,movement,plan)
-		return
-	if not at_entry:
+	if not at_entry and not _landing_in_use(connection,int(segment.from)):
 		movement.waiting_reason="登梯前队列尚未沿入口成一直线"
 		# The regular route planner brings the real trail back through the
 		# canonical outside approach; admission then issues a new ticket.
 		space.movement._queue_route(world,movement,true)
+		return
+	if connection.phase!="idle":
+		if int(connection.to)==int(segment.from) and connection.phase!="empty_riding":
+			_stand_aside_convoy(space,world,connection,actor,movement,plan)
 		return
 	var waiting: Array=_waiting(space,world,connection.id)
 	if waiting.is_empty() or waiting[0]!=actor.id: return
