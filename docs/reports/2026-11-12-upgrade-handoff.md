@@ -88,3 +88,12 @@ host采集新wrapper只读取CPU/内存/affinity/固定配额统计；node仅SHA
 - 未修复业务、未扩长跑、未改变出/撤票或近距离出票规则。所有663 UID字节不变，引擎全部回收，封存后停。
 
 [阶段4碰撞原始包](evidence/2026-11-12-upgrade-handoff/stage4-collision.zip) 734459字节、48项，SHA256 `4d3479038e541da9caeb495b56cb7942286aec97655f75a0b91a389a0658eeb9`；[清单](evidence/2026-11-12-upgrade-handoff/stage4.members.json)、[单步资格比较](evidence/2026-11-12-upgrade-handoff/collision.qualification.json)。本地CRC/逐成员SHA通过，未据此宣称升级或跨owner规则已修复。
+
+## 阶段5：真实下客阻挡与依赖环
+- 仍只从7633完整冷边界执行一个observer步骤，复用stage4已合格plain1；相关源码/engine/native身份核验，未增加任何业务/安全/路径查询。观察实际trip65/患者0115的_alight与原egress链。
+- static_reason原返回为空；原BodyIndex.intersects首次真实命中维修员226，出口身体Rect2(86.23333,44.23333,0.533333,0.533333)，因此_dynamic_clear与egress拒绝。bed-goal/bed-destination未执行。这里只证明首次真实阻挡，不是穷尽所有重叠。
+- 与stage4的226实际东退被276，以及276按连接器owner规则等待trip65证据结合，形成“下客等226离开→226退让等276→276等待下客”的依赖环。固定身体保护本身不被判错，不能据此强推或直接修改出票/退行规则；需按跨owner真实交接单独设计修复。
+- 完整World/RNG/有序事件bin与plain1逐字节相同，SHA335aa434e72d554b521181bbe20a3f5dbdb4379781943c72b0e1d4353d79bd03。observer一步exit0、3.212437秒、reaped。首parser因文本替换范围过宽而缩进错误，未执行模拟，失败源码/日志保留；收敛scope后parser02通过。三个生产文件finally精确恢复，663UID不变。
+- 本批未修业务、未扩步或重跑长窗口。升级仍未完成。
+
+[阶段5原始包](evidence/2026-11-12-upgrade-handoff/stage5-alight.zip)：928526字节、46项，SHA256 `412bc761b5544bb4e53f41d95bfe2e3352fb7c422c653bd880c96f69ce3a5c0f`；[清单](evidence/2026-11-12-upgrade-handoff/stage5.members.json)、[资格比较](evidence/2026-11-12-upgrade-handoff/alight.qualification.json)。本地CRC/逐成员SHA通过。

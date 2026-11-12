@@ -1,0 +1,28 @@
+{
+  "qualified": true,
+  "full_world_rng_events_sha": "335aa434e72d554b521181bbe20a3f5dbdb4379781943c72b0e1d4353d79bd03",
+  "plain_sha": "335aa434e72d554b521181bbe20a3f5dbdb4379781943c72b0e1d4353d79bd03",
+  "reused_plain": true,
+  "restoration": {
+    "hospital_transit.gd": {
+      "original": "2ead5adfdcd4be9c2530a0b3f6a20ba4bdf11b64616b4457a540a3b643489d73",
+      "observer": "c0079c59384f42d7b150ed33b41abe99db16557fa9768ca5f1abad3c64cc75e6",
+      "restored": "2ead5adfdcd4be9c2530a0b3f6a20ba4bdf11b64616b4457a540a3b643489d73",
+      "exact": true
+    },
+    "hospital_space.gd": {
+      "original": "97aea6add01864da51d73db7853c7a242b3ceb61505ac1bd8620f26c9fb9e69b",
+      "observer": "f0ef5dc956f7166068a767a7c42ee4234480021c3aa3d6b663ca823c56b63000",
+      "restored": "97aea6add01864da51d73db7853c7a242b3ceb61505ac1bd8620f26c9fb9e69b",
+      "exact": true
+    },
+    "body_index.gd": {
+      "original": "1d9cb66af74f3b874f0a710948bda2c12043273d0fce673039002fffae395615",
+      "observer": "5081fabd7e99cfb9b28fbb95ea22353b3d2351411b55428f650c42d37b7c2206",
+      "restored": "1d9cb66af74f3b874f0a710948bda2c12043273d0fce673039002fffae395615",
+      "exact": true
+    },
+    "uids_unchanged": true,
+    "uid_count": 663
+  }
+}
