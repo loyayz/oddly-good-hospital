@@ -1374,6 +1374,13 @@ func _local_resume(world: WorldState, actor: Dictionary, movement: Dictionary) -
 		if local.corners.is_empty(): local.erase("corners")
 		local.erase("retreat")
 		return true
+	# A completed local leg may itself reach the current original waypoint.
+	# Passing it, outstanding corners, and an existing rejoin keep their owner.
+	if not local.has("rejoin") and _local_floor_segment(actor,movement) and origin==ConvoyTrail.point(movement.path[int(movement.cursor)].cell):
+		movement.cursor=int(movement.cursor)+1
+		movement.erase("local_move")
+		_route_checks.erase(actor.id)
+		return true
 	if bool(local.get("retreat",false)):
 		if _local_try_return(world,actor,movement): return true
 		var toward: Vector2=ConvoyTrail.point(local.rejoin.cell if local.has("rejoin") else movement.path[int(movement.cursor)].cell)-origin
