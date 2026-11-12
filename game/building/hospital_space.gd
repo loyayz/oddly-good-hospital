@@ -1341,7 +1341,8 @@ func _potential_door_opening(world: WorldState, actor: Dictionary, floor_id: int
 # Immutable journey membership is bound once. Each step publishes only its
 # occupied trail; no follower is queried for movement permission.
 func walking_speed(actor: Dictionary) -> float:
-	var k: int = ceili(maxf(float(content.actor_body(actor).width_m),float(content.actor_body(actor).depth_m))/CELL_METERS)
+	var dimensions: Dictionary = content.actor_body(actor) if actor.has("_convoy_body") else body(actor)
+	var k: int = ceili(maxf(float(dimensions.width_m),float(dimensions.depth_m))/CELL_METERS)
 	return float(content.balance.movement_speeds[str(k)])
 
 func _sync_convoys(world: WorldState) -> void:

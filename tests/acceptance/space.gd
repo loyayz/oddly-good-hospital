@@ -101,7 +101,7 @@ const CASES: Dictionary = {
 	"SPACE-50":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §6；远座不因30秒或附近时间带排除，时间只参与评分",
 	"SPACE-51":"docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享",
 	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算",
-	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查",
+	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；完整身体、实际扫掠、预约身份与固定步个体速度",
 	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段",
 	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、前后队列改目标及恢复",
 	"SPACE-56":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，队长许可、受保护尾迹、预约、门等待及真实恢复",
@@ -1726,9 +1726,8 @@ func _case_52(_t) -> Dictionary:
 	return preload("res://tests/acceptance/preview_computation.gd").run(content)
 
 func _case_53(_t) -> Dictionary:
-	var sim: HospitalSimulation = _fixture()
-	var result: Dictionary = preload("res://tests/acceptance/blocked_route_target.gd").new().run_case(sim,content)
-	return _done(sim,bool(result.get("ok",false)),result.get("details",{}))
+	var result: Dictionary = preload("res://tests/acceptance/dynamic_route_index.gd").new().run(content)
+	return {"ok":result.ok,"details":result}
 
 func _case_54(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()

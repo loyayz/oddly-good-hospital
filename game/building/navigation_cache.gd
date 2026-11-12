@@ -4,6 +4,11 @@ extends RefCounted
 
 var _entries: Dictionary = {}
 var _sources: Dictionary = {}
+# Only the lookup text is memoized. No source payload or world is retained
+# after eviction, and every lookup still checks the original weak owner.
+var _source_key_world_id: int = 0
+var _source_key_floor_id: int = 0
+var _source_key: String = ""
 var _used: int = 0
 var _charged: int = 0
 var _query_charged: int = 0
@@ -68,7 +73,9 @@ func inherit_projection(space: HospitalSpace, world: WorldState, projected: Worl
 			current.facilities[id] = {"cell":facility.cell.duplicate(),"footprint":footprint.duplicate()}
 		current.occupancy = RouteClearance.capture_occupancy(projected,floor_id)
 		var identical: bool = current==original.source
-		var identity: Dictionary = _static_identity(projected,floor_id,current)
+		# Only the explicitly listed footprint updates can replace this sealed
+		# facilities container. Occupancy changes do not alter static geometry.
+		var identity: Dictionary = {"source":original.static_source,"version":original.static_version} if is_same(current.facilities,original.source.facilities) else _static_identity(projected,floor_id,current)
 		var same_static: bool = identity.version==original.static_version
 		var entry: Dictionary = {"source":original.source if identical else current,"world":weakref(projected),"floor_id":floor_id,"revision":projected.geometry_revision,"version":original.version if identical else _identity(floor_id,current),"static_source":identity.source,"static_version":identity.version,"graphs":original.graphs.duplicate() if same_static else {}}
 		_store_source(str(projected.get_instance_id())+":"+str(floor_id),entry)
@@ -83,8 +90,14 @@ func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dic
 	return _source_record(space,world,floor_id).source
 
 func _source_record(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
-	var key: String = str(world.get_instance_id())+":"+str(floor_id)
-	var entry: Dictionary = _sources.get(key,{})
+	var world_id: int = world.get_instance_id()
+	if world_id!=_source_key_world_id or floor_id!=_source_key_floor_id:
+		_source_key_world_id = world_id
+		_source_key_floor_id = floor_id
+		_source_key = str(world_id)+":"+str(floor_id)
+	var key: String = _source_key
+	var resident: Variant = _sources.get(key)
+	var entry: Dictionary = {} if resident==null else resident
 	if not entry.is_empty() and entry.world.get_ref()!=world: entry = {}
 	if not entry.is_empty() and entry.revision==world.geometry_revision:
 		_used += 1

@@ -28,6 +28,12 @@ class MaintenanceProbe extends HospitalMaintenance:
 		class_queries+=1
 		return super._class(item)
 
+class SourceIdentityProbe extends NavigationCache:
+	var static_identity_calls: int = 0
+	func _static_identity(world: WorldState, floor_id: int, current: Dictionary) -> Dictionary:
+		static_identity_calls+=1
+		return super._static_identity(world,floor_id,current)
+
 func run(t) -> void:
 	for id: String in CASES:
 		if not t.wants(id): continue
@@ -298,12 +304,36 @@ func _case_08(content: HospitalContent) -> Dictionary:
 	var world: WorldState=_world(content)
 	_visit(world,"navigation_visit",[44,80])
 	var space: HospitalSpace=HospitalSpace.new(content)
+	space._navigation=SourceIdentityProbe.new()
 	var before: Dictionary=world.freeze()
 	var first: Dictionary=space.route(world,"navigation_visit",1,[48,84],[],{},true)
 	var repeated: Dictionary=space.route(world,"navigation_visit",1,[48,84],[],{},true)
 	var cold: Dictionary=HospitalSpace.new(content).route(world,"navigation_visit",1,[48,84],[],{},true)
 	var checks: Dictionary={"warm_and_cold_exact_route":first.get("ok",false) and first==repeated and first==cold,"queries_readonly":world.freeze()==before}
-	var cache: NavigationCache=space._navigation
+	var cache: SourceIdentityProbe=space._navigation as SourceIdentityProbe
+	var first_source: Dictionary=cache.floor_source(space,world,1)
+	var previous_use: int=cache._used
+	var same_source: Dictionary=cache.floor_source(space,world,1)
+	checks.source_hit_keeps_payload_and_lru=is_same(first_source,same_source) and cache._used==previous_use+1
+	# An unowned floor is still a valid geometry-query boundary. Its cache
+	# identity cannot alias the acquired floor, even when no graph is built.
+	cache.floor_source(space,world,2)
+	checks.source_keys_separate_floors=cache._sources.has(str(world.get_instance_id())+":1") and cache._sources.has(str(world.get_instance_id())+":2") and is_same(first_source,cache.floor_source(space,world,1))
+	var other_world: WorldState=WorldState.new(world.freeze())
+	var other_source: Dictionary=cache.floor_source(space,other_world,1)
+	checks.source_keys_separate_worlds=other_source==first_source and cache._sources[str(other_world.get_instance_id())+":1"].world.get_ref()==other_world and cache._sources[str(world.get_instance_id())+":1"].world.get_ref()==world
+	# This is a hypothetical actor-only input, not a performed movement. Its
+	# static floor facts are unchanged; live occupancy remains query-owned.
+	other_world.facts.actors.navigation_visit.location.cell=[45,80]
+	var identity_calls: int=cache.static_identity_calls
+	cache.inherit_projection(space,world,other_world)
+	var parent_record: Dictionary=cache._sources[str(world.get_instance_id())+":1"]
+	var projected_record: Dictionary=cache._sources[str(other_world.get_instance_id())+":1"]
+	checks.actor_projection_keeps_static_identity=projected_record.static_version==parent_record.static_version and projected_record.static_source==parent_record.static_source and projected_record.graphs==parent_record.graphs
+	checks.actor_projection_reuses_sealed_source=is_same(projected_record.static_source,parent_record.static_source) and projected_record.static_source.is_read_only() and cache.static_identity_calls==identity_calls
+	cache._trim_source_payloads(1)
+	checks.key_memo_retains_no_evicted_source=cache._sources.is_empty() and cache._source_charged==0
+	checks.source_key_rebuild_after_eviction=cache.floor_source(space,world,1)==first_source and world.freeze()==before
 	var actual: FloorStaticGeometry=cache.floor_geometry(space,world,1)
 	var hypothetical: Dictionary=cache.floor_source(space,world,1).duplicate(true)
 	hypothetical.layout.blocked.append([48,84])

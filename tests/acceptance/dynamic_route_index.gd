@@ -13,7 +13,7 @@ class ObservedMovement extends HospitalMovement:
 func run(content: HospitalContent, selected: String = "") -> Dictionary:
 	var suite: RefCounted = load("res://tests/acceptance/space.gd").new()
 	suite.content = content
-	var names: Array = ["strict_floor_compound","permissions_and_owners","body_and_sweep"]
+	var names: Array = ["strict_floor_compound","permissions_and_owners","body_and_sweep","individual_speed"]
 	if not selected.is_empty() and not selected in names: return {"ok":false,"error":"Unknown case: "+selected}
 	var rows: Array = []
 	var ok: bool = true
@@ -30,6 +30,65 @@ func _row(name: String, checks: Dictionary, details: Dictionary = {}) -> Diction
 	var ok: bool = true
 	for value: bool in checks.values(): ok = ok and value
 	return {"name":name,"ok":ok,"checks":checks,"details":details}
+
+func _individual_dimensions(content: HospitalContent, actor: Dictionary) -> Dictionary:
+	var base: Dictionary = content.definition("species",actor.species_id).body
+	var envelope: Dictionary = content.definition("treatment_bindings",str(actor.get("body_binding_id",""))).get("symptom_envelope",{})
+	var result: Dictionary = {}
+	for axis: String in ["width_m","depth_m","height_m"]:
+		result[axis] = maxf(float(base[axis]),float(envelope.get(axis,0.0)))
+	return result
+
+func _individual_speed(suite: RefCounted) -> Dictionary:
+	var geometry: HospitalSpace = HospitalSpace.new(suite.content)
+	var failures: Array = []
+	var queries: int = 0
+	var bindings: int = 0
+	var checks: Dictionary = {"species_and_legal_binding_a_b_a":true,"pose_does_not_change_individual_speed":true,"proxy_keeps_individual_speed":true,"body_keeps_proxy_override":true,"readonly_queries":true}
+	# Body calculation inputs come from every species and each binding owned by
+	# that species. This does not claim a clinical pose transition or journey.
+	for species: Dictionary in suite.content.catalog.species:
+		var variants: Array[String] = [""]
+		for binding: Dictionary in suite.content.catalog.treatment_bindings:
+			if binding.species_id==species.id:
+				variants.append(str(binding.id)); bindings+=1
+		var actor: Dictionary = {"id":"speed_subject","species_id":species.id,"body_binding_id":"","posture":"standing","facing":0.0}
+		for binding_id: String in variants:
+			for next_binding: String in ["",binding_id,""]:
+				actor.body_binding_id = next_binding
+				var before: Dictionary = actor.duplicate(true)
+				var dimensions: Dictionary = _individual_dimensions(suite.content,actor)
+				# The grid is 1.5m; the larger individual width/depth selects the
+				# configured speed. A convoy's envelope does not select that speed.
+				var k: int = int(ceil(maxf(float(dimensions.width_m),float(dimensions.depth_m))/1.5))
+				var expected: float = float(suite.content.balance.movement_speeds[str(k)])
+				var actual: float = geometry.walking_speed(actor)
+				var actual_body: Dictionary = geometry.body(actor)
+				var dimensions_match: bool = true
+				for axis: String in ["width_m","depth_m","height_m"]:
+					dimensions_match = dimensions_match and float(actual_body[axis])==float(dimensions[axis])
+				var equal: bool = actual==expected and dimensions_match
+				checks.species_and_legal_binding_a_b_a = checks.species_and_legal_binding_a_b_a and equal
+				checks.readonly_queries = checks.readonly_queries and actor==before
+				if not equal: failures.append({"species":species.id,"binding":next_binding,"expected_k":k,"expected":expected,"actual":actual,"body_matches":dimensions_match})
+				queries+=1
+				var posed: Dictionary = actor.duplicate(true)
+				posed.posture="lying"; posed.facing=0.125
+				var posed_speed: float = geometry.walking_speed(posed)
+				checks.pose_does_not_change_individual_speed = checks.pose_does_not_change_individual_speed and posed_speed==expected
+				if posed_speed!=expected: failures.append({"species":species.id,"binding":next_binding,"pose_speed":posed_speed,"expected":expected})
+				for size_override: bool in [false,true]:
+					var proxy: Dictionary = actor.duplicate(true)
+					proxy._convoy_body={"width_m":9.0,"depth_m":9.0,"height_m":6.0}
+					if size_override: proxy._convoy_size=6
+					var proxy_before: Dictionary = proxy.duplicate(true)
+					var proxy_speed: float = geometry.walking_speed(proxy)
+					var override_kept: bool = is_same(geometry.body(proxy),proxy._convoy_body)
+					checks.proxy_keeps_individual_speed = checks.proxy_keeps_individual_speed and proxy_speed==expected
+					checks.body_keeps_proxy_override = checks.body_keeps_proxy_override and override_kept
+					checks.readonly_queries = checks.readonly_queries and proxy==proxy_before
+					if proxy_speed!=expected or not override_kept: failures.append({"species":species.id,"binding":next_binding,"has_size_override":size_override,"proxy_speed":proxy_speed,"expected":expected,"override_kept":override_kept})
+	return _row("individual_speed",checks,{"species":suite.content.catalog.species.size(),"legal_bindings":bindings,"binding_states":queries,"failures":failures,"scope":"Independent species/symptom dimensions and configured individual speed; all binding A-to-B-to-A orders retained, including explicit proxy bodies. No simulation step or travel claim."})
 
 func _strict_floor_compound(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
