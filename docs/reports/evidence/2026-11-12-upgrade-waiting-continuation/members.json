@@ -1,0 +1,154 @@
+{
+  "waiting-continuation01/actual-native-after.json": {
+    "bytes": 278,
+    "sha256": "ea46fda2b91c02cea201e58fcc272b32e52c5b64ed83bc1efca1b95bad369cd3"
+  },
+  "waiting-continuation01/actual-native-before.json": {
+    "bytes": 285,
+    "sha256": "273dc490122a5acb4d4563cfdd63ccb4be82e099df5b59369d3844367bc6e237"
+  },
+  "waiting-continuation01/commands.json": {
+    "bytes": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "waiting-continuation01/engine/engine.log": {
+    "bytes": 73,
+    "sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+  },
+  "waiting-continuation01/engine/process.json": {
+    "bytes": 1758,
+    "sha256": "587fa4bceee6250ed7b33316ca447ea0ff236e322a118cf8a975065f29494ed9"
+  },
+  "waiting-continuation01/event-kind-summary.json": {
+    "bytes": 384,
+    "sha256": "96ee1f65a692218e10c3990a728a0bf6cef2bbb58957fa6c2f9ca689487009cd"
+  },
+  "waiting-continuation01/final-release.json": {
+    "bytes": 2886,
+    "sha256": "c3ce3048464f813bc528ec71a7a3c7a26830d4cb569e940e0aa3e0a0680de79f"
+  },
+  "waiting-continuation01/final.bin": {
+    "bytes": 6601320,
+    "sha256": "14a9a3c17ad52e684d6a803a38e48fb08be15a07718f19100e26bfd85ee3aecf"
+  },
+  "waiting-continuation01/host-after.json": {
+    "bytes": 3547,
+    "sha256": "9dae0b3ed54b9ffb5d5d65dcf4e3051b449b3b0e5025685523ec3d11a81b07d1"
+  },
+  "waiting-continuation01/host-before.json": {
+    "bytes": 3547,
+    "sha256": "fffca0416a39c923e2a10bd409efe511811e021695b35fba2c02e1172bd51974"
+  },
+  "waiting-continuation01/identity.json": {
+    "bytes": 2210,
+    "sha256": "a0ec98e06e6fccba7cdffda4b94e231d796e57def5c0fab79c86a76c3aa4818c"
+  },
+  "waiting-continuation01/initial-before.bin": {
+    "bytes": 5919528,
+    "sha256": "964698a71036e34c5000b0ea4aa0035e2d875ba572bfc204564ce67811dac6fb"
+  },
+  "waiting-continuation01/initial-commitments.json": {
+    "bytes": 46949,
+    "sha256": "0a871c8e6585f3aff1c0aa6f28359450d98e5efefbf4ce4f1d062ab1a288107f"
+  },
+  "waiting-continuation01/initial-restored.bin": {
+    "bytes": 5919528,
+    "sha256": "964698a71036e34c5000b0ea4aa0035e2d875ba572bfc204564ce67811dac6fb"
+  },
+  "waiting-continuation01/input.bin": {
+    "bytes": 5919528,
+    "sha256": "964698a71036e34c5000b0ea4aa0035e2d875ba572bfc204564ce67811dac6fb"
+  },
+  "waiting-continuation01/linux_guard_v2.py": {
+    "bytes": 2114,
+    "sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7"
+  },
+  "waiting-continuation01/offline-summary.json": {
+    "bytes": 92696,
+    "sha256": "c5cc14b0848d37ce973b6cd42e7e3185edd23cdbcb872e9ed79417fc7f5111c2"
+  },
+  "waiting-continuation01/ordered-events.ndjson": {
+    "bytes": 486416,
+    "sha256": "e176edcad3af6e89cc35943d027aa31796aab6214d6aa3b4e1ba11d75c848403"
+  },
+  "waiting-continuation01/phase-facts.ndjson": {
+    "bytes": 185491271,
+    "sha256": "df7e739e1e7814d3ad5761f16152495892c35053ca8930d5add4b12c9b099a4b"
+  },
+  "waiting-continuation01/progress.json": {
+    "bytes": 104971,
+    "sha256": "9cc746e57034c5e74a59be342faf4c2135d69c40c43bc198732712e84776e3b7"
+  },
+  "waiting-continuation01/result.json": {
+    "bytes": 2085,
+    "sha256": "6730080d7be5bfd707dc0d2f16285b7d2805b762a9eaf8dc8145a8dfbfbafd14"
+  },
+  "waiting-continuation01/run_prepared.py": {
+    "bytes": 5264,
+    "sha256": "38fef7073086cc3181ccbea0bded61bf4ee8ebb94392626362aadddde0c19e58"
+  },
+  "waiting-continuation01/source-after.json": {
+    "bytes": 960,
+    "sha256": "4aae097f84977b47f7ea14068555f3ab4db5571533ca1feac0cef92090e10fdb"
+  },
+  "waiting-continuation01/sources/game/building/hospital_movement.gd": {
+    "bytes": 126432,
+    "sha256": "c8b025c0872fad84b71623234fb8f3bfdce9abe9f81d1f64062d7e5f4b912e78"
+  },
+  "waiting-continuation01/sources/game/building/hospital_transit.gd": {
+    "bytes": 53313,
+    "sha256": "1bf9996caa46f6983b7d7e258011c0b984bb1ac16338959e8262a16080a37fc9"
+  },
+  "waiting-continuation01/sources/game/clinic/clinical_runtime.gd": {
+    "bytes": 158761,
+    "sha256": "ccd4751e5110f959d2b78fa670fda88acc0cc092cc85ec4d9838bee8a49f0ca1"
+  },
+  "waiting-continuation01/sources/game/economy/ledger.gd": {
+    "bytes": 1532,
+    "sha256": "7359bf55f0f2cb9ede666b8a7f9a2efa64103d896169d1db62624c80ad069844"
+  },
+  "waiting-continuation01/sources/game/economy/ledger_entry.gd": {
+    "bytes": 290,
+    "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877"
+  },
+  "waiting-continuation01/sources/game/operations/maintenance_service.gd": {
+    "bytes": 39752,
+    "sha256": "63e6226a5e95d2531ca62f9de66125e29e4aa233ee82f2e05eddddd54705be9f"
+  },
+  "waiting-continuation01/sources/game/sim/world_state.gd": {
+    "bytes": 78725,
+    "sha256": "349e096840a646d83cafa08694eeb7b4ece56d9b2f5abb01c50332353694edeb"
+  },
+  "waiting-continuation01/sources/tests/acceptance/run_upgrade_continuation.gd": {
+    "bytes": 8975,
+    "sha256": "3f8d8a5d4ed09e10589d78b8ca708789336c7a470f0d8f53036f9b56907dcc55"
+  },
+  "waiting-continuation01/sources/tests/acceptance/run_upgrade_handoff.gd": {
+    "bytes": 20972,
+    "sha256": "440540b3b325ff51098005cfffa9e8e302963b4f5c9d29adcf62190c5c0cfe59"
+  },
+  "waiting-continuation01/start.bin": {
+    "bytes": 5919528,
+    "sha256": "964698a71036e34c5000b0ea4aa0035e2d875ba572bfc204564ce67811dac6fb"
+  },
+  "run_prepared_v2.py": {
+    "bytes": 5264,
+    "sha256": "38fef7073086cc3181ccbea0bded61bf4ee8ebb94392626362aadddde0c19e58"
+  },
+  "final-release.json": {
+    "bytes": 2886,
+    "sha256": "c3ce3048464f813bc528ec71a7a3c7a26830d4cb569e940e0aa3e0a0680de79f"
+  },
+  "summarize_phase.py": {
+    "bytes": 4844,
+    "sha256": "5f9d817a7dd9d1e5064d38bddb04d7b6c58cdbc64d4d60699db5f9840cf9446b"
+  },
+  "README.md": {
+    "bytes": 2175,
+    "sha256": "d9b8e05d50dc3fdbe04cec64e48cb6aa9a538b02d1a08c4060ad1ae0dc7e6975"
+  },
+  "runner-log-only.diff": {
+    "bytes": 1704,
+    "sha256": "053ac84df294abd5337cea751edb41df5ef5a06930d4257d6ad35bee4a7d46bc"
+  }
+}
