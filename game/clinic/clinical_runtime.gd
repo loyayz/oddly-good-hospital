@@ -260,6 +260,40 @@ func _release_gathering_staff(world: WorldState, visit_id: String, reservation: 
 func _gathering_move(movement: Dictionary, floor_id: int, cell: Array) -> bool:
 	return not movement.is_empty() and not movement.has("convoy") and movement.get("members",[]).size()<=1 and int(movement.target_floor)==floor_id and movement.target_cell==cell
 
+# Compatibility for completed historical outpatient seating. Reconcile only
+# a proved clinical owner during normal dispatch, never a generic actor sweep.
+func _release_completed_seated_support(world: WorldState, visit: Dictionary) -> void:
+	var actor: Dictionary = world.facts.actors[visit.actor_id]
+	var support_id: String = str(actor.get("support_facility_id",""))
+	if support_id.is_empty() or not world.facts.facilities.has(support_id): return
+	if actor.get("posture","standing")!="standing" or actor.location.kind!="floor" or float(actor.location.get("height_m",0.0))!=0.0: return
+	var receipt: Dictionary = visit.get("result_receipt",{})
+	var attempt_id: String = str(receipt.get("attempt_id",""))
+	var attempt: Dictionary = world.facts.attempts.get(attempt_id,{})
+	if attempt.is_empty() or not attempt_id in visit.get("attempt_ids",[]) or attempt.get("visit_id","")!=visit.id or attempt.get("facility_id","")!=support_id: return
+	if content.definition("treatment_protocols",str(attempt.get("protocol_id",""))).get("kind","")!="outpatient": return
+	for session: Dictionary in world.facts.sessions.values():
+		if session.get("visit_id","")==visit.id or actor.id in session.get("resources",[]): return
+	for stay: Dictionary in world.facts.ward_stays.values():
+		if stay.get("visit_id","")==visit.id: return
+	if world.facts.preparations.has(visit.id) or world.facts.get("waiting_life",{}).get("needs",{}).has(visit.id) or world.facts.get("waiting_life",{}).get("seats",{}).has(visit.id): return
+	var movement: Dictionary = world.facts.moves.get(actor.id,{})
+	var cursor: int = int(movement.get("cursor",-1))
+	var path: Array = movement.get("path",[])
+	if cursor>=0 and cursor<path.size() and path[cursor].kind=="support_exit": return
+	var reservation: Dictionary = world.facts.adaptations.get(support_id,{})
+	if reservation.get("actor_id","")==actor.id or actor.id in reservation.get("staff_ids",[]): return
+	var layout: Dictionary = space.facility_layout(world,support_id)
+	if int(actor.location.floor_id)==int(layout.floor_id):
+		var body: Rect2 = space.body_rectangle(actor)
+		var regions: Array = reservation.get("regions",[]).duplicate()
+		regions.append([layout.cell[0],layout.cell[1],layout.footprint[0],layout.footprint[1]])
+		for cell: Array in [layout.patient_cell,layout.repair_cell]+layout.operator_cells: regions.append([cell[0],cell[1],1,1])
+		for region: Array in regions:
+			if body.intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false): return
+	actor.erase("support_facility_id")
+	space.sync_actor(world,actor.id)
+
 func dispatch(world: WorldState) -> void:
 	_worked_staff.clear()
 	_dispatch_clinical_releases(world)
@@ -272,6 +306,7 @@ func dispatch(world: WorldState) -> void:
 			world.facts.visits[pending.visit_id].waiting_reason = "准备到期，释放原资源并保留票号"
 	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
+		_release_completed_seated_support(world,visit)
 		if visit.phase in ["continuation_leaving","continuation_outside"]:
 			Flow.dispatch_continuation(self,world,visit)
 			continue
@@ -2107,6 +2142,7 @@ func _complete_ward(world: WorldState, visit: Dictionary, stay: Dictionary) -> v
 func _settle(world: WorldState, visit: Dictionary, attempt: Dictionary) -> void:
 	if world.facts.actors[visit.actor_id].get("posture","standing") == "seated":
 		world.facts.actors[visit.actor_id].posture = "standing"
+		world.facts.actors[visit.actor_id].erase("support_facility_id")
 		space.sync_actor(world,visit.actor_id)
 	if not attempt.result:
 		visit.anger = minf(100.0,float(visit.anger)+15.0)
