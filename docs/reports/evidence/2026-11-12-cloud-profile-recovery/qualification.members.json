@@ -1,0 +1,122 @@
+{
+  "comparison.json": {
+    "size": 732,
+    "sha256": "644cc85d58a074fec18035734677b5cf9a495803041451eb9f1a9e8eff70383a"
+  },
+  "controller-status.json": {
+    "size": 118,
+    "sha256": "bfc9552669358e66ea2b2ea1056e03e753339bd3b35fd78832282b5a7af1a227"
+  },
+  "phase-identity.json": {
+    "size": 275499,
+    "sha256": "fe4c1215708ef7ea5089dd2b61ed4d7020bd02b5106936f656566d95f0cc0924"
+  },
+  "plain/engine.log": {
+    "size": 298,
+    "sha256": "bcf41bb01b69d42cec549fc6d8f83b8553b5199c012c13282f33c237ef3d6aba"
+  },
+  "plain/process.json": {
+    "size": 1815,
+    "sha256": "e01698999517aa8d7f80ee576de2f8c2cdb8856e23cdb15f0d9c62c74c1fd66e"
+  },
+  "plain/result.json": {
+    "size": 196254,
+    "sha256": "47280541b910d81cd450d9dae7acabe1bd27af250f0406266092ea934724a873"
+  },
+  "plain/result.json.execution.json": {
+    "size": 2201,
+    "sha256": "f0aac7060cb57a825d0361689eafdfcb1e82a5ae8bcd865d77f11e98e6f132ff"
+  },
+  "plain/result.json.final.bin": {
+    "size": 1915924,
+    "sha256": "21aff2546935022312333b67605680c491292575aaa845b07733db993a415a51"
+  },
+  "plain/result.json.initial.json": {
+    "size": 10727,
+    "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7"
+  },
+  "plain/result.json.steps.ndjson": {
+    "size": 345,
+    "sha256": "20b327a5a9bee46c51d430e99a577c8bfb77846636d065687d065c84f01910b1"
+  },
+  "restoration.json": {
+    "size": 88,
+    "sha256": "5eecf1790c7e00613549ad02d9ec8ea4e84c676f8dcb2716a5436aa7eab6c6d4"
+  },
+  "stages/engine.log": {
+    "size": 298,
+    "sha256": "2a54a9e4bcc8eda65f977e7ac4701e1413fd7288151285d2b1b0fe26183b3bc6"
+  },
+  "stages/process.json": {
+    "size": 1846,
+    "sha256": "a1b547204225702b750708929b8a3ad2e5abd86bae0d39b2b70a98122670acdc"
+  },
+  "stages/result.json": {
+    "size": 196256,
+    "sha256": "f77f5102893249ce1bdbb8abc1c9e904183e2c1169f943023cb615f90f4d4219"
+  },
+  "stages/result.json.execution.json": {
+    "size": 2200,
+    "sha256": "746ef897468483d8a88d6b5c37e7f17ae9650a1aef34d6ac7d5c51e1848fb35c"
+  },
+  "stages/result.json.final.bin": {
+    "size": 1915924,
+    "sha256": "21aff2546935022312333b67605680c491292575aaa845b07733db993a415a51"
+  },
+  "stages/result.json.initial.json": {
+    "size": 10727,
+    "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7"
+  },
+  "stages/result.json.stages.json": {
+    "size": 27221,
+    "sha256": "824ee40d698618a857ad20d5a0f7950ba903ffa8c6ed13db11f082d4c25f9519"
+  },
+  "stages/result.json.steps.ndjson": {
+    "size": 345,
+    "sha256": "4fb794e25de00e85ee8a736bb0fafbf85c2b8afa792480803677258bb9d88d81"
+  },
+  "controller/controller_v2.py": {
+    "size": 10217,
+    "sha256": "10b82734a87069043ddf292f2f905aa673392b0ec6d55ff83abff94a7a6e0677"
+  },
+  "controller/linux_guard_v2.py": {
+    "size": 2114,
+    "sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7"
+  },
+  "controller/published_run_pair.py": {
+    "size": 4698,
+    "sha256": "c7c1e246bded96395aa9c004f4659ae99c6a07f8c5faac4d110aa84898e28456"
+  },
+  "controller/mixed160.input.bin": {
+    "size": 2220056,
+    "sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca"
+  },
+  "controller/config.json": {
+    "size": 275877,
+    "sha256": "b3243c012ce1f6ec300a9854f61ac149a527d1d8a41f0887323c5d8d7e8a0ece"
+  },
+  "sources/tools/performance/current/plain_v4.gd": {
+    "size": 16782,
+    "sha256": "a6ca441d0bc67153673adf5279ea2b100286b4834f9cceeb7907cb21acfc5506"
+  },
+  "sources/tools/performance/step_profile.gd": {
+    "size": 27280,
+    "sha256": "fa164577cb8c9e2bdd251f1231fc36a3bd97d3f31d343ed2da0741e906b2b60e"
+  },
+  "generated-profile-sources/simulation.gd": {
+    "size": 9422,
+    "sha256": "0e2c8e0ab2e1a457154b4b8d9b04757b4338cd46cd1b8da81fe231bc75da0828"
+  },
+  "provenance/preparation-result.json": {
+    "size": 30313,
+    "sha256": "e633b41109d8a815da98d2f17ccc6a4d75d93ba669ae840905d838b3b64dd686"
+  },
+  "provenance/provisioning-manifest.json": {
+    "size": 3787,
+    "sha256": "3fb80c8747b469b2f9f8b9845a0779072264c21be24862867b750be311c6bfae"
+  },
+  "provenance/timings.json": {
+    "size": 4741,
+    "sha256": "0184cc29c44c686384316d242359572f96da98be9e5033bb6875b32e73e2c41b"
+  }
+}
