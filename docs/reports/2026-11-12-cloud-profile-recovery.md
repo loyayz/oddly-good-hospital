@@ -28,3 +28,16 @@ The new 0+2 plain/root-only pair completed and passed full World/RNG/ordered-eve
 The Linux owned-process guard was separately checked with a harmless Python sleep: timeout in 0.304s, exit-15, process reaped. Controller v2.1 SHA256 is `10b82734a87069043ddf292f2f905aa673392b0ec6d55ff83abff94a7a6e0677`. Its three independent phase entries bind qualification identity to subsequent runs and require a durable plain-result receipt before the full-stage entry. Three pure-Python synthetic test groups cover identity changes, missing/wrong stage records and non-acceptance status labels.
 
 [Qualification archive](evidence/2026-11-12-cloud-profile-recovery/qualification.zip), 553479 bytes, SHA256 `b43118611326c986d9eae63845f6e66f2193ff64ee5ecbecd7ff529ae01704a4`, retains 30 raw members plus its manifest. [Support archive](evidence/2026-11-12-cloud-profile-recovery/qualification-support.zip), 2358 bytes, SHA256 `d87dbd58d940a105531a029beb10fe24b1cb728ac1719ded3fc8b1b353f9f2eb`, retains the guard proof, phase release and synthetic test source. Both ZIP CRC and all member sizes/SHA256 were independently verified. This is only instrumentation qualification, not a full workload or three-repeat acceptance result.
+
+## New complete ordinary window
+
+After the new qualification and its durable checkpoint, exactly one new ordinary 1000+6000 window completed. All 7000 production steps are recorded; all 6000 measured steps qualify as the >=144-present dense interval (ticks1634-7633, population min/median/max164/165/170). Source, native, imported-cache and dependency identities remained unchanged.
+
+- P50 58.764ms; P95 96.160ms; P99 130.222ms; maximum319.280ms. The 10/15/30ms latency gates fail.
+- Measured step sum365368920us; sample wall411324936us; speed1.4587007679x. Process wall487.309s includes preparation/startup/prefix/output overhead.
+- Coverage29/31: upgrade and effective ward visit remain missing. The same fixed upgrade command rejects at tick1633 with `maintenance_unavailable` / `缺少真实合法维修操作位`. Raw `complete=false`, exit1 are preserved. This is not an accepted repeat.
+- Complete final World/RNG/ordered-events SHA256: `41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68`.
+
+[Full ordinary raw archive](evidence/2026-11-12-cloud-profile-recovery/full-plain.zip) is851352bytes, SHA256 `0aaf766947d28dc8c5c7cade528b24e6ebc1241293c624245b71fbf7cb09b3ba`, with21 raw members plus its internal manifest. The [external member manifest](evidence/2026-11-12-cloud-profile-recovery/full-plain.members.json) permits independent size/hash validation. The archive includes the complete input/final binaries, every step row, unmodified result/observer output, process/command/exit records, controller, source and runtime identities. It was locally CRC/member-verified before publication. The root-stage long window was not started while this checkpoint was pending.
+
+This is a separately identified run, not recovery of the missing earlier raw files. No code changed between the timing observations, and neither the difference from the earlier interrupted batch nor a cross-machine comparison is claimed as an optimization gain. The causal stage attribution remains pending the paired root-stage window.
