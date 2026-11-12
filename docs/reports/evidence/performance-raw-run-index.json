@@ -454,17 +454,44 @@
         "verified_utc": "2026-11-12T12:07:30.734774+00:00",
         "commit": "a73cba90b68d94a11d86cf792b8f83b93a7b122a"
       }
+    },
+    {
+      "id": "cloud-waiting-fixed-full-plain",
+      "kind": "ordinary_complete_window_after_waiting_fixes",
+      "full_window": true,
+      "prefix": 1000,
+      "measured_steps": 6000,
+      "source_commit": "73fd37695602442c91b36644d471cfa51045655d",
+      "archive": "2026-11-12-waiting-fixed-full/full-plain.zip",
+      "archive_sha256": "21bcb3f3737397de767a570ad2bf859c505a3852101f3a9ff309e49c913f5aea",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "metrics_us": {
+        "p95": 103267,
+        "p99": 134362,
+        "max": 282747
+      },
+      "coverage_pass": false,
+      "latency_gates_pass": false,
+      "performance_pass": null,
+      "final_envelope_sha256": "d5b8a6520051d7170ed625e4f0077e6e3cd8c491312f710d2bcac920016c54c5",
+      "scope": "7000 actual steps; corrected behavior changes final; one run not acceptance, no single-cause timing attribution.",
+      "public_export": {
+        "simulation_members_byte_identical": true,
+        "host_metadata_layout_removed": true,
+        "export_manifest": "2026-11-12-waiting-fixed-full/public-export.json"
+      }
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-waiting-hot-boundary-observer",
     "cloud-waiting-fallback-breakdown",
-    "cloud-floor-wait-order-micro"
+    "cloud-floor-wait-order-micro",
+    "cloud-waiting-fixed-full-plain"
   ],
   "latest_three_complete_window_ids": [
-    "cloud-recovery-full-root-stages",
     "cloud-movement-full-narrow",
-    "cloud-structural-body-full-plain"
+    "cloud-structural-body-full-plain",
+    "cloud-waiting-fixed-full-plain"
   ],
   "comparison_warning": "Kinds and observer modes differ. Do not infer optimization gains by comparing different kinds or count short qualifications as complete performance windows."
 }
