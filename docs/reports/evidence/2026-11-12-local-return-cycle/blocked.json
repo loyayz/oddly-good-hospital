@@ -1,0 +1,1533 @@
+{
+	"case": "LOCAL-BLOCKED-MOVER",
+	"checks": {
+		"both_arrived": true,
+		"current_json_cold_arrival": true,
+		"final_valid": true,
+		"local_action_seen": true,
+		"only_open_side_actor_takes_aside": true,
+		"original_goals_paths_requests": true,
+		"real_body_sweep_and_furniture_safe": true
+	},
+	"errors": [],
+	"initial_validation": "",
+	"ok": true,
+	"requests": [
+		"",
+		""
+	],
+	"restore": {
+		"case": "LOCAL-BLOCKED-MOVER",
+		"checks": {
+			"both_arrived": true,
+			"current_json_cold_arrival": true,
+			"final_valid": true,
+			"local_action_seen": true,
+			"only_open_side_actor_takes_aside": true,
+			"original_goals_paths_requests": true,
+			"real_body_sweep_and_furniture_safe": true
+		},
+		"errors": [],
+		"ok": true,
+		"restore": {},
+		"steps": 43,
+		"stream_exact": true,
+		"trace": [
+			{
+				"a": [
+					39.2000007629395,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"retreat": true,
+					"target": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					39.7999992370605,
+					70.0
+				],
+				"b_local": {},
+				"tick": 0
+			},
+			{
+				"a": [
+					39.0,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"retreat": true,
+					"target": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					39.5999984741211,
+					70.0
+				],
+				"b_local": {},
+				"tick": 1
+			},
+			{
+				"a": [
+					39.0,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					39.5999984741211,
+					70.0
+				],
+				"b_local": {
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"retreat": true,
+					"target": {
+						"cell": [
+							40.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 2
+			},
+			{
+				"a": [
+					39.0,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					39.7999992370605,
+					70.0
+				],
+				"b_local": {
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"retreat": true,
+					"target": {
+						"cell": [
+							40.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 3
+			},
+			{
+				"a": [
+					39.2000007629395,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					70.0
+				],
+				"b_local": {
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"retreat": true,
+					"target": {
+						"cell": [
+							40.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 4
+			},
+			{
+				"a": [
+					39.4000015258789,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					70.1999969482422
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 5
+			},
+			{
+				"a": [
+					39.4000015258789,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					70.3999938964844
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 6
+			},
+			{
+				"a": [
+					39.4000015258789,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					70.5999908447266
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 7
+			},
+			{
+				"a": [
+					39.6000022888184,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					70.7999877929688
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 8
+			},
+			{
+				"a": [
+					39.8000030517578,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					70.9999847412109
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 9
+			},
+			{
+				"a": [
+					40.0000038146973,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					71.1999816894531
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 10
+			},
+			{
+				"a": [
+					40.2000045776367,
+					70.0
+				],
+				"a_local": {
+					"origin": [
+						39.4,
+						70
+					],
+					"rejoin": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"index": 2
+					},
+					"target": {
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"b": [
+					40.0,
+					71.3999786376953
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								72.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						},
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							40.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 11
+			},
+			{
+				"a": [
+					42.0,
+					70.0
+				],
+				"a_local": {},
+				"b": [
+					41.0,
+					72.0
+				],
+				"b_local": {
+					"corners": [
+						{
+							"cell": [
+								41.0,
+								70.0
+							],
+							"floor_id": 1,
+							"kind": "floor"
+						}
+					],
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 20
+			},
+			{
+				"a": [
+					43.0,
+					70.0
+				],
+				"a_local": {},
+				"b": [
+					39.1999931335449,
+					70.0
+				],
+				"b_local": {
+					"origin": [
+						39.5999984741211,
+						70.0
+					],
+					"rejoin": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"index": 0
+					},
+					"target": {
+						"cell": [
+							39.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				},
+				"tick": 40
+			}
+		]
+	},
+	"steps": 44,
+	"trace": [
+		{
+			"a": [
+				39.4,
+				70
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"retreat": true,
+				"target": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40,
+				70
+			],
+			"b_local": {},
+			"tick": 0
+		},
+		{
+			"a": [
+				39.2000007629395,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"retreat": true,
+				"target": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				39.7999992370605,
+				70.0
+			],
+			"b_local": {},
+			"tick": 1
+		},
+		{
+			"a": [
+				39.0,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"retreat": true,
+				"target": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				39.5999984741211,
+				70.0
+			],
+			"b_local": {},
+			"tick": 2
+		},
+		{
+			"a": [
+				39.0,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				39.5999984741211,
+				70.0
+			],
+			"b_local": {
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"retreat": true,
+				"target": {
+					"cell": [
+						40.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 3
+		},
+		{
+			"a": [
+				39.0,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				39.7999992370605,
+				70.0
+			],
+			"b_local": {
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"retreat": true,
+				"target": {
+					"cell": [
+						40.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 4
+		},
+		{
+			"a": [
+				39.2000007629395,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				70.0
+			],
+			"b_local": {
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"retreat": true,
+				"target": {
+					"cell": [
+						40.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 5
+		},
+		{
+			"a": [
+				39.4000015258789,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				70.1999969482422
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						40.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 6
+		},
+		{
+			"a": [
+				39.4000015258789,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				70.3999938964844
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						40.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 7
+		},
+		{
+			"a": [
+				39.4000015258789,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				70.5999908447266
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						40.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 8
+		},
+		{
+			"a": [
+				39.6000022888184,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				70.7999877929688
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						40.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 9
+		},
+		{
+			"a": [
+				39.8000030517578,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				70.9999847412109
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						40.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 10
+		},
+		{
+			"a": [
+				40.0000038146973,
+				70.0
+			],
+			"a_local": {
+				"origin": [
+					39.4,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"index": 2
+				},
+				"target": {
+					"cell": [
+						41.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"b": [
+				40.0,
+				71.1999816894531
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							72.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						40.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 11
+		},
+		{
+			"a": [
+				41.8000030517578,
+				70.0
+			],
+			"a_local": {},
+			"b": [
+				40.8000030517578,
+				72.0
+			],
+			"b_local": {
+				"corners": [
+					{
+						"cell": [
+							41.0,
+							70.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					}
+				],
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41.0,
+						72.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 20
+		},
+		{
+			"a": [
+				43.0,
+				70.0
+			],
+			"a_local": {},
+			"b": [
+				39.3999938964844,
+				70.0
+			],
+			"b_local": {
+				"origin": [
+					39.5999984741211,
+					70.0
+				],
+				"rejoin": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						39.0,
+						70.0
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"tick": 40
+		}
+	]
+}

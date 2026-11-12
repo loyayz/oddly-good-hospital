@@ -1,0 +1,3 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{"checks":{"both_arrived":true,"current_json_cold_arrival":true,"final_valid":true,"local_action_seen":true,"only_open_side_actor_takes_aside":true,"original_goals_paths_requests":true,"real_body_sweep_and_furniture_safe":true},"ok":true,"restore":{"both_arrived":true,"current_json_cold_arrival":true,"final_valid":true,"local_action_seen":true,"only_open_side_actor_takes_aside":true,"original_goals_paths_requests":true,"real_body_sweep_and_furniture_safe":true},"steps":44}

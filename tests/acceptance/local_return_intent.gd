@@ -27,7 +27,7 @@ class ObservedMovement extends HospitalMovement:
 func run(content: HospitalContent) -> Dictionary:
 	var suite: RefCounted=load("res://tests/acceptance/space.gd").new()
 	suite.content=content
-	var rows: Array=[_sequence(suite,false),_sequence(suite,true),_sequence(suite,false,true),_fixed_contact(suite),_retreat_axis(suite)]
+	var rows: Array=[_sequence(suite,false),_sequence(suite,true),_sequence(suite,false,true),_fixed_contact(suite),_retreat_axis(suite),_end_rejoin(suite)]
 	return {"ok":rows.all(func(row: Dictionary)->bool: return row.ok),"cases":rows}
 
 func _sequence(suite: RefCounted, compressed: bool, bend: bool = false) -> Dictionary:
@@ -123,5 +123,58 @@ func _retreat_axis(suite: RefCounted) -> Dictionary:
 		backward=backward or float(actor.location.cell[1])<before.y
 	var checks: Dictionary={"initial_valid":initial.is_empty(),"actual_contact_and_retreat":retreat_seen,"actual_backward_step":backward,"exact_axis":exact_axis,"safe_real_steps":errors.is_empty(),"current_restore_valid":WorldState.new(sim.world.freeze()).validate(suite.content).is_empty()}
 	var result: Dictionary={"case":"binary32_history_retreat_axis","ok":checks.values().all(func(value: Variant)->bool:return value==true),"checks":checks,"errors":errors,"remaining":sim.world.facts.moves.get("walker",{}).get("local_move",{})}
+	sim.dispose()
+	return result
+
+# Legal boundary after a side step: both orthogonal first legs of the last
+# unearned rejoin hit real bodies. A northward exit remains physically clear.
+func _end_rejoin(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation=suite._fixture()
+	suite._add_actor(sim,"walker","S49",[40,71])
+	suite._add_actor(sim,"west","S49",[39.4,71])
+	suite._add_actor(sim,"south","S49",[40,71.6])
+	var goal: Array=[38,75]
+	var path: Array=[{"kind":"floor","floor_id":1,"cell":goal.duplicate()}]
+	sim.world.facts.move_request_next=1
+	sim.world.facts.moves["walker"]={"actor_id":"walker","path":path.duplicate(true),"cursor":0,"travelled":[{"kind":"floor","floor_id":1,"cell":[40,70]}],"blocked_since":-1,"target_floor":1,"target_cell":goal.duplicate(),"request_sequence":1,"local_move":{"origin":[40,70],"target":{"kind":"floor","floor_id":1,"cell":[38,71]},"rejoin":{"index":0,"cell":goal.duplicate()}}}
+	sim.world.touch()
+	var initial: String=sim.world.validate(suite.content)
+	var observer:=ObservedMovement.new(sim.space)
+	sim.space.movement=observer
+	var probe: RefCounted=load("res://tests/acceptance/movement_detour.gd").new()
+	var errors: Array=[]
+	var original: bool=true
+	var fixed: bool=true
+	var restored: Dictionary={}
+	var trace: Array=[]
+	var ticks: int=0
+	var cold: HospitalSimulation=null
+	var cold_matches: bool=true
+	for tick: int in 180:
+		var error: String=probe._tick(suite,sim,["walker","west","south"])
+		ticks=tick+1
+		if not error.is_empty(): errors.append(error);break
+		if cold!=null:
+			var cold_error: String=probe._tick(suite,cold,["walker","west","south"])
+			cold_matches=cold_matches and cold_error.is_empty() and cold.world.freeze()==sim.world.freeze()
+		fixed=fixed and sim.space.at(sim.world,"west",1,[39.4,71]) and sim.space.at(sim.world,"south",1,[40,71.6]) and not sim.world.facts.moves.has("west") and not sim.world.facts.moves.has("south")
+		var move: Dictionary=sim.world.facts.moves.get("walker",{})
+		if tick<8: trace.append({"cell":sim.world.facts.actors.walker.location.cell.duplicate(),"local":move.get("local_move",{}).duplicate(true)})
+		if move.is_empty(): break
+		original=original and move.path==path and move.target_cell==goal and int(move.request_sequence)==1 and not move.get("route_pending",false)
+		if restored.is_empty() and not observer.blocked.is_empty():
+			restored=probe._restore_boundary(suite,sim,"walker",["walker","west","south"])
+			# Decode the actual disk checkpoint into fresh services, then compare
+			# every subsequent real step through arrival, not only one tick.
+			var decoder:=HospitalJsonStream.new()
+			var saved: String="user://movement-detour-current.json"
+			var decoded: Dictionary=decoder.decode(saved,FileAccess.get_file_as_bytes(saved).size(),FileAccess.get_sha256(saved),func(_bytes:int)->bool:return true)
+			if decoded.get("ok",false): cold=HospitalSimulation.new(WorldState.new(decoded.value),suite.content)
+			else: errors.append(decoder.error);break
+	var arrived: bool=not sim.world.facts.moves.has("walker") and sim.space.at(sim.world,"walker",1,goal)
+	var moved: bool=trace.any(func(row:Dictionary)->bool:return ConvoyTrail.point(row.cell)!=Vector2(40,71))
+	var checks: Dictionary={"initial_valid":initial.is_empty(),"arrived":arrived,"actual_motion_within_eight_steps":moved,"actual_contact":not observer.blocked.is_empty(),"safe_real_steps":errors.is_empty(),"original_request_and_path":original,"cursor_not_advanced_by_contact":observer.cursor_kept_on_contact,"fixed_actors_kept":fixed,"restore":restored.get("ok",false),"cold_continuation_to_goal":cold!=null and cold_matches and arrived and not cold.world.facts.moves.has("walker"),"no_future_body_probe":observer.future_body_probes==0}
+	var result: Dictionary={"case":"end_rejoin_actual_collision","ok":checks.values().all(func(value:Variant)->bool:return value==true),"checks":checks,"initial_validation":initial,"errors":errors,"trace":trace,"ticks":ticks,"restored":restored}
+	if cold!=null: cold.dispose()
 	sim.dispose()
 	return result

@@ -1,0 +1,423 @@
+{
+	"case": "LOCAL-ONE-AVOIDER",
+	"checks": {
+		"both_arrived": true,
+		"current_json_restore": true,
+		"existing_intent_kept_while_other_clears": true,
+		"final_valid": true,
+		"initial_valid": true,
+		"only_existing_actor_takes_aside": true,
+		"original_goals_paths_requests": true,
+		"real_contact": true,
+		"resume_without_waiting_for_whole_aside": true,
+		"safe_real_steps": true
+	},
+	"errors": [],
+	"first_move": {
+		"actor_id": "walker",
+		"blocked_since": -1,
+		"cursor": 0,
+		"local_move": {
+			"origin": [
+				39,
+				70
+			],
+			"rejoin": {
+				"cell": [
+					41,
+					70
+				],
+				"index": 0
+			},
+			"target": {
+				"cell": [
+					41,
+					70
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			}
+		},
+		"path": [
+			{
+				"cell": [
+					41,
+					70
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			},
+			{
+				"cell": [
+					43,
+					70
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			}
+		],
+		"request_sequence": 1,
+		"target_cell": [
+			43,
+			70
+		],
+		"target_floor": 1,
+		"travelled": [
+			{
+				"cell": [
+					39,
+					70
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			},
+			{
+				"cell": [
+					39,
+					71
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			},
+			{
+				"cell": [
+					40,
+					71
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			},
+			{
+				"cell": [
+					40,
+					70
+				],
+				"floor_id": 1,
+				"kind": "floor"
+			}
+		]
+	},
+	"initial_validation": "",
+	"ok": true,
+	"restored": {
+		"corrupt_states": {
+			"accepted_bad_states": [],
+			"ok": true,
+			"rejected": [
+				"unknown_phase",
+				"empty_original",
+				"diagonal",
+				"nonfinite_origin",
+				"fractional_cursor",
+				"fractional_resume",
+				"huge_resume",
+				"foreign_target",
+				"false_completed_route",
+				"pending_route",
+				"retreat_other_floor",
+				"bad_original_segment",
+				"missing_connector",
+				"old_yielding",
+				"old_partner",
+				"wrong_rejoin_endpoint",
+				"changed_suffix",
+				"invalid_retreat_flag",
+				"legacy_single_detour"
+			]
+		},
+		"next_errors": [
+			"",
+			""
+		],
+		"ok": true,
+		"same_safe_next_real_tick": true,
+		"stream_exact": true,
+		"validation": ""
+	},
+	"trace": [
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				40.5999984741211,
+				70.1999969482422
+			],
+			"tick": 0,
+			"walker": [
+				40,
+				70
+			]
+		},
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				40.5999984741211,
+				70.3999938964844
+			],
+			"tick": 1,
+			"walker": [
+				40,
+				70
+			]
+		},
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				40.5999984741211,
+				70.5999908447266
+			],
+			"tick": 2,
+			"walker": [
+				40.2000007629395,
+				70.0
+			]
+		},
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				40.5999984741211,
+				70.7999877929688
+			],
+			"tick": 3,
+			"walker": [
+				40.4000015258789,
+				70.0
+			]
+		},
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				40.5999984741211,
+				71.0
+			],
+			"tick": 4,
+			"walker": [
+				40.6000022888184,
+				70.0
+			]
+		},
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				40.7999992370605,
+				71.0
+			],
+			"tick": 5,
+			"walker": [
+				40.8000030517578,
+				70.0
+			]
+		},
+		{
+			"a_local": {
+				"origin": [
+					39,
+					70
+				],
+				"rejoin": {
+					"cell": [
+						41,
+						70
+					],
+					"index": 0
+				},
+				"target": {
+					"cell": [
+						41,
+						70
+					],
+					"floor_id": 1,
+					"kind": "floor"
+				}
+			},
+			"leaver": [
+				41.0,
+				71.0
+			],
+			"tick": 6,
+			"walker": [
+				41.0,
+				70.0
+			]
+		},
+		{
+			"a_local": {},
+			"leaver": [
+				41.0,
+				70.8000030517578
+			],
+			"tick": 7,
+			"walker": [
+				41.2000007629395,
+				70.0
+			]
+		},
+		{
+			"a_local": {},
+			"leaver": [
+				41.0,
+				70.6000061035156
+			],
+			"tick": 8,
+			"walker": [
+				41.4000015258789,
+				70.0
+			]
+		},
+		{
+			"a_local": {},
+			"leaver": [
+				41.0,
+				70.6000061035156
+			],
+			"tick": 9,
+			"walker": [
+				41.6000022888184,
+				70.0
+			]
+		},
+		{
+			"a_local": {},
+			"leaver": [
+				42.4000015258789,
+				70.0
+			],
+			"tick": 20,
+			"walker": [
+				43.0,
+				70.0
+			]
+		},
+		{
+			"a_local": {},
+			"leaver": [
+				44.2000007629395,
+				70.0
+			],
+			"tick": 40,
+			"walker": [
+				43.0,
+				70.0
+			]
+		}
+	]
+}

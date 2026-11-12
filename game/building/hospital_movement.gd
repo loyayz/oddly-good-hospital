@@ -1270,9 +1270,9 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		# A blocked B is an attempted target, not earned route progress. Try C
 		# only after the existing single local mover has been considered.
 		var changed: bool=_local_try_return(world,actor,movement,true,contact.requested_motion)
-		if not changed:
-			var link: Dictionary=movement.local_move.rejoin
-			changed=_local_return(world,actor,movement,space.navigation.structural_clearance(world,actor,int(actor.location.floor_id)),int(link.index),ConvoyTrail.point(link.cell),contact.requested_motion)
+		# Exhausting later targets is not a new return intention. Rebuilding
+		# this same rejoin here can alternate two blocked orthogonal corners
+		# without moving. Keep its ownership and handle the real contact below.
 		if changed:
 			var next: Vector2=ConvoyTrail.point(movement.local_move.target.cell)-ConvoyTrail.point(actor.location.cell)
 			if next.cross(contact.requested_motion)==0.0 and next.dot(contact.requested_motion)>0.0:
