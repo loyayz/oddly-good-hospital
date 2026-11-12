@@ -1,0 +1,576 @@
+{
+  "ok": true,
+  "pairs": [
+    {
+      "actor": "bench_patient_0003",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 435876,
+      "B_total_us": 54907,
+      "A_median_us": 21244.5,
+      "B_median_us": 2651.5,
+      "reduction_fraction": 0.8740306876267563,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0003",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 422927,
+      "B_total_us": 53465,
+      "A_median_us": 21074.0,
+      "B_median_us": 2635.5,
+      "reduction_fraction": 0.8735833843665692,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0003",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 451179,
+      "B_total_us": 52866,
+      "A_median_us": 21433.0,
+      "B_median_us": 2628.5,
+      "reduction_fraction": 0.8828269932776127,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0003",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 426212,
+      "B_total_us": 52479,
+      "A_median_us": 21134.0,
+      "B_median_us": 2592.0,
+      "reduction_fraction": 0.8768711345527578,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0003",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 431327,
+      "B_total_us": 54768,
+      "A_median_us": 21138.0,
+      "B_median_us": 2669.0,
+      "reduction_fraction": 0.8730244107139131,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0003",
+      "pair": 6,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 418495,
+      "B_total_us": 53598,
+      "A_median_us": 20802.0,
+      "B_median_us": 2639.5,
+      "reduction_fraction": 0.8719267852662517,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0011",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 371613,
+      "B_total_us": 59632,
+      "A_median_us": 17769.5,
+      "B_median_us": 2628.5,
+      "reduction_fraction": 0.8395319862329897,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0011",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 390681,
+      "B_total_us": 51492,
+      "A_median_us": 18356.0,
+      "B_median_us": 2484.5,
+      "reduction_fraction": 0.8681993749376089,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0011",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 472351,
+      "B_total_us": 51477,
+      "A_median_us": 21323.0,
+      "B_median_us": 2512.5,
+      "reduction_fraction": 0.891019601948551,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0011",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 380859,
+      "B_total_us": 63862,
+      "A_median_us": 17678.5,
+      "B_median_us": 2588.0,
+      "reduction_fraction": 0.8323211477213353,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0011",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 408942,
+      "B_total_us": 59358,
+      "A_median_us": 18448.0,
+      "B_median_us": 2649.5,
+      "reduction_fraction": 0.8548498320055167,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0011",
+      "pair": 6,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 367930,
+      "B_total_us": 53301,
+      "A_median_us": 17780.0,
+      "B_median_us": 2584.5,
+      "reduction_fraction": 0.8551327698203463,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0012",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 408344,
+      "B_total_us": 56081,
+      "A_median_us": 20294.0,
+      "B_median_us": 2735.0,
+      "reduction_fraction": 0.8626623631056168,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0012",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 398561,
+      "B_total_us": 60331,
+      "A_median_us": 19801.5,
+      "B_median_us": 2809.5,
+      "reduction_fraction": 0.8486279390105906,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0012",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 397151,
+      "B_total_us": 55645,
+      "A_median_us": 19440.0,
+      "B_median_us": 2765.0,
+      "reduction_fraction": 0.8598895634154264,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0012",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 410998,
+      "B_total_us": 54621,
+      "A_median_us": 19516.0,
+      "B_median_us": 2739.0,
+      "reduction_fraction": 0.8671015430732023,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0012",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 388519,
+      "B_total_us": 54245,
+      "A_median_us": 19296.0,
+      "B_median_us": 2682.5,
+      "reduction_fraction": 0.8603800586329111,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0012",
+      "pair": 6,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 407551,
+      "B_total_us": 54630,
+      "A_median_us": 20203.0,
+      "B_median_us": 2671.5,
+      "reduction_fraction": 0.8659554264374274,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0026",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 407697,
+      "B_total_us": 57482,
+      "A_median_us": 20178.5,
+      "B_median_us": 2809.0,
+      "reduction_fraction": 0.8590080378320174,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0026",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 422742,
+      "B_total_us": 57472,
+      "A_median_us": 21062.5,
+      "B_median_us": 2765.5,
+      "reduction_fraction": 0.8640494675239271,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0026",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 438986,
+      "B_total_us": 59609,
+      "A_median_us": 21107.0,
+      "B_median_us": 2992.0,
+      "reduction_fraction": 0.864212070544391,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0026",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 436152,
+      "B_total_us": 57521,
+      "A_median_us": 21186.5,
+      "B_median_us": 2757.5,
+      "reduction_fraction": 0.8681170784497148,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0026",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 433658,
+      "B_total_us": 57666,
+      "A_median_us": 20699.5,
+      "B_median_us": 2889.5,
+      "reduction_fraction": 0.8670242449118891,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0026",
+      "pair": 6,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 419629,
+      "B_total_us": 56055,
+      "A_median_us": 21173.0,
+      "B_median_us": 2778.5,
+      "reduction_fraction": 0.8664177166020461,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0027",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 392677,
+      "B_total_us": 63753,
+      "A_median_us": 19658.0,
+      "B_median_us": 2819.5,
+      "reduction_fraction": 0.8376451893031678,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0027",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 387724,
+      "B_total_us": 55774,
+      "A_median_us": 19334.5,
+      "B_median_us": 2762.5,
+      "reduction_fraction": 0.8561502512096233,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0027",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 385767,
+      "B_total_us": 54353,
+      "A_median_us": 19235.0,
+      "B_median_us": 2711.0,
+      "reduction_fraction": 0.8591040705918339,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0027",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 390902,
+      "B_total_us": 54300,
+      "A_median_us": 19469.0,
+      "B_median_us": 2713.5,
+      "reduction_fraction": 0.8610905035021565,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0027",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 388881,
+      "B_total_us": 55216,
+      "A_median_us": 19407.5,
+      "B_median_us": 2688.5,
+      "reduction_fraction": 0.8580131196947138,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0027",
+      "pair": 6,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 399813,
+      "B_total_us": 55579,
+      "A_median_us": 19552.0,
+      "B_median_us": 2766.0,
+      "reduction_fraction": 0.8609875116617018,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0059",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 389164,
+      "B_total_us": 57533,
+      "A_median_us": 19176.0,
+      "B_median_us": 2825.0,
+      "reduction_fraction": 0.8521625844117133,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0059",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 420795,
+      "B_total_us": 61834,
+      "A_median_us": 19886.5,
+      "B_median_us": 2879.0,
+      "reduction_fraction": 0.853054337622833,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0059",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 410110,
+      "B_total_us": 59122,
+      "A_median_us": 19111.5,
+      "B_median_us": 2825.0,
+      "reduction_fraction": 0.8558386774280071,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0059",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 378768,
+      "B_total_us": 55353,
+      "A_median_us": 18543.0,
+      "B_median_us": 2732.5,
+      "reduction_fraction": 0.853860410594348,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0059",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "A_total_us": 388213,
+      "B_total_us": 53689,
+      "A_median_us": 19062.5,
+      "B_median_us": 2689.5,
+      "reduction_fraction": 0.8617022098693243,
+      "candidate_faster": true
+    },
+    {
+      "actor": "bench_patient_0059",
+      "pair": 6,
+      "order": [
+        "B",
+        "A"
+      ],
+      "A_total_us": 371253,
+      "B_total_us": 51610,
+      "A_median_us": 18528.0,
+      "B_median_us": 2575.0,
+      "reduction_fraction": 0.8609842883424511,
+      "candidate_faster": true
+    }
+  ],
+  "cases": [
+    {
+      "actor": "bench_patient_0003",
+      "points": 8256,
+      "A_total_us": 2586016,
+      "B_total_us": 322083,
+      "A_median_us": 21135.0,
+      "B_median_us": 2640.5,
+      "reduction_fraction": 0.8754520467004071
+    },
+    {
+      "actor": "bench_patient_0011",
+      "points": 8256,
+      "A_total_us": 2392376,
+      "B_total_us": 339122,
+      "A_median_us": 18155.0,
+      "B_median_us": 2562.0,
+      "reduction_fraction": 0.8582488705788722
+    },
+    {
+      "actor": "bench_patient_0012",
+      "points": 8320,
+      "A_total_us": 2411124,
+      "B_total_us": 335553,
+      "A_median_us": 19680.0,
+      "B_median_us": 2732.5,
+      "reduction_fraction": 0.8608312969386892
+    },
+    {
+      "actor": "bench_patient_0026",
+      "points": 8320,
+      "A_total_us": 2558864,
+      "B_total_us": 345805,
+      "A_median_us": 21011.5,
+      "B_median_us": 2815.0,
+      "reduction_fraction": 0.8648599534793564
+    },
+    {
+      "actor": "bench_patient_0027",
+      "points": 8256,
+      "A_total_us": 2345764,
+      "B_total_us": 338975,
+      "A_median_us": 19385.5,
+      "B_median_us": 2738.0,
+      "reduction_fraction": 0.8554948409132377
+    },
+    {
+      "actor": "bench_patient_0059",
+      "points": 8256,
+      "A_total_us": 2358303,
+      "B_total_us": 339141,
+      "A_median_us": 19019.0,
+      "B_median_us": 2707.0,
+      "reduction_fraction": 0.8561927792993521
+    }
+  ],
+  "timed_sorts": 1440,
+  "A_total_us": 14652447,
+  "B_total_us": 2020679,
+  "A_median_us": 19897.5,
+  "B_median_us": 2699.0,
+  "reduction_fraction": 0.8620927275833177,
+  "faster_pairs": 36,
+  "correctness_cases": 15,
+  "all_captured_sequences_equal": true,
+  "all_full_payloads_and_source_files_unchanged": true,
+  "scope": "Pure sorting only; not simulation, end-to-end step latency, or full performance acceptance. No production change."
+}

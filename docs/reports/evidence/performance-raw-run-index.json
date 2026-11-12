@@ -415,15 +415,41 @@
       "archive": "2026-11-12-waiting-hot-boundary/breakdown.zip",
       "archive_sha256": "5ab55f5a70c725248d6c19ddc03a4da7dc4a4ab540e355ec7d9dbd96366d1b0f",
       "local_crc_member_readback_verified": true,
+      "remote_readback_verified": true,
+      "performance_pass": null,
+      "scope": "Exact behavior equality; corpus is not warm-cache state; 129.817ms unclassified cleanup/observer residual remains; not acceptance.",
+      "publication_commit": "03bcb4e51ed19d0012fc08b162affb5d6b3fae59",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "5ab55f5a70c725248d6c19ddc03a4da7dc4a4ab540e355ec7d9dbd96366d1b0f",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/03bcb4e51ed19d0012fc08b162affb5d6b3fae59/docs/reports/evidence/2026-11-12-waiting-hot-boundary/breakdown.zip",
+        "bytes": 4083348,
+        "members": 68,
+        "verified_utc": "2026-11-12T12:01:45.467776+00:00",
+        "commit": "03bcb4e51ed19d0012fc08b162affb5d6b3fae59"
+      }
+    },
+    {
+      "id": "cloud-floor-wait-order-micro",
+      "kind": "fixed_real_corpus_isolated_sort_lifecycle_micro",
+      "full_window": false,
+      "source_commit": "1e5bb6e3c0883836275aeab74e64847255fd8a06",
+      "cases": 6,
+      "pairs": 36,
+      "repetitions_per_arm": 20,
+      "timed_sorts": 1440,
+      "archive": "2026-11-12-floor-wait-order/micro.zip",
+      "archive_sha256": "4969ba559b22e99628a7b5f8eceea4ba95fc93c4b9a6e92ff916f7f74ba4056a",
+      "local_crc_member_readback_verified": true,
       "remote_readback_verified": false,
       "performance_pass": null,
-      "scope": "Exact behavior equality; corpus is not warm-cache state; 129.817ms unclassified cleanup/observer residual remains; not acceptance."
+      "scope": "Pure sorting lifecycle only; all full sequences equal captured order, no World/simulation, not whole-step gain."
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-waiting-hot-boundary-plain",
     "cloud-waiting-hot-boundary-observer",
-    "cloud-waiting-fallback-breakdown"
+    "cloud-waiting-fallback-breakdown",
+    "cloud-floor-wait-order-micro"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-root-stages",
