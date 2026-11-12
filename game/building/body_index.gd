@@ -110,7 +110,7 @@ func candidates_in_regions(floor_id: int, regions: Array[Rect2], ignored_ids: Ar
 
 func _query(floor_id: int, rect: Rect2) -> Array:
 	if not _has_current_records: return []
-	return _tree.query(floor_id,[rect.position.x,rect.position.y,rect.size.x,rect.size.y]).ids
+	return _tree.query_rect(floor_id,rect).ids
 
 func rectangle(id: String) -> Rect2:
 	return (_records[id] as Record).rect

@@ -615,4 +615,6 @@ func _traversal_shape(space: HospitalSpace, actor: Dictionary, offset: Array, so
 	# Facility fits and actual body collisions still use complete dimensions.
 	var body: Dictionary = space.body(actor)
 	var height: float = float(body.depth_m if actor.get("posture","standing")=="lying" else body.height_m)
-	return [space.clearance(actor),ceili((maxf(float(body.width_m),float(body.depth_m))+0.1)/HospitalSpace.CELL_METERS),height<=float(source.height),float(body.height_m)+0.1<=float(source.door_height),offset]
+	var extent: float = maxf(float(body.width_m),float(body.depth_m))
+	var size: int = int(actor._convoy_size) if actor.has("_convoy_size") else ceili(extent/HospitalSpace.CELL_METERS)
+	return [size,ceili((extent+0.1)/HospitalSpace.CELL_METERS),height<=float(source.height),float(body.height_m)+0.1<=float(source.door_height),offset]

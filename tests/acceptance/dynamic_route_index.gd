@@ -13,7 +13,7 @@ class ObservedMovement extends HospitalMovement:
 func run(content: HospitalContent, selected: String = "") -> Dictionary:
 	var suite: RefCounted = load("res://tests/acceptance/space.gd").new()
 	suite.content = content
-	var names: Array = ["strict_floor_compound","permissions_and_owners","body_and_sweep","individual_speed"]
+	var names: Array = ["strict_floor_compound","permissions_and_owners","body_and_sweep","individual_speed","spatial_rect_query"]
 	if not selected.is_empty() and not selected in names: return {"ok":false,"error":"Unknown case: "+selected}
 	var rows: Array = []
 	var ok: bool = true
@@ -30,6 +30,11 @@ func _row(name: String, checks: Dictionary, details: Dictionary = {}) -> Diction
 	var ok: bool = true
 	for value: bool in checks.values(): ok = ok and value
 	return {"name":name,"ok":ok,"checks":checks,"details":details}
+
+func _spatial_rect_query(_suite: RefCounted) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/spatial_rect_query.gd").new().run()
+	result.name="spatial_rect_query"
+	return result
 
 func _individual_dimensions(content: HospitalContent, actor: Dictionary) -> Dictionary:
 	var base: Dictionary = content.definition("species",actor.species_id).body

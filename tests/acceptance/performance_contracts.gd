@@ -10,7 +10,9 @@ const CASES: Dictionary = {
 	"PERF-07":"设备维护：空闲、逐日磨损、待生效故障及原随机抽取",
 	"PERF-08":"导航缓存：冷热一致、假设来源隔离、真实失效及预算重建",
 	"PERF-09":"墙边批量规划：完整障碍、精确首错、停靠层、预约、调用隔离及移除无额外扫描",
-	"PERF-10":"完整几何：合法唯一后矩形证明、原坐标类型、边界96、无孔连通及开放分量全量排序"
+	"PERF-10":"完整几何：合法唯一后矩形证明、原坐标类型、边界96、无孔连通及开放分量全量排序",
+	"PERF-11":"候诊时钟：缺失补齐、实际住院边界、已有容器幂等、活跃注册与恢复",
+	"PERF-12":"导航尺寸：完整身体、姿态与同行覆盖、精确边界及图键权限和驱逐"
 }
 
 class SlowSimulation extends HospitalSimulation:
@@ -49,6 +51,18 @@ func _case_09(content: HospitalContent) -> Dictionary:
 
 func _case_10(_content: HospitalContent) -> Dictionary:
 	return preload("res://tests/acceptance/build_shape_contract.gd").new().run_case()
+
+func _case_11(content: HospitalContent) -> Dictionary:
+	return preload("res://tests/acceptance/waiting_clock_ensure.gd").new().run_case(content)
+
+func _case_12(content: HospitalContent) -> Dictionary:
+	var result: Dictionary=preload("res://tests/acceptance/traversal_shape_contract.gd").new().run_case(content)
+	var suite: RefCounted=load("res://tests/acceptance/space.gd").new()
+	suite.content=content
+	var scope: Dictionary=preload("res://tests/acceptance/navigation_key_scope.gd").new().run_case(suite)
+	result.checks.navigation_key_scope=scope.ok
+	result.navigation_key_scope=scope
+	return result
 
 func _visit(world: WorldState, id: String, cell: Array) -> Dictionary:
 	# A legal pre-service input boundary. These cases test scheduling and index

@@ -1995,7 +1995,8 @@ extern "C" void ogh_math_initialize(GDExtensionInterfaceGetProcAddress api, GDEx
     }
     from_type[GDEXTENSION_VARIANT_TYPE_OBJECT] = get_from(GDEXTENSION_VARIANT_TYPE_OBJECT);
     to_type[GDEXTENSION_VARIANT_TYPE_OBJECT] = get_to(GDEXTENSION_VARIANT_TYPE_OBJECT);
-    // Rect2 is a POD input; only its engine conversion is used by unit masks.
+    // Rect2 is a POD input for unit masks and direct spatial queries.
+    from_type[GDEXTENSION_VARIANT_TYPE_RECT2] = get_from(GDEXTENSION_VARIANT_TYPE_RECT2);
     to_type[GDEXTENSION_VARIANT_TYPE_RECT2] = get_to(GDEXTENSION_VARIANT_TYPE_RECT2);
     Builtin size_name, append_name, keys_name, get_name, object_name, notification_name, empty_name; Builtin hint;
     new_name(&size_name, "size"); new_name(&append_name, "append"); new_name(&keys_name, "keys");

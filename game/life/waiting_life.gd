@@ -22,11 +22,11 @@ func ensure(world: WorldState) -> void:
 		world.facts.waiting_life = {"seats":{},"needs":{},"clocks":{}}
 	toilets.ensure(world)
 	for visit_id: String in world.active_visit_ids():
+		if world.facts.waiting_life.clocks.has(visit_id): continue
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if _admitted(world,visit_id): continue
-		if not world.facts.waiting_life.clocks.has(visit_id):
-			world.facts.waiting_life.clocks[visit_id] = {"sequence":0,"next_purpose":"toilet",
-				"next_need_tick":int(visit.get("arrival_tick",world.sim_tick))+_ticks(content.balance.amenity_flow.first_need_seconds)}
+		world.facts.waiting_life.clocks[visit_id] = {"sequence":0,"next_purpose":"toilet",
+			"next_need_tick":int(visit.get("arrival_tick",world.sim_tick))+_ticks(content.balance.amenity_flow.first_need_seconds)}
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)

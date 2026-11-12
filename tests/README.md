@@ -10,6 +10,7 @@
 | 耗材、环境、维护、科室、财务 | 18至22 | [operations](acceptance/operations.md) |
 | 来客、居民回访、研究 | 24、25 | [growth](acceptance/growth.md) |
 | 建造、导航、土地、楼层、交通、改建蓝图 | 8、9、26至28 | [space](acceptance/space.md) |
+| 候诊时钟初始化、导航尺寸与缓存键 | 公共计算契约 | [PERF-11 候诊时钟](acceptance/waiting_clock_ensure.md)；PERF-12 的[完整身体尺寸](acceptance/traversal_shape_contract.gd)与[图键、权限、零预算驱逐](acceptance/navigation_key_scope.gd) |
 
 自然入院和随机需求改造另见 [自然入院专项](acceptance/natural-admission.md) 与 [随机需求专项](acceptance/random-arrival-demand.md)，均有独立无头入口及逐项结果。
 
