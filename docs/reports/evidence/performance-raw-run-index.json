@@ -293,12 +293,27 @@
         "verified_utc": "2026-11-12T10:45:10.069859+00:00",
         "commit": "acac8277f21f4f6298706b864fa520e183f899df"
       }
+    },
+    {
+      "id": "cloud-structural-body-plain8",
+      "kind": "bounded_integrated_production_plain_state_validation",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 8,
+      "source_commit": "1e5bb6e3c0883836275aeab74e64847255fd8a06",
+      "archive": "2026-11-12-structural-body-cache/plain8.zip",
+      "archive_sha256": "687a50dcf912ac8cd8bd0ce28166ec490a229285ad24b4ca93ac84d57baea59c",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68",
+      "scope": "8 real steps; full World/RNG/ordered events and business equality only; not a complete performance window"
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-structural-acquisition8",
     "cloud-structural-corpus8",
-    "cloud-structural-cache-micro"
+    "cloud-structural-cache-micro",
+    "cloud-structural-body-plain8"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",

@@ -7,6 +7,16 @@
 
 选择新增 body/proxy/来源/权限/weak owner/联合 LRU/超预算边界；navigation_source_lifecycle 直接子例、SPACE-58 floor_static_loading、PERF-08、detour_geometry_reuse 直接子例、run_local_return_geometry。它们分别覆盖源生命周期、floor 共享/驱逐、原预算和投影、动态释放/静态编辑、真实移动。不同对象身份不是业务契约；每次重新 acquisition 与实际阻挡/释放仍须验证。仅同步 GUI operation_driver 的计账报告，不运行 GUI 验收。
 
+## 与原先结构预加载约定的关系
+
+原预加载不是缺失或被撤销。`52adb6e`（2026-11-07）的设计16§5已规定：激活/恢复时完整加载当前观察层基础几何，实际切层加载对应整层；同一段明确基础不依赖身体，不预建全部身体、姿态和楼层的通行图笛卡尔积。`8e5bffd`（2026-11-08）再增加选中层入口/电梯到真实体型空队首和服务位的静态路径预热，`e6d126f`调整真实队列目标。设计04中仍明确未命中时正常寻路。
+
+实际链路是 AppRoot 激活/恢复/成功切层 → Simulation.prepare_floor_static → NavigationCache.prepare_floor，另调用公共到达及导诊路径准备。plain_v4 同样在模拟前准备 observed_floor，本轮固定为1；后台层按需进入同一 floor_geometry 缓存。
+
+须区分四项：FloorStaticGeometry 保存不依赖身体的整层墙门/设施/连接器及索引；RouteClearance 借用这些容器，再计算某个完整身体的门宽/净高及门格索引；FloorNavigation 另建96×96节点/边；导诊预热仅准备规定固定起终点路径。旧 structural_clearance 能借 resident graph 的几何，但缺图时每次 new RouteClearance，结束后不留存它。实测2/3/4层三个稳定键共318次fallback是身体适配层重复构造，并非318次重新加载基础楼层，也不是预加载承诺未兑现的证据。
+
+这次新增的是预算内的轻量身体静态投影复用，不用强建寻路图来消除重复，也不扩大整层预加载范围；预约权限、动态占用仍实时判断。仅凭该短段不能判断完整窗口内所有基础层驱逐/重建次数，亦不能推出整窗收益。
+
 ## 验证状态
 Godot parse-only 与 git diff --check 通过。新增 body 最终 21 检查通过；source lifecycle 14、SPACE-58 floor 13、PERF-08 13、detour 16 检查通过。真实 local-return 正序/反序身份两例均 91 ticks 到达，保留原目标/请求序列和固定旁人，binary32轴检查通过。
 
@@ -47,3 +57,9 @@ body-01 唯一失败是测试前提：恢复 World 的 runtime geometry_revision
 最终 `game/building/navigation_cache.gd` SHA256：`f67bebbc9a78dbb79089902010b68ccda2d793c17f39d0176a282c87535b033f`。
 
 最终 `game/building/hospital_navigation.gd` SHA256：`48f3b469753f3c5b557f0420e84953dc08fc3fce41011eedb635366239c6cbb2`。
+
+## 发布版实际8步整合验证
+
+源码提交 `1e5bb6e3c0883836275aeab74e64847255fd8a06`，复用原终态输入 SHA256 `41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68`，原 plain_v4 无插桩驱动、0 prefix/8 steps、0.1模拟步、4 workers、observed floor 1，原内容/引擎/原生库未变。新独立进程与HOME/XDG/TMP；请求app策略，Linux实际platform_default。进程5.418秒、exit0；完整World/RNG/有序事件与业务结果等于之前独立plain8，最终文件SHA256 `6ecee78b194a7925938549383dc9fb87f222a3843d901d790fe83ac7aeaeb93d`。仅为限定边界整合验证，不由8个样本声称性能通过。
+
+[原始包](evidence/2026-11-12-structural-body-cache/plain8.zip) 1183484字节、24成员，SHA256 `687a50dcf912ac8cd8bd0ce28166ec490a229285ad24b4ca93ac84d57baea59c`；[逐成员清单](evidence/2026-11-12-structural-body-cache/plain8.members.json)及[对比结果](evidence/2026-11-12-structural-body-cache/plain8.comparison.json)。本地CRC及全部成员字节/SHA已核验；持久发布后实际下载读回，之后才开始下一完整窗口。此前功能selected与validity-correction两包已从1e5bb6e实际下载校验，分别102和12成员均匹配。

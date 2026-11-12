@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "business": true,
+    "sample_business": true,
+    "prefix_business": true,
+    "errors": true,
+    "complete": true,
+    "full_world_rng_events_binary_equal": true,
+    "eight_steps_complete": true
+  },
+  "ok": true,
+  "final_sha256": "6ecee78b194a7925938549383dc9fb87f222a3843d901d790fe83ac7aeaeb93d",
+  "scope": "Integrated production eight-step restored-state functional witness, not complete-window performance acceptance."
+}
