@@ -1,0 +1,676 @@
+{
+  "plain": {
+    "checks": {
+      "source_unchanged": true,
+      "native_unchanged": true,
+      "engines_unchanged": true,
+      "input_unchanged": true,
+      "final_binary": true,
+      "complete_records": true,
+      "ticks": true,
+      "percentiles": true,
+      "density": true,
+      "execution_policy": true,
+      "coverage_rows": true
+    },
+    "execution_complete": true,
+    "acceptance_pass": false,
+    "coverage_pass": false,
+    "invariant_failure_counts": {
+      "Measured command rejected: comprehensive160-v3-upgrade { \"accepted\": false, \"code\": \"maintenance_unavailable\", \"reason\": \"缺少真实合法维修操作位\", \"changed_ids\": [], \"new_revision\": 1982, &\"tick\": 1633, &\"command\": { \"hospital_id\": \"00000000-0000-4000-8000-000000000160\", \"kind\": \"machine_upgrade\", \"typed_payload\": { \"facility_id\": \"bench_room_2_15_0\", \"target_level\": 1 } } }": 1
+    },
+    "observer_errors": [
+      "Measured command rejected: comprehensive160-v3-upgrade { \"accepted\": false, \"code\": \"maintenance_unavailable\", \"reason\": \"缺少真实合法维修操作位\", \"changed_ids\": [], \"new_revision\": 1982, &\"tick\": 1633, &\"command\": { \"hospital_id\": \"00000000-0000-4000-8000-000000000160\", \"kind\": \"machine_upgrade\", \"typed_payload\": { \"facility_id\": \"bench_room_2_15_0\", \"target_level\": 1 } } }",
+      "No measured activity: upgrade",
+      "No measured activity: effective_ward_visit"
+    ],
+    "uncovered": [
+      "upgrade",
+      "effective_ward_visit"
+    ],
+    "metrics": {
+      "count": 6000,
+      "dense_intervals": {
+        "dense_sample_count": 6000,
+        "has_qualified_segment": true,
+        "minimum_qualified_samples": 1000,
+        "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+        "segments": [
+          {
+            "first_index": 1000,
+            "first_tick": 1634,
+            "last_index": 6999,
+            "last_tick": 7633,
+            "metrics": {
+              "count": 6000,
+              "max_us": 280600,
+              "mean_step_us": 45777.272,
+              "observation_logging_and_loop_wall_us": 33995590,
+              "p50_us": 43291,
+              "p95_us": 64470,
+              "p99_us": 76127,
+              "present_population": {
+                "maximum": 167,
+                "median": 162,
+                "minimum": 145
+              },
+              "real_window_us_including_observation": 308659222,
+              "simulated_seconds": 600.0,
+              "simulation_seconds_per_wall_second": 1.94389137674947,
+              "sum_step_us": 274663632
+            },
+            "sample_count_qualified": true
+          }
+        ],
+        "threshold_present": 144
+      },
+      "first_sample_step_us": 280600,
+      "fresh_runtime_first_prefix_or_sample_step_us": 220062,
+      "max_us": 280600,
+      "mean_step_us": 45777.272,
+      "observation_logging_and_loop_wall_us": 33995297,
+      "p50_us": 43291,
+      "p95_us": 64470,
+      "p99_us": 76127,
+      "present_population": {
+        "maximum": 167,
+        "median": 162,
+        "minimum": 145
+      },
+      "real_window_us_including_observation": 308658929,
+      "simulated_seconds": 600.0,
+      "simulation_seconds_per_wall_second": 1.94389322202307,
+      "sum_step_us": 274663632
+    },
+    "prefix_wall_us": 62561638,
+    "all_wall_us": 371220567,
+    "process": {
+      "command": [
+        "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\project",
+        "--script",
+        "res://tools/performance/current/plain_v4.gd",
+        "--",
+        "--input=C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\mixed160.input.bin",
+        "--output=C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\plain-r1\\result.json",
+        "--prefix-steps=1000",
+        "--steps=6000",
+        "--observed-floor=1",
+        "--main-thread-policy=app",
+        "--worker-tasks=4",
+        "--expected-scenario=mixed160-clinical-ops-v1",
+        "--require-coverage"
+      ],
+      "cwd": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\project",
+      "started_utc": "2026-11-12T04:51:37.914075+00:00",
+      "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+      "environment_overrides": {
+        "OMP_NUM_THREADS": "1",
+        "PYTHONUTF8": "1",
+        "APPDATA": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\plain-r1\\appdata",
+        "LOCALAPPDATA": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\plain-r1\\localappdata",
+        "TEMP": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\plain-r1\\temp",
+        "TMP": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\plain-r1\\temp"
+      },
+      "owned_launcher_pid": 38296,
+      "returncode": 1,
+      "ended_utc": "2026-11-12T04:57:54.328147+00:00",
+      "process_wall_seconds": 376.4141623000032,
+      "log_sha256": "428fa487b6d9acae0540261317dbae0e81c1ed2293ba255ac60ea67c01952973"
+    },
+    "cpu_checks": {
+      "p95": false,
+      "p99": false,
+      "ordinary_maximum": false,
+      "speed_1x_including_observation": true
+    },
+    "sample_work": {
+      "actual_surgical_ward_return": 1,
+      "care": 76,
+      "cleaning": 54600,
+      "consult": 257,
+      "departed:abandoned": 28,
+      "departed:cured": 5,
+      "family_movement:companion": 1245,
+      "family_surgery_wait:companion": 1157,
+      "family_ward_entry:companion": 1,
+      "family_ward_exit:companion": 1,
+      "gp": 828,
+      "guidance": 754,
+      "maintenance": 60000,
+      "outpatient": 3602,
+      "recovery": 1798,
+      "renovation": 32000,
+      "research": 2992000,
+      "spectrum": 342,
+      "staff_life": 1014,
+      "surgery": 1165,
+      "training": 540000,
+      "transport": 601,
+      "wake": 149
+    },
+    "sample_events": {
+      "arrival_opportunity_admitted": 12,
+      "attempt_committed": 11,
+      "command_applied": 6,
+      "command_rejected": 1,
+      "ledger_settled": 42,
+      "patience_evaluated": 1068,
+      "patient_arrived": 12,
+      "patient_departed": 33,
+      "research_material_acquired": 2,
+      "research_opened": 1,
+      "service_completed:care": 1,
+      "service_completed:consult": 4,
+      "service_completed:gp": 4,
+      "service_completed:outpatient": 15,
+      "service_completed:spectrum": 2,
+      "service_completed:surgery": 1,
+      "service_completed:wake": 1,
+      "service_queued": 23,
+      "service_started:care": 1,
+      "service_started:consult": 3,
+      "service_started:gp": 4,
+      "service_started:outpatient": 11,
+      "service_started:spectrum": 2,
+      "service_started:wake": 1,
+      "tick_completed": 6000,
+      "wait_departure_selected": 111
+    },
+    "coverage": {
+      "actual_movement": {
+        "actual": 560922,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "observed real position changes"
+      },
+      "actual_surgical_ward_return": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual transfer-to-recovery handoffs in the reserved ward"
+      },
+      "bedside_care": {
+        "actual": 76,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "cleaning": {
+        "actual": 54600,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "clinical_consumption": {
+        "actual": 11,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "new Attempt committed supply units"
+      },
+      "companion_ward_entry": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual complete-body ward entries"
+      },
+      "completed_care": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_consult": {
+        "actual": 4,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_examination": {
+        "actual": 2,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "one actual examination completed per participating Visit"
+      },
+      "completed_gp": {
+        "actual": 4,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_outpatient": {
+        "actual": 15,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_surgery": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "completed_treatment_outcome": {
+        "actual": 5,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual final patient departures with settled clinical outcome"
+      },
+      "completed_wake": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual completed service events"
+      },
+      "effective_ward_visit": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "effective ticks while visitor and patient are actually in the ward"
+      },
+      "examination": {
+        "actual": 342,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "floor_transport": {
+        "actual": 601,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual connector ticks"
+      },
+      "gp": {
+        "actual": 828,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "guidance": {
+        "actual": 754,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual nurse ticks"
+      },
+      "maintenance": {
+        "actual": 60000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "original_doctor_review": {
+        "actual": 257,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual free review ticks"
+      },
+      "outpatient_treatment": {
+        "actual": 3602,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "purchase": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "new paid supply receipt"
+      },
+      "renovation": {
+        "actual": 32000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "research": {
+        "actual": 2992000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milli-ticks"
+      },
+      "schedule": {
+        "actual": 1,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "applied production command"
+      },
+      "staff_life": {
+        "actual": 1014,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual shared-facility or sleep ticks"
+      },
+      "surgery": {
+        "actual": 1165,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual clinical ticks"
+      },
+      "training": {
+        "actual": 540000,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual work milli-ticks"
+      },
+      "upgrade": {
+        "actual": 0,
+        "covered": false,
+        "lower_bound": 1,
+        "unit": "actual work milliseconds"
+      },
+      "ward_recovery": {
+        "actual": 1798,
+        "covered": true,
+        "lower_bound": 1,
+        "unit": "actual recovery ticks"
+      }
+    },
+    "final_sha256": "e5c6b6e2d146187e8ba7edcd707802f8dc1d8c6287872ac734580d1e62a34c75",
+    "source_identity_sha256": "c28081201d0f22593eec0e5e18afeacfdfbed7b011751fccc92a9a0f75534ed9",
+    "strict_old_diagnostic_validator": "REJECTED as designed: business invariant failure is not coverage insufficiency; this report preserves the invariant failure and does not qualify acceptance."
+  },
+  "diagnostic": {
+    "checks": {
+      "complete_world_rng_ordered_events": true,
+      "exact_original_window": true,
+      "world_valid": true,
+      "identical_observer_report": true,
+      "same_explicit_failure": true,
+      "input_unchanged": true,
+      "source_unchanged": true,
+      "runtime_unchanged": true,
+      "owner_field_chain": true
+    },
+    "contract": {
+      "ok": true,
+      "prefix_steps": 1000,
+      "sample_steps": 6000,
+      "change_rows": {
+        "input": 82,
+        "prefix": 17391,
+        "sample": 98706
+      },
+      "retained_records": 185,
+      "input_exam_records": [
+        "bench_visit_0020",
+        "bench_visit_0021",
+        "bench_visit_0044",
+        "bench_visit_0045",
+        "bench_visit_0046",
+        "bench_visit_0047",
+        "bench_visit_0048",
+        "bench_visit_0049",
+        "bench_visit_0050",
+        "bench_visit_0051",
+        "bench_visit_0052",
+        "bench_visit_0053"
+      ],
+      "operation_facilities_seen": [
+        "bench_room_2_12_0"
+      ],
+      "scope": "Ordered owner-field reconstruction only. A remaining delta is not accepted as valid work or effective visitation."
+    },
+    "process": {
+      "command": [
+        "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\project",
+        "--script",
+        "res://tools/performance/current/business_fact_probe.gd",
+        "--",
+        "--input=C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\mixed160.input.bin",
+        "--output=C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\history-r2\\result.json"
+      ],
+      "cwd": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\project",
+      "started_utc": "2026-11-12T05:04:47.719112+00:00",
+      "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+      "environment_overrides": {
+        "OMP_NUM_THREADS": "1",
+        "PYTHONUTF8": "1",
+        "APPDATA": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\history-r2\\appdata",
+        "LOCALAPPDATA": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\history-r2\\localappdata",
+        "TEMP": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\history-r2\\temp",
+        "TMP": "C:\\Users\\cong\\dot-work\\ogh-full-mixed-20261112\\history-r2\\temp"
+      },
+      "owned_launcher_pid": 31888,
+      "returncode": 1,
+      "ended_utc": "2026-11-12T05:13:03.972446+00:00",
+      "process_wall_seconds": 496.25340129999677,
+      "log_sha256": "ff599239f8787b195220ad8e7356eed59f1ec4596b776b04bb377fa6d8916dd0"
+    },
+    "coverage_pass": false,
+    "invariant_failure_counts": {
+      "Measured command rejected: comprehensive160-v3-upgrade { \"accepted\": false, \"code\": \"maintenance_unavailable\", \"reason\": \"缺少真实合法维修操作位\", \"changed_ids\": [], \"new_revision\": 1982, &\"tick\": 1633, &\"command\": { \"hospital_id\": \"00000000-0000-4000-8000-000000000160\", \"kind\": \"machine_upgrade\", \"typed_payload\": { \"facility_id\": \"bench_room_2_15_0\", \"target_level\": 1 } } }": 1
+    },
+    "final_sha256": "e5c6b6e2d146187e8ba7edcd707802f8dc1d8c6287872ac734580d1e62a34c75",
+    "acceptance_pass": false,
+    "scope": "Diagnostic equality against complete failing plain execution, NOT a coverage-qualified or invariant-passing witness. Original acceptance failure preserved exactly."
+  },
+  "upgrade_owner": {
+    "tick": 1633,
+    "facts_rng_unchanged": true,
+    "reason": "真实展开与岗位预约阻挡：bench_room_2_15_0",
+    "item": {
+      "borrowed": false,
+      "cell": [
+        72,
+        72
+      ],
+      "cleanup_receipts": {
+        "outpatient_completed:attempt_00000183": 1423
+      },
+      "cleanup_uses": {
+        "outpatient_completed": 1
+      },
+      "condition": 96.0,
+      "definition_id": "M09",
+      "failed": false,
+      "floor_id": 2,
+      "footprint": [
+        2,
+        2
+      ],
+      "grade": 0,
+      "id": "bench_room_2_15_0",
+      "last_fault_roll_tick": 1200,
+      "last_wear_day": 0,
+      "maintenance_order_id": "",
+      "operator_cells": [
+        [
+          74,
+          73
+        ]
+      ],
+      "ownership": "purchased",
+      "paid_cost": 1400,
+      "patient_cell": [
+        72,
+        74
+      ],
+      "pending_failure": false,
+      "repair_cell": [
+        71,
+        72
+      ],
+      "repair_grace_until": 0,
+      "room_id": "bench_room_2_15",
+      "rotation": 0,
+      "use_receipts": {
+        "attempt_00000183": 1138,
+        "attempt_00000206": 1494
+      },
+      "used": true
+    },
+    "synthetic_actor": {
+      "facing": 0.0,
+      "id": "upgrade_preview",
+      "location": {
+        "cell": [
+          72,
+          72
+        ],
+        "floor_id": 2,
+        "kind": "floor"
+      },
+      "species_id": "S49"
+    },
+    "raw_target": [
+      71,
+      72
+    ],
+    "adaptation": {
+      "actor_id": "bench_patient_0109",
+      "facility_id": "bench_room_2_15_0",
+      "floor_id": 2,
+      "footprint": [
+        2,
+        2
+      ],
+      "kind": "facility",
+      "operator_cells": [
+        [
+          74,
+          73
+        ]
+      ],
+      "owner_id": "service_00000207",
+      "patient_cell": [
+        72,
+        74
+      ],
+      "regions": [
+        [
+          72,
+          72,
+          2,
+          2
+        ],
+        [
+          72,
+          74,
+          1,
+          1
+        ],
+        [
+          71,
+          72,
+          1,
+          1
+        ],
+        [
+          74,
+          73,
+          1,
+          1
+        ]
+      ],
+      "repair_cell": [
+        71,
+        72
+      ],
+      "staff_ids": [
+        "bench_staff_0013"
+      ]
+    },
+    "session": {
+      "attempt_id": "attempt_00000206",
+      "clinical_beat": 1,
+      "doctor_fee": 0,
+      "facility_fee": 10,
+      "facility_id": "bench_room_2_15_0",
+      "id": "service_00000207",
+      "kind": "outpatient",
+      "original_ticket": {
+        "called_tick": 1494,
+        "enqueued_tick": 633,
+        "id": "ticket_00000145",
+        "kind": "outpatient",
+        "service_assigned": true,
+        "visit_id": "bench_visit_0109",
+        "wait_accounted_tick": 1493,
+        "waited_ticks": 796
+      },
+      "remaining_ticks": 148,
+      "resources": [
+        "bench_patient_0109",
+        "bench_room_2_15_0",
+        "bench_staff_0013"
+      ],
+      "staff_ids": [
+        "bench_staff_0013"
+      ],
+      "start_tick": 1494,
+      "total_ticks": 287,
+      "visit_id": "bench_visit_0109"
+    },
+    "actors": {
+      "bench_patient_0109": {
+        "body_binding_id": "B_S13_D09_M09",
+        "facing": -1.5707963267949,
+        "id": "bench_patient_0109",
+        "location": {
+          "cell": [
+            72.0,
+            74.0
+          ],
+          "floor_id": 2,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "name": "患者0109",
+        "posture": "seated",
+        "species_id": "S13",
+        "support_facility_id": "bench_room_2_15_0"
+      },
+      "bench_staff_0013": {
+        "facing": 0.0,
+        "id": "bench_staff_0013",
+        "location": {
+          "cell": [
+            74.0,
+            73.0
+          ],
+          "floor_id": 2,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "name": "bench_staff_0013",
+        "posture": "standing",
+        "species_id": "S49"
+      }
+    },
+    "geometry": {
+      "origin": "(71, 72)",
+      "size": 1,
+      "height_m": 1.75,
+      "indexed_static": true
+    },
+    "matching_reservation": [
+      {
+        "id": "bench_room_2_15_0",
+        "regions": [
+          "[P: (72.0, 72.0), S: (2.0, 2.0)]",
+          "[P: (72.0, 74.0), S: (1.0, 1.0)]",
+          "[P: (71.0, 72.0), S: (1.0, 1.0)]",
+          "[P: (74.0, 73.0), S: (1.0, 1.0)]"
+        ]
+      }
+    ]
+  },
+  "source_commit": "63b0c38fb68a450d12b01279805f7e860e15b419",
+  "complete_input_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+  "interrupted_diagnostic": {
+    "completed_steps": 1580,
+    "last_completed_tick": 2213,
+    "returncode": 4294967295,
+    "process_wall_seconds": 123.38869760000671,
+    "classification": "Intentionally interrupted to improve capture; incomplete tooling evidence, not business failure."
+  },
+  "accepted_repeats": 0,
+  "plain_repeats_attempted": 1,
+  "remaining_planned_plain_repeats": 2,
+  "next_action": "Do not repeat blind full windows. Inspect worker226 at complete final7633, actual HospitalTransit.begin off-landing/busy-lift recovery boundary, preserving ticket/route ownership and safe passenger alighting."
+}

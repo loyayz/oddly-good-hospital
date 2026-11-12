@@ -1,0 +1,825 @@
+{
+  "integrity_checks": {
+    "complete_window": true,
+    "source_unchanged": true,
+    "runtime_unchanged": true,
+    "input_unchanged": true,
+    "final_sha_verified": true,
+    "ordered_step_records": true,
+    "percentiles_recomputed": true,
+    "policy": true,
+    "coverage_rows": true
+  },
+  "complete": false,
+  "errors": [
+    "Comprehensive workload did not satisfy its business coverage contract"
+  ],
+  "coverage_pass": false,
+  "invariant_failure_counts": {
+    "Measured command rejected: comprehensive160-v3-upgrade { \"accepted\": false, \"code\": \"maintenance_unavailable\", \"reason\": \"缺少真实合法维修操作位\", \"changed_ids\": [], \"new_revision\": 1982, &\"tick\": 1633, &\"command\": { \"hospital_id\": \"00000000-0000-4000-8000-000000000160\", \"kind\": \"machine_upgrade\", \"typed_payload\": { \"facility_id\": \"bench_room_2_15_0\", \"target_level\": 1 } } }": 1
+  },
+  "observer_errors": [
+    "Measured command rejected: comprehensive160-v3-upgrade { \"accepted\": false, \"code\": \"maintenance_unavailable\", \"reason\": \"缺少真实合法维修操作位\", \"changed_ids\": [], \"new_revision\": 1982, &\"tick\": 1633, &\"command\": { \"hospital_id\": \"00000000-0000-4000-8000-000000000160\", \"kind\": \"machine_upgrade\", \"typed_payload\": { \"facility_id\": \"bench_room_2_15_0\", \"target_level\": 1 } } }",
+    "No measured activity: upgrade",
+    "No measured activity: effective_ward_visit"
+  ],
+  "coverage": {
+    "actual_movement": {
+      "actual": 547979,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "observed real position changes"
+    },
+    "actual_surgical_ward_return": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual transfer-to-recovery handoffs in the reserved ward"
+    },
+    "bedside_care": {
+      "actual": 76,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual clinical ticks"
+    },
+    "cleaning": {
+      "actual": 58500,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual work milliseconds"
+    },
+    "clinical_consumption": {
+      "actual": 11,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "new Attempt committed supply units"
+    },
+    "companion_ward_entry": {
+      "actual": 2,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual complete-body ward entries"
+    },
+    "completed_care": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual completed service events"
+    },
+    "completed_consult": {
+      "actual": 4,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual completed service events"
+    },
+    "completed_examination": {
+      "actual": 2,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "one actual examination completed per participating Visit"
+    },
+    "completed_gp": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual completed service events"
+    },
+    "completed_outpatient": {
+      "actual": 15,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual completed service events"
+    },
+    "completed_surgery": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual completed service events"
+    },
+    "completed_treatment_outcome": {
+      "actual": 9,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual final patient departures with settled clinical outcome"
+    },
+    "completed_wake": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual completed service events"
+    },
+    "effective_ward_visit": {
+      "actual": 0,
+      "covered": false,
+      "lower_bound": 1,
+      "unit": "effective ticks while visitor and patient are actually in the ward"
+    },
+    "examination": {
+      "actual": 342,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual clinical ticks"
+    },
+    "floor_transport": {
+      "actual": 1420,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual connector ticks"
+    },
+    "gp": {
+      "actual": 127,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual clinical ticks"
+    },
+    "guidance": {
+      "actual": 872,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual nurse ticks"
+    },
+    "maintenance": {
+      "actual": 43800,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual work milliseconds"
+    },
+    "original_doctor_review": {
+      "actual": 257,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual free review ticks"
+    },
+    "outpatient_treatment": {
+      "actual": 3603,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual clinical ticks"
+    },
+    "purchase": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "new paid supply receipt"
+    },
+    "renovation": {
+      "actual": 24000,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual work milliseconds"
+    },
+    "research": {
+      "actual": 3000000,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual work milli-ticks"
+    },
+    "schedule": {
+      "actual": 1,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "applied production command"
+    },
+    "staff_life": {
+      "actual": 1092,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual shared-facility or sleep ticks"
+    },
+    "surgery": {
+      "actual": 1165,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual clinical ticks"
+    },
+    "training": {
+      "actual": 540000,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual work milli-ticks"
+    },
+    "upgrade": {
+      "actual": 0,
+      "covered": false,
+      "lower_bound": 1,
+      "unit": "actual work milliseconds"
+    },
+    "ward_recovery": {
+      "actual": 1798,
+      "covered": true,
+      "lower_bound": 1,
+      "unit": "actual recovery ticks"
+    }
+  },
+  "uncovered": [
+    "upgrade",
+    "effective_ward_visit"
+  ],
+  "metrics": {
+    "count": 6000,
+    "dense_intervals": {
+      "dense_sample_count": 4983,
+      "has_qualified_segment": true,
+      "minimum_qualified_samples": 1000,
+      "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+      "segments": [
+        {
+          "first_index": 1000,
+          "first_tick": 1634,
+          "last_index": 5982,
+          "last_tick": 6616,
+          "metrics": {
+            "count": 4983,
+            "max_us": 300642,
+            "mean_step_us": 49757.3277142284,
+            "observation_logging_and_loop_wall_us": 28673635,
+            "p50_us": 46053,
+            "p95_us": 70320,
+            "p99_us": 85018,
+            "present_population": {
+              "maximum": 167,
+              "median": 160,
+              "minimum": 144
+            },
+            "real_window_us_including_observation": 276614399,
+            "simulated_seconds": 498.3,
+            "simulation_seconds_per_wall_second": 1.80142466119416,
+            "sum_step_us": 247940764
+          },
+          "sample_count_qualified": true
+        }
+      ],
+      "threshold_present": 144
+    },
+    "first_sample_step_us": 300642,
+    "fresh_runtime_first_prefix_or_sample_step_us": 231119,
+    "max_us": 300642,
+    "mean_step_us": 47288.3901666667,
+    "observation_logging_and_loop_wall_us": 35210956,
+    "p50_us": 44734,
+    "p95_us": 68967,
+    "p99_us": 82703,
+    "present_population": {
+      "maximum": 167,
+      "median": 159,
+      "minimum": 121
+    },
+    "real_window_us_including_observation": 318941297,
+    "simulated_seconds": 600.0,
+    "simulation_seconds_per_wall_second": 1.8812239294305,
+    "sum_step_us": 283730341
+  },
+  "prefix_wall_us": 64929163,
+  "all_wall_us": 383870460,
+  "process": {
+    "command": [
+      "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+      "--headless",
+      "--path",
+      "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\project",
+      "--script",
+      "res://tools/performance/current/plain_v4.gd",
+      "--",
+      "--input=C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\mixed160.input.bin",
+      "--output=C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\plain-r1\\result.json",
+      "--prefix-steps=1000",
+      "--steps=6000",
+      "--observed-floor=1",
+      "--main-thread-policy=app",
+      "--worker-tasks=4",
+      "--expected-scenario=mixed160-clinical-ops-v1",
+      "--require-coverage"
+    ],
+    "cwd": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\project",
+    "started_utc": "2026-11-12T05:34:24.013332+00:00",
+    "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+    "environment_overrides": {
+      "OMP_NUM_THREADS": "1",
+      "PYTHONUTF8": "1",
+      "APPDATA": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\plain-r1\\appdata",
+      "LOCALAPPDATA": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\plain-r1\\localappdata",
+      "TEMP": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\plain-r1\\temp",
+      "TMP": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\plain-r1\\temp"
+    },
+    "owned_launcher_pid": 30356,
+    "returncode": 1,
+    "ended_utc": "2026-11-12T05:40:53.156783+00:00",
+    "process_wall_seconds": 389.14331030000176,
+    "log_sha256": "999f8a6d5f5b94ad9e1814cec0da7480fd890aef90b8e59ebfd8481d3b2902e6"
+  },
+  "cpu_checks": {
+    "p95": false,
+    "p99": false,
+    "ordinary_maximum": false,
+    "speed_1x_including_observation": true
+  },
+  "sample_work": {
+    "actual_surgical_ward_return": 1,
+    "care": 76,
+    "cleaning": 58500,
+    "consult": 257,
+    "departed:abandoned": 49,
+    "departed:cured": 9,
+    "family_movement:companion": 1730,
+    "family_surgery_wait:companion": 1157,
+    "family_ward_entry:companion": 2,
+    "family_ward_exit:companion": 2,
+    "gp": 127,
+    "guidance": 872,
+    "maintenance": 43800,
+    "outpatient": 3603,
+    "recovery": 1798,
+    "renovation": 24000,
+    "research": 3000000,
+    "spectrum": 342,
+    "staff_life": 1092,
+    "surgery": 1165,
+    "training": 540000,
+    "transport": 1420,
+    "wake": 149
+  },
+  "sample_events": {
+    "arrival_opportunity_admitted": 11,
+    "attempt_committed": 11,
+    "command_applied": 6,
+    "command_rejected": 1,
+    "ledger_settled": 35,
+    "patience_evaluated": 1064,
+    "patient_arrived": 11,
+    "patient_departed": 58,
+    "research_completed": 1,
+    "research_opened": 1,
+    "service_completed:care": 1,
+    "service_completed:consult": 4,
+    "service_completed:gp": 1,
+    "service_completed:outpatient": 15,
+    "service_completed:spectrum": 2,
+    "service_completed:surgery": 1,
+    "service_completed:wake": 1,
+    "service_queued": 20,
+    "service_started:care": 1,
+    "service_started:consult": 3,
+    "service_started:gp": 1,
+    "service_started:outpatient": 11,
+    "service_started:spectrum": 2,
+    "service_started:wake": 1,
+    "tick_completed": 6000,
+    "wait_departure_selected": 116
+  },
+  "final_sha256": "876e2502aa2f7b853f94aa50a9d0fe02a2bff68ce3cab6a4666ce3cef2ec6c58",
+  "final_population": {
+    "other_owned_present": [
+      {
+        "actor_id": "maintenance_contractor_00000189",
+        "job_id": "maintenance_00000188",
+        "job_phase": "completed",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "leaving",
+        "service_role": "mechanic"
+      },
+      {
+        "actor_id": "maintenance_contractor_00000226",
+        "job_id": "maintenance_00000222",
+        "job_phase": "travelling",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "assigned",
+        "service_role": "mechanic"
+      },
+      {
+        "actor_id": "maintenance_contractor_00000288",
+        "job_id": "maintenance_00000287",
+        "job_phase": "travelling",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "assigned",
+        "service_role": "mechanic"
+      },
+      {
+        "actor_id": "maintenance_contractor_00000313",
+        "job_id": "maintenance_00000312",
+        "job_phase": "travelling",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "assigned",
+        "service_role": "mechanic"
+      },
+      {
+        "actor_id": "maintenance_contractor_00000328",
+        "job_id": "maintenance_00000327",
+        "job_phase": "travelling",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "assigned",
+        "service_role": "mechanic"
+      },
+      {
+        "actor_id": "maintenance_contractor_00000406",
+        "job_id": "maintenance_00000405",
+        "job_phase": "working",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "assigned",
+        "service_role": "mechanic"
+      },
+      {
+        "actor_id": "maintenance_contractor_00000413",
+        "job_id": "renovation_00000223:3",
+        "job_phase": "queued",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "assigned",
+        "service_role": "mechanic"
+      }
+    ],
+    "patients": 82,
+    "present": 121,
+    "staff": 32,
+    "unclassified_actor_ids": [],
+    "visitors": 0
+  },
+  "source_identity_sha256": "ae8a3948a8542c79d8d10900c9fbba09855c05af214a8133b597e938dd23001f",
+  "targeted_maintenance": {
+    "job": {
+      "automatic": false,
+      "completed_milli": 0,
+      "contributions": {},
+      "created_tick": 1633,
+      "facility_id": "bench_room_2_12_0",
+      "frozen_class": {},
+      "id": "maintenance_00000222",
+      "kind": "maintenance",
+      "paid_parts": 0,
+      "paused": false,
+      "phase": "travelling",
+      "reason": "上门维修员正沿实际路线到场",
+      "remaining_milli": 20000,
+      "started": false,
+      "total_milli": 20000,
+      "work_cell": [
+        5,
+        72
+      ],
+      "work_floor": 2,
+      "worker_id": "maintenance_contractor_00000226",
+      "worker_rate": 1.0
+    },
+    "contractor": {
+      "id": "maintenance_contractor_00000226",
+      "job_id": "maintenance_00000222",
+      "phase": "assigned"
+    },
+    "actor": {
+      "facing": 1.5707963267949,
+      "id": "maintenance_contractor_00000226",
+      "location": {
+        "cell": [
+          85.3999481201172,
+          44.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "name": "上门维修员",
+      "posture": "standing",
+      "service_role": "mechanic",
+      "species_id": "S49"
+    },
+    "move": {
+      "request_sequence": 629,
+      "owner_job_id": "maintenance_00000222",
+      "cursor": 0,
+      "target_cell": [
+        5,
+        72
+      ],
+      "target_floor": 2,
+      "route_pending": false,
+      "local_move": {
+        "origin": [
+          85.0,
+          44.0
+        ],
+        "rejoin": {
+          "cell": [
+            86.0,
+            44.0
+          ],
+          "index": 0
+        },
+        "retreat": true,
+        "target": {
+          "cell": [
+            88.0,
+            44.0
+          ],
+          "floor_id": 1,
+          "kind": "floor"
+        }
+      },
+      "transit_ticket": null
+    },
+    "completion_receipts": []
+  },
+  "all_maintenance_jobs": {
+    "maintenance_00000188": {
+      "automatic": true,
+      "completed_milli": 30000,
+      "contributions": {
+        "maintenance_contractor_00000189": 30000
+      },
+      "created_tick": 1200,
+      "facility_id": "bench_room_3_15_0",
+      "frozen_class": {
+        "base_failure_bp": 40,
+        "id": "medical",
+        "maintenance_parts": 20,
+        "maintenance_seconds": 20,
+        "repair_parts": 40,
+        "repair_seconds": 30,
+        "wear_per_day": 0,
+        "wear_per_use": 2.0
+      },
+      "id": "maintenance_00000188",
+      "kind": "repair",
+      "paid_parts": 40,
+      "paused": false,
+      "phase": "completed",
+      "reason": "",
+      "remaining_milli": 0,
+      "started": true,
+      "total_milli": 30000,
+      "work_cell": [
+        71,
+        72
+      ],
+      "work_floor": 3,
+      "worker_id": "",
+      "worker_rate": 1.0
+    },
+    "maintenance_00000222": {
+      "automatic": false,
+      "completed_milli": 0,
+      "contributions": {},
+      "created_tick": 1633,
+      "facility_id": "bench_room_2_12_0",
+      "frozen_class": {},
+      "id": "maintenance_00000222",
+      "kind": "maintenance",
+      "paid_parts": 0,
+      "paused": false,
+      "phase": "travelling",
+      "reason": "上门维修员正沿实际路线到场",
+      "remaining_milli": 20000,
+      "started": false,
+      "total_milli": 20000,
+      "work_cell": [
+        5,
+        72
+      ],
+      "work_floor": 2,
+      "worker_id": "maintenance_contractor_00000226",
+      "worker_rate": 1.0
+    },
+    "maintenance_00000287": {
+      "automatic": true,
+      "completed_milli": 0,
+      "contributions": {},
+      "created_tick": 3600,
+      "facility_id": "bench_room_4_03_1",
+      "frozen_class": {},
+      "id": "maintenance_00000287",
+      "kind": "repair",
+      "paid_parts": 0,
+      "paused": false,
+      "phase": "travelling",
+      "reason": "上门维修员正沿实际路线到场",
+      "remaining_milli": 30000,
+      "started": false,
+      "total_milli": 30000,
+      "work_cell": [
+        75,
+        6
+      ],
+      "work_floor": 4,
+      "worker_id": "maintenance_contractor_00000288",
+      "worker_rate": 1.0
+    },
+    "maintenance_00000312": {
+      "automatic": true,
+      "completed_milli": 0,
+      "contributions": {},
+      "created_tick": 4200,
+      "facility_id": "bench_room_4_04_1",
+      "frozen_class": {},
+      "id": "maintenance_00000312",
+      "kind": "repair",
+      "paid_parts": 0,
+      "paused": false,
+      "phase": "travelling",
+      "reason": "上门维修员正沿实际路线到场",
+      "remaining_milli": 30000,
+      "started": false,
+      "total_milli": 30000,
+      "work_cell": [
+        9,
+        28
+      ],
+      "work_floor": 4,
+      "worker_id": "maintenance_contractor_00000313",
+      "worker_rate": 1.0
+    },
+    "maintenance_00000327": {
+      "automatic": true,
+      "completed_milli": 0,
+      "contributions": {},
+      "created_tick": 4800,
+      "facility_id": "bench_room_3_01_1",
+      "frozen_class": {},
+      "id": "maintenance_00000327",
+      "kind": "repair",
+      "paid_parts": 0,
+      "paused": false,
+      "phase": "travelling",
+      "reason": "上门维修员正沿实际路线到场",
+      "remaining_milli": 30000,
+      "started": false,
+      "total_milli": 30000,
+      "work_cell": [
+        30,
+        9
+      ],
+      "work_floor": 3,
+      "worker_id": "maintenance_contractor_00000328",
+      "worker_rate": 1.0
+    },
+    "maintenance_00000405": {
+      "automatic": true,
+      "completed_milli": 13800,
+      "contributions": {
+        "maintenance_contractor_00000406": 13800
+      },
+      "created_tick": 7200,
+      "facility_id": "comprehensive_SE02_1",
+      "frozen_class": {
+        "base_failure_bp": 30,
+        "id": "workstation",
+        "maintenance_parts": 12,
+        "maintenance_seconds": 16,
+        "repair_parts": 25,
+        "repair_seconds": 24,
+        "wear_per_day": 1,
+        "wear_per_use": 0.5
+      },
+      "id": "maintenance_00000405",
+      "kind": "repair",
+      "paid_parts": 25,
+      "paused": false,
+      "phase": "working",
+      "reason": "",
+      "remaining_milli": 10200,
+      "started": true,
+      "total_milli": 24000,
+      "work_cell": [
+        8,
+        79
+      ],
+      "work_floor": 1,
+      "worker_id": "maintenance_contractor_00000406",
+      "worker_rate": 1.0
+    }
+  },
+  "maintenance_receipts": {
+    "maintenance_00000188:repair_completed": {
+      "facility_id": "bench_room_3_15_0",
+      "id": "maintenance_00000188:repair_completed",
+      "kind": "repair_completed",
+      "practice_awarded": true,
+      "source_id": "maintenance_00000188",
+      "staff_id": "",
+      "standard_work_milli": 30000,
+      "tick": 2519,
+      "worker_id": "maintenance_contractor_00000189"
+    }
+  },
+  "upgrades": {},
+  "lift": {
+    "anchor": [
+      86,
+      44
+    ],
+    "cell": [
+      85,
+      40
+    ],
+    "condition": 80.0,
+    "definition_id": "VC02",
+    "failed": false,
+    "first_floor": 1,
+    "floor_id": 4,
+    "footprint": [
+      4,
+      4
+    ],
+    "from": 4,
+    "id": "benchmark_lift",
+    "last_fault_roll_tick": 7200,
+    "last_floor": 4,
+    "last_wear_day": 0,
+    "maintenance_order_id": "",
+    "paid_cost": 3200,
+    "pending_failure": false,
+    "phase": "alighting",
+    "primary_actor_id": "bench_patient_0111",
+    "remaining_ticks": 1,
+    "repair_cell": [
+      84,
+      41
+    ],
+    "repair_grace_until": 0,
+    "riders": [
+      "bench_patient_0111"
+    ],
+    "rotation": 0,
+    "ticket_next": 156,
+    "to": 1,
+    "trip_sequence": 147,
+    "use_receipts": {
+      "transit:1": 272,
+      "transit:100": 3209,
+      "transit:101": 3259,
+      "transit:107": 3349,
+      "transit:111": 4072,
+      "transit:113": 4122,
+      "transit:115": 4526,
+      "transit:125": 4589,
+      "transit:126": 4664,
+      "transit:129": 4769,
+      "transit:130": 4830,
+      "transit:132": 5086,
+      "transit:136": 5190,
+      "transit:140": 5329,
+      "transit:15": 1482,
+      "transit:2": 342,
+      "transit:21": 1536,
+      "transit:23": 1596,
+      "transit:27": 1646,
+      "transit:3": 1222,
+      "transit:31": 1706,
+      "transit:32": 1776,
+      "transit:40": 1834,
+      "transit:44": 1904,
+      "transit:45": 1974,
+      "transit:49": 2024,
+      "transit:5": 1292,
+      "transit:56": 2415,
+      "transit:57": 2465,
+      "transit:6": 1362,
+      "transit:63": 2555,
+      "transit:67": 2605,
+      "transit:7": 1422,
+      "transit:70": 2695,
+      "transit:75": 2765,
+      "transit:76": 2825,
+      "transit:83": 2909,
+      "transit:86": 2999,
+      "transit:87": 3065,
+      "transit:91": 3135
+    },
+    "used": true
+  },
+  "accepted_repeats": 0,
+  "post_fix_plain_repeats_executed": 1,
+  "no_step_inspection": {
+    "process": {
+      "command": [
+        "C:\\programs\\Godot\\Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\project",
+        "--script",
+        "res://tools/performance/current/final_owner_dump.gd"
+      ],
+      "cwd": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\project",
+      "started_utc": "2026-11-12T05:41:11.952028+00:00",
+      "process_guard_source_sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+      "environment_overrides": {
+        "OMP_NUM_THREADS": "1",
+        "PYTHONUTF8": "1",
+        "APPDATA": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\final-owner-dump-process\\appdata",
+        "LOCALAPPDATA": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\final-owner-dump-process\\localappdata",
+        "TEMP": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\final-owner-dump-process\\temp",
+        "TMP": "C:\\Users\\cong\\dot-work\\ogh-recovery-full-20261112\\final-owner-dump-process\\temp"
+      },
+      "owned_launcher_pid": 1384,
+      "returncode": 0,
+      "ended_utc": "2026-11-12T05:41:12.360576+00:00",
+      "process_wall_seconds": 0.4081078999879537,
+      "log_sha256": "83cf0b082206af2aa236c83064fbcfa76be1e00a4aa3558574b2f65965d9481c"
+    },
+    "final_binary_sha256_after_read": "876e2502aa2f7b853f94aa50a9d0fe02a2bff68ce3cab6a4666ce3cef2ec6c58",
+    "only_binary_decode_and_json_export": true
+  }
+}
