@@ -1,0 +1,318 @@
+{
+  "trace_sha256": "2505e077310375ae27fd1a6e2a6d60ec30a432da2274d37bc2af5800abdd6cc9",
+  "rows": 3588,
+  "first_tick": 4046,
+  "last_tick": 7633,
+  "adjacent_position_changes": 2527,
+  "new_trip_receipts": 40,
+  "worker_rider_frames": 0,
+  "ticket_episodes": [
+    {
+      "issued_tick": 6129,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 103,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "boarding",
+        "trip_sequence": 94,
+        "from": 1,
+        "to": 3,
+        "primary_actor_id": "bench_patient_0032"
+      },
+      "lost_tick": 6185,
+      "held_ticks": 56,
+      "loss_location": {
+        "cell": [
+          85.8000030517578,
+          44.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "boarding",
+        "trip_sequence": 96,
+        "from": 4,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0007"
+      }
+    },
+    {
+      "issued_tick": 6438,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 122,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "alighting",
+        "trip_sequence": 106,
+        "from": 4,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0043"
+      },
+      "lost_tick": 6445,
+      "held_ticks": 7,
+      "loss_location": {
+        "cell": [
+          86.0,
+          44.2000007629395
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "alighting",
+        "trip_sequence": 106,
+        "from": 4,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0043"
+      }
+    },
+    {
+      "issued_tick": 6710,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 137,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "riding",
+        "trip_sequence": 124,
+        "from": 3,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0054"
+      },
+      "lost_tick": 6711,
+      "held_ticks": 1,
+      "loss_location": {
+        "cell": [
+          86.1999969482422,
+          44.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "riding",
+        "trip_sequence": 124,
+        "from": 3,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0054"
+      }
+    },
+    {
+      "issued_tick": 6987,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 151,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "riding",
+        "trip_sequence": 143,
+        "from": 4,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0055"
+      },
+      "lost_tick": 6989,
+      "held_ticks": 2,
+      "loss_location": {
+        "cell": [
+          86.1999969482422,
+          44.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "riding",
+        "trip_sequence": 143,
+        "from": 4,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0055"
+      }
+    },
+    {
+      "issued_tick": 7112,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 157,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "boarding",
+        "trip_sequence": 148,
+        "from": 2,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0045"
+      },
+      "lost_tick": 7113,
+      "held_ticks": 1,
+      "loss_location": {
+        "cell": [
+          86.0,
+          44.2000007629395
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "boarding",
+        "trip_sequence": 148,
+        "from": 2,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0045"
+      }
+    },
+    {
+      "issued_tick": 7288,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 167,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "riding",
+        "trip_sequence": 153,
+        "from": 3,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0038"
+      },
+      "lost_tick": 7289,
+      "held_ticks": 1,
+      "loss_location": {
+        "cell": [
+          86.0,
+          44.2000007629395
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "riding",
+        "trip_sequence": 153,
+        "from": 3,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0038"
+      }
+    },
+    {
+      "issued_tick": 7313,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 168,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "empty_riding",
+        "trip_sequence": null,
+        "from": 1,
+        "to": 2,
+        "primary_actor_id": null
+      },
+      "lost_tick": 7318,
+      "held_ticks": 5,
+      "loss_location": {
+        "cell": [
+          86.0,
+          44.2000007629395
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "boarding",
+        "trip_sequence": 156,
+        "from": 2,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0061"
+      }
+    },
+    {
+      "issued_tick": 7371,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 171,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "empty_riding",
+        "trip_sequence": null,
+        "from": 1,
+        "to": 4,
+        "primary_actor_id": null
+      },
+      "lost_tick": 7394,
+      "held_ticks": 23,
+      "loss_location": {
+        "cell": [
+          85.8000030517578,
+          44.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "boarding",
+        "trip_sequence": 161,
+        "from": 4,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0015"
+      }
+    },
+    {
+      "issued_tick": 7483,
+      "ticket": {
+        "connector_id": "benchmark_lift",
+        "from": 1,
+        "sequence": 177,
+        "to": 2
+      },
+      "issue_lift": {
+        "phase": "boarding",
+        "trip_sequence": 165,
+        "from": 3,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0042"
+      },
+      "lost_tick": 7484,
+      "held_ticks": 1,
+      "loss_location": {
+        "cell": [
+          86.0,
+          44.2000007629395
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "loss_lift": {
+        "phase": "boarding",
+        "trip_sequence": 165,
+        "from": 3,
+        "to": 1,
+        "primary_actor_id": "bench_patient_0042"
+      }
+    }
+  ],
+  "higher_trip_while_ticket_held": []
+}

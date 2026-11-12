@@ -1,0 +1,7 @@
+{
+  "input_unchanged": true,
+  "input_sha256": "1355f89eeea7e12a5adf6e08c031192cc97e1fe2b97f32dd6efa52fe49557975",
+  "project_native_sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379",
+  "engine_reaped": true,
+  "scope": "one zero-step FileAccess-only decode, no World/Simulation/service or query construction"
+}
