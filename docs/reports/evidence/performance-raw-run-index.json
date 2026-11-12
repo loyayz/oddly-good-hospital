@@ -357,15 +357,43 @@
       "archive": "2026-11-12-waiting-hot-boundary/plain.zip",
       "archive_sha256": "a5f482d04e0ad9ac1bf73901ec4696d127a49f16fb55145bd3a5bcac36901650",
       "local_crc_member_readback_verified": true,
+      "remote_readback_verified": true,
+      "performance_pass": null,
+      "scope": "Stops after original tick2886; original1000 prefix preserves command timing. Not complete-window acceptance.",
+      "publication_commit": "3c3da321037916676c62d9091942c96b887065d9",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "a5f482d04e0ad9ac1bf73901ec4696d127a49f16fb55145bd3a5bcac36901650",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/3c3da321037916676c62d9091942c96b887065d9/docs/reports/evidence/2026-11-12-waiting-hot-boundary/plain.zip",
+        "bytes": 804876,
+        "members": 24,
+        "verified_utc": "2026-11-12T11:34:50.845237+00:00",
+        "commit": "3c3da321037916676c62d9091942c96b887065d9"
+      }
+    },
+    {
+      "id": "cloud-waiting-hot-boundary-observer",
+      "kind": "bounded_hot_history_waiting_call_observer",
+      "full_window": false,
+      "prefix": 1000,
+      "measured_steps": 1253,
+      "observer_world_ticks": [
+        2881,
+        2885
+      ],
+      "source_commit": "1e5bb6e3c0883836275aeab74e64847255fd8a06",
+      "archive": "2026-11-12-waiting-hot-boundary/observer.zip",
+      "archive_sha256": "f83106189f981ba8f23c165cdd7c367a268a73bc5abfd39632f4c97148846df3",
+      "local_crc_member_readback_verified": true,
       "remote_readback_verified": false,
       "performance_pass": null,
-      "scope": "Stops after original tick2886; original1000 prefix preserves command timing. Not complete-window acceptance."
+      "scope": "Exact original hot history, 5 waiting spans only. Full behavior equality; observer overhead and flush retained, not acceptance."
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-structural-body-plain8",
     "cloud-structural-body-full-plain",
-    "cloud-waiting-hot-boundary-plain"
+    "cloud-waiting-hot-boundary-plain",
+    "cloud-waiting-hot-boundary-observer"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-root-stages",

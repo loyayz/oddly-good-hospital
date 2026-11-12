@@ -1,0 +1,2766 @@
+{
+  "scope": "Qualified five-step waiting-call attribution, not acceptance/net CPU. Inclusive spans overlap. All observer flush remains in outer step.",
+  "roots": [
+    {
+      "output_tick": 2882,
+      "inclusive_raw_us": 42952,
+      "exclusive_us": 30,
+      "descendant_handler_us": 33932,
+      "inclusive_less_descendant_handler_us": 9020,
+      "own_handler_us": 9,
+      "flush_us": 20131,
+      "calls": 237,
+      "sum_exclusive_us": 9020
+    },
+    {
+      "output_tick": 2883,
+      "inclusive_raw_us": 33084,
+      "exclusive_us": 30,
+      "descendant_handler_us": 24440,
+      "inclusive_less_descendant_handler_us": 8644,
+      "own_handler_us": 31,
+      "flush_us": 18085,
+      "calls": 238,
+      "sum_exclusive_us": 8644
+    },
+    {
+      "output_tick": 2884,
+      "inclusive_raw_us": 297909,
+      "exclusive_us": 25,
+      "descendant_handler_us": 37140,
+      "inclusive_less_descendant_handler_us": 260769,
+      "own_handler_us": 9,
+      "flush_us": 33838,
+      "calls": 391,
+      "sum_exclusive_us": 260769
+    },
+    {
+      "output_tick": 2885,
+      "inclusive_raw_us": 32738,
+      "exclusive_us": 29,
+      "descendant_handler_us": 24009,
+      "inclusive_less_descendant_handler_us": 8729,
+      "own_handler_us": 9,
+      "flush_us": 18404,
+      "calls": 187,
+      "sum_exclusive_us": 8729
+    },
+    {
+      "output_tick": 2886,
+      "inclusive_raw_us": 31203,
+      "exclusive_us": 27,
+      "descendant_handler_us": 23116,
+      "inclusive_less_descendant_handler_us": 8087,
+      "own_handler_us": 8,
+      "flush_us": 17219,
+      "calls": 185,
+      "sum_exclusive_us": 8087
+    }
+  ],
+  "hot_exclusive_by_label": {
+    "game/life/waiting_life.gd:_start_fallback": {
+      "calls": 57,
+      "exclusive_us": 223735,
+      "inclusive_us": 240295
+    },
+    "game/life/waiting_life.gd:_dispatch_toilet_need": {
+      "calls": 91,
+      "exclusive_us": 15225,
+      "inclusive_us": 263759
+    },
+    "game/life/public_areas.gd:safe_wait": {
+      "calls": 88,
+      "exclusive_us": 13843,
+      "inclusive_us": 13843
+    },
+    "game/building/hospital_space.gd:begin_dynamic_route_query": {
+      "calls": 1,
+      "exclusive_us": 3743,
+      "inclusive_us": 3743
+    },
+    "game/life/waiting_life.gd:_dispatch_waiting": {
+      "calls": 1,
+      "exclusive_us": 1220,
+      "inclusive_us": 297575
+    },
+    "game/life/public_areas.gd:arrival_point": {
+      "calls": 1,
+      "exclusive_us": 1073,
+      "inclusive_us": 1073
+    },
+    "game/life/waiting_life.gd:_dispatch_need": {
+      "calls": 102,
+      "exclusive_us": 628,
+      "inclusive_us": 275766
+    },
+    "game/life/waiting_life.gd:_request_need_move": {
+      "calls": 6,
+      "exclusive_us": 559,
+      "inclusive_us": 559
+    },
+    "game/life/toilet_queue.gd:observe": {
+      "calls": 1,
+      "exclusive_us": 204,
+      "inclusive_us": 204
+    },
+    "game/life/waiting_life.gd:_dispatch_safety_wait": {
+      "calls": 9,
+      "exclusive_us": 125,
+      "inclusive_us": 5543
+    },
+    "game/life/public_areas.gd:select": {
+      "calls": 1,
+      "exclusive_us": 105,
+      "inclusive_us": 4972
+    },
+    "game/life/waiting_life.gd:ensure": {
+      "calls": 2,
+      "exclusive_us": 97,
+      "inclusive_us": 97
+    },
+    "game/life/waiting_life.gd:_wait_safely": {
+      "calls": 1,
+      "exclusive_us": 78,
+      "inclusive_us": 5205
+    },
+    "game/life/public_areas.gd:current_area": {
+      "calls": 7,
+      "exclusive_us": 52,
+      "inclusive_us": 52
+    },
+    "game/life/waiting_life.gd:_release_seat": {
+      "calls": 19,
+      "exclusive_us": 34,
+      "inclusive_us": 34
+    },
+    "game/life/waiting_life.gd:dispatch": {
+      "calls": 1,
+      "exclusive_us": 25,
+      "inclusive_us": 297909
+    },
+    "game/life/public_areas.gd:waiting_point": {
+      "calls": 1,
+      "exclusive_us": 16,
+      "inclusive_us": 16
+    },
+    "game/life/public_areas.gd:begin_wait_observation": {
+      "calls": 1,
+      "exclusive_us": 4,
+      "inclusive_us": 4
+    },
+    "game/life/public_areas.gd:end_wait_observation": {
+      "calls": 1,
+      "exclusive_us": 3,
+      "inclusive_us": 3
+    }
+  },
+  "hot_six_owners": [
+    {
+      "call": {
+        "after": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0003",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0003:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000039",
+            "visit_id": "bench_visit_0003"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0003",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0003:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000039",
+            "visit_id": "bench_visit_0003"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0003",
+            "arrived_tick": 633,
+            "id": "bench_visit_0003",
+            "phase": "wait_surgery",
+            "size": 22,
+            "ticket_id": "ticket_00000039",
+            "waiting_reason": ""
+          }
+        },
+        "before": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0003",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0003:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000039",
+            "visit_id": "bench_visit_0003"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0003",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0003:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000039",
+            "visit_id": "bench_visit_0003"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0003",
+            "arrived_tick": 633,
+            "id": "bench_visit_0003",
+            "phase": "wait_surgery",
+            "size": 22,
+            "ticket_id": "ticket_00000039",
+            "waiting_reason": "\u672c\u5c42\u6682\u65e0\u62a4\u58eb\u5728\u5c97\u7684\u5bfc\u8bca\u53f0\uff0c\u5728\u9644\u8fd1\u7b49\u5f85"
+          }
+        },
+        "body_end_us": 162469489,
+        "body_start_us": 162428593,
+        "child_wrapper_us": 1783,
+        "descendant_handler_us": 429,
+        "entered_us": 162428536,
+        "exclusive_us": 39113,
+        "id": 490,
+        "inclusive_less_descendant_handler_us": 40467,
+        "inclusive_raw_us": 40896,
+        "label": "game/life/waiting_life.gd:_start_fallback",
+        "output_tick": 2884,
+        "own_handler_us": 151,
+        "parent": 489,
+        "result": null,
+        "world_tick": 2883,
+        "wrapper_us": 41047
+      },
+      "direct_children": [
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30.3999977111816,
+              58.0
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30.3999977111816,
+              58.0
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162428756,
+          "body_start_us": 162428608,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162428602,
+          "exclusive_us": 148,
+          "id": 491,
+          "inclusive_less_descendant_handler_us": 148,
+          "inclusive_raw_us": 148,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 13,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 161
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003"
+          },
+          "before": {
+            "actor_id": "bench_patient_0003"
+          },
+          "body_end_us": 162428778,
+          "body_start_us": 162428772,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162428769,
+          "exclusive_us": 6,
+          "id": 492,
+          "inclusive_less_descendant_handler_us": 6,
+          "inclusive_raw_us": 6,
+          "label": "game/life/public_areas.gd:current_area",
+          "output_tick": 2884,
+          "own_handler_us": 11,
+          "parent": 490,
+          "result": {
+            "size": 0
+          },
+          "world_tick": 2883,
+          "wrapper_us": 17
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30,
+              58
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30,
+              58
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162467890,
+          "body_start_us": 162467587,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162467440,
+          "exclusive_us": 303,
+          "id": 493,
+          "inclusive_less_descendant_handler_us": 303,
+          "inclusive_raw_us": 303,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 161,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 464
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              31,
+              58
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              31,
+              58
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162467993,
+          "body_start_us": 162467922,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162467909,
+          "exclusive_us": 71,
+          "id": 494,
+          "inclusive_less_descendant_handler_us": 71,
+          "inclusive_raw_us": 71,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 20,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 91
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30,
+              57
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30,
+              57
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468078,
+          "body_start_us": 162468013,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468004,
+          "exclusive_us": 65,
+          "id": 495,
+          "inclusive_less_descendant_handler_us": 65,
+          "inclusive_raw_us": 65,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 15,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 80
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30,
+              59
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              30,
+              59
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468299,
+          "body_start_us": 162468097,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468087,
+          "exclusive_us": 202,
+          "id": 496,
+          "inclusive_less_descendant_handler_us": 202,
+          "inclusive_raw_us": 202,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 17,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 219
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              31,
+              57
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              31,
+              57
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468382,
+          "body_start_us": 162468322,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468313,
+          "exclusive_us": 60,
+          "id": 497,
+          "inclusive_less_descendant_handler_us": 60,
+          "inclusive_raw_us": 60,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 15,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 75
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              31,
+              59
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              31,
+              59
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468547,
+          "body_start_us": 162468400,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468390,
+          "exclusive_us": 147,
+          "id": 498,
+          "inclusive_less_descendant_handler_us": 147,
+          "inclusive_raw_us": 147,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 17,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 164
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              58
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              58
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468625,
+          "body_start_us": 162468565,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468557,
+          "exclusive_us": 60,
+          "id": 499,
+          "inclusive_less_descendant_handler_us": 60,
+          "inclusive_raw_us": 60,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 14,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 74
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              32,
+              58
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              32,
+              58
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468700,
+          "body_start_us": 162468644,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468634,
+          "exclusive_us": 56,
+          "id": 500,
+          "inclusive_less_descendant_handler_us": 56,
+          "inclusive_raw_us": 56,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 15,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 71
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              57
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              57
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468768,
+          "body_start_us": 162468714,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468708,
+          "exclusive_us": 54,
+          "id": 501,
+          "inclusive_less_descendant_handler_us": 54,
+          "inclusive_raw_us": 54,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 11,
+          "parent": 490,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 65
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              59
+            ],
+            "floor_id": 3
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              59
+            ],
+            "floor_id": 3
+          },
+          "body_end_us": 162468881,
+          "body_start_us": 162468783,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162468775,
+          "exclusive_us": 98,
+          "id": 502,
+          "inclusive_less_descendant_handler_us": 98,
+          "inclusive_raw_us": 98,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 14,
+          "parent": 490,
+          "result": true,
+          "world_tick": 2883,
+          "wrapper_us": 112
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              59
+            ],
+            "floor_id": 3,
+            "need": {
+              "actor_id": "bench_patient_0003",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0003:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000039",
+              "visit_id": "bench_visit_0003"
+            }
+          },
+          "before": {
+            "actor_id": "bench_patient_0003",
+            "cell": [
+              29,
+              59
+            ],
+            "floor_id": 3,
+            "need": {
+              "actor_id": "bench_patient_0003",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0003:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000039",
+              "visit_id": "bench_visit_0003"
+            }
+          },
+          "body_end_us": 162469420,
+          "body_start_us": 162469336,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162469291,
+          "exclusive_us": 84,
+          "id": 503,
+          "inclusive_less_descendant_handler_us": 84,
+          "inclusive_raw_us": 84,
+          "label": "game/life/waiting_life.gd:_request_need_move",
+          "output_tick": 2884,
+          "own_handler_us": 106,
+          "parent": 490,
+          "result": "",
+          "world_tick": 2883,
+          "wrapper_us": 190
+        }
+      ]
+    },
+    {
+      "call": {
+        "after": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0026",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0026:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000062",
+            "visit_id": "bench_visit_0026"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0026",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0026:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000062",
+            "visit_id": "bench_visit_0026"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0026",
+            "arrived_tick": 633,
+            "id": "bench_visit_0026",
+            "phase": "wait_gp",
+            "size": 22,
+            "ticket_id": "ticket_00000062",
+            "waiting_reason": ""
+          }
+        },
+        "before": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0026",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0026:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000062",
+            "visit_id": "bench_visit_0026"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0026",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0026:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000062",
+            "visit_id": "bench_visit_0026"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0026",
+            "arrived_tick": 633,
+            "id": "bench_visit_0026",
+            "phase": "wait_gp",
+            "size": 22,
+            "ticket_id": "ticket_00000062",
+            "waiting_reason": "\u672c\u5c42\u6682\u65e0\u62a4\u58eb\u5728\u5c97\u7684\u5bfc\u8bca\u53f0\uff0c\u5728\u9644\u8fd1\u7b49\u5f85"
+          }
+        },
+        "body_end_us": 162602438,
+        "body_start_us": 162563115,
+        "child_wrapper_us": 941,
+        "descendant_handler_us": 185,
+        "entered_us": 162563059,
+        "exclusive_us": 38382,
+        "id": 589,
+        "inclusive_less_descendant_handler_us": 39138,
+        "inclusive_raw_us": 39323,
+        "label": "game/life/waiting_life.gd:_start_fallback",
+        "output_tick": 2884,
+        "own_handler_us": 232,
+        "parent": 588,
+        "result": null,
+        "world_tick": 2883,
+        "wrapper_us": 39555
+      },
+      "direct_children": [
+        {
+          "after": {
+            "actor_id": "bench_patient_0026",
+            "cell": [
+              85.3999786376953,
+              44.0
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0026",
+            "cell": [
+              85.3999786376953,
+              44.0
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162563232,
+          "body_start_us": 162563128,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162563123,
+          "exclusive_us": 104,
+          "id": 590,
+          "inclusive_less_descendant_handler_us": 104,
+          "inclusive_raw_us": 104,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 11,
+          "parent": 589,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 115
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0026"
+          },
+          "before": {
+            "actor_id": "bench_patient_0026"
+          },
+          "body_end_us": 162563253,
+          "body_start_us": 162563246,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162563243,
+          "exclusive_us": 7,
+          "id": 591,
+          "inclusive_less_descendant_handler_us": 7,
+          "inclusive_raw_us": 7,
+          "label": "game/life/public_areas.gd:current_area",
+          "output_tick": 2884,
+          "own_handler_us": 11,
+          "parent": 589,
+          "result": {
+            "size": 0
+          },
+          "world_tick": 2883,
+          "wrapper_us": 18
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0026",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0026",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162601894,
+          "body_start_us": 162601338,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162601282,
+          "exclusive_us": 556,
+          "id": 592,
+          "inclusive_less_descendant_handler_us": 556,
+          "inclusive_raw_us": 556,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 70,
+          "parent": 589,
+          "result": true,
+          "world_tick": 2883,
+          "wrapper_us": 626
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0026",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 1,
+            "need": {
+              "actor_id": "bench_patient_0026",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0026:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000062",
+              "visit_id": "bench_visit_0026"
+            }
+          },
+          "before": {
+            "actor_id": "bench_patient_0026",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 1,
+            "need": {
+              "actor_id": "bench_patient_0026",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0026:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000062",
+              "visit_id": "bench_visit_0026"
+            }
+          },
+          "body_end_us": 162602392,
+          "body_start_us": 162602303,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162602249,
+          "exclusive_us": 89,
+          "id": 593,
+          "inclusive_less_descendant_handler_us": 89,
+          "inclusive_raw_us": 89,
+          "label": "game/life/waiting_life.gd:_request_need_move",
+          "output_tick": 2884,
+          "own_handler_us": 93,
+          "parent": 589,
+          "result": "",
+          "world_tick": 2883,
+          "wrapper_us": 182
+        }
+      ]
+    },
+    {
+      "call": {
+        "after": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0011",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0011:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000047",
+            "visit_id": "bench_visit_0011"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0011",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0011:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000047",
+            "visit_id": "bench_visit_0011"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0011",
+            "arrived_tick": 633,
+            "id": "bench_visit_0011",
+            "phase": "wait_surgery",
+            "size": 22,
+            "ticket_id": "ticket_00000047",
+            "waiting_reason": ""
+          }
+        },
+        "before": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0011",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0011:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000047",
+            "visit_id": "bench_visit_0011"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0011",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0011:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000047",
+            "visit_id": "bench_visit_0011"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0011",
+            "arrived_tick": 633,
+            "id": "bench_visit_0011",
+            "phase": "wait_surgery",
+            "size": 22,
+            "ticket_id": "ticket_00000047",
+            "waiting_reason": "\u672c\u5c42\u6682\u65e0\u62a4\u58eb\u5728\u5c97\u7684\u5bfc\u8bca\u53f0\uff0c\u5728\u9644\u8fd1\u7b49\u5f85"
+          }
+        },
+        "body_end_us": 162511019,
+        "body_start_us": 162472824,
+        "child_wrapper_us": 723,
+        "descendant_handler_us": 176,
+        "entered_us": 162472769,
+        "exclusive_us": 37472,
+        "id": 521,
+        "inclusive_less_descendant_handler_us": 38019,
+        "inclusive_raw_us": 38195,
+        "label": "game/life/waiting_life.gd:_start_fallback",
+        "output_tick": 2884,
+        "own_handler_us": 163,
+        "parent": 520,
+        "result": null,
+        "world_tick": 2883,
+        "wrapper_us": 38358
+      },
+      "direct_children": [
+        {
+          "after": {
+            "actor_id": "bench_patient_0011",
+            "cell": [
+              85.3999786376953,
+              44.0
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0011",
+            "cell": [
+              85.3999786376953,
+              44.0
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162472915,
+          "body_start_us": 162472840,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162472834,
+          "exclusive_us": 75,
+          "id": 522,
+          "inclusive_less_descendant_handler_us": 75,
+          "inclusive_raw_us": 75,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 15,
+          "parent": 521,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 90
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0011"
+          },
+          "before": {
+            "actor_id": "bench_patient_0011"
+          },
+          "body_end_us": 162472941,
+          "body_start_us": 162472933,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162472930,
+          "exclusive_us": 8,
+          "id": 523,
+          "inclusive_less_descendant_handler_us": 8,
+          "inclusive_raw_us": 8,
+          "label": "game/life/public_areas.gd:current_area",
+          "output_tick": 2884,
+          "own_handler_us": 11,
+          "parent": 521,
+          "result": {
+            "size": 0
+          },
+          "world_tick": 2883,
+          "wrapper_us": 19
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0011",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0011",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162510507,
+          "body_start_us": 162510125,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162510071,
+          "exclusive_us": 382,
+          "id": 524,
+          "inclusive_less_descendant_handler_us": 382,
+          "inclusive_raw_us": 382,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 67,
+          "parent": 521,
+          "result": true,
+          "world_tick": 2883,
+          "wrapper_us": 449
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0011",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 2,
+            "need": {
+              "actor_id": "bench_patient_0011",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0011:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000047",
+              "visit_id": "bench_visit_0011"
+            }
+          },
+          "before": {
+            "actor_id": "bench_patient_0011",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 2,
+            "need": {
+              "actor_id": "bench_patient_0011",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0011:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000047",
+              "visit_id": "bench_visit_0011"
+            }
+          },
+          "body_end_us": 162510983,
+          "body_start_us": 162510901,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162510847,
+          "exclusive_us": 82,
+          "id": 525,
+          "inclusive_less_descendant_handler_us": 82,
+          "inclusive_raw_us": 82,
+          "label": "game/life/waiting_life.gd:_request_need_move",
+          "output_tick": 2884,
+          "own_handler_us": 83,
+          "parent": 521,
+          "result": "",
+          "world_tick": 2883,
+          "wrapper_us": 165
+        }
+      ]
+    },
+    {
+      "call": {
+        "after": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0012",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0012:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 19,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000048",
+            "visit_id": "bench_visit_0012"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0012",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0012:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 19,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000048",
+            "visit_id": "bench_visit_0012"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0012",
+            "arrived_tick": 633,
+            "id": "bench_visit_0012",
+            "phase": "wait_outpatient",
+            "size": 22,
+            "ticket_id": "ticket_00000048",
+            "waiting_reason": ""
+          }
+        },
+        "before": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0012",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0012:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 19,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000048",
+            "visit_id": "bench_visit_0012"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0012",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0012:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 19,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000048",
+            "visit_id": "bench_visit_0012"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0012",
+            "arrived_tick": 633,
+            "id": "bench_visit_0012",
+            "phase": "wait_outpatient",
+            "size": 22,
+            "ticket_id": "ticket_00000048",
+            "waiting_reason": "\u672c\u5c42\u6682\u65e0\u62a4\u58eb\u5728\u5c97\u7684\u5bfc\u8bca\u53f0\uff0c\u5728\u9644\u8fd1\u7b49\u5f85"
+          }
+        },
+        "body_end_us": 162550368,
+        "body_start_us": 162511893,
+        "child_wrapper_us": 1891,
+        "descendant_handler_us": 322,
+        "entered_us": 162511835,
+        "exclusive_us": 36584,
+        "id": 528,
+        "inclusive_less_descendant_handler_us": 38153,
+        "inclusive_raw_us": 38475,
+        "label": "game/life/waiting_life.gd:_start_fallback",
+        "output_tick": 2884,
+        "own_handler_us": 204,
+        "parent": 527,
+        "result": null,
+        "world_tick": 2883,
+        "wrapper_us": 38679
+      },
+      "direct_children": [
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31.0,
+              57.0
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31.0,
+              57.0
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162512144,
+          "body_start_us": 162511925,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162511919,
+          "exclusive_us": 219,
+          "id": 529,
+          "inclusive_less_descendant_handler_us": 219,
+          "inclusive_raw_us": 219,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 13,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 232
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012"
+          },
+          "before": {
+            "actor_id": "bench_patient_0012"
+          },
+          "body_end_us": 162512169,
+          "body_start_us": 162512161,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162512158,
+          "exclusive_us": 8,
+          "id": 530,
+          "inclusive_less_descendant_handler_us": 8,
+          "inclusive_raw_us": 8,
+          "label": "game/life/public_areas.gd:current_area",
+          "output_tick": 2884,
+          "own_handler_us": 11,
+          "parent": 528,
+          "result": {
+            "size": 0
+          },
+          "world_tick": 2883,
+          "wrapper_us": 19
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              57
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              57
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162548721,
+          "body_start_us": 162548405,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162548364,
+          "exclusive_us": 316,
+          "id": 531,
+          "inclusive_less_descendant_handler_us": 316,
+          "inclusive_raw_us": 316,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 56,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 372
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              56
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              56
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162548958,
+          "body_start_us": 162548755,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162548742,
+          "exclusive_us": 203,
+          "id": 532,
+          "inclusive_less_descendant_handler_us": 203,
+          "inclusive_raw_us": 203,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 21,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 224
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              30,
+              57
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              30,
+              57
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549044,
+          "body_start_us": 162548979,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162548971,
+          "exclusive_us": 65,
+          "id": 533,
+          "inclusive_less_descendant_handler_us": 65,
+          "inclusive_raw_us": 65,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 14,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 79
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              32,
+              57
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              32,
+              57
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549120,
+          "body_start_us": 162549063,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549053,
+          "exclusive_us": 57,
+          "id": 534,
+          "inclusive_less_descendant_handler_us": 57,
+          "inclusive_raw_us": 57,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 16,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 73
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              58
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              58
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549190,
+          "body_start_us": 162549137,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549129,
+          "exclusive_us": 53,
+          "id": 535,
+          "inclusive_less_descendant_handler_us": 53,
+          "inclusive_raw_us": 53,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 14,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 67
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              30,
+              56
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              30,
+              56
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549263,
+          "body_start_us": 162549208,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549199,
+          "exclusive_us": 55,
+          "id": 536,
+          "inclusive_less_descendant_handler_us": 55,
+          "inclusive_raw_us": 55,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 14,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 69
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              32,
+              56
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              32,
+              56
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549330,
+          "body_start_us": 162549278,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549271,
+          "exclusive_us": 52,
+          "id": 537,
+          "inclusive_less_descendant_handler_us": 52,
+          "inclusive_raw_us": 52,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 12,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 64
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              30,
+              58
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              30,
+              58
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549397,
+          "body_start_us": 162549344,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549337,
+          "exclusive_us": 53,
+          "id": 538,
+          "inclusive_less_descendant_handler_us": 53,
+          "inclusive_raw_us": 53,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 13,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 66
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              32,
+              58
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              32,
+              58
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549530,
+          "body_start_us": 162549416,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549406,
+          "exclusive_us": 114,
+          "id": 539,
+          "inclusive_less_descendant_handler_us": 114,
+          "inclusive_raw_us": 114,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 16,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 130
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              55
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              31,
+              55
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549608,
+          "body_start_us": 162549546,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549539,
+          "exclusive_us": 62,
+          "id": 540,
+          "inclusive_less_descendant_handler_us": 62,
+          "inclusive_raw_us": 62,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 12,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 74
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              29,
+              57
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              29,
+              57
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549672,
+          "body_start_us": 162549623,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549616,
+          "exclusive_us": 49,
+          "id": 541,
+          "inclusive_less_descendant_handler_us": 49,
+          "inclusive_raw_us": 49,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 12,
+          "parent": 528,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 61
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              33,
+              57
+            ],
+            "floor_id": 1
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              33,
+              57
+            ],
+            "floor_id": 1
+          },
+          "body_end_us": 162549868,
+          "body_start_us": 162549686,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162549679,
+          "exclusive_us": 182,
+          "id": 542,
+          "inclusive_less_descendant_handler_us": 182,
+          "inclusive_raw_us": 182,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 14,
+          "parent": 528,
+          "result": true,
+          "world_tick": 2883,
+          "wrapper_us": 196
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              33,
+              57
+            ],
+            "floor_id": 1,
+            "need": {
+              "actor_id": "bench_patient_0012",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0012:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 19,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000048",
+              "visit_id": "bench_visit_0012"
+            }
+          },
+          "before": {
+            "actor_id": "bench_patient_0012",
+            "cell": [
+              33,
+              57
+            ],
+            "floor_id": 1,
+            "need": {
+              "actor_id": "bench_patient_0012",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0012:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 19,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000048",
+              "visit_id": "bench_visit_0012"
+            }
+          },
+          "body_end_us": 162550324,
+          "body_start_us": 162550243,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162550196,
+          "exclusive_us": 81,
+          "id": 543,
+          "inclusive_less_descendant_handler_us": 81,
+          "inclusive_raw_us": 81,
+          "label": "game/life/waiting_life.gd:_request_need_move",
+          "output_tick": 2884,
+          "own_handler_us": 84,
+          "parent": 528,
+          "result": "",
+          "world_tick": 2883,
+          "wrapper_us": 165
+        }
+      ]
+    },
+    {
+      "call": {
+        "after": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0027",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0027:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000063",
+            "visit_id": "bench_visit_0027"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0027",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0027:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000063",
+            "visit_id": "bench_visit_0027"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0027",
+            "arrived_tick": 633,
+            "id": "bench_visit_0027",
+            "phase": "wait_gp",
+            "size": 22,
+            "ticket_id": "ticket_00000063",
+            "waiting_reason": ""
+          }
+        },
+        "before": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0027",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0027:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000063",
+            "visit_id": "bench_visit_0027"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0027",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0027:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000063",
+            "visit_id": "bench_visit_0027"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0027",
+            "arrived_tick": 633,
+            "id": "bench_visit_0027",
+            "phase": "wait_gp",
+            "size": 22,
+            "ticket_id": "ticket_00000063",
+            "waiting_reason": "\u672c\u5c42\u6682\u65e0\u62a4\u58eb\u5728\u5c97\u7684\u5bfc\u8bca\u53f0\uff0c\u5728\u9644\u8fd1\u7b49\u5f85"
+          }
+        },
+        "body_end_us": 162640223,
+        "body_start_us": 162603375,
+        "child_wrapper_us": 1103,
+        "descendant_handler_us": 242,
+        "entered_us": 162603317,
+        "exclusive_us": 35745,
+        "id": 596,
+        "inclusive_less_descendant_handler_us": 36606,
+        "inclusive_raw_us": 36848,
+        "label": "game/life/waiting_life.gd:_start_fallback",
+        "output_tick": 2884,
+        "own_handler_us": 160,
+        "parent": 595,
+        "result": null,
+        "world_tick": 2883,
+        "wrapper_us": 37008
+      },
+      "direct_children": [
+        {
+          "after": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              86.0,
+              44.0
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              86.0,
+              44.0
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162603571,
+          "body_start_us": 162603404,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162603398,
+          "exclusive_us": 167,
+          "id": 597,
+          "inclusive_less_descendant_handler_us": 167,
+          "inclusive_raw_us": 167,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 13,
+          "parent": 596,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 180
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0027"
+          },
+          "before": {
+            "actor_id": "bench_patient_0027"
+          },
+          "body_end_us": 162603597,
+          "body_start_us": 162603589,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162603586,
+          "exclusive_us": 8,
+          "id": 598,
+          "inclusive_less_descendant_handler_us": 8,
+          "inclusive_raw_us": 8,
+          "label": "game/life/public_areas.gd:current_area",
+          "output_tick": 2884,
+          "own_handler_us": 15,
+          "parent": 596,
+          "result": {
+            "size": 0
+          },
+          "world_tick": 2883,
+          "wrapper_us": 23
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              86,
+              44
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              86,
+              44
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162639273,
+          "body_start_us": 162639053,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162639004,
+          "exclusive_us": 220,
+          "id": 599,
+          "inclusive_less_descendant_handler_us": 220,
+          "inclusive_raw_us": 220,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 62,
+          "parent": 596,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 282
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              86,
+              43
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              86,
+              43
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162639381,
+          "body_start_us": 162639306,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162639293,
+          "exclusive_us": 75,
+          "id": 600,
+          "inclusive_less_descendant_handler_us": 75,
+          "inclusive_raw_us": 75,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 20,
+          "parent": 596,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 95
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162639589,
+          "body_start_us": 162639401,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162639392,
+          "exclusive_us": 188,
+          "id": 601,
+          "inclusive_less_descendant_handler_us": 188,
+          "inclusive_raw_us": 188,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 16,
+          "parent": 596,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 204
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              87,
+              44
+            ],
+            "floor_id": 2
+          },
+          "before": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              87,
+              44
+            ],
+            "floor_id": 2
+          },
+          "body_end_us": 162639712,
+          "body_start_us": 162639609,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162639600,
+          "exclusive_us": 103,
+          "id": 602,
+          "inclusive_less_descendant_handler_us": 103,
+          "inclusive_raw_us": 103,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 15,
+          "parent": 596,
+          "result": true,
+          "world_tick": 2883,
+          "wrapper_us": 118
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              87,
+              44
+            ],
+            "floor_id": 2,
+            "need": {
+              "actor_id": "bench_patient_0027",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0027:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000063",
+              "visit_id": "bench_visit_0027"
+            }
+          },
+          "before": {
+            "actor_id": "bench_patient_0027",
+            "cell": [
+              87,
+              44
+            ],
+            "floor_id": 2,
+            "need": {
+              "actor_id": "bench_patient_0027",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0027:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000063",
+              "visit_id": "bench_visit_0027"
+            }
+          },
+          "body_end_us": 162640175,
+          "body_start_us": 162640075,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162640015,
+          "exclusive_us": 100,
+          "id": 603,
+          "inclusive_less_descendant_handler_us": 100,
+          "inclusive_raw_us": 100,
+          "label": "game/life/waiting_life.gd:_request_need_move",
+          "output_tick": 2884,
+          "own_handler_us": 101,
+          "parent": 596,
+          "result": "",
+          "world_tick": 2883,
+          "wrapper_us": 201
+        }
+      ]
+    },
+    {
+      "call": {
+        "after": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0059",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0059:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000187",
+            "visit_id": "bench_visit_0059"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0059",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0059:life:1",
+            "mode": "auto",
+            "phase": "fallback_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000187",
+            "visit_id": "bench_visit_0059"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0059",
+            "arrived_tick": 633,
+            "id": "bench_visit_0059",
+            "phase": "wait_outpatient",
+            "size": 22,
+            "ticket_id": "ticket_00000187",
+            "waiting_reason": ""
+          }
+        },
+        "before": {
+          "_owner_clocks": {
+            "next_need_tick": 2433,
+            "next_purpose": "toilet",
+            "sequence": 1,
+            "size": 3
+          },
+          "_owner_needs": {
+            "actor_id": "bench_patient_0059",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0059:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000187",
+            "visit_id": "bench_visit_0059"
+          },
+          "_owner_seats": {
+            "size": 0
+          },
+          "need": {
+            "actor_id": "bench_patient_0059",
+            "area": {
+              "size": 0
+            },
+            "arrived_tick": -1,
+            "facility_id": "",
+            "id": "bench_visit_0059:life:1",
+            "mode": "auto",
+            "phase": "area_travel",
+            "public_purpose": "toilet",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 0,
+            "size": 18,
+            "started_tick": 2433,
+            "ticket_id": "ticket_00000187",
+            "visit_id": "bench_visit_0059"
+          },
+          "visit": {
+            "actor_id": "bench_patient_0059",
+            "arrived_tick": 633,
+            "id": "bench_visit_0059",
+            "phase": "wait_outpatient",
+            "size": 22,
+            "ticket_id": "ticket_00000187",
+            "waiting_reason": "\u672c\u5c42\u6682\u65e0\u62a4\u58eb\u5728\u5c97\u7684\u5bfc\u8bca\u53f0\uff0c\u5728\u9644\u8fd1\u7b49\u5f85"
+          }
+        },
+        "body_end_us": 162697604,
+        "body_start_us": 162661202,
+        "child_wrapper_us": 790,
+        "descendant_handler_us": 210,
+        "entered_us": 162661147,
+        "exclusive_us": 35612,
+        "id": 705,
+        "inclusive_less_descendant_handler_us": 36192,
+        "inclusive_raw_us": 36402,
+        "label": "game/life/waiting_life.gd:_start_fallback",
+        "output_tick": 2884,
+        "own_handler_us": 162,
+        "parent": 704,
+        "result": null,
+        "world_tick": 2883,
+        "wrapper_us": 36564
+      },
+      "direct_children": [
+        {
+          "after": {
+            "actor_id": "bench_patient_0059",
+            "cell": [
+              85.4000091552734,
+              44.0
+            ],
+            "floor_id": 4
+          },
+          "before": {
+            "actor_id": "bench_patient_0059",
+            "cell": [
+              85.4000091552734,
+              44.0
+            ],
+            "floor_id": 4
+          },
+          "body_end_us": 162661291,
+          "body_start_us": 162661216,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162661211,
+          "exclusive_us": 75,
+          "id": 706,
+          "inclusive_less_descendant_handler_us": 75,
+          "inclusive_raw_us": 75,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 10,
+          "parent": 705,
+          "result": false,
+          "world_tick": 2883,
+          "wrapper_us": 85
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0059"
+          },
+          "before": {
+            "actor_id": "bench_patient_0059"
+          },
+          "body_end_us": 162661312,
+          "body_start_us": 162661304,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162661301,
+          "exclusive_us": 8,
+          "id": 707,
+          "inclusive_less_descendant_handler_us": 8,
+          "inclusive_raw_us": 8,
+          "label": "game/life/public_areas.gd:current_area",
+          "output_tick": 2884,
+          "own_handler_us": 12,
+          "parent": 705,
+          "result": {
+            "size": 0
+          },
+          "world_tick": 2883,
+          "wrapper_us": 20
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0059",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 4
+          },
+          "before": {
+            "actor_id": "bench_patient_0059",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 4
+          },
+          "body_end_us": 162696873,
+          "body_start_us": 162696499,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162696425,
+          "exclusive_us": 374,
+          "id": 708,
+          "inclusive_less_descendant_handler_us": 374,
+          "inclusive_raw_us": 374,
+          "label": "game/life/public_areas.gd:safe_wait",
+          "output_tick": 2884,
+          "own_handler_us": 87,
+          "parent": 705,
+          "result": true,
+          "world_tick": 2883,
+          "wrapper_us": 461
+        },
+        {
+          "after": {
+            "actor_id": "bench_patient_0059",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 4,
+            "need": {
+              "actor_id": "bench_patient_0059",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0059:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000187",
+              "visit_id": "bench_visit_0059"
+            }
+          },
+          "before": {
+            "actor_id": "bench_patient_0059",
+            "cell": [
+              85,
+              44
+            ],
+            "floor_id": 4,
+            "need": {
+              "actor_id": "bench_patient_0059",
+              "area": {
+                "size": 0
+              },
+              "arrived_tick": -1,
+              "facility_id": "",
+              "id": "bench_visit_0059:life:1",
+              "mode": "auto",
+              "phase": "fallback_travel",
+              "public_purpose": "toilet",
+              "purpose": "toilet",
+              "queued_ticks": 0,
+              "remaining_ticks": 0,
+              "size": 18,
+              "started_tick": 2433,
+              "ticket_id": "ticket_00000187",
+              "visit_id": "bench_visit_0059"
+            }
+          },
+          "body_end_us": 162697555,
+          "body_start_us": 162697432,
+          "child_wrapper_us": 0,
+          "descendant_handler_us": 0,
+          "entered_us": 162697373,
+          "exclusive_us": 123,
+          "id": 709,
+          "inclusive_less_descendant_handler_us": 123,
+          "inclusive_raw_us": 123,
+          "label": "game/life/waiting_life.gd:_request_need_move",
+          "output_tick": 2884,
+          "own_handler_us": 101,
+          "parent": 705,
+          "result": "",
+          "world_tick": 2883,
+          "wrapper_us": 224
+        }
+      ]
+    }
+  ],
+  "remaining_gap": "floor_waiting_point, toilets.leave and can_reach are not individually timed. Source plus observed current_area empty/unsafe origin proves the fallback path reaches floor_waiting_point, but its enumeration/sort/route costs remain unresolved inside _start_fallback exclusive."
+}

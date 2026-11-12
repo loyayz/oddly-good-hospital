@@ -13,3 +13,17 @@ HEAD `2220eb7a2f5c826aac89bb1ff7b9348b8dafe786`，生产缓存源码仍1e5bb6e�
 进程163.366秒、exit1；截断覆盖22/31，原升级拒绝仍在tick1633。保留require-coverage及失败结果，明确诊断截断，不是完整性能资格窗；没有降低门槛。结束封包并停止，实际持久读回后才允许同边界观察版。
 
 [原始plain包](evidence/2026-11-12-waiting-hot-boundary/plain.zip) 804876字节、24成员，SHA256 `a5f482d04e0ad9ac1bf73901ec4696d127a49f16fb55145bd3a5bcac36901650`；[逐成员manifest](evidence/2026-11-12-waiting-hot-boundary/plain.members.json)和[前缀对比](evidence/2026-11-12-waiting-hot-boundary/plain.comparison.json)。本地CRC/成员长度/SHA均通过。包为既有合成游戏benchmark的运行事实、输入/终态及工程诊断，不含真实患者材料或账号凭据。此前所有原始包保留。
+
+## 同热史限定观察与已证触发
+
+plain包已从3c3da32实际下载核验24成员后，运行唯一观察版。隔离副本4文件32个wrapper，原函数体/参数默认值/早返通过机械逆变换逐字验证；原返回只执行一次。仅world2881..2885的waiting根启用；窗口外直通但仍有轻量wrapper开销。两次parse-only均通过，第二次只是执行前补短坐标数组摘要，旧helper/manifest与parser日志保留。没有额外业务查询或World快照。
+
+实际2253步的完整World/RNG/有序事件、business/prefix/sample/errors以及逐步非计时状态与plain相等，final仍53af4f26…de1f。1238调用记录、5根span和parent/stack/计时算式通过。进程164.569秒，仍覆盖22/31与exit1，未宣称性能验收通过。
+
+输出2884的waiting raw297.909ms，已测后代handler37.140ms，扣除后估计260.769ms。57次_start_fallback的exclusive共223.735ms；其中真实患者0003/0026/0011/0012/0027/0059这6条调用占222.908ms。六人的如厕need原started_tick=2433，seek_seconds=45，因此同在world2883到期；实际phase从area_travel转fallback_travel，当前safe_wait=false、current_area为空，随后真实安全点移动请求返回空错误串。没有把意图当成实际到达。邻近4步fallback调用均0，waiting扣已测handler后的估计为9.020/8.644/8.729/8.087ms。
+
+这是生活期限同刻到期后的安全撤离，不是周期扫座。尚未给floor_waiting_point、room_use.public_point、can_reach、toilets.leave单独计时；它们在未包裹残差中。源码虽在floor_waiting_point完整枚举拥有公共地块并按当前身体origin距离/y/x排序，然后safe_wait/can_reach，但不能把222.908ms直接全算作排序或A*。下一界限是这些内部真实工作，而不是修改期限、分散提交或降低安全规则。
+
+计时exclusive=body_raw−直接child已测wrapper，仅用于本次观测分区，不是净生产CPU。门控、传播/返回等未测观察开销仍在残差。5次root flush分别20.131/18.085/33.838/18.404/17.219ms，全部留在真实outer step内，不能删除长帧或直接用该观察版做性能比较；inclusive不可相加。
+
+[观察原始包](evidence/2026-11-12-waiting-hot-boundary/observer.zip) 1562701字节、56成员，SHA256 `f83106189f981ba8f23c165cdd7c367a268a73bc5abfd39632f4c97148846df3`；[成员清单](evidence/2026-11-12-waiting-hot-boundary/observer.members.json)、[资格对比](evidence/2026-11-12-waiting-hot-boundary/observer.comparison.json)、[5根span与6owner分析](evidence/2026-11-12-waiting-hot-boundary/observer.analysis.json)。本地CRC/每成员字节及SHA核验通过。所有实际trace、源变换、helper、准备/校验控制器、parser输出与进程身份均保留；overlay已还原并停止，没有生产修改、第二次重放或全窗重复。
