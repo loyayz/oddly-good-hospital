@@ -119,12 +119,28 @@
         "verified_utc": "2026-11-12T09:10:19.402649+00:00",
         "commit": "030157547d55e659f52a1bd0a6f02d0fd949f712"
       }
+    },
+    {
+      "id": "cloud-door-clearance-bounded-v1",
+      "kind": "bounded_instrumentation_failure",
+      "full_window": false,
+      "prefix": 0,
+      "requested_steps": 8,
+      "plain_completed_steps": 8,
+      "observer_result_available": false,
+      "archive": "2026-11-12-door-clearance-probe/bounded-v1-failure.zip",
+      "archive_sha256": "574b9a8a2ee68fdfad7b7e67c8021023fec02243d457a27333412c491a802b88",
+      "publication": "with this index revision",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68"
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-recovery-full-root-stages",
     "cloud-movement-narrow-qualification",
-    "cloud-movement-full-narrow"
+    "cloud-movement-full-narrow",
+    "cloud-door-clearance-bounded-v1"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",

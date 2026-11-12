@@ -1,0 +1,13 @@
+# Bounded door-clearance probe: retained instrumentation failure
+
+The question is whether `movement_doors` repeats a clearance/body lookup for the same actual actor instance, and whether avoiding that duplicate would have measurable local value. No production optimization has been applied. The full movement profile identifies `_move_step` as an important cumulative cost, but does not establish that this lookup is its dominant component.
+
+The probe restored the complete archived cloud terminal state, SHA256 `41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68`, preserving facts/RNG/identities/tasks. Its cap was eight actual 0.1s steps, with a separate plain and counting observer. The first cold step and following seven were to be distinguished. This terminal envelope has no original scenario tag, so it is a local boundary diagnostic, not a full mixed-workload acceptance result.
+
+Plain completed all eight steps, ticks 7633-7641, exit 0; final SHA256 `6ecee78b194a7925938549383dc9fb87f222a3843d901d790fe83ac7aeaeb93d`. Process wall was 5.329 s including startup and output, not a microbenchmark result.
+
+The first observer was incorrect: its wrapper was active during `prepare_floor_static`, before the per-step counter dictionary was initialized. Godot reported `Invalid access to property or key 'calls'` in the observer. The guard terminated and reaped that process, exit -15. Only the observer engine/process logs exist; no initial/step/result files were produced. Therefore no observer equality, actual-call corpus, performance benefit or gameplay fault is established by this attempt. The two instrumented source files were restored, and production and prior diagnostic projects were not changed.
+
+[Retained failed-attempt archive](evidence/2026-11-12-door-clearance-probe/bounded-v1-failure.zip) is 1016069 bytes, SHA256 `574b9a8a2ee68fdfad7b7e67c8021023fec02243d457a27333412c491a802b88`. Its [manifest](evidence/2026-11-12-door-clearance-probe/bounded-v1-failure.members.json) covers 28 raw members plus the internal manifest. The package includes the successful plain result, original input/final states, faulty observer/controller, source transforms, runtime identities, host snapshots, exact error and process/recovery logs. CRC, every member size/hash and restored source identity were independently checked before publication.
+
+The next tool revision must gate observation to an active simulation step and make initialization/after-step calls transparent. Once qualified, only a new bounded observer is needed against the retained plain result; the plain eight steps need not be repeated. There was no microbenchmark, candidate gameplay edit, complete-window rerun or older-file deletion in this attempt.
