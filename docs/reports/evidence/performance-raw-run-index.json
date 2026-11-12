@@ -192,12 +192,27 @@
         "verified_utc": "2026-11-12T09:41:20.430110+00:00",
         "commit": "73051a845d21cc86ccd428c95287ed6197b1dd2c"
       }
+    },
+    {
+      "id": "cloud-move-step-breakdown8",
+      "kind": "bounded_method_breakdown",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 8,
+      "source_commit": "a8f1a09f44163a35c875b74e2f75f69d210fed16",
+      "archive": "2026-11-12-move-step-breakdown/batch.zip",
+      "archive_sha256": "6971eb5321715c079487b9cc26ffe6856018c8027656de24885e7d2e6f2de047",
+      "publication": "with this index revision",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68"
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-door-clearance-bounded-v1",
     "cloud-door-clearance-observer8-v2",
-    "cloud-door-clearance-micro"
+    "cloud-door-clearance-micro",
+    "cloud-move-step-breakdown8"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",
