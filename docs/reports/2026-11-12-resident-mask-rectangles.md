@@ -23,4 +23,21 @@
 
 测量源为 Git `6e8d59c` 加四份生产改动及本专项。首次回归有 767 份 game/content/tests 原字节相同、三份仅 CRLF 格式差异，分别为 `public_region_lifecycle.gd`、`public_region_world_copy.gd`、`zip_library_boundaries.gd`；LF 归一化相同，隔离工程明确保留实际 tested 字节。其他代理在研工具及滚动报告均未混入后续测量源。
 
-证据：[汇总与源身份](evidence/2026-11-12-resident-mask/summary.json)、[原始数据及复验材料](evidence/2026-11-12-resident-mask/evidence.zip)、[包校验](evidence/2026-11-12-resident-mask/evidence.sha256)。构建、测试工具前提修正和原始失败均保留；完整 160 人下一轮性能验收尚未完成。
+证据：[汇总与源身份](evidence/2026-11-12-resident-mask/summary.json)、[原始数据及复验材料](evidence/2026-11-12-resident-mask/evidence.zip)、[包校验](evidence/2026-11-12-resident-mask/evidence.sha256)。构建、测试工具前提修正和原始失败均保留；完整窗口后续结果见[临床与运营综合验证](2026-11-12-clinical-flow-performance.md)。
+
+## 小矩形条件求值顺序
+
+`sweep_reason` 先判断原点数是否达到五个，再判断原来的四项网格边界。生产差异只有这一行；高度、plain快路、包含末格的范围、全部候选、原生资格、完整fallback、首个原因和墙检查保持。合法网格最多9216个原点，既有越界选例范围也远低于int64限制；没有新增输入缩减或数据清洗。
+
+对照A取完整提交`7b2a735`的方法体，B仅应用该条件重排，同为五份89d原生库。使用B02完整终态`0afa344f…`的一个真实步；它与B01终态逐字节相同，不重复两份相同前提。三个选定MASK（生命周期、网格边界、首个原因）通过；1821条完整请求包括95条position、1652条小sweep、13条大矩形native及61条大矩形fallback，没有嵌套重复。计数、计时及baseline的完整World与有序事件均为`f8f05675…`，完整typed原因、参数及源身份核对通过。批次共41.330秒，含两次工程准备和各独立进程启动；没有重新编译native。
+
+| 局部查询集合 | 数量 | A三对 µs | B三对 µs | A/B均值 µs |
+| --- | ---: | --- | --- | --- |
+| 全部请求 | 1821 | 5426 / 5287 / 5354 | 5238 / 5187 / 5042 | 5355.667 / 5155.667 |
+| 小sweep | 1652 | 4718 / 4652 / 4633 | 4573 / 4547 / 4424 | 4667.667 / 4514.667 |
+| 大矩形native | 13 | 64 / 55 / 60 | 59 / 54 / 52 | 59.667 / 55.000 |
+| 大矩形fallback | 61 | 522 / 484 / 573 | 495 / 495 / 477 | 526.333 / 489.000 |
+
+局部全部请求三对均下降，均值减少0.200ms；小sweep均值减少0.153ms。position实现未变，其5µs均值差异不能算该方法的优化。短路条件可从原输入和源码证明跳过小sweep的边界求值，但没有插桩测比较次数，不把推导当作独立计数。计时不包含reason/helper计数hook；原生命中仍13条。该一行改动的完整160人影响尚待复测，不能以本表作为CPU验收，也不能把B02的重排前整窗数据当作重排后结果。
+
+准备器新增可选`--reference-commit`和严格只允许这一行差异的`--candidate-source`，原默认6e对照保持。当前工具、候选、三个回归、三对原始请求和全部环境身份见[局部摘要](evidence/2026-11-12-resident-mask/gate-order-summary.json)及[30成员原始归档](evidence/2026-11-12-resident-mask/gate-order.zip)，全部成员SHA256和ZIP CRC读回核对通过。

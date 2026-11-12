@@ -61,6 +61,8 @@ def main():
     parser.add_argument("--base-project", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--overlay", choices=["counts", "timing"], required=True)
+    parser.add_argument("--reference-commit", default="6e8d59c", help="Git methods used for A; defaults to the original resident-mask comparison")
+    parser.add_argument("--candidate-source", type=Path, help="Optional RouteClearance with only the count/bounds gate reordered")
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[2]
     base, target = args.base_project.resolve(), args.output.resolve()
@@ -68,6 +70,8 @@ def main():
     metadata = json.loads((base / "source-identity.json").read_text(encoding="utf-8-sig"))
     paths = [row["path"] for row in metadata["source"]]
     before = {name:digest(base/name) for name in paths}
+    assert before == {row["path"]:row["sha256"] for row in metadata["source"]}, "Frozen baseline source changed"
+    reference_commit = subprocess.check_output(["git","-C",str(repo),"rev-parse",args.reference_commit+"^{commit}"]).decode().strip()
     target.mkdir(parents=True, exist_ok=False)
     for name in paths:
         destination = (target/name).resolve()
@@ -80,11 +84,24 @@ def main():
         shutil.copy2(base/name, target/name)
     relative = "game/building/route_clearance.gd"
     source = (target/relative).read_bytes().decode("utf-8")
-    original = subprocess.check_output(["git","-C",str(repo),"show","6e8d59c:"+relative]).decode("utf-8")
+    candidate_overlay = None
+    if args.candidate_source:
+        old_gate = "if x0>=0 and y0>=0 and x1<FloorNavigation.SIDE and y1<FloorNavigation.SIDE and (x1-x0+1)*(y1-y0+1)>=MIN_RESIDENT_MASK_ORIGINS:"
+        new_gate = "if (x1-x0+1)*(y1-y0+1)>=MIN_RESIDENT_MASK_ORIGINS and x0>=0 and y0>=0 and x1<FloorNavigation.SIDE and y1<FloorNavigation.SIDE:"
+        candidate = args.candidate_source.resolve().read_bytes().decode("utf-8")
+        assert source.count(old_gate) == 1 and candidate == source.replace(old_gate,new_gate,1), "Only the exact count/bounds gate reorder is allowed"
+        candidate_overlay = {"path":relative,"source":str(args.candidate_source.resolve()),"baseline_sha256":hashlib.sha256(source.encode("utf-8")).hexdigest(),"candidate_sha256":hashlib.sha256(candidate.encode("utf-8")).hexdigest(),"only_condition_reordered":True}
+        source = candidate
+    original = subprocess.check_output(["git","-C",str(repo),"show",reference_commit+":"+relative]).decode("utf-8")
     updated, hooks = instrument(source, original, args.overlay)
     (target/relative).write_bytes(updated.encode("utf-8"))
+    trace_path = target/"tools/performance/resident_rectangle_trace.gd"
+    trace = trace_path.read_bytes()
+    old_label = b"calls complete6e8d59c method bodies for A."
+    assert trace.count(old_label) == 1
+    trace_path.write_bytes(trace.replace(old_label,("calls complete"+reference_commit[:7]+" method bodies for A.").encode("utf-8"),1))
     assert all(digest(base/name)==sha for name,sha in before.items()), "Imported source changed during freeze"
-    identity = {"base_project":str(base),"overlay":args.overlay,"reference_commit":"6e8d59c4e451ad93fd9bd3db483a44da21e64598","original_source":before,"source":{name:digest(target/name) for name in paths},"hooks":hooks,"native":{path.name:digest(path) for path in (target/"game/platform/windows/bin").glob("*.dll")},"engine":metadata["engine"],"engine_sha256":metadata["engine_sha256"],"scope":"Same imported source and new DLL. Only RouteClearance has reversible observation wrappers and exact old public method bodies; counts and timing are separate. No engine runs during this preparation."}
+    identity = {"base_project":str(base),"overlay":args.overlay,"reference_commit":reference_commit,"candidate_overlay":candidate_overlay,"original_source":before,"source":{name:digest(target/name) for name in paths},"hooks":hooks,"native":{path.name:digest(path) for path in (target/"game/platform/windows/bin").glob("*.dll")},"engine":metadata["engine"],"engine_sha256":metadata["engine_sha256"],"scope":"Same imported source and DLL. RouteClearance has reversible observation wrappers and exact recorded-reference public method bodies; optional production difference is only the asserted count/bounds gate reorder. The trace reference label follows the recorded commit. Counts and timing are separate. No engine runs during this preparation."}
     (target/"resident-rectangle-identity.json").write_text(json.dumps(identity,ensure_ascii=False,indent=2),encoding="utf-8")
     print(json.dumps({"project":str(target),"overlay":args.overlay,"source_files":len(paths),"byte_exact_restoration":True,"engine_runs_started":0}))
 

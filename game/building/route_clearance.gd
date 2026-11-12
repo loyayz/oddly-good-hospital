@@ -235,7 +235,7 @@ func sweep_reason(from: Vector2, to: Vector2) -> String:
 	var x1: int = ceili(maxf(from.x,to.x))
 	var y1: int = ceili(maxf(from.y,to.y))
 	var blocked: int = -2
-	if x0>=0 and y0>=0 and x1<FloorNavigation.SIDE and y1<FloorNavigation.SIDE and (x1-x0+1)*(y1-y0+1)>=MIN_RESIDENT_MASK_ORIGINS:
+	if (x1-x0+1)*(y1-y0+1)>=MIN_RESIDENT_MASK_ORIGINS and x0>=0 and y0>=0 and x1<FloorNavigation.SIDE and y1<FloorNavigation.SIDE:
 		blocked = _resident_first_disabled(Vector2i(x0,y0),Vector2i(x1,y1))
 	if blocked>=0:
 		var result: String = reason(FloorNavigation._cell(blocked))
