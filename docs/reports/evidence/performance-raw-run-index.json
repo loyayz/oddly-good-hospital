@@ -465,7 +465,7 @@
       "archive": "2026-11-12-waiting-fixed-full/full-plain.zip",
       "archive_sha256": "21bcb3f3737397de767a570ad2bf859c505a3852101f3a9ff309e49c913f5aea",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "metrics_us": {
         "p95": 103267,
         "p99": 134362,
@@ -480,6 +480,19 @@
         "simulation_members_byte_identical": true,
         "host_metadata_layout_removed": true,
         "export_manifest": "2026-11-12-waiting-fixed-full/public-export.json"
+      },
+      "publication_commit": "85a69488d0a693f0ccabc2d34eab743c9128af6a",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "21bcb3f3737397de767a570ad2bf859c505a3852101f3a9ff309e49c913f5aea",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/85a69488d0a693f0ccabc2d34eab743c9128af6a/docs/reports/evidence/2026-11-12-waiting-fixed-full/full-plain.zip",
+        "bytes": 1196266,
+        "members": 32,
+        "original_simulation_members_preserved": true,
+        "unchanged_original_members": 28,
+        "host_layout_minimized": true,
+        "verified_utc": "2026-11-12T13:04:40.711941+00:00",
+        "commit": "85a69488d0a693f0ccabc2d34eab743c9128af6a"
       }
     }
   ],

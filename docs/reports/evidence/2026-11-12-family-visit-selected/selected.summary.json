@@ -1,0 +1,22 @@
+{
+  "head": "85a69488d0a693f0ccabc2d34eab743c9128af6a",
+  "selected": [
+    "FAMILY-06",
+    "FAMILY-12"
+  ],
+  "checks_passed": 12,
+  "functional_wall_us": 10641542,
+  "sources": {
+    "tests/acceptance/run_family_visit_selected.gd": "dca95aecad56c087169511e0ccbcd3e1acfbf7a87225bbb447b6b4a87ee871cf",
+    "tests/acceptance/inpatient_family.gd": "4f7e03ed16126878b7d474dc8a912808dfccce0e9aced9a4d4730f1d460b45b1",
+    "tests/acceptance/clinical_fixtures.gd": "a87d1f6e291770c429d535eb9fb1b72d55d197dde363aec55b69c23552e6eb8b",
+    "game/clinic/hospital_visitors.gd": "68d5d45514129681cb991a6c72b4e3cf6f0a57dadad74588f6454db581dfb71f"
+  },
+  "uid_unchanged": true,
+  "artifacts_verified": 7,
+  "no_production_changes": true,
+  "limitations": [
+    "No per-tick event ledger or final exit World was captured; actual exit is checked by existing case12 assertions.",
+    "Not mixed160 coverage, daily probability rate, full simulation timing, or medical interruption coverage."
+  ]
+}
