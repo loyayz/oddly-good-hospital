@@ -1,0 +1,64 @@
+{
+  "status": "rejected_prototype_not_production_fix",
+  "base_commit": "3f3f8c3db8e6f562fb268924103c719ef0cdfff9",
+  "production_patch_in_archive_only": true,
+  "archive_sha256": "0d0781da277ad919ce60681a7a6bb92e218860b2a45bed484455266d658b4e3a",
+  "bytes": 1768299,
+  "members": 49,
+  "runs": {
+    "owner-flow01": {
+      "passed": false,
+      "checks": {
+        "cold_input_exact": true,
+        "original_continuation": true,
+        "owners_preserved": true,
+        "restore_equal": true,
+        "retreat_intent_preserved": true,
+        "step_budget": true,
+        "trip65_cleared": true,
+        "waypoint_issued": true,
+        "worker276_moved": false
+      },
+      "steps": 15,
+      "tick": 7648,
+      "process": {
+        "returncode": 1,
+        "wall_seconds": 7.924962995999522,
+        "timed_out": false,
+        "reaped": true
+      },
+      "source_manifest": {
+        "game/building/hospital_movement.gd": "184d7db88260b438dcf74ad3d9d8345a7410b304e28a15a68316cae683a68cde",
+        "game/building/hospital_transit.gd": "0b25648512c2985d8ff2cf8321687c3725c92009edf7f190a402c8b4346914bf",
+        "tests/acceptance/run_connector_retreat_handoff.gd": "683e767e595bb0ff44c525ccac627f40ad3195a133e45e0f83f178781f7803f0"
+      }
+    },
+    "owner-flow02": {
+      "passed": true,
+      "checks": {
+        "cold_input_exact": true,
+        "original_continuation": true,
+        "owners_preserved": true,
+        "restore_equal": true,
+        "retreat_intent_preserved": true,
+        "step_budget": true,
+        "trip65_cleared": true,
+        "waypoint_issued": true,
+        "worker276_moved": true
+      },
+      "steps": 15,
+      "tick": 7648,
+      "process": {
+        "returncode": 0,
+        "wall_seconds": 7.928610872000718,
+        "timed_out": false,
+        "reaped": true
+      },
+      "source_manifest": {
+        "game/building/hospital_movement.gd": "184d7db88260b438dcf74ad3d9d8345a7410b304e28a15a68316cae683a68cde",
+        "game/building/hospital_transit.gd": "0b25648512c2985d8ff2cf8321687c3725c92009edf7f190a402c8b4346914bf",
+        "tests/acceptance/run_connector_retreat_handoff.gd": "71cabc98ea1dce1813aa965bef19fe1e103322c1b45b1839253fe9624e6e1ae4"
+      }
+    }
+  }
+}
