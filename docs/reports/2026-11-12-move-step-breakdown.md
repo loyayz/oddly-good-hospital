@@ -41,3 +41,29 @@ Separately, offline decoding of the eight previously archived door-call Worlds (
 [Raw paired diagnostic](evidence/2026-11-12-move-step-breakdown/batch.zip): 1356780 bytes, SHA256 `6971eb5321715c079487b9cc26ffe6856018c8027656de24885e7d2e6f2de047`, 35 raw members plus [manifest](evidence/2026-11-12-move-step-breakdown/batch.members.json). It includes exact input/final states, per-step data, source transforms, observer/controller versions, runtime identities, before/after host snapshots, logs and comparison/restoration checks. Independent CRC and every member size/hash pass.
 
 All earlier raw files remain retained. This bounded observation does not replace any of the three recent complete diagnostic windows or count toward fixed-workload performance acceptance. No original latency or coverage gate is newly passed.
+
+## Follow-up: actual acquisition and sweep split
+
+The next fixed observation reused the sealed current-code plain8 only after checking every gameplay/content/native, project and driver byte plus runtime identities. Documentation-only HEAD changes did not alter that implementation. Exactly one new observer8 ran, with no added steps. It splits the two original structural statements and counts only the actually taken cached-lookup return branch and fallback-constructor branch. Classification does not repeat any key, source or route query. Step/thread/active-parent/span gating, signatures and byte-exact inverse transforms passed.
+
+| Metric | First restored step | Following seven |
+|---|---:|---:|
+| Parent calls | 138 | 966 |
+| Parent inclusive ms | 142.655 | 563.958 |
+| Acquisition calls | 124 | 868 |
+| Acquisition inclusive ms | 125.707 | 477.031 |
+| Sweep ms | 1.032 | 7.174 |
+| Cache hit | 70 | 604 |
+| Entry-absent miss | 54 | 264 |
+| Static-source mismatch miss | 0 | 0 |
+| Actual fallback constructors | 54 | 264 |
+| Parent uncovered ms | 9.336 | 38.947 |
+| Observer handler ms | 6.493 | 39.583 |
+
+Hits plus misses equal acquisition calls in every step; actual fallback counts equal misses, and acquisition/sweep counts match. Complete World/RNG/ordered events, business results and all eight tick/partition checks match the plain control. The final SHA remains `6ecee78b194a7925938549383dc9fb87f222a3843d901d790fe83ac7aeaeb93d`. The observer exited 0 after 6.022614 s, was reaped, and all modified isolated sources were restored.
+
+This sample now establishes that acquisition, not the sweep predicates, dominates this structural check, and that the following seven steps still execute 264 fallback constructors. It does **not** assign all acquisition time to those constructors: hit lookup and missing-graph construction costs are still combined. Nested door calls are already included in acquisition time. These restored-state observations do not reattribute the full original window and do not justify a new cache by themselves.
+
+Read-only source review confirms the fallback result is not retained as a graph entry. Repeated construction is therefore possible when no matching graph is resident. Any later optimization must preserve the full traversal-envelope key (including proxy shapes and posture), weak World/source ownership and current static-source validation, as well as the shared 134217728-byte cache budget and eviction accounting. Current reservation permissions are separate from static fit and must remain live; a cache hit is not a passage authorization.
+
+[Acquisition/sweep raw observation](evidence/2026-11-12-move-step-breakdown/structural-acquisition.zip): 1401033 bytes, SHA256 `2d97291181f0a772f44fa6100fd25629bf0a12a9ebbef72e474599ff0be2baee`, 38 raw members plus [manifest](evidence/2026-11-12-move-step-breakdown/structural-acquisition.members.json). It retains the reused plain evidence and durable receipt, exact tool/source transforms, all branch counts and timings, input/final states, host snapshots, process log, identity, comparison and restoration proofs. Independent CRC and every member size/hash pass. All prior archives remain unchanged; no production code or memory-budget change was made in this follow-up.

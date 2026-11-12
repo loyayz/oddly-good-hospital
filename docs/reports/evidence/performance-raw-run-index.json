@@ -216,12 +216,28 @@
         "verified_utc": "2026-11-12T10:02:55.258169+00:00",
         "commit": "f3f82945e0d011a700fa421d6e32c5695c5d9c19"
       }
+    },
+    {
+      "id": "cloud-structural-acquisition8",
+      "kind": "bounded_acquisition_sweep_branch_diagnostic",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 8,
+      "source_commit": "a8f1a09f44163a35c875b74e2f75f69d210fed16",
+      "reused_plain_run": "cloud-move-step-breakdown8",
+      "archive": "2026-11-12-move-step-breakdown/structural-acquisition.zip",
+      "archive_sha256": "2d97291181f0a772f44fa6100fd25629bf0a12a9ebbef72e474599ff0be2baee",
+      "publication": "with this index revision",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68"
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-door-clearance-observer8-v2",
     "cloud-door-clearance-micro",
-    "cloud-move-step-breakdown8"
+    "cloud-move-step-breakdown8",
+    "cloud-structural-acquisition8"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",
