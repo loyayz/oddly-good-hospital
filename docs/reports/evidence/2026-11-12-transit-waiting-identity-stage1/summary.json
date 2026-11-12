@@ -1,0 +1,158 @@
+{
+  "head": "5496d6bb3f3793a2ab11e21b1e392f138c88bb54",
+  "production_files": [
+    "game/building/hospital_transit.gd",
+    "game/building/hospital_movement.gd",
+    "game/sim/world_state.gd"
+  ],
+  "uid_unchanged": true,
+  "count": 663,
+  "no_long_window": true,
+  "all_processes_reaped": true,
+  "runs": [
+    {
+      "run": "align-parse01",
+      "exit": 0,
+      "wall_seconds": 3.7111623089986097,
+      "reaped": true
+    },
+    {
+      "run": "baseline-parse01",
+      "exit": 0,
+      "wall_seconds": 3.6110231689999637,
+      "reaped": true
+    },
+    {
+      "run": "baseline01",
+      "exit": 1,
+      "wall_seconds": 3.8142995620000875,
+      "reaped": true
+    },
+    {
+      "run": "chain-compare01",
+      "exit": 0,
+      "wall_seconds": 3.81411597099941,
+      "reaped": true
+    },
+    {
+      "run": "chain-exact01",
+      "exit": 0,
+      "wall_seconds": 3.2127277750005305,
+      "reaped": true
+    },
+    {
+      "run": "chain-fresh02",
+      "exit": 0,
+      "wall_seconds": 3.6118730409980344,
+      "reaped": true
+    },
+    {
+      "run": "chain01",
+      "exit": 1,
+      "wall_seconds": 3.6317370269971434,
+      "reaped": true
+    },
+    {
+      "run": "convoy-decode01",
+      "exit": 0,
+      "wall_seconds": 3.913066142999014,
+      "reaped": true
+    },
+    {
+      "run": "convoy-final01",
+      "exit": 0,
+      "wall_seconds": 4.11373195899796,
+      "reaped": true
+    },
+    {
+      "run": "convoy01",
+      "exit": 1,
+      "wall_seconds": 4.21769841999776,
+      "reaped": true
+    },
+    {
+      "run": "convoy02",
+      "exit": 0,
+      "wall_seconds": 4.134062544999324,
+      "reaped": true
+    },
+    {
+      "run": "edges-parse01",
+      "exit": 0,
+      "wall_seconds": 4.21605124800044,
+      "reaped": true
+    },
+    {
+      "run": "edges01",
+      "exit": 0,
+      "wall_seconds": 3.7148867070027336,
+      "reaped": true
+    },
+    {
+      "run": "edges02",
+      "exit": 0,
+      "wall_seconds": 3.7152288899997075,
+      "reaped": true
+    },
+    {
+      "run": "final-parse01",
+      "exit": 0,
+      "wall_seconds": 3.8126277789997403,
+      "reaped": true
+    },
+    {
+      "run": "group-parse01",
+      "exit": 0,
+      "wall_seconds": 3.9121120529998734,
+      "reaped": true
+    },
+    {
+      "run": "owner-parse01",
+      "exit": 0,
+      "wall_seconds": 3.9125890520008397,
+      "reaped": true
+    },
+    {
+      "run": "regression01",
+      "exit": 0,
+      "wall_seconds": 5.01576578300228,
+      "reaped": true
+    },
+    {
+      "run": "solo-exact01",
+      "exit": 0,
+      "wall_seconds": 3.719513536001614,
+      "reaped": true
+    },
+    {
+      "run": "solo-final01",
+      "exit": 0,
+      "wall_seconds": 4.0172666940015915,
+      "reaped": true
+    },
+    {
+      "run": "solo-final02",
+      "exit": 1,
+      "wall_seconds": 3.8173397140017187,
+      "reaped": true
+    },
+    {
+      "run": "solo-final03",
+      "exit": 0,
+      "wall_seconds": 4.416622806002124,
+      "reaped": true
+    },
+    {
+      "run": "solo-parse01",
+      "exit": 0,
+      "wall_seconds": 3.8123114199988777,
+      "reaped": true
+    },
+    {
+      "run": "solo01",
+      "exit": 0,
+      "wall_seconds": 4.013463547998981,
+      "reaped": true
+    }
+  ]
+}
