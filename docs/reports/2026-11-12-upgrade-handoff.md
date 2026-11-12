@@ -77,3 +77,14 @@ host采集新wrapper只读取CPU/内存/affinity/固定配额统计；node仅SHA
 - 完整末态已存，执行已停止、engine空闲，先封不可覆盖阶段3并等待持久备份，不追加重跑/长窗。后续仅按明确诊断证据决定下一步，不能把未到场自动归为死锁。
 
 [阶段3原始包](evidence/2026-11-12-upgrade-handoff/stage3-continuation.zip) 723566字节、29项，SHA256 `41e009f833229c312ecd122de685c2f794c7828b9acc5faaa0a02ba23fd3db14`；[成员清单](evidence/2026-11-12-upgrade-handoff/stage3.members.json)、[续接汇总](evidence/2026-11-12-upgrade-handoff/continuation.summary.json)。本地CRC/逐成员SHA通过。续接完整末态SHA256 `2991f379d1f1fb8eb7c4ca34eb255e9081ba76f8605f3e869f116a2056ba86f6`。
+
+## 7633碰撞最小诊断（不是修复）
+- 先0步decoder直接读取原始终态，未构造Simulation、未调用business query：226原request634/owner upgrade225，retreat从[86,44]意图去[88.8000183,44]，实际[86.3999939,44]；276实际[87,44]，cursor1当前connector段、无local_move，无transit_ticket。trip65患者0115 alighting4→1。完整Move/path和邻近actor/move/owner事实保留。
+- 根据0步不足以证明实际接触，按授权各执行一个全World .1s plain/observer冷分支。observer只在真正_local_collision入口读取现成MotionResult、原return及不可移动分支打印参数；没有新增业务/寻路/安全查询。
+- 资格：plain和observer最终完整facts（含RNG）及有序事件共同序列化bin逐字节相等；SHA256335aa434e72d554b521181bbe20a3f5dbdb4379781943c72b0e1d4353d79bd03。两者冷恢复facts均精确等于7633输入。只代表这个冷一步，不称连续热史/性能。
+- 实际入口contact：requested=(0.199996948242188,0)，actual=(0,0)，blocker_actor_ids仅maintenance_contractor_00000276；static_reason、door_id、reservation_ids全空。真正命中retreat_immovable:276后return_line63，保留226原retreat请求与位置。
+- _local_movable要求当前same-floor walking段；276当前connector段不属于该权限。design01:116要求真实后退遇可移动身体才让对方绕开，固定/排队归属不强推。所以目前实证是合法身体碰撞和原权限保护导致无进展，不能直接把276作为可推动者，也不能因此让226违反原后退规则再左右试探。跨owner出口/退让交接仍需独立规则判断；本次没有观测0115实际alight拒绝来源，不称226为唯一出口阻挡或已证死锁。
+- observer首版生成器误把多行插桩加到一个inline if后导致parser错误；无observer模拟步执行，失败源码/日志保存，finally原字节恢复。修正为仅完整多行条件后，parser02及observer一步通过；plain已完成一次结果复用，未重复步。两次finally恢复proof均保存，最终movement源码与原SHA a78fe4548f5b2402578d5601e8841aea10ccdcaa6cb195c2a21e00c88297b96c完全一致。
+- 未修复业务、未扩长跑、未改变出/撤票或近距离出票规则。所有663 UID字节不变，引擎全部回收，封存后停。
+
+[阶段4碰撞原始包](evidence/2026-11-12-upgrade-handoff/stage4-collision.zip) 734459字节、48项，SHA256 `4d3479038e541da9caeb495b56cb7942286aec97655f75a0b91a389a0658eeb9`；[清单](evidence/2026-11-12-upgrade-handoff/stage4.members.json)、[单步资格比较](evidence/2026-11-12-upgrade-handoff/collision.qualification.json)。本地CRC/逐成员SHA通过，未据此宣称升级或跨owner规则已修复。
