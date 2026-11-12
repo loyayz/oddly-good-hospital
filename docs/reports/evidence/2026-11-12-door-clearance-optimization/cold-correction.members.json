@@ -1,0 +1,30 @@
+{
+  "query-cold-corrected/engine.log": {
+    "bytes": 73,
+    "sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+  },
+  "query-cold-corrected/process.json": {
+    "bytes": 1592,
+    "sha256": "99da2c15f4350129eef2e87827424a9bc4a05b5c9e406a20fc65e74459e68fdd"
+  },
+  "query-cold-corrected/result.json.input.bin": {
+    "bytes": 26788,
+    "sha256": "37af09c35001001fff6b536656e015af39ecbb1513dc75b97218029f876da558"
+  },
+  "query-cold-corrected/result.json": {
+    "bytes": 2356,
+    "sha256": "bf25945cbb9b4f28edf06f5ef4974cc39e86097b489d4cfd5ed0e45ec6fd2cbc"
+  },
+  "query-cold-corrected-identity.json": {
+    "bytes": 271,
+    "sha256": "e3eebc27d8ba977c7d2e97208f30d9360d6acab63cc53f8a0ec5b69227c18d79"
+  },
+  "door_reach_same_instance.gd": {
+    "bytes": 7266,
+    "sha256": "a2e16ce4db947395cb7bcf409762687be98ac398068167ee1124b114ba460d3e"
+  },
+  "2026-11-12-door-clearance-optimization.md": {
+    "bytes": 4716,
+    "sha256": "d7e7c7fceb20e23f6500b01977b26e9922bc9740112cd1d28599f485d513b324"
+  }
+}

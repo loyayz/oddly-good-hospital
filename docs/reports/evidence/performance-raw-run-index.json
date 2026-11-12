@@ -177,12 +177,21 @@
       "warm_iterations_per_arm": 2000,
       "archive": "2026-11-12-door-clearance-probe/micro.zip",
       "archive_sha256": "2a7593b8b6eab747f258de5b507a7b43b43e45535ee8b76763b16dd430c50013",
-      "publication": "with this index revision",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "performance_pass": null,
       "input_override_sha256": "b71a8c9ea964eb5189fc8ab8913ebc4a3b1c2b9a5ef7226abc81f6dd56c9d644",
-      "scope": "single-actor empty-door API only; no full-step gain claim"
+      "scope": "single-actor empty-door API only; no full-step gain claim",
+      "publication_commit": "73051a845d21cc86ccd428c95287ed6197b1dd2c",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "2a7593b8b6eab747f258de5b507a7b43b43e45535ee8b76763b16dd430c50013",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/73051a845d21cc86ccd428c95287ed6197b1dd2c/docs/reports/evidence/2026-11-12-door-clearance-probe/micro.zip",
+        "bytes": 4620150,
+        "members": 18,
+        "verified_utc": "2026-11-12T09:41:20.430110+00:00",
+        "commit": "73051a845d21cc86ccd428c95287ed6197b1dd2c"
+      }
     }
   ],
   "latest_three_raw_run_ids": [
