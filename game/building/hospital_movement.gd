@@ -779,7 +779,16 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		var floor_id: int = int(movement.target_floor) if waypoint.is_empty() else int(waypoint.floor_id)
 		var cell: Array = movement.target_cell if waypoint.is_empty() else waypoint.cell
 		var quote: Dictionary={}
-		if not waypoint.is_empty() and movement.has("convoy"):
+		if waypoint.has("prefix"):
+			if not _waypoint_prefix_valid(world,movement,waypoint):
+				movement.erase("route_waypoint")
+				movement.route_pending=false
+				_route_checks.erase(id)
+				_route_failures.erase(id)
+				continue
+			quote={"ok":true,"path":waypoint.prefix.duplicate(true)}
+			_route_checks.erase(id)
+		elif not waypoint.is_empty() and movement.has("convoy"):
 			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
 		elif waypoint.is_empty() and not movement.get("floor_only",false):
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
@@ -853,6 +862,39 @@ func _initial_route_cursor(actor: Dictionary, path: Array, world: WorldState = n
 			if not query.sweep_reason(actual+shift,next+shift).is_empty(): return 0
 		return 1
 	return 0
+
+# Explicit finite prefix, using the existing waypoint budget and continuation.
+# This is not a serialized route proof or permission to skip actual collision.
+func queue_waypoint_prefix(world: WorldState, movement: Dictionary, prefix: Array, owner: Dictionary) -> void:
+	var actor: Dictionary=world.facts.actors[movement.actor_id]
+	var last: Dictionary=prefix[-1]
+	movement.route_waypoint={"floor_id":last.floor_id,"cell":last.cell.duplicate(),"continuation":movement.path.slice(int(movement.cursor)).duplicate(true),"prefix":prefix.duplicate(true),"binding":{"origin":actor.location.cell.duplicate(),"sequence":movement.request_sequence,"target_floor":movement.target_floor,"target_cell":movement.target_cell.duplicate(),"connector_id":owner.connector_id,"trip_sequence":owner.trip_sequence}}
+	_queue_route(world,movement,true)
+
+func _bounded_prefix_clear(world: WorldState, actor: Dictionary, movement: Dictionary, points: Array) -> bool:
+	if not HospitalTransit._release_prefix_shape(ConvoyTrail.point(actor.location.cell),points,float(space.clearance(actor))): return false
+	var query: RouteClearance=space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
+	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
+	for point: Dictionary in points:
+		if point.kind!="floor" or int(point.floor_id)!=int(actor.location.floor_id): return false
+		var target: Vector2=ConvoyTrail.point(point.cell)
+		if origin.x!=target.x and origin.y!=target.y: return false
+		if not query.sweep_reason(origin,target).is_empty(): return false
+		origin=target
+	return _bed_local_path_blocker(world,actor,movement,points).is_empty()
+
+func _waypoint_prefix_valid(world: WorldState, movement: Dictionary, waypoint: Dictionary) -> bool:
+	var actor: Dictionary=world.facts.actors[movement.actor_id]
+	var binding: Dictionary=waypoint.binding
+	if actor.location.kind!="floor" or actor.posture!="standing" or actor.has("support_facility_id") or float(actor.location.get("height_m",0))!=0: return false
+	if movement.has("convoy") or movement.has("local_move") or movement.has("detour") or movement.has("transit_ticket") or movement.get("members",[actor.id])!=[actor.id] or not movement.get("offsets",{}).is_empty(): return false
+	if binding.sequence!=movement.request_sequence or binding.origin!=actor.location.cell or binding.target_floor!=movement.target_floor or binding.target_cell!=movement.target_cell: return false
+	if waypoint.continuation!=movement.path.slice(int(movement.cursor)) or waypoint.continuation.is_empty(): return false
+	var segment: Dictionary=waypoint.continuation[0]
+	if segment.kind!="connector" or segment.connector_id!=binding.connector_id or int(segment.from)!=int(actor.location.floor_id): return false
+	var connection: Dictionary=world.facts.connectors.get(binding.connector_id,{})
+	if connection.is_empty() or int(connection.get("trip_sequence",-1))!=int(binding.trip_sequence) or int(connection.to)!=int(actor.location.floor_id) or not HospitalTransit._landing_in_use(connection,int(actor.location.floor_id)): return false
+	return _bounded_prefix_clear(world,actor,movement,waypoint.prefix)
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:
 	var remaining: Array = movement.path.slice(int(movement.cursor))
@@ -1296,6 +1338,7 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 			if not BodySweep.intersects(space._actor_rect(actor,start),space._actor_rect(sample,start+contact.requested_motion),body,body): continue
 			if journey.get("route_pending",false): continue
 			if not _local_movable(world,other,journey):
+				if HospitalTransit.yield_to_retreat(space,world,other,journey,actor,movement,contact.requested_motion): return
 				continue
 			var toward: Vector2 = -contact.requested_motion
 			if journey.has("local_move"): toward=ConvoyTrail.point(journey.local_move.target.cell)-ConvoyTrail.point(other.location.cell)

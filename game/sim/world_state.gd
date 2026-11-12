@@ -619,6 +619,9 @@ func validate(content: HospitalContent) -> String:
 		if movement.has("convoy"):
 			var convoy_error: String = ConvoyTrail.validate(geometry,self,movement)
 			if not convoy_error.is_empty(): return convoy_error
+		var prefix_waypoint: Dictionary=movement.get("route_waypoint",{})
+		if prefix_waypoint.has("prefix"):
+			if not HospitalTransit._release_prefix_shape(ConvoyTrail.point(prefix_waypoint.binding.origin),prefix_waypoint.prefix,float(geometry.clearance(leader))): return "有限让位前缀局部长度或转角无效"
 		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])+movement.get("detour",{}).get("original_path",[])+movement.get("detour",{}).get("backtrack",[])
 		if movement.has("local_move"): segments.append(movement.local_move.target)
 		for segment: Dictionary in segments:
@@ -1132,6 +1135,15 @@ func _validate_shapes() -> String:
 			var waypoint: Variant = movement.route_waypoint
 			if not waypoint is Dictionary or not _natural(waypoint.get("floor_id",-1)) or not _point(waypoint.get("cell")) or not waypoint.get("continuation") is Array:
 				return "临时让位路线无效"
+			if waypoint.has("prefix"):
+				if not movement.get("route_pending",false) or movement.has("local_move") or movement.has("detour") or movement.has("convoy") or movement.has("transit_ticket"): return "有限让位前缀拥有者无效"
+				if not waypoint.prefix is Array or waypoint.prefix.is_empty() or waypoint.prefix.size()>2 or not waypoint.get("binding") is Dictionary: return "有限让位前缀结构无效"
+				var binding: Dictionary=waypoint.binding
+				if not _point(binding.get("origin")) or not _natural(binding.get("sequence",-1)) or not _natural(binding.get("target_floor",-1)) or not _point(binding.get("target_cell")) or not binding.get("connector_id") is String or not _natural(binding.get("trip_sequence",-1)): return "有限让位前缀绑定无效"
+				for point: Variant in waypoint.prefix:
+					if not point is Dictionary or point.get("kind")!="floor" or point.get("floor_id")!=waypoint.floor_id or not _point(point.get("cell")): return "有限让位前缀角点无效"
+				if waypoint.prefix[-1].cell!=waypoint.cell: return "有限让位前缀终点无效"
+
 		if movement.has("transit_ticket"):
 			var ticket: Variant = movement.transit_ticket
 			if not ticket is Dictionary or not _fields(ticket,{"connector_id":TYPE_STRING,"sequence":TYPE_INT,"from":TYPE_INT,"to":TYPE_INT}).is_empty() or not facts.connectors.has(ticket.get("connector_id","")):

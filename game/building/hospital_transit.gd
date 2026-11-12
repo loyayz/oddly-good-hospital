@@ -412,6 +412,82 @@ static func _alight(space: HospitalSpace, world: WorldState, connection: Diction
 	connection.erase("trip_sequence")
 	_finish_failure(connection)
 
+# Only an actual retreat collision requests this connector-owned handoff.
+# It does not make connector waiters generic locally movable bodies.
+static func yield_to_retreat(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, retreating: Dictionary, retreat: Dictionary, motion: Vector2) -> bool:
+	if actor.get("location",{}).get("kind")!="floor" or actor.get("posture")!="standing" or float(actor.location.get("height_m",0))!=0.0 or actor.has("support_facility_id"): return false
+	if movement.is_empty() or movement.get("members",[actor.id])!=[actor.id] or not movement.get("offsets",{}).is_empty(): return false
+	for key: String in ["convoy","detour","transit_ticket","local_move","route_waypoint"]:
+		if movement.has(key): return false
+	if movement.get("route_pending",false): return false
+	var cursor: int=int(movement.get("cursor",-1))
+	var path: Array=movement.get("path",[])
+	if cursor<0 or cursor>=path.size() or path[cursor].kind!="connector": return false
+	var segment: Dictionary=path[cursor]
+	var connection: Dictionary=world.facts.connectors.get(segment.connector_id,{})
+	var floor_id: int=int(actor.location.floor_id)
+	if connection.is_empty() or not _landing_in_use(connection,floor_id) or connection.phase=="empty_riding" or int(connection.to)!=floor_id or int(segment.from)!=floor_id or actor.id in connection.riders: return false
+	if retreating.get("location",{}).get("kind")!="floor" or int(retreating.location.floor_id)!=floor_id or retreating.get("posture")!="standing": return false
+	if retreat.get("members",[retreating.id])!=[retreating.id] or retreat.has("convoy") or not bool(retreat.get("local_move",{}).get("retreat",false)): return false
+	var target: Dictionary=retreat.local_move.get("target",{})
+	if target.get("kind")!="floor" or int(target.floor_id)!=floor_id: return false
+	var next_connection: Dictionary={}
+	for point: Dictionary in retreat.path.slice(int(retreat.cursor)):
+		if point.kind=="connector":
+			next_connection=point
+			break
+	if next_connection.get("connector_id","")!=connection.id or int(next_connection.get("from",-1))!=floor_id: return false
+	var incoming_id: String=connection.get("primary_actor_id","")
+	var incoming: Dictionary=world.facts.moves.get(incoming_id,{})
+	if incoming.is_empty() or incoming.has("convoy"): return false
+	var exit: Rect2=space._unit_rect(world,world.facts.actors[incoming_id],ConvoyTrail.point(connection.anchor),connection.riders,incoming.get("offsets",{}))
+	var retreat_body: Rect2=space._actor_rect(retreating,ConvoyTrail.point(retreating.location.cell))
+	if not retreat_body.intersects(exit,false): return false
+	var corridor: Rect2=retreat_body.merge(space._actor_rect(retreating,ConvoyTrail.point(target.cell)))
+	var actual: Vector2=ConvoyTrail.point(actor.location.cell)
+	if motion.length()<0.001: return false
+	var away: Vector2=Vector2(signf(motion.x),0) if absf(motion.x)>=absf(motion.y) else Vector2(0,signf(motion.y))
+	var side: Vector2=Vector2(-away.y,away.x)
+	var distance: float=float(space.clearance(actor))
+	# A fixed local set; bodies still own every real step, not future space.
+	for directions: Array in [[side],[-side],[away],[side,away],[-side,away],[away,side],[away,-side]]:
+		var points: Array=[]
+		var end: Vector2=actual
+		for direction: Vector2 in directions:
+			end+=direction*distance
+			points.append({"kind":"floor","floor_id":floor_id,"cell":[end.x,end.y]})
+		var rect: Rect2=_release_stop_rect(space,actor,end,directions[-1])
+		if rect.intersects(exit,false) or rect.intersects(corridor,false): continue
+		if not space._dynamic_clear(world,actor.id,floor_id,rect,[actor.id]): continue
+		var public_space: bool=true
+		for room: Dictionary in world.facts.rooms.values():
+			if int(room.floor_id)==floor_id and rect.intersects(Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),false): public_space=false
+		if not public_space: continue
+		if not space.movement._bounded_prefix_clear(world,actor,movement,points): continue
+		space.movement.queue_waypoint_prefix(world,movement,points,{"connector_id":connection.id,"trip_sequence":int(connection.trip_sequence)})
+		return true
+	return false
+
+# Shape only; current static legality is checked at dispatch and real motion.
+static func _release_prefix_shape(origin: Vector2, points: Array, distance: float) -> bool:
+	if points.is_empty() or points.size()>2: return false
+	var previous: Vector2=Vector2.ZERO
+	for point: Dictionary in points:
+		var target: Vector2=ConvoyTrail.point(point.cell)
+		var delta: Vector2=target-origin
+		if delta==Vector2.ZERO or delta.x!=0.0 and delta.y!=0.0: return false
+		# Public-floor binary32 additions can round a clearance step slightly.
+		if delta.length()>distance+0.00002: return false
+		if previous!=Vector2.ZERO and previous.dot(delta)!=0.0: return false
+		previous=delta
+		origin=target
+	return true
+
+static func _release_stop_rect(space: HospitalSpace, actor: Dictionary, target: Vector2, direction: Vector2) -> Rect2:
+	var sample: Dictionary=actor.duplicate()
+	sample.facing=atan2(direction.x,direction.y)
+	return space._actor_rect(sample,target)
+
 static func _stand_aside(space: HospitalSpace, world: WorldState, connection: Dictionary, actor: Dictionary, movement: Dictionary, members: Array, offsets: Dictionary) -> void:
 	if not space.at(world,actor.id,int(connection.to),connection.anchor):
 		return

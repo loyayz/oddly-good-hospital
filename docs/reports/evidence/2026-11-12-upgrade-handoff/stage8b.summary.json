@@ -1,0 +1,120 @@
+{
+  "production_unchanged": {
+    "game/building/hospital_movement.gd": "6993341189923ec35bb501da3ec94858f9e3b40445dcf2a1fe0b5b0c31e28271",
+    "game/building/hospital_transit.gd": "274851aadf4e41256d762056061f8055476c8f79b8ac51f68d44b1a69b3e530b",
+    "game/sim/world_state.gd": "ded7e1dbfcc10b969c1d24f9a1a6a34acf726ffb91e7bdb000cf0d4b23af09a1"
+  },
+  "uids_unchanged": true,
+  "uid_count": 663,
+  "runs": {
+    "chain-self-parse01": {
+      "command": [
+        "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+        "--script",
+        "res://tests/acceptance/connector_prefix_chain.gd",
+        "--check-only"
+      ],
+      "cwd": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "environment": {
+        "HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-parse01/engine/home",
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-parse01/engine/data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-parse01/engine/config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-parse01/engine/cache",
+        "TMPDIR": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-parse01/engine/tmp",
+        "OMP_NUM_THREADS": "1",
+        "LD_LIBRARY_PATH": "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/cache/prefix/lib"
+      },
+      "start_utc": "2026-11-12T15:08:47.801336+00:00",
+      "guard_sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7",
+      "owned_pid": 7,
+      "returncode": 0,
+      "timed_out": false,
+      "reaped": true,
+      "wall_seconds": 3.915765164001641,
+      "log_sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+    },
+    "chain-self-observer01": {
+      "command": [
+        "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+        "--script",
+        "res://tests/acceptance/connector_prefix_chain.gd",
+        "--",
+        "step",
+        "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-observer01",
+        "observe",
+        "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-plain01/nurse_chain-preWorld.bin"
+      ],
+      "cwd": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "environment": {
+        "HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-observer01/engine/home",
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-observer01/engine/data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-observer01/engine/config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-observer01/engine/cache",
+        "TMPDIR": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-observer01/engine/tmp",
+        "OMP_NUM_THREADS": "1",
+        "LD_LIBRARY_PATH": "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/cache/prefix/lib"
+      },
+      "start_utc": "2026-11-12T15:09:17.245126+00:00",
+      "guard_sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7",
+      "owned_pid": 7,
+      "returncode": 0,
+      "timed_out": false,
+      "reaped": true,
+      "wall_seconds": 4.214814128998114,
+      "log_sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+    },
+    "chain-self-plain01": {
+      "command": [
+        "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+        "--script",
+        "res://tests/acceptance/connector_prefix_chain.gd",
+        "--",
+        "step",
+        "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-plain01",
+        "plain",
+        "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-plain01/nurse_chain-preWorld.bin"
+      ],
+      "cwd": "/workspace/scratch/6962cc21ddf3/oddly-good-hospital-cloud-recovery-20261112",
+      "environment": {
+        "HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-plain01/engine/home",
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-plain01/engine/data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-plain01/engine/config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-plain01/engine/cache",
+        "TMPDIR": "/workspace/scratch/6962cc21ddf3/upgrade-handoff-20261112/chain-self-plain01/engine/tmp",
+        "OMP_NUM_THREADS": "1",
+        "LD_LIBRARY_PATH": "/workspace/scratch/6962cc21ddf3/cloud-validation-recovery-20261112/cache/prefix/lib"
+      },
+      "start_utc": "2026-11-12T15:09:21.737749+00:00",
+      "guard_sha256": "56a2f079e814dbd9bf5aadfa4aab0cf7b82ad03cd34f8e4b3c201a8864ce5fc7",
+      "owned_pid": 22,
+      "returncode": 0,
+      "timed_out": false,
+      "reaped": true,
+      "wall_seconds": 3.51296623899907,
+      "log_sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+    }
+  },
+  "qualification": {
+    "nurse_chain-preWorld.bin": {
+      "byte_equal": true,
+      "sha256": "e3ff2d096dd9eaff02c62704d0e7f535c4d947430fa6ce1329800e138f083ef2"
+    },
+    "nurse_chain-final.bin": {
+      "byte_equal": true,
+      "sha256": "ccf1115762048d831d4d7454ce13da1cc97e9af16ea5db6b100c7b8d8a1a32ba"
+    },
+    "nurse_chain-frames.bin": {
+      "byte_equal": true,
+      "sha256": "7446c4c9e51f7e5b4f42ec813f96a2c52785ea3bc9ee0d5d8a110d34abe5b9ad"
+    }
+  }
+}
