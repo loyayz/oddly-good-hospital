@@ -31,13 +31,33 @@ The Linux owned-process guard was separately checked with a harmless Python slee
 
 ## New complete ordinary window
 
-After the new qualification and its durable checkpoint, exactly one new ordinary 1000+6000 window completed. All 7000 production steps are recorded; all 6000 measured steps qualify as the >=144-present dense interval (ticks1634-7633, population min/median/max164/165/170). Source, native, imported-cache and dependency identities remained unchanged.
+After the new qualification and its durable checkpoint, exactly one new ordinary 1000+6000 window completed. All 7000 production steps are recorded; all 6000 measured steps qualify as the >=144-present dense interval (ticks1634-7633, population min/median/max 164/165/170). Source, native, imported-cache and dependency identities remained unchanged.
 
-- P50 58.764ms; P95 96.160ms; P99 130.222ms; maximum319.280ms. The 10/15/30ms latency gates fail.
-- Measured step sum365368920us; sample wall411324936us; speed1.4587007679x. Process wall487.309s includes preparation/startup/prefix/output overhead.
-- Coverage29/31: upgrade and effective ward visit remain missing. The same fixed upgrade command rejects at tick1633 with `maintenance_unavailable` / `缺少真实合法维修操作位`. Raw `complete=false`, exit1 are preserved. This is not an accepted repeat.
+- P50 58.764ms; P95 96.160ms; P99 130.222ms; maximum 319.280 ms. The 10/15/30ms latency gates fail.
+- Measured step sum 365368920 us; sample wall 411324936 us; speed 1.4587007679x. Process wall 487.309 s includes preparation/startup/prefix/output overhead.
+- Coverage 29/31: upgrade and effective ward visit remain missing. The same fixed upgrade command rejects at tick 1633 with `maintenance_unavailable` / `缺少真实合法维修操作位`. Raw `complete=false`, exit 1 are preserved. This is not an accepted repeat.
 - Complete final World/RNG/ordered-events SHA256: `41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68`.
 
-[Full ordinary raw archive](evidence/2026-11-12-cloud-profile-recovery/full-plain.zip) is851352bytes, SHA256 `0aaf766947d28dc8c5c7cade528b24e6ebc1241293c624245b71fbf7cb09b3ba`, with21 raw members plus its internal manifest. The [external member manifest](evidence/2026-11-12-cloud-profile-recovery/full-plain.members.json) permits independent size/hash validation. The archive includes the complete input/final binaries, every step row, unmodified result/observer output, process/command/exit records, controller, source and runtime identities. It was locally CRC/member-verified before publication. The root-stage long window was not started while this checkpoint was pending.
+[Full ordinary raw archive](evidence/2026-11-12-cloud-profile-recovery/full-plain.zip) is 851352 bytes, SHA256 `0aaf766947d28dc8c5c7cade528b24e6ebc1241293c624245b71fbf7cb09b3ba`, with 21 raw members plus its internal manifest. The [external member manifest](evidence/2026-11-12-cloud-profile-recovery/full-plain.members.json) permits independent size/hash validation. The archive includes the complete input/final binaries, every step row, unmodified result/observer output, process/command/exit records, controller, source and runtime identities. It was locally CRC/member-verified before publication. The root-stage long window was not started while this checkpoint was pending.
 
 This is a separately identified run, not recovery of the missing earlier raw files. No code changed between the timing observations, and neither the difference from the earlier interrupted batch nor a cross-machine comparison is claimed as an optimization gain. The causal stage attribution remains pending the paired root-stage window.
+
+## Complete paired root-stage attribution
+
+The root-stage window completed all 7000 production steps after the plain checkpoint had been downloaded and verified from GitHub. Its complete World/RNG/ordered-event binary, entire business observer and failure status match plain exactly. All 6000 measured steps are again the same dense interval. The profiler retained every stage record, matching its measured tick and elapsed value; source/cache identity, original method body and zero partition error all passed. Linux still reports requested=app, applied=false, reason=platform_default.
+
+| Disjoint root stage | Measured total | Share of complete profiled step |
+| --- | ---: | ---: |
+| movement.space |130.506020s|35.45%|
+| clinic.dispatch |48.988236s|13.31%|
+| dispatch.waiting |37.636165s|10.22%|
+| sample.experience |36.755726s|9.98%|
+| dispatch.environment |31.434434s|8.54%|
+
+Complete profiled step time is 368.175157 s: disjoint stages 366.866874 s, measured observer handlers 0.837732 s (0.228%) and residual 0.470551 s (0.128%). Whole measured and dense-stage statistics are identical because all 6000 samples meet density. Never add nested/inclusive times to these disjoint spans.
+
+Movement is the largest stage in 4786/6000 steps and 28 of the slowest 60, but tail latency is not exclusively movement. The maximum step, tick 1634 at 308.111 ms, is principally environment/waiting dispatch; tick 2884 takes 289.788 ms, including 256.752 ms waiting dispatch. Several 240–274 ms slow steps are movement-led. These observations support investigating `Simulation.step_nonblocking -> HospitalSpace.advance -> HospitalMovement.advance` next; they do not prove collision or any particular movement submethod is responsible.
+
+Profile P95/P99/max are 92.355/124.496/308.111 ms, sample wall 412.130669 s, speed 1.4558489458x, process wall 492.845 s. Paired total step time differs from plain by about +0.77%. This single-pair difference is not a pure observer-overhead estimate or an optimization gain. The 31 coverage gates, upgrade rejection, missing effective visit and failed 10/15/30 ms latency gates remain unchanged. No three-repeat acceptance is established.
+
+[Full-stage raw archive](evidence/2026-11-12-cloud-profile-recovery/full-stages.zip) is 6664255 bytes, SHA256 `1c83d3d5284dd7fc26b04fb88e1bdab8f99a4ae8ece7e605666e7ab77843285d`, retaining 23 raw members plus its manifest. [Member manifest](evidence/2026-11-12-cloud-profile-recovery/full-stages.members.json) and [derived root attribution](evidence/2026-11-12-cloud-profile-recovery/root-attribution.json) accompany the original complete files. ZIP CRC, each member size/SHA and final-state identity were independently checked before publication. No further profile or gameplay edit was made in this batch.

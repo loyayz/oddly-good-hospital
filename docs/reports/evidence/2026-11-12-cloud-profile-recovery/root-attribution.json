@@ -1,0 +1,3034 @@
+{
+  "scope": "all 6000 measured samples are the same dense interval; disjoint root spans, not nested costs",
+  "raw_stage_file_sha256": "20bdc353ae9f895c99576b2cb2e87abc4bb4c21d287ff8ac3e087b8ca21c6052",
+  "samples": 6000,
+  "complete_profiled_step_us": 368175157,
+  "disjoint_root_stage_us": 366866874,
+  "observer_handler_us": 837732,
+  "residual_us": 470551,
+  "partition_check_us": 0,
+  "root_stages": [
+    {
+      "calls": 6000,
+      "max_us": 223831,
+      "name": "movement.space",
+      "profiled_whole_share": 0.354467208117467,
+      "total_us": 130506020
+    },
+    {
+      "calls": 6000,
+      "max_us": 115941,
+      "name": "clinic.dispatch",
+      "profiled_whole_share": 0.13305687542628,
+      "total_us": 48988236
+    },
+    {
+      "calls": 6000,
+      "max_us": 256752,
+      "name": "dispatch.waiting",
+      "profiled_whole_share": 0.102223532154289,
+      "total_us": 37636165
+    },
+    {
+      "calls": 6000,
+      "max_us": 49400,
+      "name": "sample.experience",
+      "profiled_whole_share": 0.0998321730871157,
+      "total_us": 36755726
+    },
+    {
+      "calls": 6000,
+      "max_us": 100662,
+      "name": "dispatch.environment",
+      "profiled_whole_share": 0.0853790197473862,
+      "total_us": 31434434
+    },
+    {
+      "calls": 6000,
+      "max_us": 73529,
+      "name": "dispatch.wellbeing",
+      "profiled_whole_share": 0.0446051171236412,
+      "total_us": 16422496
+    },
+    {
+      "calls": 6000,
+      "max_us": 31004,
+      "name": "needs.arrivals",
+      "profiled_whole_share": 0.0173422483255708,
+      "total_us": 6384985
+    },
+    {
+      "calls": 6000,
+      "max_us": 85091,
+      "name": "dispatch.floor_guidance",
+      "profiled_whole_share": 0.015434542206225,
+      "total_us": 5682615
+    },
+    {
+      "calls": 6000,
+      "max_us": 7036,
+      "name": "dispatch.development",
+      "profiled_whole_share": 0.013304444655944,
+      "total_us": 4898366
+    },
+    {
+      "calls": 6000,
+      "max_us": 11597,
+      "name": "advance.environment",
+      "profiled_whole_share": 0.0129694030387824,
+      "total_us": 4775012
+    },
+    {
+      "calls": 6000,
+      "max_us": 5863,
+      "name": "settle.development",
+      "profiled_whole_share": 0.0126455761924208,
+      "total_us": 4655787
+    },
+    {
+      "calls": 6000,
+      "max_us": 10087,
+      "name": "advance_wait.arrivals",
+      "profiled_whole_share": 0.010526709709531,
+      "total_us": 3875673
+    },
+    {
+      "calls": 6000,
+      "max_us": 8791,
+      "name": "settle.finance",
+      "profiled_whole_share": 0.00990865334240898,
+      "total_us": 3648120
+    },
+    {
+      "calls": 6000,
+      "max_us": 5487,
+      "name": "advance.supplies",
+      "profiled_whole_share": 0.0095806545687166,
+      "total_us": 3527359
+    },
+    {
+      "calls": 6000,
+      "max_us": 4323,
+      "name": "boundaries.wellbeing",
+      "profiled_whole_share": 0.00758064727327596,
+      "total_us": 2791006
+    },
+    {
+      "calls": 6000,
+      "max_us": 3003,
+      "name": "boundaries.scheduler",
+      "profiled_whole_share": 0.0072589009583827,
+      "total_us": 2672547
+    },
+    {
+      "calls": 6000,
+      "max_us": 6310,
+      "name": "boundaries.maintenance",
+      "profiled_whole_share": 0.00710836119776544,
+      "total_us": 2617122
+    },
+    {
+      "calls": 6000,
+      "max_us": 27210,
+      "name": "dispatch.maintenance",
+      "profiled_whole_share": 0.00642112851737033,
+      "total_us": 2364100
+    },
+    {
+      "calls": 6000,
+      "max_us": 108178,
+      "name": "clinic.advance",
+      "profiled_whole_share": 0.0062531106627599,
+      "total_us": 2302240
+    },
+    {
+      "calls": 6000,
+      "max_us": 3609,
+      "name": "advance.wellbeing",
+      "profiled_whole_share": 0.00390067328741575,
+      "total_us": 1436131
+    },
+    {
+      "calls": 6000,
+      "max_us": 3683,
+      "name": "advance.maintenance",
+      "profiled_whole_share": 0.00350667331962325,
+      "total_us": 1291070
+    },
+    {
+      "calls": 6000,
+      "max_us": 4557,
+      "name": "settle.arrivals",
+      "profiled_whole_share": 0.00332955925106049,
+      "total_us": 1225861
+    },
+    {
+      "calls": 6000,
+      "max_us": 3271,
+      "name": "step.setup",
+      "profiled_whole_share": 0.00325003460241615,
+      "total_us": 1196582
+    },
+    {
+      "calls": 6000,
+      "max_us": 21791,
+      "name": "advance.floor_guidance",
+      "profiled_whole_share": 0.0031041855439475,
+      "total_us": 1142884
+    },
+    {
+      "calls": 6000,
+      "max_us": 90958,
+      "name": "advance.waiting",
+      "profiled_whole_share": 0.00291544385760933,
+      "total_us": 1073394
+    },
+    {
+      "calls": 6000,
+      "max_us": 3590,
+      "name": "settle.experience",
+      "profiled_whole_share": 0.00261912294098648,
+      "total_us": 964296
+    },
+    {
+      "calls": 6000,
+      "max_us": 4253,
+      "name": "advance.development",
+      "profiled_whole_share": 0.00186392261116086,
+      "total_us": 686250
+    },
+    {
+      "calls": 6000,
+      "max_us": 9538,
+      "name": "advance.research",
+      "profiled_whole_share": 0.00178460710210276,
+      "total_us": 657048
+    },
+    {
+      "calls": 6000,
+      "max_us": 5222,
+      "name": "movement.capture_staff_locations",
+      "profiled_whole_share": 0.00157931622746616,
+      "total_us": 581465
+    },
+    {
+      "calls": 6000,
+      "max_us": 3158,
+      "name": "dispatch.staff_idle",
+      "profiled_whole_share": 0.00156537449374945,
+      "total_us": 576332
+    },
+    {
+      "calls": 6000,
+      "max_us": 5638,
+      "name": "settlement.finish_visits",
+      "profiled_whole_share": 0.0014079249784906,
+      "total_us": 518363
+    },
+    {
+      "calls": 6000,
+      "max_us": 6451,
+      "name": "settle.recruitment",
+      "profiled_whole_share": 0.00132368246671244,
+      "total_us": 487347
+    },
+    {
+      "calls": 6000,
+      "max_us": 2841,
+      "name": "dispatch.scheduler",
+      "profiled_whole_share": 0.00119492310014823,
+      "total_us": 439941
+    },
+    {
+      "calls": 6000,
+      "max_us": 2878,
+      "name": "advance.recruitment",
+      "profiled_whole_share": 0.000849313143635055,
+      "total_us": 312696
+    },
+    {
+      "calls": 6000,
+      "max_us": 2589,
+      "name": "end_query.environment",
+      "profiled_whole_share": 0.000762148109846532,
+      "total_us": 280604
+    },
+    {
+      "calls": 6000,
+      "max_us": 13202,
+      "name": "arrivals.arrivals",
+      "profiled_whole_share": 0.000625688603970637,
+      "total_us": 230363
+    },
+    {
+      "calls": 6000,
+      "max_us": 672,
+      "name": "boundaries.research",
+      "profiled_whole_share": 0.000623678691063884,
+      "total_us": 229623
+    },
+    {
+      "calls": 6000,
+      "max_us": 2484,
+      "name": "boundaries.recruitment",
+      "profiled_whole_share": 0.000521338814829378,
+      "total_us": 191944
+    },
+    {
+      "calls": 6000,
+      "max_us": 1157,
+      "name": "boundaries.supplies",
+      "profiled_whole_share": 0.000407422926691385,
+      "total_us": 150003
+    },
+    {
+      "calls": 6000,
+      "max_us": 67150,
+      "name": "clinic.arrivals",
+      "profiled_whole_share": 0.000382953595100932,
+      "total_us": 140994
+    },
+    {
+      "calls": 6000,
+      "max_us": 2074,
+      "name": "snapshot.tick_result",
+      "profiled_whole_share": 0.000354659996790604,
+      "total_us": 130577
+    },
+    {
+      "calls": 6000,
+      "max_us": 1879,
+      "name": "settle.research",
+      "profiled_whole_share": 0.000342953612158031,
+      "total_us": 126267
+    },
+    {
+      "calls": 6000,
+      "max_us": 19278,
+      "name": "commands.drain",
+      "profiled_whole_share": 0.000268562389721477,
+      "total_us": 98878
+    },
+    {
+      "calls": 6000,
+      "max_us": 5591,
+      "name": "integrate.worked_staff",
+      "profiled_whole_share": 0.000263689708971863,
+      "total_us": 97084
+    },
+    {
+      "calls": 6000,
+      "max_us": 1508,
+      "name": "advance.floors",
+      "profiled_whole_share": 0.000235309195508811,
+      "total_us": 86635
+    },
+    {
+      "calls": 6000,
+      "max_us": 1505,
+      "name": "dispatch.floors",
+      "profiled_whole_share": 0.000213860165475532,
+      "total_us": 78738
+    },
+    {
+      "calls": 6000,
+      "max_us": 341,
+      "name": "boundaries.arrivals",
+      "profiled_whole_share": 0.000185452491027253,
+      "total_us": 68279
+    },
+    {
+      "calls": 6000,
+      "max_us": 277,
+      "name": "dispatch.remodel",
+      "profiled_whole_share": 0.000184952728899088,
+      "total_us": 68095
+    },
+    {
+      "calls": 6000,
+      "max_us": 253,
+      "name": "begin_query.environment",
+      "profiled_whole_share": 0.000184534449726601,
+      "total_us": 67941
+    },
+    {
+      "calls": 6000,
+      "max_us": 821,
+      "name": "events.collect",
+      "profiled_whole_share": 0.000163734567240233,
+      "total_us": 60283
+    },
+    {
+      "calls": 6000,
+      "max_us": 350,
+      "name": "clinic.release_departed",
+      "profiled_whole_share": 0.000141571203295501,
+      "total_us": 52123
+    },
+    {
+      "calls": 6000,
+      "max_us": 376,
+      "name": "settlement.ledger",
+      "profiled_whole_share": 0.00013994426028044,
+      "total_us": 51524
+    },
+    {
+      "calls": 6000,
+      "max_us": 520,
+      "name": "clinic.settle_practice",
+      "profiled_whole_share": 9.66523659281009e-05,
+      "total_us": 35585
+    },
+    {
+      "calls": 6000,
+      "max_us": 2075,
+      "name": "snapshot.bookkeeping",
+      "profiled_whole_share": 9.31893403117365e-05,
+      "total_us": 34310
+    },
+    {
+      "calls": 6000,
+      "max_us": 307,
+      "name": "advance.scheduler",
+      "profiled_whole_share": 7.58389029491199e-05,
+      "total_us": 27922
+    },
+    {
+      "calls": 6000,
+      "max_us": 475,
+      "name": "snapshot.space_boundary",
+      "profiled_whole_share": 4.41501814854933e-05,
+      "total_us": 16255
+    },
+    {
+      "calls": 6000,
+      "max_us": 120,
+      "name": "snapshot.world_boundary",
+      "profiled_whole_share": 4.12249433766114e-05,
+      "total_us": 15178
+    }
+  ],
+  "largest_stage_counts": {
+    "dispatch.environment": 32,
+    "clinic.dispatch": 339,
+    "movement.space": 4786,
+    "clinic.advance": 12,
+    "dispatch.waiting": 650,
+    "clinic.arrivals": 1,
+    "dispatch.floor_guidance": 1,
+    "dispatch.wellbeing": 6,
+    "advance.waiting": 1,
+    "dispatch.maintenance": 1,
+    "advance.floor_guidance": 1,
+    "sample.experience": 169,
+    "needs.arrivals": 1
+  },
+  "slowest60_largest_stage_counts": {
+    "dispatch.environment": 2,
+    "dispatch.waiting": 8,
+    "movement.space": 28,
+    "clinic.arrivals": 1,
+    "dispatch.floor_guidance": 1,
+    "clinic.advance": 10,
+    "clinic.dispatch": 7,
+    "dispatch.wellbeing": 1,
+    "advance.waiting": 1,
+    "sample.experience": 1
+  },
+  "slowest60": [
+    {
+      "tick": 1634,
+      "outer_elapsed_us": 308111,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 100662,
+          "profiled_whole_share": 0.326706933540185,
+          "total_us": 100662
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 87205,
+          "profiled_whole_share": 0.283031115409706,
+          "total_us": 87205
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 45710,
+          "profiled_whole_share": 0.148355625083168,
+          "total_us": 45710
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 20283,
+          "profiled_whole_share": 0.0658301715940035,
+          "total_us": 20283
+        },
+        {
+          "name": "commands.drain",
+          "calls": 1,
+          "max_us": 19278,
+          "profiled_whole_share": 0.0625683601039885,
+          "total_us": 19278
+        }
+      ]
+    },
+    {
+      "tick": 2884,
+      "outer_elapsed_us": 289788,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 256752,
+          "profiled_whole_share": 0.88599942026585,
+          "total_us": 256752
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 13803,
+          "profiled_whole_share": 0.0476313718994575,
+          "total_us": 13803
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4228,
+          "profiled_whole_share": 0.0145899761204743,
+          "total_us": 4228
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 2705,
+          "profiled_whole_share": 0.00933440998246994,
+          "total_us": 2705
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 1920,
+          "profiled_whole_share": 0.00662553314837053,
+          "total_us": 1920
+        }
+      ]
+    },
+    {
+      "tick": 6240,
+      "outer_elapsed_us": 273862,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 218562,
+          "profiled_whole_share": 0.79807348226479,
+          "total_us": 218562
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 22032,
+          "profiled_whole_share": 0.0804492773732756,
+          "total_us": 22032
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13089,
+          "profiled_whole_share": 0.0477941444961331,
+          "total_us": 13089
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5939,
+          "profiled_whole_share": 0.0216861046804595,
+          "total_us": 5939
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 2488,
+          "profiled_whole_share": 0.00908486756103439,
+          "total_us": 2488
+        }
+      ]
+    },
+    {
+      "tick": 6154,
+      "outer_elapsed_us": 267488,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 223831,
+          "profiled_whole_share": 0.836788940064601,
+          "total_us": 223831
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 24981,
+          "profiled_whole_share": 0.0933911053953822,
+          "total_us": 24981
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3616,
+          "profiled_whole_share": 0.0135183634406029,
+          "total_us": 3616
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 3033,
+          "profiled_whole_share": 0.0113388264146429,
+          "total_us": 3033
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 2106,
+          "profiled_whole_share": 0.00787325038880249,
+          "total_us": 2106
+        }
+      ]
+    },
+    {
+      "tick": 6214,
+      "outer_elapsed_us": 260251,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 216213,
+          "profiled_whole_share": 0.830786433097279,
+          "total_us": 216213
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 14585,
+          "profiled_whole_share": 0.0560420517116169,
+          "total_us": 14585
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 7917,
+          "profiled_whole_share": 0.0304206323895009,
+          "total_us": 7917
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5422,
+          "profiled_whole_share": 0.0208337335879593,
+          "total_us": 5422
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 4270,
+          "profiled_whole_share": 0.0164072376282896,
+          "total_us": 4270
+        }
+      ]
+    },
+    {
+      "tick": 6142,
+      "outer_elapsed_us": 246833,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 213556,
+          "profiled_whole_share": 0.865184152848282,
+          "total_us": 213556
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 11025,
+          "profiled_whole_share": 0.0446658266925411,
+          "total_us": 11025
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 7104,
+          "profiled_whole_share": 0.0287805925463775,
+          "total_us": 7104
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3567,
+          "profiled_whole_share": 0.0144510661054235,
+          "total_us": 3567
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 2507,
+          "profiled_whole_share": 0.0101566646275012,
+          "total_us": 2507
+        }
+      ]
+    },
+    {
+      "tick": 6059,
+      "outer_elapsed_us": 242236,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 192808,
+          "profiled_whole_share": 0.79595105599498,
+          "total_us": 192808
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 13353,
+          "profiled_whole_share": 0.0551239287306594,
+          "total_us": 13353
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 10926,
+          "profiled_whole_share": 0.0451047738568999,
+          "total_us": 10926
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 8567,
+          "profiled_whole_share": 0.0353663369606499,
+          "total_us": 8567
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4768,
+          "profiled_whole_share": 0.0196832840700804,
+          "total_us": 4768
+        }
+      ]
+    },
+    {
+      "tick": 5688,
+      "outer_elapsed_us": 229918,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 177915,
+          "profiled_whole_share": 0.77381936168547,
+          "total_us": 177915
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 12509,
+          "profiled_whole_share": 0.0544063535695335,
+          "total_us": 12509
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 11737,
+          "profiled_whole_share": 0.0510486347306431,
+          "total_us": 11737
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 8351,
+          "profiled_whole_share": 0.036321645108256,
+          "total_us": 8351
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5827,
+          "profiled_whole_share": 0.0253438182308475,
+          "total_us": 5827
+        }
+      ]
+    },
+    {
+      "tick": 5983,
+      "outer_elapsed_us": 217427,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 170080,
+          "profiled_whole_share": 0.782239556264861,
+          "total_us": 170080
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 13832,
+          "profiled_whole_share": 0.063616754128972,
+          "total_us": 13832
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 11732,
+          "profiled_whole_share": 0.0539583400405653,
+          "total_us": 11732
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 6765,
+          "profiled_whole_share": 0.0311138910990815,
+          "total_us": 6765
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3835,
+          "profiled_whole_share": 0.0176381038233522,
+          "total_us": 3835
+        }
+      ]
+    },
+    {
+      "tick": 4763,
+      "outer_elapsed_us": 210391,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 143094,
+          "profiled_whole_share": 0.680133655907334,
+          "total_us": 143094
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 31987,
+          "profiled_whole_share": 0.152035971120438,
+          "total_us": 31987
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13700,
+          "profiled_whole_share": 0.0651168538578171,
+          "total_us": 13700
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 4356,
+          "profiled_whole_share": 0.0207043076937702,
+          "total_us": 4356
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3830,
+          "profiled_whole_share": 0.0182042007500321,
+          "total_us": 3830
+        }
+      ]
+    },
+    {
+      "tick": 6082,
+      "outer_elapsed_us": 205910,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 153810,
+          "profiled_whole_share": 0.746976834539362,
+          "total_us": 153810
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 18973,
+          "profiled_whole_share": 0.0921421980476907,
+          "total_us": 18973
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13350,
+          "profiled_whole_share": 0.0648341508426011,
+          "total_us": 13350
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4555,
+          "profiled_whole_share": 0.0221213151376815,
+          "total_us": 4555
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 3089,
+          "profiled_whole_share": 0.0150016997717449,
+          "total_us": 3089
+        }
+      ]
+    },
+    {
+      "tick": 1801,
+      "outer_elapsed_us": 196456,
+      "largest_five_stages": [
+        {
+          "name": "clinic.arrivals",
+          "calls": 1,
+          "max_us": 67150,
+          "profiled_whole_share": 0.341806816793582,
+          "total_us": 67150
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 48529,
+          "profiled_whole_share": 0.247022233986236,
+          "total_us": 48529
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 31580,
+          "profiled_whole_share": 0.160748462760109,
+          "total_us": 31580
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 21514,
+          "profiled_whole_share": 0.109510526530114,
+          "total_us": 21514
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 7405,
+          "profiled_whole_share": 0.0376929185161054,
+          "total_us": 7405
+        }
+      ]
+    },
+    {
+      "tick": 5615,
+      "outer_elapsed_us": 195704,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 139159,
+          "profiled_whole_share": 0.711068756898173,
+          "total_us": 139159
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 17140,
+          "profiled_whole_share": 0.0875812451457303,
+          "total_us": 17140
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 12647,
+          "profiled_whole_share": 0.064623104279933,
+          "total_us": 12647
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 7994,
+          "profiled_whole_share": 0.0408474021992397,
+          "total_us": 7994
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5821,
+          "profiled_whole_share": 0.0297438989494338,
+          "total_us": 5821
+        }
+      ]
+    },
+    {
+      "tick": 6363,
+      "outer_elapsed_us": 190847,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 98542,
+          "profiled_whole_share": 0.516340314492761,
+          "total_us": 98542
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 35388,
+          "profiled_whole_share": 0.185426021891882,
+          "total_us": 35388
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 12282,
+          "profiled_whole_share": 0.0643552164823131,
+          "total_us": 12282
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 10853,
+          "profiled_whole_share": 0.0568675431104497,
+          "total_us": 10853
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 5701,
+          "profiled_whole_share": 0.0298720964961461,
+          "total_us": 5701
+        }
+      ]
+    },
+    {
+      "tick": 3166,
+      "outer_elapsed_us": 187825,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 167236,
+          "profiled_whole_share": 0.890382004525489,
+          "total_us": 167236
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4070,
+          "profiled_whole_share": 0.0216691068814056,
+          "total_us": 4070
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 2907,
+          "profiled_whole_share": 0.0154771729003061,
+          "total_us": 2907
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 2053,
+          "profiled_whole_share": 0.0109303873286304,
+          "total_us": 2053
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 1467,
+          "profiled_whole_share": 0.00781046186609876,
+          "total_us": 1467
+        }
+      ]
+    },
+    {
+      "tick": 1803,
+      "outer_elapsed_us": 184140,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.floor_guidance",
+          "calls": 1,
+          "max_us": 85091,
+          "profiled_whole_share": 0.462099489518844,
+          "total_us": 85091
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 32961,
+          "profiled_whole_share": 0.178999674160964,
+          "total_us": 32961
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 22526,
+          "profiled_whole_share": 0.122330835234061,
+          "total_us": 22526
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 22399,
+          "profiled_whole_share": 0.121641142608885,
+          "total_us": 22399
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4917,
+          "profiled_whole_share": 0.0267025089605735,
+          "total_us": 4917
+        }
+      ]
+    },
+    {
+      "tick": 5213,
+      "outer_elapsed_us": 180298,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 109052,
+          "profiled_whole_share": 0.604843093101421,
+          "total_us": 109052
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 19888,
+          "profiled_whole_share": 0.11030627072957,
+          "total_us": 19888
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 18983,
+          "profiled_whole_share": 0.105286802959545,
+          "total_us": 18983
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 12947,
+          "profiled_whole_share": 0.0718088941641061,
+          "total_us": 12947
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 6046,
+          "profiled_whole_share": 0.0335333725277041,
+          "total_us": 6046
+        }
+      ]
+    },
+    {
+      "tick": 5538,
+      "outer_elapsed_us": 179536,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 124774,
+          "profiled_whole_share": 0.694980393904287,
+          "total_us": 124774
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 18983,
+          "profiled_whole_share": 0.105733669013457,
+          "total_us": 18983
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 11797,
+          "profiled_whole_share": 0.0657082702076464,
+          "total_us": 11797
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 7271,
+          "profiled_whole_share": 0.0404988414579806,
+          "total_us": 7271
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 4848,
+          "profiled_whole_share": 0.027002940914357,
+          "total_us": 4848
+        }
+      ]
+    },
+    {
+      "tick": 5555,
+      "outer_elapsed_us": 178684,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 113175,
+          "profiled_whole_share": 0.633380716796132,
+          "total_us": 113175
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 18460,
+          "profiled_whole_share": 0.103310872825771,
+          "total_us": 18460
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 17273,
+          "profiled_whole_share": 0.0966678605806899,
+          "total_us": 17273
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 12820,
+          "profiled_whole_share": 0.0717467708356652,
+          "total_us": 12820
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5937,
+          "profiled_whole_share": 0.0332262541693716,
+          "total_us": 5937
+        }
+      ]
+    },
+    {
+      "tick": 5629,
+      "outer_elapsed_us": 175500,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 133194,
+          "profiled_whole_share": 0.758940170940171,
+          "total_us": 133194
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 18205,
+          "profiled_whole_share": 0.103732193732194,
+          "total_us": 18205
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 7476,
+          "profiled_whole_share": 0.0425982905982906,
+          "total_us": 7476
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 4348,
+          "profiled_whole_share": 0.0247749287749288,
+          "total_us": 4348
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 2120,
+          "profiled_whole_share": 0.0120797720797721,
+          "total_us": 2120
+        }
+      ]
+    },
+    {
+      "tick": 5591,
+      "outer_elapsed_us": 174618,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 100964,
+          "profiled_whole_share": 0.578199269262046,
+          "total_us": 100964
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 19491,
+          "profiled_whole_share": 0.111620795107034,
+          "total_us": 19491
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 15984,
+          "profiled_whole_share": 0.0915369549530976,
+          "total_us": 15984
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 14272,
+          "profiled_whole_share": 0.0817326965146778,
+          "total_us": 14272
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 7388,
+          "profiled_whole_share": 0.0423094984480409,
+          "total_us": 7388
+        }
+      ]
+    },
+    {
+      "tick": 5687,
+      "outer_elapsed_us": 174353,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 48398,
+          "profiled_whole_share": 0.277586276117991,
+          "total_us": 48398
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 37525,
+          "profiled_whole_share": 0.215224286361577,
+          "total_us": 37525
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 27930,
+          "profiled_whole_share": 0.160192253646338,
+          "total_us": 27930
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 21484,
+          "profiled_whole_share": 0.12322128096448,
+          "total_us": 21484
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 14510,
+          "profiled_whole_share": 0.0832219692233572,
+          "total_us": 14510
+        }
+      ]
+    },
+    {
+      "tick": 3663,
+      "outer_elapsed_us": 169523,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 108178,
+          "profiled_whole_share": 0.638131698943506,
+          "total_us": 108178
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 24141,
+          "profiled_whole_share": 0.14240545530695,
+          "total_us": 24141
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 13717,
+          "profiled_whole_share": 0.080915274033612,
+          "total_us": 13717
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5002,
+          "profiled_whole_share": 0.0295063206762504,
+          "total_us": 5002
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 4161,
+          "profiled_whole_share": 0.0245453419300036,
+          "total_us": 4161
+        }
+      ]
+    },
+    {
+      "tick": 4172,
+      "outer_elapsed_us": 168118,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 101441,
+          "profiled_whole_share": 0.603391665377889,
+          "total_us": 101441
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 20344,
+          "profiled_whole_share": 0.121010242805648,
+          "total_us": 20344
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 12802,
+          "profiled_whole_share": 0.076148895418694,
+          "total_us": 12802
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 8819,
+          "profiled_whole_share": 0.0524572026790707,
+          "total_us": 8819
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 5211,
+          "profiled_whole_share": 0.0309960860823945,
+          "total_us": 5211
+        }
+      ]
+    },
+    {
+      "tick": 4319,
+      "outer_elapsed_us": 167394,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 103398,
+          "profiled_whole_share": 0.617692390408258,
+          "total_us": 103398
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 20952,
+          "profiled_whole_share": 0.125165776551131,
+          "total_us": 20952
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 15009,
+          "profiled_whole_share": 0.0896627119251586,
+          "total_us": 15009
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5587,
+          "profiled_whole_share": 0.0333763456276808,
+          "total_us": 5587
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4226,
+          "profiled_whole_share": 0.0252458272100553,
+          "total_us": 4226
+        }
+      ]
+    },
+    {
+      "tick": 5751,
+      "outer_elapsed_us": 166023,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 94545,
+          "profiled_whole_share": 0.569469290399523,
+          "total_us": 94545
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 20906,
+          "profiled_whole_share": 0.125922311968824,
+          "total_us": 20906
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13899,
+          "profiled_whole_share": 0.0837173162754558,
+          "total_us": 13899
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 12768,
+          "profiled_whole_share": 0.0769050071375653,
+          "total_us": 12768
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 8242,
+          "profiled_whole_share": 0.0496437240623287,
+          "total_us": 8242
+        }
+      ]
+    },
+    {
+      "tick": 1802,
+      "outer_elapsed_us": 162578,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 115941,
+          "profiled_whole_share": 0.713140769353787,
+          "total_us": 115941
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 16618,
+          "profiled_whole_share": 0.102215551919694,
+          "total_us": 16618
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 5385,
+          "profiled_whole_share": 0.0331225627083615,
+          "total_us": 5385
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5153,
+          "profiled_whole_share": 0.0316955553641944,
+          "total_us": 5153
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 3708,
+          "profiled_whole_share": 0.0228075139317743,
+          "total_us": 3708
+        }
+      ]
+    },
+    {
+      "tick": 1867,
+      "outer_elapsed_us": 158610,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 96219,
+          "profiled_whole_share": 0.60663892566673,
+          "total_us": 96219
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 14922,
+          "profiled_whole_share": 0.0940798184225459,
+          "total_us": 14922
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 11880,
+          "profiled_whole_share": 0.0749006998297711,
+          "total_us": 11880
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 11010,
+          "profiled_whole_share": 0.0694155475695101,
+          "total_us": 11010
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4584,
+          "profiled_whole_share": 0.0289010781161339,
+          "total_us": 4584
+        }
+      ]
+    },
+    {
+      "tick": 4075,
+      "outer_elapsed_us": 157237,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 73529,
+          "profiled_whole_share": 0.467631664302931,
+          "total_us": 73529
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 24492,
+          "profiled_whole_share": 0.155764864503902,
+          "total_us": 24492
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 23778,
+          "profiled_whole_share": 0.151223948561725,
+          "total_us": 23778
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 14075,
+          "profiled_whole_share": 0.0895145544623721,
+          "total_us": 14075
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5485,
+          "profiled_whole_share": 0.0348836469787645,
+          "total_us": 5485
+        }
+      ]
+    },
+    {
+      "tick": 3549,
+      "outer_elapsed_us": 156282,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 101897,
+          "profiled_whole_share": 0.652007268911327,
+          "total_us": 101897
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 19146,
+          "profiled_whole_share": 0.122509310093293,
+          "total_us": 19146
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 13419,
+          "profiled_whole_share": 0.0858640150497178,
+          "total_us": 13419
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4158,
+          "profiled_whole_share": 0.0266057511421661,
+          "total_us": 4158
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 3409,
+          "profiled_whole_share": 0.0218131326704291,
+          "total_us": 3409
+        }
+      ]
+    },
+    {
+      "tick": 3873,
+      "outer_elapsed_us": 154529,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 96746,
+          "profiled_whole_share": 0.626070187472902,
+          "total_us": 96746
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 16858,
+          "profiled_whole_share": 0.109092791644287,
+          "total_us": 16858
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 13371,
+          "profiled_whole_share": 0.0865274479223964,
+          "total_us": 13371
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 10529,
+          "profiled_whole_share": 0.0681360780177184,
+          "total_us": 10529
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3592,
+          "profiled_whole_share": 0.0232448278316691,
+          "total_us": 3592
+        }
+      ]
+    },
+    {
+      "tick": 3545,
+      "outer_elapsed_us": 152924,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 98508,
+          "profiled_whole_share": 0.644163113703539,
+          "total_us": 98508
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 18065,
+          "profiled_whole_share": 0.118130574664539,
+          "total_us": 18065
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 10971,
+          "profiled_whole_share": 0.0717415186628652,
+          "total_us": 10971
+        },
+        {
+          "name": "needs.arrivals",
+          "calls": 1,
+          "max_us": 6200,
+          "profiled_whole_share": 0.0405430148308964,
+          "total_us": 6200
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3924,
+          "profiled_whole_share": 0.0256598048703931,
+          "total_us": 3924
+        }
+      ]
+    },
+    {
+      "tick": 5510,
+      "outer_elapsed_us": 148417,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 92001,
+          "profiled_whole_share": 0.61988181946812,
+          "total_us": 92001
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 21375,
+          "profiled_whole_share": 0.144019889904795,
+          "total_us": 21375
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 11742,
+          "profiled_whole_share": 0.0791149261877009,
+          "total_us": 11742
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 6622,
+          "profiled_whole_share": 0.0446175303368213,
+          "total_us": 6622
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5297,
+          "profiled_whole_share": 0.0356899816058807,
+          "total_us": 5297
+        }
+      ]
+    },
+    {
+      "tick": 3875,
+      "outer_elapsed_us": 146544,
+      "largest_five_stages": [
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 94676,
+          "profiled_whole_share": 0.646058521672672,
+          "total_us": 94676
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 22357,
+          "profiled_whole_share": 0.152561687957201,
+          "total_us": 22357
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 8206,
+          "profiled_whole_share": 0.0559968337154711,
+          "total_us": 8206
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4956,
+          "profiled_whole_share": 0.0338191942351785,
+          "total_us": 4956
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 2750,
+          "profiled_whole_share": 0.018765694944863,
+          "total_us": 2750
+        }
+      ]
+    },
+    {
+      "tick": 6300,
+      "outer_elapsed_us": 145623,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 59273,
+          "profiled_whole_share": 0.407030482822082,
+          "total_us": 59273
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 26020,
+          "profiled_whole_share": 0.178680565569999,
+          "total_us": 26020
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 17103,
+          "profiled_whole_share": 0.117447106569704,
+          "total_us": 17103
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 15911,
+          "profiled_whole_share": 0.109261586425221,
+          "total_us": 15911
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 13576,
+          "profiled_whole_share": 0.0932270314442087,
+          "total_us": 13576
+        }
+      ]
+    },
+    {
+      "tick": 3852,
+      "outer_elapsed_us": 144414,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 58463,
+          "profiled_whole_share": 0.404829171686956,
+          "total_us": 58463
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 54414,
+          "profiled_whole_share": 0.376791723794092,
+          "total_us": 54414
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 13737,
+          "profiled_whole_share": 0.0951223565582284,
+          "total_us": 13737
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4255,
+          "profiled_whole_share": 0.0294639023917349,
+          "total_us": 4255
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 2262,
+          "profiled_whole_share": 0.0156633013419752,
+          "total_us": 2262
+        }
+      ]
+    },
+    {
+      "tick": 6000,
+      "outer_elapsed_us": 144287,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 109021,
+          "profiled_whole_share": 0.755584356179004,
+          "total_us": 109021
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 11849,
+          "profiled_whole_share": 0.0821210504064815,
+          "total_us": 11849
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 6038,
+          "profiled_whole_share": 0.0418471518570627,
+          "total_us": 6038
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4000,
+          "profiled_whole_share": 0.0277225252448246,
+          "total_us": 4000
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 2650,
+          "profiled_whole_share": 0.0183661729746963,
+          "total_us": 2650
+        }
+      ]
+    },
+    {
+      "tick": 5029,
+      "outer_elapsed_us": 143897,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 60034,
+          "profiled_whole_share": 0.417201192519649,
+          "total_us": 60034
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 27915,
+          "profiled_whole_share": 0.19399292549532,
+          "total_us": 27915
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 21439,
+          "profiled_whole_share": 0.148988512616663,
+          "total_us": 21439
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 15133,
+          "profiled_whole_share": 0.105165500323148,
+          "total_us": 15133
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5766,
+          "profiled_whole_share": 0.0400703280818919,
+          "total_us": 5766
+        }
+      ]
+    },
+    {
+      "tick": 1864,
+      "outer_elapsed_us": 143590,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 79129,
+          "profiled_whole_share": 0.551075980221464,
+          "total_us": 79129
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 15994,
+          "profiled_whole_share": 0.111386586809666,
+          "total_us": 15994
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 13207,
+          "profiled_whole_share": 0.0919771571836479,
+          "total_us": 13207
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 9459,
+          "profiled_whole_share": 0.0658750609373912,
+          "total_us": 9459
+        },
+        {
+          "name": "dispatch.development",
+          "calls": 1,
+          "max_us": 4992,
+          "profiled_whole_share": 0.0347656522041925,
+          "total_us": 4992
+        }
+      ]
+    },
+    {
+      "tick": 5740,
+      "outer_elapsed_us": 141755,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 75924,
+          "profiled_whole_share": 0.535600155197347,
+          "total_us": 75924
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 26012,
+          "profiled_whole_share": 0.183499700186942,
+          "total_us": 26012
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 15446,
+          "profiled_whole_share": 0.108962646820218,
+          "total_us": 15446
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 6510,
+          "profiled_whole_share": 0.0459243060209516,
+          "total_us": 6510
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 4769,
+          "profiled_whole_share": 0.0336425522909245,
+          "total_us": 4769
+        }
+      ]
+    },
+    {
+      "tick": 2963,
+      "outer_elapsed_us": 140282,
+      "largest_five_stages": [
+        {
+          "name": "advance.waiting",
+          "calls": 1,
+          "max_us": 90958,
+          "profiled_whole_share": 0.648393949330634,
+          "total_us": 90958
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 15064,
+          "profiled_whole_share": 0.107383698550063,
+          "total_us": 15064
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 9950,
+          "profiled_whole_share": 0.0709285581899317,
+          "total_us": 9950
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 6571,
+          "profiled_whole_share": 0.0468413623985971,
+          "total_us": 6571
+        },
+        {
+          "name": "advance_wait.arrivals",
+          "calls": 1,
+          "max_us": 4321,
+          "profiled_whole_share": 0.0308022411998688,
+          "total_us": 4321
+        }
+      ]
+    },
+    {
+      "tick": 6628,
+      "outer_elapsed_us": 139992,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 38599,
+          "profiled_whole_share": 0.27572289845134,
+          "total_us": 38599
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 31994,
+          "profiled_whole_share": 0.22854163095034,
+          "total_us": 31994
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 31678,
+          "profiled_whole_share": 0.226284359106235,
+          "total_us": 31678
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 10081,
+          "profiled_whole_share": 0.0720112577861592,
+          "total_us": 10081
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 5128,
+          "profiled_whole_share": 0.0366306646094063,
+          "total_us": 5128
+        }
+      ]
+    },
+    {
+      "tick": 6626,
+      "outer_elapsed_us": 138760,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 57707,
+          "profiled_whole_share": 0.415876333237244,
+          "total_us": 57707
+        },
+        {
+          "name": "dispatch.maintenance",
+          "calls": 1,
+          "max_us": 27210,
+          "profiled_whole_share": 0.196093975208994,
+          "total_us": 27210
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 14807,
+          "profiled_whole_share": 0.106709426347651,
+          "total_us": 14807
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 13863,
+          "profiled_whole_share": 0.0999063130585183,
+          "total_us": 13863
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 6336,
+          "profiled_whole_share": 0.0456615739406169,
+          "total_us": 6336
+        }
+      ]
+    },
+    {
+      "tick": 5478,
+      "outer_elapsed_us": 136443,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 55819,
+          "profiled_whole_share": 0.409101236413741,
+          "total_us": 55819
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 20854,
+          "profiled_whole_share": 0.152840380232038,
+          "total_us": 20854
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 20086,
+          "profiled_whole_share": 0.147211656149454,
+          "total_us": 20086
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 15855,
+          "profiled_whole_share": 0.116202370220532,
+          "total_us": 15855
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 11898,
+          "profiled_whole_share": 0.0872012488731558,
+          "total_us": 11898
+        }
+      ]
+    },
+    {
+      "tick": 5134,
+      "outer_elapsed_us": 136417,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 50852,
+          "profiled_whole_share": 0.372768789813586,
+          "total_us": 50852
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 45232,
+          "profiled_whole_share": 0.33157157832235,
+          "total_us": 45232
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13289,
+          "profiled_whole_share": 0.0974145451080144,
+          "total_us": 13289
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 7766,
+          "profiled_whole_share": 0.0569283886905591,
+          "total_us": 7766
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5241,
+          "profiled_whole_share": 0.0384189653782153,
+          "total_us": 5241
+        }
+      ]
+    },
+    {
+      "tick": 1937,
+      "outer_elapsed_us": 135003,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 57910,
+          "profiled_whole_share": 0.428953430664504,
+          "total_us": 57910
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 22969,
+          "profiled_whole_share": 0.170136959919409,
+          "total_us": 22969
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 20368,
+          "profiled_whole_share": 0.150870721391376,
+          "total_us": 20368
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4909,
+          "profiled_whole_share": 0.036362154915076,
+          "total_us": 4909
+        },
+        {
+          "name": "dispatch.floor_guidance",
+          "calls": 1,
+          "max_us": 4754,
+          "profiled_whole_share": 0.0352140322807641,
+          "total_us": 4754
+        }
+      ]
+    },
+    {
+      "tick": 6636,
+      "outer_elapsed_us": 134997,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 54943,
+          "profiled_whole_share": 0.406994229501396,
+          "total_us": 54943
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 30987,
+          "profiled_whole_share": 0.229538434187426,
+          "total_us": 30987
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 21087,
+          "profiled_whole_share": 0.156203471188249,
+          "total_us": 21087
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 7261,
+          "profiled_whole_share": 0.0537863804380838,
+          "total_us": 7261
+        },
+        {
+          "name": "movement.capture_staff_locations",
+          "calls": 1,
+          "max_us": 5222,
+          "profiled_whole_share": 0.0386823410890612,
+          "total_us": 5222
+        }
+      ]
+    },
+    {
+      "tick": 6744,
+      "outer_elapsed_us": 134537,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 60472,
+          "profiled_whole_share": 0.449482298549841,
+          "total_us": 60472
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 38014,
+          "profiled_whole_share": 0.2825542415841,
+          "total_us": 38014
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 14305,
+          "profiled_whole_share": 0.106327627344151,
+          "total_us": 14305
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 5984,
+          "profiled_whole_share": 0.0444784706065989,
+          "total_us": 5984
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 3578,
+          "profiled_whole_share": 0.0265949144101623,
+          "total_us": 3578
+        }
+      ]
+    },
+    {
+      "tick": 5351,
+      "outer_elapsed_us": 133497,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 44424,
+          "profiled_whole_share": 0.332771522955572,
+          "total_us": 44424
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 28653,
+          "profiled_whole_share": 0.214634036719926,
+          "total_us": 28653
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 15585,
+          "profiled_whole_share": 0.116744196498798,
+          "total_us": 15585
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 13426,
+          "profiled_whole_share": 0.100571548424309,
+          "total_us": 13426
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 12103,
+          "profiled_whole_share": 0.0906612133605999,
+          "total_us": 12103
+        }
+      ]
+    },
+    {
+      "tick": 4097,
+      "outer_elapsed_us": 131754,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 59387,
+          "profiled_whole_share": 0.45074153346388,
+          "total_us": 59387
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 22027,
+          "profiled_whole_share": 0.167182780029449,
+          "total_us": 22027
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 15638,
+          "profiled_whole_share": 0.118690893635108,
+          "total_us": 15638
+        },
+        {
+          "name": "dispatch.floor_guidance",
+          "calls": 1,
+          "max_us": 12610,
+          "profiled_whole_share": 0.0957086691865143,
+          "total_us": 12610
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4249,
+          "profiled_whole_share": 0.0322494952714908,
+          "total_us": 4249
+        }
+      ]
+    },
+    {
+      "tick": 5999,
+      "outer_elapsed_us": 129159,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 73418,
+          "profiled_whole_share": 0.568431158494569,
+          "total_us": 73418
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 25726,
+          "profiled_whole_share": 0.199180854605564,
+          "total_us": 25726
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 12426,
+          "profiled_whole_share": 0.0962070006735884,
+          "total_us": 12426
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 3825,
+          "profiled_whole_share": 0.0296146609992335,
+          "total_us": 3825
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 3191,
+          "profiled_whole_share": 0.0247059825486416,
+          "total_us": 3191
+        }
+      ]
+    },
+    {
+      "tick": 5378,
+      "outer_elapsed_us": 129084,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 55986,
+          "profiled_whole_share": 0.43371757925072,
+          "total_us": 55986
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 21006,
+          "profiled_whole_share": 0.162731244770847,
+          "total_us": 21006
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 20281,
+          "profiled_whole_share": 0.157114746986458,
+          "total_us": 20281
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13152,
+          "profiled_whole_share": 0.101887143255555,
+          "total_us": 13152
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 6031,
+          "profiled_whole_share": 0.0467215146726163,
+          "total_us": 6031
+        }
+      ]
+    },
+    {
+      "tick": 5126,
+      "outer_elapsed_us": 128592,
+      "largest_five_stages": [
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 39345,
+          "profiled_whole_share": 0.305967711832773,
+          "total_us": 39345
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 23243,
+          "profiled_whole_share": 0.180749968893866,
+          "total_us": 23243
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 18862,
+          "profiled_whole_share": 0.146680975488366,
+          "total_us": 18862
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 11836,
+          "profiled_whole_share": 0.0920430508896354,
+          "total_us": 11836
+        },
+        {
+          "name": "arrivals.arrivals",
+          "calls": 1,
+          "max_us": 11357,
+          "profiled_whole_share": 0.0883180913276098,
+          "total_us": 11357
+        }
+      ]
+    },
+    {
+      "tick": 2621,
+      "outer_elapsed_us": 126883,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 44389,
+          "profiled_whole_share": 0.349841980407147,
+          "total_us": 44389
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 27154,
+          "profiled_whole_share": 0.214008180764957,
+          "total_us": 27154
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13686,
+          "profiled_whole_share": 0.107863149515696,
+          "total_us": 13686
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 13261,
+          "profiled_whole_share": 0.104513607023794,
+          "total_us": 13261
+        },
+        {
+          "name": "dispatch.development",
+          "calls": 1,
+          "max_us": 5136,
+          "profiled_whole_share": 0.0404782358550791,
+          "total_us": 5136
+        }
+      ]
+    },
+    {
+      "tick": 3485,
+      "outer_elapsed_us": 126450,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 49547,
+          "profiled_whole_share": 0.391830763147489,
+          "total_us": 49547
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 36939,
+          "profiled_whole_share": 0.292123368920522,
+          "total_us": 36939
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 10773,
+          "profiled_whole_share": 0.0851957295373666,
+          "total_us": 10773
+        },
+        {
+          "name": "needs.arrivals",
+          "calls": 1,
+          "max_us": 9036,
+          "profiled_whole_share": 0.0714590747330961,
+          "total_us": 9036
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 3604,
+          "profiled_whole_share": 0.0285013839462238,
+          "total_us": 3604
+        }
+      ]
+    },
+    {
+      "tick": 6627,
+      "outer_elapsed_us": 126304,
+      "largest_five_stages": [
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 36049,
+          "profiled_whole_share": 0.2854145553585,
+          "total_us": 36049
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 35468,
+          "profiled_whole_share": 0.280814542690651,
+          "total_us": 35468
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 12148,
+          "profiled_whole_share": 0.0961806435267292,
+          "total_us": 12148
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 11130,
+          "profiled_whole_share": 0.0881207246009628,
+          "total_us": 11130
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 9531,
+          "profiled_whole_share": 0.0754607930073474,
+          "total_us": 9531
+        }
+      ]
+    },
+    {
+      "tick": 5129,
+      "outer_elapsed_us": 126168,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 50099,
+          "profiled_whole_share": 0.39708166888593,
+          "total_us": 50099
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 36046,
+          "profiled_whole_share": 0.285698433834253,
+          "total_us": 36046
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13522,
+          "profiled_whole_share": 0.107174560902923,
+          "total_us": 13522
+        },
+        {
+          "name": "dispatch.waiting",
+          "calls": 1,
+          "max_us": 7263,
+          "profiled_whole_share": 0.0575661023397375,
+          "total_us": 7263
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 5739,
+          "profiled_whole_share": 0.0454869697546129,
+          "total_us": 5739
+        }
+      ]
+    },
+    {
+      "tick": 1655,
+      "outer_elapsed_us": 124786,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 65209,
+          "profiled_whole_share": 0.522566634077541,
+          "total_us": 65209
+        },
+        {
+          "name": "clinic.advance",
+          "calls": 1,
+          "max_us": 23616,
+          "profiled_whole_share": 0.189251999423012,
+          "total_us": 23616
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 14355,
+          "profiled_whole_share": 0.115036943246839,
+          "total_us": 14355
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4681,
+          "profiled_whole_share": 0.0375122209222188,
+          "total_us": 4681
+        },
+        {
+          "name": "advance.environment",
+          "calls": 1,
+          "max_us": 3382,
+          "profiled_whole_share": 0.0271023993076146,
+          "total_us": 3382
+        }
+      ]
+    },
+    {
+      "tick": 5095,
+      "outer_elapsed_us": 124722,
+      "largest_five_stages": [
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 41386,
+          "profiled_whole_share": 0.331825980981703,
+          "total_us": 41386
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 28989,
+          "profiled_whole_share": 0.232428921922355,
+          "total_us": 28989
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 14804,
+          "profiled_whole_share": 0.118695979859207,
+          "total_us": 14804
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 13704,
+          "profiled_whole_share": 0.10987636503584,
+          "total_us": 13704
+        },
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 8591,
+          "profiled_whole_share": 0.0688811917704976,
+          "total_us": 8591
+        }
+      ]
+    },
+    {
+      "tick": 4149,
+      "outer_elapsed_us": 124568,
+      "largest_five_stages": [
+        {
+          "name": "clinic.dispatch",
+          "calls": 1,
+          "max_us": 58307,
+          "profiled_whole_share": 0.468073662577869,
+          "total_us": 58307
+        },
+        {
+          "name": "movement.space",
+          "calls": 1,
+          "max_us": 28537,
+          "profiled_whole_share": 0.229087727185152,
+          "total_us": 28537
+        },
+        {
+          "name": "dispatch.environment",
+          "calls": 1,
+          "max_us": 11799,
+          "profiled_whole_share": 0.0947193500738552,
+          "total_us": 11799
+        },
+        {
+          "name": "dispatch.wellbeing",
+          "calls": 1,
+          "max_us": 6516,
+          "profiled_whole_share": 0.0523087791407103,
+          "total_us": 6516
+        },
+        {
+          "name": "sample.experience",
+          "calls": 1,
+          "max_us": 4277,
+          "profiled_whole_share": 0.0343346605869886,
+          "total_us": 4277
+        }
+      ]
+    }
+  ],
+  "plain_metrics": {
+    "count": 6000,
+    "dense_intervals": {
+      "dense_sample_count": 6000,
+      "has_qualified_segment": true,
+      "minimum_qualified_samples": 1000,
+      "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+      "segments": [
+        {
+          "first_index": 1000,
+          "first_tick": 1634,
+          "last_index": 6999,
+          "last_tick": 7633,
+          "metrics": {
+            "count": 6000,
+            "max_us": 319280,
+            "mean_step_us": 60894.82,
+            "observation_logging_and_loop_wall_us": 45956377,
+            "p50_us": 58764,
+            "p95_us": 96160,
+            "p99_us": 130222,
+            "present_population": {
+              "maximum": 170,
+              "median": 165,
+              "minimum": 164
+            },
+            "real_window_us_including_observation": 411325297,
+            "simulated_seconds": 600.0,
+            "simulation_seconds_per_wall_second": 1.45869948767095,
+            "sum_step_us": 365368920
+          },
+          "sample_count_qualified": true
+        }
+      ],
+      "threshold_present": 144
+    },
+    "first_sample_step_us": 304098,
+    "fresh_runtime_first_prefix_or_sample_step_us": 208101,
+    "max_us": 319280,
+    "mean_step_us": 60894.82,
+    "observation_logging_and_loop_wall_us": 45956016,
+    "p50_us": 58764,
+    "p95_us": 96160,
+    "p99_us": 130222,
+    "present_population": {
+      "maximum": 170,
+      "median": 165,
+      "minimum": 164
+    },
+    "real_window_us_including_observation": 411324936,
+    "simulated_seconds": 600.0,
+    "simulation_seconds_per_wall_second": 1.45870076790093,
+    "sum_step_us": 365368920
+  },
+  "profile_metrics": {
+    "count": 6000,
+    "dense_intervals": {
+      "dense_sample_count": 6000,
+      "has_qualified_segment": true,
+      "minimum_qualified_samples": 1000,
+      "scope": "Each contiguous measured interval with at least 90 percent of the complete initial population. Every interval is reported separately; short intervals remain insufficient evidence and no actors are held, replaced or removed.",
+      "segments": [
+        {
+          "first_index": 1000,
+          "first_tick": 1634,
+          "last_index": 6999,
+          "last_tick": 7633,
+          "metrics": {
+            "count": 6000,
+            "max_us": 308111,
+            "mean_step_us": 61362.5261666667,
+            "observation_logging_and_loop_wall_us": 43955828,
+            "p50_us": 59662,
+            "p95_us": 92355,
+            "p99_us": 124496,
+            "present_population": {
+              "maximum": 170,
+              "median": 165,
+              "minimum": 164
+            },
+            "real_window_us_including_observation": 412130985,
+            "simulated_seconds": 600.0,
+            "simulation_seconds_per_wall_second": 1.4558478295438,
+            "sum_step_us": 368175157
+          },
+          "sample_count_qualified": true
+        }
+      ],
+      "threshold_present": 144
+    },
+    "first_sample_step_us": 308111,
+    "fresh_runtime_first_prefix_or_sample_step_us": 209744,
+    "max_us": 308111,
+    "mean_step_us": 61362.5261666667,
+    "observation_logging_and_loop_wall_us": 43955512,
+    "p50_us": 59662,
+    "p95_us": 92355,
+    "p99_us": 124496,
+    "present_population": {
+      "maximum": 170,
+      "median": 165,
+      "minimum": 164
+    },
+    "real_window_us_including_observation": 412130669,
+    "simulated_seconds": 600.0,
+    "simulation_seconds_per_wall_second": 1.45584894581092,
+    "sum_step_us": 368175157
+  },
+  "paired_step_total_relative_difference": 0.007680557503358498,
+  "qualification_comparison": {
+    "complete_world_rng_ordered_events_equal": true,
+    "business_and_failure_status_equal": true,
+    "final_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68",
+    "status": {
+      "execution_complete": true,
+      "raw_complete": {
+        "plain": false,
+        "stages": false
+      },
+      "business_coverage_pass": {
+        "plain": false,
+        "stages": false
+      },
+      "performance_pass_reported": {
+        "plain": null,
+        "stages": null
+      },
+      "performance_status_note": "null means raw driver did not evaluate a performance pass; it is not true",
+      "three_repeat_acceptance_established": false,
+      "purpose": "diagnostic equality only, including 0+2 qualification; not three-repeat acceptance"
+    }
+  },
+  "not_three_repeat_acceptance": true,
+  "slowest60_note": "Derived table shows only the largest five disjoint stages per step; the raw archive retains every original stage record."
+}
