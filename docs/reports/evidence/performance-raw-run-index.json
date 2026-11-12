@@ -69,20 +69,40 @@
       "measured_steps": 2,
       "archive": "2026-11-12-movement-stage-profile/qualification.zip",
       "archive_sha256": "6af002837a69bb826c6a4dea602d645e1edee8be2e37715f6e12953caa8a2d22",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": true,
+      "performance_pass": null,
+      "publication_commit": "c9b46dda2e20e09f182834a8d4248c4057495d68"
+    },
+    {
+      "id": "cloud-movement-full-narrow",
+      "kind": "narrow_movement_complete_window",
+      "full_window": true,
+      "prefix": 1000,
+      "measured_steps": 6000,
+      "archive": "2026-11-12-movement-stage-profile/full-narrow.zip",
+      "archive_sha256": "b2f61b94d079596b1839f5ff70436c895526e3b36a180974473b0828ed22f493",
       "publication": "with this index revision",
       "local_crc_member_readback_verified": true,
       "remote_readback_verified": false,
-      "performance_pass": null
+      "metrics_us": {
+        "p95": 100752,
+        "p99": 136486,
+        "max": 333121
+      },
+      "coverage_pass": false,
+      "latency_gates_pass": false
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-recovery-full-plain",
     "cloud-recovery-full-root-stages",
-    "cloud-movement-narrow-qualification"
+    "cloud-movement-narrow-qualification",
+    "cloud-movement-full-narrow"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",
-    "cloud-recovery-full-root-stages"
+    "cloud-recovery-full-root-stages",
+    "cloud-movement-full-narrow"
   ],
   "comparison_warning": "Kinds and observer modes differ. Do not infer optimization gains by comparing different kinds or count short qualifications as complete performance windows."
 }
