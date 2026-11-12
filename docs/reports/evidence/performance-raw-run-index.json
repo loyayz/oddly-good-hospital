@@ -253,16 +253,43 @@
       "archive": "2026-11-12-move-step-breakdown/structural-corpus.zip",
       "archive_sha256": "573b72a071de859b3ae20fea1bfe8d043bceaa365249f0846ee5d983637fbe3f",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "performance_pass": null,
       "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68",
-      "scope": "Three actual missing keys only; inclusive fallback includes floor_source and nested doors; collection perturbation not removed; no whole-window gain or cache optimization claim."
+      "scope": "Three actual missing keys only; inclusive fallback includes floor_source and nested doors; collection perturbation not removed; no whole-window gain or cache optimization claim.",
+      "publication_commit": "07ebd1daa18d307168c3e6a0445ed64103684d04",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "573b72a071de859b3ae20fea1bfe8d043bceaa365249f0846ee5d983637fbe3f",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/07ebd1daa18d307168c3e6a0445ed64103684d04/docs/reports/evidence/2026-11-12-move-step-breakdown/structural-corpus.zip",
+        "bytes": 2324765,
+        "members": 39,
+        "verified_utc": "2026-11-12T10:35:13.480818+00:00",
+        "commit": "07ebd1daa18d307168c3e6a0445ed64103684d04"
+      }
+    },
+    {
+      "id": "cloud-structural-cache-micro",
+      "kind": "fixed_real_corpus_isolated_candidate_api_microbenchmark",
+      "full_window": false,
+      "source_commit": "a8f1a09f44163a35c875b74e2f75f69d210fed16",
+      "corpus_items": 3,
+      "pairs": 18,
+      "warm_iterations_per_arm": 500,
+      "archive": "2026-11-12-structural-cache-micro/micro.zip",
+      "archive_sha256": "dfd0e23ec68fed2955f3e360eda58ba6976dca60040c4b92a54c5fb61dabdf6c",
+      "publication": "with this index revision",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "input_override_sha256": "a227e44e6be832023fbfb19e3dc2cebbda0ca57bd0379652f1c6e6c12535a50d",
+      "scope": "Three actual missing envelopes; isolated candidate only, cold cost higher, no whole-step claim"
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-move-step-breakdown8",
     "cloud-structural-acquisition8",
-    "cloud-structural-corpus8"
+    "cloud-structural-corpus8",
+    "cloud-structural-cache-micro"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",
