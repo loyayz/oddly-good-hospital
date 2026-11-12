@@ -944,8 +944,7 @@ func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary, need
 			# The target is only a way to reach safety. Once this owned ground
 			# journey has physically reached safe standing space, a busy farther
 			# waypoint must not postpone the original portable fallback.
-			var local: Dictionary = space.public_areas.current_area(world,visit.actor_id)
-			if not space.public_areas.try_finish_arrival(world,visit.actor_id,local,"waiting_need_id",need.id):
+			if not _try_finish_fallback_travel(world,visit.actor_id,need.id):
 				if space.movement_failure(world,visit.actor_id).is_empty() or not space.cancel_ground_move(world,visit.actor_id): return
 		_start_fallback(world,visit,need)
 		return
@@ -1213,6 +1212,17 @@ func _wait_need(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
 		var point: Dictionary = space.public_areas.waiting_point(world,actor.id,need.area)
 		if not point.is_empty(): _request_need_move(world,need,actor.id,int(point.floor_id),point.cell)
 		if world.facts.moves.has(actor.id): need.queued_ticks = 0
+
+# Portable fallback owns safety, not arrival in a facility area.
+func _try_finish_fallback_travel(world: WorldState, actor_id: String, need_id: String) -> bool:
+	var movement: Dictionary = world.facts.moves.get(actor_id,{})
+	if movement.is_empty() or movement.get("waiting_need_id","")!=need_id or movement.has("detour") or movement.has("convoy") or movement.get("members",[actor_id])!=[actor_id]: return false
+	var actor: Dictionary = world.facts.actors[actor_id]
+	if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return false
+	var cursor: int = int(movement.get("cursor",0))
+	var path: Array = movement.get("path",[])
+	if cursor>=0 and cursor<path.size() and path[cursor].kind!="floor": return false
+	return space.public_areas.safe_wait(world,actor_id,int(actor.location.floor_id),actor.location.cell) and space.cancel_ground_move(world,actor_id)
 
 func _start_fallback(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
 	if need.purpose=="toilet": toilets.leave(world,visit.actor_id)
