@@ -67,3 +67,23 @@ This sample now establishes that acquisition, not the sweep predicates, dominate
 Read-only source review confirms the fallback result is not retained as a graph entry. Repeated construction is therefore possible when no matching graph is resident. Any later optimization must preserve the full traversal-envelope key (including proxy shapes and posture), weak World/source ownership and current static-source validation, as well as the shared 134217728-byte cache budget and eviction accounting. Current reservation permissions are separate from static fit and must remain live; a cache hit is not a passage authorization.
 
 [Acquisition/sweep raw observation](evidence/2026-11-12-move-step-breakdown/structural-acquisition.zip): 1401033 bytes, SHA256 `2d97291181f0a772f44fa6100fd25629bf0a12a9ebbef72e474599ff0be2baee`, 38 raw members plus [manifest](evidence/2026-11-12-move-step-breakdown/structural-acquisition.members.json). It retains the reused plain evidence and durable receipt, exact tool/source transforms, all branch counts and timings, input/final states, host snapshots, process log, identity, comparison and restoration proofs. Independent CRC and every member size/hash pass. All prior archives remain unchanged; no production code or memory-budget change was made in this follow-up.
+
+
+## Follow-up: actual fallback cost and repeated missing-key corpus
+
+One further eight-step observer reused the sealed current-code plain8. Complete final World/RNG/ordered-event bytes, business results and all tick/partition checks match that control; final SHA256 remains `6ecee78b194a7925938549383dc9fb87f222a3843d901d790fe83ac7aeaeb93d`. Production gameplay remains `a8f1a09f44163a35c875b74e2f75f69d210fed16`; isolated observer changes were restored. No additional full window or optimization was run.
+
+| Observed branch/span | First restored step calls / ms | Following seven calls / ms |
+|---|---:|---:|
+| Cache hit | 70 / 1.253 | 604 / 11.217 |
+| Entry-absent lookup | 54 / 10.933 | 264 / 4.023 |
+| Actual fallback expression | 54 / 103.932 | 264 / 478.290 |
+| Sweep | 124 / 1.022 | 868 / 7.481 |
+
+The fallback expression includes evaluation of its `floor_source` argument and nested door work; these are inclusive costs and must not be counted twice. Corpus collection consumed 609.700 ms on the first step only. Measured handler costs are deducted from the reported spans, but collection-induced cache perturbation is not removed. These observations are not whole-window optimization gains or a calibrated comparison against earlier observed runs.
+
+Only three actual missing keys were encountered: unit-envelope keys on floors 2, 3 and 4, repeated 38, 112 and 168 times respectively. Each key's static-source version stayed unchanged. The first actual pre-call full World, actor alias, arguments, source identity and returned summary were sealed for each of these three keys. The capture limit was eight, but no extra calls or states were manufactured to fill it.
+
+Repeated fallback construction is therefore real in this bounded sample. This establishes neither a safe cache design nor a whole-window benefit; no cache optimization or memory-budget change is made here.
+
+[Structural fallback/corpus raw observation](evidence/2026-11-12-move-step-breakdown/structural-corpus.zip): 2324765 bytes, SHA256 `573b72a071de859b3ae20fea1bfe8d043bceaa365249f0846ee5d983637fbe3f`, 39 raw members plus `MEMBERS.json` and the external [member manifest](evidence/2026-11-12-move-step-breakdown/structural-corpus.members.json). Independent CRC, exact member set, all member sizes and SHA256 checks pass. Earlier raw archives and the three complete diagnostic windows remain retained; no latency or coverage gate is newly passed.

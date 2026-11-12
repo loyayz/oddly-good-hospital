@@ -241,12 +241,28 @@
         "verified_utc": "2026-11-12T10:12:44.975090+00:00",
         "commit": "0873eca055bfa6f068edfe6bb9feca6528fe0b93"
       }
+    },
+    {
+      "id": "cloud-structural-corpus8",
+      "kind": "bounded_fallback_cost_and_real_missing_key_corpus",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 8,
+      "source_commit": "a8f1a09f44163a35c875b74e2f75f69d210fed16",
+      "reused_plain_run": "cloud-move-step-breakdown8",
+      "archive": "2026-11-12-move-step-breakdown/structural-corpus.zip",
+      "archive_sha256": "573b72a071de859b3ae20fea1bfe8d043bceaa365249f0846ee5d983637fbe3f",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null,
+      "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68",
+      "scope": "Three actual missing keys only; inclusive fallback includes floor_source and nested doors; collection perturbation not removed; no whole-window gain or cache optimization claim."
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-door-clearance-micro",
     "cloud-move-step-breakdown8",
-    "cloud-structural-acquisition8"
+    "cloud-structural-acquisition8",
+    "cloud-structural-corpus8"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",
