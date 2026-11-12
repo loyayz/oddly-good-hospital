@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "retention": {
+    "minimum_recent_raw_runs": 3,
+    "minimum_recent_complete_windows_as_they_become_available": 3,
+    "retain_earlier_files": true,
+    "overwrite_raw_runs": false,
+    "next_long_run_requires_durable_backup_and_remote_readback": true
+  },
+  "scope": "New cloud recovery run series. Existing earlier published Windows/cloud evidence remains retained. The lost pre-recovery raw results are not reconstructed or counted.",
+  "shared_gameplay_commit": "e232c42389e614cf13d305c4376d59892c4aa0c3",
+  "shared_input_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+  "shared_engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+  "shared_native_sha256": "3e97c961acf01e178046efc14b5dff786a83b4e91f09638528ccf531b248d379",
+  "runs": [
+    {
+      "id": "cloud-recovery-root-qualification",
+      "kind": "short_instrumentation_qualification",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 2,
+      "archive": "2026-11-12-cloud-profile-recovery/qualification.zip",
+      "archive_sha256": "b43118611326c986d9eae63845f6e66f2193ff64ee5ecbecd7ff529ae01704a4",
+      "publication_commit": "b24c05b65e67c254fb0bd287e0574f7d17bbf2c7",
+      "remote_readback_verified": true,
+      "performance_pass": null
+    },
+    {
+      "id": "cloud-recovery-full-plain",
+      "kind": "ordinary_complete_window",
+      "full_window": true,
+      "prefix": 1000,
+      "measured_steps": 6000,
+      "archive": "2026-11-12-cloud-profile-recovery/full-plain.zip",
+      "archive_sha256": "0aaf766947d28dc8c5c7cade528b24e6ebc1241293c624245b71fbf7cb09b3ba",
+      "publication_commit": "612234a041c900a7a58ba890cdff9622a5988c82",
+      "remote_readback_verified": true,
+      "metrics_us": {
+        "p95": 96160,
+        "p99": 130222,
+        "max": 319280
+      },
+      "coverage_pass": false,
+      "latency_gates_pass": false
+    },
+    {
+      "id": "cloud-recovery-full-root-stages",
+      "kind": "root_stage_complete_window",
+      "full_window": true,
+      "prefix": 1000,
+      "measured_steps": 6000,
+      "archive": "2026-11-12-cloud-profile-recovery/full-stages.zip",
+      "archive_sha256": "1c83d3d5284dd7fc26b04fb88e1bdab8f99a4ae8ece7e605666e7ab77843285d",
+      "publication_commit": "8facb6d98bac7facaecc8b0e734661ffe2c80ee9",
+      "remote_readback_verified": true,
+      "metrics_us": {
+        "p95": 92355,
+        "p99": 124496,
+        "max": 308111
+      },
+      "coverage_pass": false,
+      "latency_gates_pass": false
+    },
+    {
+      "id": "cloud-movement-narrow-qualification",
+      "kind": "short_instrumentation_qualification",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 2,
+      "archive": "2026-11-12-movement-stage-profile/qualification.zip",
+      "archive_sha256": "6af002837a69bb826c6a4dea602d645e1edee8be2e37715f6e12953caa8a2d22",
+      "publication": "with this index revision",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": false,
+      "performance_pass": null
+    }
+  ],
+  "latest_three_raw_run_ids": [
+    "cloud-recovery-full-plain",
+    "cloud-recovery-full-root-stages",
+    "cloud-movement-narrow-qualification"
+  ],
+  "latest_three_complete_window_ids": [
+    "cloud-recovery-full-plain",
+    "cloud-recovery-full-root-stages"
+  ],
+  "comparison_warning": "Kinds and observer modes differ. Do not infer optimization gains by comparing different kinds or count short qualifications as complete performance windows."
+}
