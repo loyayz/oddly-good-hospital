@@ -1,0 +1,1157 @@
+[
+  {
+    "tick": 7634,
+    "position": {
+      "cell": [
+        86.1999969482422,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999946594238
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7635,
+    "position": {
+      "cell": [
+        86.3999938964844,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999946594238
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7636,
+    "position": {
+      "cell": [
+        86.5999908447266,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999946594238
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7637,
+    "position": {
+      "cell": [
+        86.7999877929688,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999946594238
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7638,
+    "position": {
+      "cell": [
+        87.0,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999946594238
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7639,
+    "position": {
+      "cell": [
+        87.0,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": [
+      {
+        "call_index": 2,
+        "blockers": [
+          "bench_patient_0106"
+        ],
+        "requested": [
+          0.0,
+          -0.200000762939453
+        ],
+        "actual": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "tick": 7640,
+    "position": {
+      "cell": [
+        87.0,
+        46.5999946594238
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": [
+      {
+        "call_index": 2,
+        "blockers": [
+          "bench_patient_0106"
+        ],
+        "requested": [
+          0.0,
+          -0.200000762939453
+        ],
+        "actual": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "tick": 7641,
+    "position": {
+      "cell": [
+        87.0,
+        46.3999938964844
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7642,
+    "position": {
+      "cell": [
+        87.0,
+        46.3999938964844
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": [
+      {
+        "call_index": 3,
+        "blockers": [
+          "bench_patient_0106"
+        ],
+        "requested": [
+          0.0,
+          -0.200000762939453
+        ],
+        "actual": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "tick": 7643,
+    "position": {
+      "cell": [
+        87.0,
+        46.3999938964844
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": [
+      {
+        "call_index": 3,
+        "blockers": [
+          "bench_patient_0106"
+        ],
+        "requested": [
+          0.0,
+          -0.200000762939453
+        ],
+        "actual": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "tick": 7644,
+    "position": {
+      "cell": [
+        87.0,
+        46.1999931335449
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7645,
+    "position": {
+      "cell": [
+        87.0,
+        45.9999923706055
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7646,
+    "position": {
+      "cell": [
+        87.0,
+        45.799991607666
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7647,
+    "position": {
+      "cell": [
+        87.0,
+        45.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "retreat": true,
+      "target": {
+        "cell": [
+          87.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7648,
+    "position": {
+      "cell": [
+        87.0,
+        45.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.0,
+          45.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": [
+      {
+        "call_index": 3,
+        "blockers": [
+          "bench_staff_0030"
+        ],
+        "requested": [
+          -0.199996948242188,
+          0.0
+        ],
+        "actual": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "tick": 7649,
+    "position": {
+      "cell": [
+        86.8000030517578,
+        45.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.8000030517578,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7650,
+    "position": {
+      "cell": [
+        86.8000030517578,
+        45.7999992370605
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.8000030517578,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7651,
+    "position": {
+      "cell": [
+        86.8000030517578,
+        46.0
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.8000030517578,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7652,
+    "position": {
+      "cell": [
+        86.8000030517578,
+        46.2000007629395
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.8000030517578,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7653,
+    "position": {
+      "cell": [
+        86.8000030517578,
+        46.4000015258789
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.8000030517578,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7654,
+    "position": {
+      "cell": [
+        86.8000030517578,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.8000030517578,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7655,
+    "position": {
+      "cell": [
+        86.6000061035156,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7656,
+    "position": {
+      "cell": [
+        86.4000091552734,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7657,
+    "position": {
+      "cell": [
+        86.2000122070312,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7658,
+    "position": {
+      "cell": [
+        86.0,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          86.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7659,
+    "position": {
+      "cell": [
+        86.0,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": [
+      {
+        "call_index": 2,
+        "blockers": [
+          "bench_patient_0038"
+        ],
+        "requested": [
+          0.0,
+          -0.200000762939453
+        ],
+        "actual": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "tick": 7660,
+    "position": {
+      "cell": [
+        86.1999969482422,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7661,
+    "position": {
+      "cell": [
+        86.3999938964844,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7662,
+    "position": {
+      "cell": [
+        86.5999908447266,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7663,
+    "position": {
+      "cell": [
+        86.7999877929688,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7664,
+    "position": {
+      "cell": [
+        87.0,
+        46.5999984741211
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          46.5999984741211
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  },
+  {
+    "tick": 7665,
+    "position": {
+      "cell": [
+        87.0,
+        46.3999977111816
+      ],
+      "floor_id": 3,
+      "kind": "floor"
+    },
+    "local": {
+      "origin": [
+        86.0,
+        45.5999984741211
+      ],
+      "rejoin": {
+        "cell": [
+          86.0,
+          44.0
+        ],
+        "index": 1
+      },
+      "target": {
+        "cell": [
+          87.0,
+          44.0
+        ],
+        "floor_id": 3,
+        "kind": "floor"
+      }
+    },
+    "contacts": []
+  }
+]
