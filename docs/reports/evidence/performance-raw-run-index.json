@@ -41,7 +41,16 @@
         "max": 319280
       },
       "coverage_pass": false,
-      "latency_gates_pass": false
+      "latency_gates_pass": false,
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "0aaf766947d28dc8c5c7cade528b24e6ebc1241293c624245b71fbf7cb09b3ba",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/612234a041c900a7a58ba890cdff9622a5988c82/docs/reports/evidence/2026-11-12-cloud-profile-recovery/full-plain.zip",
+        "bytes": 851352,
+        "members": 21,
+        "verified_utc": "2026-11-12T08:23:56.003534+00:00",
+        "commit": "612234a041c900a7a58ba890cdff9622a5988c82"
+      }
     },
     {
       "id": "cloud-recovery-full-root-stages",
@@ -59,7 +68,16 @@
         "max": 308111
       },
       "coverage_pass": false,
-      "latency_gates_pass": false
+      "latency_gates_pass": false,
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "1c83d3d5284dd7fc26b04fb88e1bdab8f99a4ae8ece7e605666e7ab77843285d",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/8facb6d98bac7facaecc8b0e734661ffe2c80ee9/docs/reports/evidence/2026-11-12-cloud-profile-recovery/full-stages.zip",
+        "bytes": 6664255,
+        "members": 23,
+        "verified_utc": "2026-11-12T08:38:21.304042+00:00",
+        "commit": "8facb6d98bac7facaecc8b0e734661ffe2c80ee9"
+      }
     },
     {
       "id": "cloud-movement-narrow-qualification",
@@ -82,16 +100,25 @@
       "measured_steps": 6000,
       "archive": "2026-11-12-movement-stage-profile/full-narrow.zip",
       "archive_sha256": "b2f61b94d079596b1839f5ff70436c895526e3b36a180974473b0828ed22f493",
-      "publication": "with this index revision",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "metrics_us": {
         "p95": 100752,
         "p99": 136486,
         "max": 333121
       },
       "coverage_pass": false,
-      "latency_gates_pass": false
+      "latency_gates_pass": false,
+      "publication_commit": "030157547d55e659f52a1bd0a6f02d0fd949f712",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "b2f61b94d079596b1839f5ff70436c895526e3b36a180974473b0828ed22f493",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/030157547d55e659f52a1bd0a6f02d0fd949f712/docs/reports/evidence/2026-11-12-movement-stage-profile/full-narrow.zip",
+        "bytes": 2124581,
+        "members": 29,
+        "verified_utc": "2026-11-12T09:10:19.402649+00:00",
+        "commit": "030157547d55e659f52a1bd0a6f02d0fd949f712"
+      }
     }
   ],
   "latest_three_raw_run_ids": [
