@@ -330,11 +330,21 @@
       "archive": "2026-11-12-structural-body-cache/full-plain.zip",
       "archive_sha256": "4b6e8bd31b22ecf58dbaa584470cfe5b8714c574bb4fb25cc1d59d4cfac2ed63",
       "local_crc_member_readback_verified": true,
-      "remote_readback_verified": false,
+      "remote_readback_verified": true,
       "performance_pass": null,
       "latency_acceptance": false,
       "business_coverage": "29/31",
-      "scope": "One original fixed-load plain window, not isolated causal AB performance proof."
+      "scope": "One original fixed-load plain window, not isolated causal AB performance proof.",
+      "publication_commit": "2c06e5d925391327a0813ff03e4f9019e708c6c4",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "4b6e8bd31b22ecf58dbaa584470cfe5b8714c574bb4fb25cc1d59d4cfac2ed63",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/2c06e5d925391327a0813ff03e4f9019e708c6c4/docs/reports/evidence/2026-11-12-structural-body-cache/full-plain.zip",
+        "bytes": 1244635,
+        "members": 24,
+        "verified_utc": "2026-11-12T11:23:56.188657+00:00",
+        "commit": "2c06e5d925391327a0813ff03e4f9019e708c6c4"
+      }
     }
   ],
   "latest_three_raw_run_ids": [
