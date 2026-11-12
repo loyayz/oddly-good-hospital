@@ -604,6 +604,10 @@ func _checkpoint(actor: Dictionary) -> Dictionary:
 	return {"kind":"floor","floor_id":int(actor.location.floor_id),"cell":actor.location.cell.duplicate()}
 
 func _replan_goal(world: WorldState, movement: Dictionary, preserve_order: bool = false) -> void:
+	if HospitalTransit.waiting_route_failed(world,movement):
+		_route_checks.erase(movement.actor_id)
+		_queue_route(world,movement,true)
+		return
 	HospitalTransit.cancel_waiting(world,movement)
 	movement.erase("route_waypoint")
 	movement.erase("detour")
@@ -789,7 +793,18 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			quote={"ok":true,"path":waypoint.prefix.duplicate(true)}
 			_route_checks.erase(id)
 		elif not waypoint.is_empty() and movement.has("convoy"):
-			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
+			var ticket: Dictionary=movement.get("transit_ticket",{})
+			var connection: Dictionary=world.facts.connectors.get(ticket.get("connector_id",""),{})
+			if movement.has("transit_wait") and connection.get("assigned_actor_id","")==id:
+				var plan: Dictionary=ConvoyPortal.plan(space,world,connection,id,movement.members,movement.convoy)
+				if plan.ok:
+					var proxy: Dictionary=ConvoyTrail.proxy(world,movement)
+					quote=space.navigation._convoy_portal_approach(world,proxy,floor_id,{"cell":ConvoyTrail.point(proxy.location.cell),"convoy":movement.convoy},plan)
+					if quote.ok:
+						var shift: float=float(movement.convoy.shift)
+						for point: Dictionary in quote.path: point.cell=[float(point.cell[0])-shift,float(point.cell[1])-shift]
+				else: quote={"ok":false,"status":"unreachable","reason":plan.reason}
+			else: quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
 		elif waypoint.is_empty() and not movement.get("floor_only",false):
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
 		else:
@@ -803,7 +818,9 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			movement.waiting_reason = quote.reason
 			movement.route_retry_tick = world.sim_tick+int(space.content.balance.movement_courtesy.retry_hard_block_seconds)*10
 			_schedule_route(world,movement)
-			if quote.get("status","")=="unreachable": _remember_failure(world,movement,str(quote.reason))
+			if quote.get("status","")=="unreachable":
+				if HospitalTransit.waiting_route_failed(world,movement): _route_failures.erase(id)
+				else: _remember_failure(world,movement,str(quote.reason))
 			else: _route_failures.erase(id)
 			continue
 		movement.path = quote.path
@@ -896,7 +913,8 @@ func _waypoint_prefix_valid(world: WorldState, movement: Dictionary, waypoint: D
 	if connection.is_empty() or int(connection.get("trip_sequence",-1))!=int(binding.trip_sequence) or int(connection.to)!=int(actor.location.floor_id) or not HospitalTransit._landing_in_use(connection,int(actor.location.floor_id)): return false
 	return _bounded_prefix_clear(world,actor,movement,waypoint.prefix)
 
-func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:
+func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array, transit_owned: bool = false) -> void:
+	if movement.has("transit_wait") and not transit_owned: HospitalTransit.cancel_waiting(world,movement)
 	var remaining: Array = movement.path.slice(int(movement.cursor))
 	movement.route_waypoint = {"floor_id":floor_id,"cell":cell.duplicate(),"continuation":remaining}
 	# A temporary stop belongs to the original journey, not a new request.

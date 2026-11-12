@@ -52,6 +52,13 @@ func _case(out: String, role: String) -> Dictionary:
 	var replay: PackedStringArray=OS.get_cmdline_user_args()
 	if replay.size()>3:
 		var saved:=FileAccess.open(replay[3],FileAccess.READ);input=saved.get_var(false);saved.close()
+	if replay.size()<=3:
+		# Complete normal staff defaults during input generation, before the
+		# independent frozen preWorld used to test cold restoration.
+		_save(out+"/"+role+"-generated-before-initialization.bin",input.duplicate(true))
+		var generated: HospitalSimulation=HospitalSimulation.new(WorldState.new(input.duplicate(true)),suite.content)
+		input=generated.world.freeze().duplicate(true)
+		generated.dispose()
 	var expected: Dictionary=input.duplicate(true)
 	_save(out+"/"+role+"-preWorld.bin",expected)
 	sim.dispose();world=WorldState.new(input);sim=HospitalSimulation.new(world,suite.content)

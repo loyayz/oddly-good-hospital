@@ -123,7 +123,7 @@ static func _prefix(space: HospitalSpace, world: WorldState, connection: Diction
 			var movement: Dictionary = world.facts.moves.get(primary,{})
 			if not egress_clear(space,world,connection,primary,floor_id,movement.get("members",[]),movement.get("offsets",{})):
 				return {"ok":false,"status":"estimate_unknown","reason":"当前通行组尚无可用出口，暂时无法估计后续交通"}
-	var queued: Array = _waiting(space,world,connection.id)
+	var queued: Array = _waiting(space,world,connection.id,false)
 	var assigned: String = connection.get("assigned_actor_id","")
 	if not assigned.is_empty():
 		for index: int in queued.size():
@@ -132,9 +132,11 @@ static func _prefix(space: HospitalSpace, world: WorldState, connection: Diction
 				queued.push_front(assigned)
 				break
 	for actor_id: String in queued:
+		var movement: Dictionary = world.facts.moves[actor_id]
+		if movement.has("transit_wait") and not _at_landing(space,world,connection,movement,movement.transit_ticket):
+			return {"ok":false,"status":"estimate_unknown","reason":"前方实际候位或本组召入步行尚未完成"}
 		if actor_id==querying_actor:
 			break
-		var movement: Dictionary = world.facts.moves[actor_id]
 		var ticket: Dictionary = movement.transit_ticket
 		if _lowering(connection) and int(ticket.to)>=int(ticket.from):
 			continue
@@ -226,7 +228,7 @@ static func reference_basis(space: HospitalSpace, world: WorldState) -> Dictiona
 	return {"connections":reference_conditions(world),"movements":movements,"bodies":bodies}
 
 static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> void:
-	if movement.has("transit_ticket") and not _at_landing(space,world,world.facts.connectors[segment.connector_id],movement,movement.transit_ticket):
+	if movement.has("transit_ticket") and not _ticket_valid(space,world,movement):
 		cancel_waiting(world,movement)
 	if movement.has("convoy"):
 		var connector: Dictionary = world.facts.connectors[segment.connector_id]
@@ -252,8 +254,8 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 		movement.transit_ticket = {"connector_id":connection.id,"sequence":connection.ticket_next,"from":segment.from,"to":segment.to}
 	# Ground recovery waits for boarding/arrival at this landing, not for
 	# unrelated work to leave a globally idle car. Actual return still owns
-	# collision checks and admission; this never retains or grants a ticket.
-	if not at_entry and not _landing_in_use(connection,int(segment.from)):
+	# collision checks and admission. Transit-owned waiting is handled below.
+	if not at_entry and not movement.has("transit_wait") and not _landing_in_use(connection,int(segment.from)):
 		space.movement._queue_route(world,movement,true)
 		return
 	if connection.phase!="idle":
@@ -261,7 +263,10 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 			_stand_aside(space,world,connection,actor,movement,members,offsets)
 		return
 	var waiting: Array = _waiting(space,world,connection.id)
-	if waiting.is_empty() or waiting[0]!=actor.id:
+	var selected: String=str(connection.get("assigned_actor_id",""))
+	if selected.is_empty() and not waiting.is_empty(): selected=waiting[0]
+	if selected!=actor.id:
+		if at_entry and movement.has("transit_ticket"): _stand_aside(space,world,connection,actor,movement,members,offsets,true,selected)
 		return
 	connection.assigned_actor_id = actor.id
 	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
@@ -270,6 +275,9 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 		connection.from = connection.floor_id
 		connection.to = segment.from
 		connection.remaining_ticks = _travel_ticks(space,connection,int(connection.from),int(connection.to))
+		return
+	if not at_entry:
+		space.movement.queue_waypoint(world,movement,int(segment.from),connection.anchor,true)
 		return
 	var travel: int = _travel_ticks(space,connection,int(segment.from),int(segment.to))
 	if travel<0:
@@ -293,6 +301,7 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 			world.facts.actors[id].location.cabin_cell = placement[id]
 		space._sync_actor(world,id)
 	movement.erase("transit_ticket")
+	movement.erase("transit_wait")
 	connection.erase("assigned_actor_id")
 	movement.cursor += 1
 
@@ -308,9 +317,10 @@ static func cancel_waiting(world: WorldState, movement: Dictionary) -> void:
 		if connection.get("assigned_actor_id","")==movement.actor_id:
 			connection.erase("assigned_actor_id")
 	movement.erase("transit_ticket")
+	movement.erase("transit_wait")
 
-# A waiting ticket belongs to the complete unit physically at its landing.
-# Leaving (including walking clear of an incoming rider) ends that wait.
+# Admitted identity survives Transit-owned ground waiting. An unrelated
+# departure or invalidated journey ends that identity, not ordinary courtesy.
 # Boarding/riding units have already consumed their ticket; cancelling a
 # waiting assignment never interrupts the connector's committed empty trip.
 static func cancel_absent_waiters(space: HospitalSpace, world: WorldState) -> void:
@@ -319,8 +329,46 @@ static func cancel_absent_waiters(space: HospitalSpace, world: WorldState) -> vo
 		if not movement.has("transit_ticket"): continue
 		var ticket: Dictionary=movement.transit_ticket
 		var connection: Dictionary=world.facts.connectors.get(ticket.connector_id,{})
-		if connection.is_empty() or not _at_landing(space,world,connection,movement,ticket):
+		if connection.is_empty() or not _ticket_valid(space,world,movement):
 			cancel_waiting(world,movement)
+
+# Identity survives only the owner's temporary waiting journey, never an
+# unrelated floor waypoint or a changed movement request.
+static func _ticket_valid(space: HospitalSpace, world: WorldState, movement: Dictionary) -> bool:
+	var ticket: Dictionary=movement.get("transit_ticket",{})
+	var connection: Dictionary=world.facts.connectors.get(ticket.get("connector_id",""),{})
+	if connection.is_empty(): return false
+	if not movement.has("transit_wait"): return _at_landing(space,world,connection,movement,ticket)
+	if movement.transit_wait.sequence!=movement.get("request_sequence",-1): return false
+	if not fits(space,world,connection,movement.actor_id,movement.get("members",[])).ok: return false
+	if not has_stop(connection,int(ticket.from)) or not has_stop(connection,int(ticket.to)) or (_lowering(connection) and int(ticket.to)>=int(ticket.from)): return false
+	for id: String in movement.get("members",[movement.actor_id]):
+		var actor: Dictionary=world.facts.actors.get(id,{})
+		if actor.get("location",{}).get("kind")!="floor" or int(actor.location.floor_id)!=int(ticket.from): return false
+	var suffix: Array=movement.get("route_waypoint",{}).get("continuation",movement.path.slice(int(movement.cursor)))
+	for segment: Dictionary in suffix:
+		if segment.kind=="connector": return segment.connector_id==ticket.connector_id and segment.from==ticket.from and segment.to==ticket.to
+	return false
+
+static func _waiting_position(space: HospitalSpace, world: WorldState, movement: Dictionary) -> bool:
+	var ticket: Dictionary=movement.transit_ticket
+	var connection: Dictionary=world.facts.connectors[ticket.connector_id]
+	if _at_landing(space,world,connection,movement,ticket): return true
+	if not movement.has("transit_wait") or movement.get("route_pending",false) or movement.has("local_move") or movement.has("detour"): return false
+	if not space.at(world,movement.actor_id,int(ticket.from),movement.transit_wait.cell): return false
+	var members: Array=movement.get("members",[movement.actor_id])
+	var poses: Dictionary=ConvoyTrail.positions(movement.convoy,members) if movement.has("convoy") else {}
+	for id: String in members:
+		var actor: Dictionary=world.facts.actors[id]
+		if actor.location.kind!="floor" or int(actor.location.floor_id)!=int(ticket.from) or actor.posture!="standing" or actor.has("support_facility_id") or float(actor.location.get("height_m",0))!=0: return false
+		if poses.has(id) and actor.location.cell!=poses[id].cell: return false
+		var rect: Rect2=space._actor_rect(actor,ConvoyTrail.point(actor.location.cell))
+		var query: RouteClearance=space.navigation.structural_clearance(world,actor,int(ticket.from))
+		var actual: Vector2=ConvoyTrail.point(actor.location.cell)
+		if not query.sweep_reason(actual,actual).is_empty(): return false
+		for room: Dictionary in world.facts.rooms.values():
+			if int(room.floor_id)==int(ticket.from) and rect.intersects(Rect2(ConvoyTrail.point(room.origin),ConvoyTrail.point(room.size)),false): return false
+	return true
 
 static func _at_landing(space: HospitalSpace, world: WorldState, connection: Dictionary, movement: Dictionary, ticket: Dictionary) -> bool:
 	if _lowering(connection) and int(ticket.to)>=int(ticket.from): return false
@@ -488,21 +536,24 @@ static func _release_stop_rect(space: HospitalSpace, actor: Dictionary, target: 
 	sample.facing=atan2(direction.x,direction.y)
 	return space._actor_rect(sample,target)
 
-static func _stand_aside(space: HospitalSpace, world: WorldState, connection: Dictionary, actor: Dictionary, movement: Dictionary, members: Array, offsets: Dictionary) -> void:
-	if not space.at(world,actor.id,int(connection.to),connection.anchor):
+static func _stand_aside(space: HospitalSpace, world: WorldState, connection: Dictionary, actor: Dictionary, movement: Dictionary, members: Array, offsets: Dictionary, entry_only: bool = false, selected_id: String = "") -> void:
+	var floor_id: int=int(actor.location.floor_id)
+	if not space.at(world,actor.id,floor_id,connection.anchor):
 		return
 	var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
-	var incoming_id: String = connection.get("primary_actor_id",connection.riders[0])
-	var incoming: Dictionary = world.facts.moves[incoming_id]
-	var exit: Rect2
-	if incoming.has("convoy"):
-		var plan: Dictionary=incoming.convoy.get("portal",{}).get("plan",{})
-		if plan.is_empty(): return
-		var shift: Vector2=Vector2.ONE*float(incoming.convoy.shift)
-		var size: Vector2=Vector2.ONE*float(incoming.convoy.size)
-		exit=Rect2(ConvoyTrail.point(plan.entry)+shift,size).merge(Rect2(ConvoyTrail.point(plan.egress)+shift,size))
-	else:
-		exit=space._unit_rect(world,world.facts.actors[incoming_id],Vector2(anchor),connection.riders,incoming.get("offsets",{}))
+	var exit: Rect2=_selected_entry(space,world,connection,selected_id) if entry_only else Rect2()
+	if entry_only and not exit.has_area(): return
+	if not entry_only:
+		var incoming_id: String = connection.get("primary_actor_id",connection.riders[0])
+		var incoming: Dictionary = world.facts.moves[incoming_id]
+		if incoming.has("convoy"):
+			var plan: Dictionary=incoming.convoy.get("portal",{}).get("plan",{})
+			if plan.is_empty(): return
+			var shift: Vector2=Vector2.ONE*float(incoming.convoy.shift)
+			var size: Vector2=Vector2.ONE*float(incoming.convoy.size)
+			exit=Rect2(ConvoyTrail.point(plan.entry)+shift,size).merge(Rect2(ConvoyTrail.point(plan.egress)+shift,size))
+		else:
+			exit=space._unit_rect(world,world.facts.actors[incoming_id],Vector2(anchor),connection.riders,incoming.get("offsets",{}))
 	for radius: int in range(1,192):
 		# In-bounds cells sort by y then x under the original y*96+x key.
 		# Generate that order directly; discarded off-floor points cannot win.
@@ -512,25 +563,77 @@ static func _stand_aside(space: HospitalSpace, world: WorldState, connection: Di
 				var cell: Vector2i = Vector2i(anchor.x-dx if side==0 else anchor.x+dx,y)
 				if cell.x<0 or cell.x>=96:
 					continue
-				var rect: Rect2 = space._unit_rect(world,actor,Vector2(cell),members,offsets)
-				if rect.intersects(exit,false) or not space.static_reason(world,actor,int(connection.to),cell,members,offsets).is_empty() or not space._dynamic_clear(world,actor.id,int(connection.to),rect,members):
+				# Both planners use orthogonal floor legs. Cover current and either
+				# final orientation only to filter stops, never to reserve space.
+				var rect: Rect2=space._unit_rect(world,actor,Vector2(cell),members,offsets)
+				for approach: float in [0.0,PI*0.5]:
+					rect=rect.merge(_unit_at_facing(space,world,actor,Vector2(cell),members,offsets,approach))
+				if rect.intersects(exit,false) or not space.static_reason(world,actor,floor_id,cell,members,offsets).is_empty() or not space._dynamic_clear(world,actor.id,floor_id,rect,members):
 					continue
 				var public_space: bool = true
 				for room: Dictionary in world.facts.rooms.values():
-					if int(room.floor_id)==int(connection.to) and rect.intersects(Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),false):
+					if int(room.floor_id)==floor_id and rect.intersects(Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),false):
 						public_space = false
 				if not public_space:
 					continue
-				var path: Dictionary = space._floor_route(world,actor,int(connection.to),anchor,cell,members,offsets)
-				if path.ok:
-					space.queue_waypoint(world,movement,int(connection.to),[cell.x,cell.y])
-					return
+				var path: Dictionary=space._floor_route(world,actor,floor_id,anchor,cell,members,offsets)
+				if not path.ok: continue
+				space.movement.queue_waypoint(world,movement,floor_id,[cell.x,cell.y],true)
+				if movement.has("transit_ticket"):
+					movement.transit_wait={"sequence":movement.request_sequence,"cell":[cell.x,cell.y]}
+				return
 
-static func _waiting(space: HospitalSpace, world: WorldState, connector_id: String) -> Array:
+static func _selected_entry(space: HospitalSpace, world: WorldState, connection: Dictionary, id: String) -> Rect2:
+	var m: Dictionary=world.facts.moves.get(id,{})
+	if m.is_empty(): return Rect2()
+	if m.has("convoy"):
+		var plan: Dictionary=ConvoyPortal.plan(space,world,connection,id,m.members,m.convoy)
+		if not plan.ok: return Rect2()
+		var shift: Vector2=Vector2.ONE*float(m.convoy.shift)
+		return Rect2(ConvoyTrail.point(plan.entry)+shift,Vector2.ONE*float(m.convoy.size)).merge(Rect2(ConvoyTrail.point(plan.egress)+shift,Vector2.ONE*float(m.convoy.size)))
+	var actor: Dictionary=world.facts.actors[id]
+	var origin: Vector2=ConvoyTrail.point(connection.anchor)
+	var members: Array=m.get("members",[id])
+	var offsets: Dictionary=m.get("offsets",{})
+	# Candidate exclusion only, not a reservation. Preserve the current
+	# footprint and both possible orthogonal approach orientations.
+	var rect: Rect2=space._unit_rect(world,actor,origin,members,offsets)
+	for facing: float in [0.0,PI*0.5]:
+		rect=rect.merge(_unit_at_facing(space,world,actor,origin,members,offsets,facing))
+	return rect
+
+static func _unit_at_facing(space: HospitalSpace, world: WorldState, actor: Dictionary, origin: Vector2, members: Array, offsets: Dictionary, facing: float) -> Rect2:
+	var sample: Dictionary=actor.duplicate();sample.facing=facing
+	var rect: Rect2=space._actor_rect(sample,origin)
+	# _move_step rotates every non-convoy member to the same actual leg.
+	# Current valid saves require groups to use convoy, whose portal branch
+	# above already supplies its complete authoritative envelope.
+	for id: String in members:
+		if id==actor.id: continue
+		sample=world.facts.actors[id].duplicate();sample.facing=facing
+		rect=rect.merge(space._actor_rect(sample,origin+ConvoyTrail.point(offsets[id])))
+	return rect
+
+# Only a structural routing failure ends this optional local approach.
+# Dynamic contact and a temporarily unavailable side step never call this.
+static func waiting_route_failed(world: WorldState, movement: Dictionary) -> bool:
+	if not movement.has("transit_wait") or not movement.has("transit_ticket"): return false
+	var ticket: Dictionary=movement.transit_ticket
+	var connection: Dictionary=world.facts.connectors.get(ticket.connector_id,{})
+	if connection.get("assigned_actor_id","")==movement.actor_id: connection.erase("assigned_actor_id")
+	var remaining: Array=movement.get("route_waypoint",{}).get("continuation",movement.path.slice(int(movement.cursor))).duplicate(true)
+	while not remaining.is_empty() and remaining[0].kind!="connector": remaining.pop_front()
+	if remaining.is_empty(): cancel_waiting(world,movement);return false
+	movement.erase("local_move")
+	movement.erase("detour")
+	movement.route_waypoint={"floor_id":ticket.from,"cell":movement.transit_wait.cell.duplicate(),"continuation":remaining}
+	return true
+
+static func _waiting(space: HospitalSpace, world: WorldState, connector_id: String, available_only: bool = true) -> Array:
 	var result: Array = []
 	for id: String in world.ids("moves"):
 		var movement: Dictionary = world.facts.moves[id]
-		if movement.get("transit_ticket",{}).get("connector_id","")==connector_id and _at_landing(space,world,world.facts.connectors[connector_id],movement,movement.transit_ticket):
+		if movement.get("transit_ticket",{}).get("connector_id","")==connector_id and _ticket_valid(space,world,movement) and (not available_only or _waiting_position(space,world,movement)):
 			result.append(id)
 	result.sort_custom(func(a: String,b: String) -> bool:
 		var left: int = int(world.facts.moves[a].transit_ticket.sequence)
@@ -582,7 +685,7 @@ static func _begin_convoy(space: HospitalSpace, world: WorldState, actor: Dictio
 	if not movement.has("transit_ticket") and at_entry:
 		connection.ticket_next=int(connection.get("ticket_next",0))+1
 		movement.transit_ticket={"connector_id":connection.id,"sequence":connection.ticket_next,"from":segment.from,"to":segment.to}
-	if not at_entry and not _landing_in_use(connection,int(segment.from)):
+	if not at_entry and not movement.has("transit_wait") and not _landing_in_use(connection,int(segment.from)):
 		movement.waiting_reason="登梯前队列尚未沿入口成一直线"
 		# The regular route planner brings the real trail back through the
 		# canonical outside approach; admission then issues a new ticket.
@@ -593,13 +696,20 @@ static func _begin_convoy(space: HospitalSpace, world: WorldState, actor: Dictio
 			_stand_aside_convoy(space,world,connection,actor,movement,plan)
 		return
 	var waiting: Array=_waiting(space,world,connection.id)
-	if waiting.is_empty() or waiting[0]!=actor.id: return
+	var selected: String=str(connection.get("assigned_actor_id",""))
+	if selected.is_empty() and not waiting.is_empty(): selected=waiting[0]
+	if selected!=actor.id:
+		if at_entry and movement.has("transit_ticket"): _stand_aside_convoy(space,world,connection,actor,movement,plan,true,selected)
+		return
 	connection.assigned_actor_id=actor.id
 	if int(connection.floor_id)!=int(segment.from):
 		connection.phase="empty_riding"
 		connection.from=connection.floor_id
 		connection.to=segment.from
 		connection.remaining_ticks=_travel_ticks(space,connection,int(connection.from),int(connection.to))
+		return
+	if not at_entry:
+		space.movement.queue_waypoint(world,movement,int(segment.from),plan.entry,true)
 		return
 	var travel: int=_travel_ticks(space,connection,int(segment.from),int(segment.to))
 	if travel<0:
@@ -620,6 +730,7 @@ static func _begin_convoy(space: HospitalSpace, world: WorldState, actor: Dictio
 		space._sync_actor(world,id)
 	space._sync_convoy(world,movement)
 	movement.erase("transit_ticket")
+	movement.erase("transit_wait")
 	connection.erase("assigned_actor_id")
 	movement.cursor+=1
 
@@ -717,14 +828,17 @@ static func _convoy_entry_aligned(convoy: Dictionary, plan: Dictionary) -> bool:
 	return true
 
 # Same ground-side courtesy as _stand_aside: the current rider retains the
-# connector; the waiting queue leaves this wait when it moves. The leader requests
+# connector; the queue keeps its admitted identity while clearing. The leader requests
 # an ordinary, collision-checked waypoint; no member pose is reassigned.
-static func _stand_aside_convoy(space: HospitalSpace, world: WorldState, connection: Dictionary, actor: Dictionary, movement: Dictionary, plan: Dictionary) -> void:
+static func _stand_aside_convoy(space: HospitalSpace, world: WorldState, connection: Dictionary, actor: Dictionary, movement: Dictionary, plan: Dictionary, entry_only: bool = false, selected_id: String = "") -> void:
 	var incoming_id: String=str(connection.get("primary_actor_id",""))
-	if incoming_id.is_empty() or incoming_id==actor.id: return
+	if not entry_only and (incoming_id.is_empty() or incoming_id==actor.id): return
 	var incoming: Dictionary=world.facts.moves.get(incoming_id,{})
 	var exit: Rect2
-	if incoming.has("convoy"):
+	if entry_only:
+		exit=_selected_entry(space,world,connection,selected_id)
+		if not exit.has_area(): return
+	elif incoming.has("convoy"):
 		var incoming_plan: Dictionary=incoming.convoy.get("portal",{}).get("plan",{})
 		if incoming_plan.is_empty(): return
 		var incoming_shift: Vector2=Vector2.ONE*float(incoming.convoy.shift)
@@ -766,5 +880,7 @@ static func _stand_aside_convoy(space: HospitalSpace, world: WorldState, connect
 		for room: Dictionary in world.facts.rooms.values():
 			if int(room.floor_id)==floor_id and end_trail.intersects(Rect2(ConvoyTrail.point(room.origin),ConvoyTrail.point(room.size)),false): public_space=false;break
 		if not public_space: continue
-		space.queue_waypoint(world,movement,floor_id,[target.x,target.y])
+		space.movement.queue_waypoint(world,movement,floor_id,[target.x,target.y],true)
+		if movement.has("transit_ticket"):
+			movement.transit_wait={"sequence":movement.request_sequence,"cell":[target.x,target.y]}
 		return

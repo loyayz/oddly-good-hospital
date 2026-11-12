@@ -1144,6 +1144,9 @@ func _validate_shapes() -> String:
 					if not point is Dictionary or point.get("kind")!="floor" or point.get("floor_id")!=waypoint.floor_id or not _point(point.get("cell")): return "有限让位前缀角点无效"
 				if waypoint.prefix[-1].cell!=waypoint.cell: return "有限让位前缀终点无效"
 
+		if movement.has("transit_wait"):
+			var waiting: Variant=movement.transit_wait
+			if not waiting is Dictionary or not _point(waiting.get("cell")) or waiting.get("sequence")!=movement.get("request_sequence",-1) or not movement.has("transit_ticket"): return "实际候位绑定无效"
 		if movement.has("transit_ticket"):
 			var ticket: Variant = movement.transit_ticket
 			if not ticket is Dictionary or not _fields(ticket,{"connector_id":TYPE_STRING,"sequence":TYPE_INT,"from":TYPE_INT,"to":TYPE_INT}).is_empty() or not facts.connectors.has(ticket.get("connector_id","")):

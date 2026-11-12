@@ -26,7 +26,16 @@ func _phase_facts() -> Dictionary:
 	var w: WorldState=sim.world
 	var m: Dictionary=w.facts.moves.get(WORKER,{})
 	var o: Dictionary=w.facts.maintenance.upgrades[ORDER]
-	return {"tick":w.sim_tick,"worker":w.facts.actors.get(WORKER,{}).duplicate(true),"movement":{"request_sequence":m.get("request_sequence",-1),"cursor":m.get("cursor",-1),"local_move":m.get("local_move",{}).duplicate(true),"transit_ticket":m.get("transit_ticket",{}).duplicate(true),"owner_job_id":m.get("owner_job_id","")},"lift":w.facts.connectors.benchmark_lift.duplicate(true),"order":o.duplicate(true),"grade":w.facts.facilities[TARGET].grade}
+	var assigned: String=str(o.get("worker_id",""))
+	var movement: Dictionary=m.duplicate(true)
+	for key: String in ["request_sequence","cursor"]:
+		if not movement.has(key): movement[key]=-1
+	for key: String in ["local_move","transit_ticket"]:
+		if not movement.has(key): movement[key]={}
+	if not movement.has("owner_job_id"): movement.owner_job_id=""
+	# Full raw movement includes actual path/transit_wait/route_waypoint fields.
+	# No geometry, route, readiness or other business query is performed.
+	return {"tick":w.sim_tick,"worker":w.facts.actors.get(WORKER,{}).duplicate(true),"movement":movement,"assigned_worker_id":assigned,"assigned_worker":w.facts.actors.get(assigned,{}).duplicate(true),"assigned_movement":w.facts.moves.get(assigned,{}).duplicate(true),"lift":w.facts.connectors.benchmark_lift.duplicate(true),"order":o.duplicate(true),"grade":w.facts.facilities[TARGET].grade}
 func _restore(name: String) -> bool:
 	# Expected data must never be the Dictionary passed to WorldState._init.
 	var frozen: Dictionary=sim.world.freeze()
