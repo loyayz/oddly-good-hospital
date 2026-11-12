@@ -1,0 +1,173 @@
+{
+  "archive": "diagnostic-raw.zip",
+  "archive_sha256": "bc33d76ed6c661195187a77bf8b9525106eb5e4042b7770a1d42fa5c354fe4c1",
+  "archive_bytes": 10987319,
+  "members": {
+    "baseline/freeze.json": {
+      "bytes": 574815,
+      "sha256": "f83d5dc88bb6182550f2dd2d1fa2557a5a4f8f7a37adf3c8e857797c1c15ffcf",
+      "crc32": "d7b814c5",
+      "source": ".cache\\performance160-clinical-family-20261112-v3-candidate02\\freeze.json"
+    },
+    "baseline/profiler-authority.json": {
+      "bytes": 17351,
+      "sha256": "780f6025b6e84736050e15ab3b4be5814d6e6c9fc03b938aa3404f1e19823b5d",
+      "crc32": "42c48154",
+      "source": ".cache\\performance160-clinical-family-20261112-v3-candidate02\\profiler-authority.json"
+    },
+    "baseline/source-identity.json": {
+      "bytes": 403879,
+      "sha256": "668deda9f511ec99c0ee925bc11fe3f3517d81384e4cb94ab66e00986967673e",
+      "crc32": "c793caee",
+      "source": ".cache\\performance160-clinical-family-20261112-v3-candidate02\\project\\source-identity.json"
+    },
+    "baseline/source-inventory.json": {
+      "bytes": 142961,
+      "sha256": "e73260f7088eb284dd1b21166aa1f9727c24de63d60e4a87e6a0220aaee17ac1",
+      "crc32": "e057f79a",
+      "source": ".cache\\performance160-clinical-family-20261112-v3-candidate02\\project\\source-inventory.json"
+    },
+    "controller/campaign160.py": {
+      "bytes": 14742,
+      "sha256": "a243dedec48dd317eb255ae10b2800add7d4d278eb4177c75866663c19daf097",
+      "crc32": "7715ab89",
+      "source": "tools\\performance\\current\\campaign160.py"
+    },
+    "controller/parse_builtin_script_profile.py": {
+      "bytes": 5576,
+      "sha256": "635c7840023a86b2997d8fa1f3976f31f5b686c7e9635ac18b600c668df64412",
+      "crc32": "8766d8ed",
+      "source": "tools\\performance\\current\\parse_builtin_script_profile.py"
+    },
+    "controller/prepare_builtin_script_profile.py": {
+      "bytes": 28043,
+      "sha256": "be80085f988041bc300a16899f5a8310495737d6712b7eaa728f70051a034d04",
+      "crc32": "08c73a06",
+      "source": "tools\\performance\\current\\prepare_builtin_script_profile.py"
+    },
+    "diagnostic-project/builtin-script-profile-identity.json": {
+      "bytes": 620218,
+      "sha256": "6264e0710519b445049ec947901b42a57f87755e641b50360e8d257298abde29",
+      "crc32": "090a15ec",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\builtin-script-profile-identity.json"
+    },
+    "diagnostic-project/source-inventory.json": {
+      "bytes": 142961,
+      "sha256": "e73260f7088eb284dd1b21166aa1f9727c24de63d60e4a87e6a0220aaee17ac1",
+      "crc32": "e057f79a",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\source-inventory.json"
+    },
+    "diagnostic-source/comprehensive_operations.gd": {
+      "bytes": 3070,
+      "sha256": "1416ee8ce683971360ea4ffaefb35bdc2f2dfdb1ac3b8cebe5bf559c108422b2",
+      "crc32": "63795ff9",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\tools\\performance\\current\\comprehensive_operations.gd"
+    },
+    "diagnostic-source/original-plain_v4.gd": {
+      "bytes": 16782,
+      "sha256": "a6ca441d0bc67153673adf5279ea2b100286b4834f9cceeb7907cb21acfc5506",
+      "crc32": "268136e9",
+      "source": ".cache\\performance160-clinical-family-20261112-v3-candidate02\\project\\tools\\performance\\current\\plain_v4.gd"
+    },
+    "diagnostic-source/profiled-plain_v4.gd": {
+      "bytes": 19836,
+      "sha256": "e290c0b3be5a734f701fc028a26a7628f30b94536cb775cfdd0769b8750a5914",
+      "crc32": "8b3ab11d",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\tools\\performance\\current\\plain_v4.gd"
+    },
+    "diagnostic-source/simulation.gd": {
+      "bytes": 20241,
+      "sha256": "97753b06b14edad8c7fca914e011cf3f08fc5a77a3a49221500755a7a96f3c3e",
+      "crc32": "9d49a11c",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\game\\sim\\simulation.gd"
+    },
+    "diagnostic-source/step_profile.gd": {
+      "bytes": 27280,
+      "sha256": "fa164577cb8c9e2bdd251f1231fc36a3bd97d3f31d343ed2da0741e906b2b60e",
+      "crc32": "463082fb",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\tools\\performance\\step_profile.gd"
+    },
+    "diagnostic/extract_spikes.failed-path.py": {
+      "bytes": 6411,
+      "sha256": "7ba62adac97300130b6c7a17ca767a02e098a256cdbed47fb161ce18a29ee010",
+      "crc32": "3b293bee",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\full-diagnostic-r1\\extract_spikes.failed-path.py"
+    },
+    "diagnostic/extract_spikes.py": {
+      "bytes": 6418,
+      "sha256": "c6c381f7bd26c762ed8d5df4a37eafc8c2cbc8713bb47ad7698a7ccbee79f6e3",
+      "crc32": "b83e37dc",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\full-diagnostic-r1\\extract_spikes.py"
+    },
+    "diagnostic/result.json.initial.json": {
+      "bytes": 10727,
+      "sha256": "199bf0ca75234b8292c9da85cb4110d66c3c2f0e8f23ae765ec97d1268df95a7",
+      "crc32": "c7318a35",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\full-diagnostic-r1\\scripts\\result.json.initial.json"
+    },
+    "diagnostic/result.json.stages.json": {
+      "bytes": 51541859,
+      "sha256": "4d908655ed4052346e2643bdcb6a325cf23dc8ba812dadeac23d909143e4b2ca",
+      "crc32": "ca0a191d",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\full-diagnostic-r1\\scripts\\result.json.stages.json"
+    },
+    "diagnostic/result.json.steps.ndjson": {
+      "bytes": 1271580,
+      "sha256": "4b03d2472e511c6c70e7c341642eef40516f31358aa9ae2b3827e29e8feb9e19",
+      "crc32": "6c7e3523",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\full-diagnostic-r1\\scripts\\result.json.steps.ndjson"
+    },
+    "diagnostic/status.json": {
+      "bytes": 116,
+      "sha256": "8d5080e8bcd063648e250d8a302b38a74eaf1dc13ab500d1bdcb7f463563a9d6",
+      "crc32": "4faaaa0c",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\full-diagnostic-r1\\status.json"
+    },
+    "generated-root/simulation.gd": {
+      "bytes": 9422,
+      "sha256": "0e2c8e0ab2e1a457154b4b8d9b04757b4338cd46cd1b8da81fe231bc75da0828",
+      "crc32": "4675d4b1",
+      "source": ".cache\\performance160-mixed-20261112-builtin-diagnostic01\\project\\.cache\\performance160-profile-sources\\simulation.gd"
+    }
+  },
+  "member_count": 21,
+  "all_member_sha256_verified": true,
+  "all_member_crc32_verified": true,
+  "zip_testzip": null,
+  "baseline_commit": "7b2a7352f9e0c5af54024521a106a307e97fbd22",
+  "input_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+  "whole_world_ordered_events_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+  "driver_inverse_byte_exact": true,
+  "external_archives": [
+    {
+      "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-b01-unqualified.zip",
+      "archive_sha256": "4990bead51f8614dfcdf3d08d8deef5ddda477ae8d90dbc9af7ad15597c7ed0a",
+      "member": "run/r1.json.final.bin",
+      "member_sha256": "0daf82b82da618af8818aed962d5ef2bf9bad1b00be01c4f5a7ce71efb52662e",
+      "member_bytes": 6848920
+    },
+    {
+      "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-toolqualification.zip",
+      "archive_sha256": "1b4cddf6efaf6fa2414d15f1e53bea53a3c9a4e35cfe6a36c32e5c3b56fd6177",
+      "member": "qualification/mixed-input01/mixed160.input.bin",
+      "member_sha256": "75f5e1d922f39f12382c0ceb74806bda0293251189f68a1ac158842f65fa78ca",
+      "member_bytes": 2220056
+    },
+    {
+      "archive": "docs\\reports\\evidence\\2026-11-12-body-navigation\\evidence.zip",
+      "archive_sha256": "a1a089ba54491d57aef320413a77e3a05ec0e1d37f72efbd694014771770e1d1",
+      "members": 59,
+      "scope": "Existing analysis/spikes/functions/results/process and local probe evidence retained; not repackaged."
+    },
+    {
+      "archive": "docs/reports/evidence/2026-11-12-clinical-performance/mixed-b01-unqualified.zip",
+      "archive_sha256": "4990bead51f8614dfcdf3d08d8deef5ddda477ae8d90dbc9af7ad15597c7ed0a",
+      "member": "run/r1.json.steps.ndjson",
+      "member_sha256": "a0a4eb0ca0215cded8e2a24ca92ca744d18ab0c66dc98f49f96ff6ac89848b47",
+      "member_bytes": 1270530
+    }
+  ],
+  "failure_preservation": "The first extraction failed with a missing .cache component in its plain input path and produced no spikes result. The original failed-path script is preserved separately; the successful extractor and prior evidence are not rewritten.",
+  "scope": "Supplement only: complete stage/step raw, immutable baseline identity and reversible driver/controller sources. No complete project, duplicated final facts binary, engine or DLL binaries. Existing summary.json/evidence.zip unchanged.",
+  "archive_and_verify_seconds": 0.39840839999669697
+}
