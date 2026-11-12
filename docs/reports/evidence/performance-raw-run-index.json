@@ -130,6 +130,29 @@
       "observer_result_available": false,
       "archive": "2026-11-12-door-clearance-probe/bounded-v1-failure.zip",
       "archive_sha256": "574b9a8a2ee68fdfad7b7e67c8021023fec02243d457a27333412c491a802b88",
+      "local_crc_member_readback_verified": true,
+      "remote_readback_verified": true,
+      "performance_pass": null,
+      "input_override_sha256": "41928476a199dbf3e35b3ff74cd54a52fd0801feb92c5b1d1a5d6fe035258a68",
+      "verification_receipt": {
+        "readback_verified": true,
+        "archive_sha256": "574b9a8a2ee68fdfad7b7e67c8021023fec02243d457a27333412c491a802b88",
+        "destination": "https://raw.githubusercontent.com/loyayz/oddly-good-hospital/90e461369aa9428d4ff9c2ab6ed721f2887b1ed5/docs/reports/evidence/2026-11-12-door-clearance-probe/bounded-v1-failure.zip",
+        "bytes": 1016069,
+        "members": 28,
+        "verified_utc": "2026-11-12T09:22:17.497799+00:00",
+        "commit": "90e461369aa9428d4ff9c2ab6ed721f2887b1ed5"
+      },
+      "publication_commit": "90e461369aa9428d4ff9c2ab6ed721f2887b1ed5"
+    },
+    {
+      "id": "cloud-door-clearance-observer8-v2",
+      "kind": "bounded_counting_diagnostic",
+      "full_window": false,
+      "prefix": 0,
+      "measured_steps": 8,
+      "archive": "2026-11-12-door-clearance-probe/observer8-v2.zip",
+      "archive_sha256": "581c83885787162e6404f23e58cf5ae8fabbaccb9db82933b25200bbc55be6b3",
       "publication": "with this index revision",
       "local_crc_member_readback_verified": true,
       "remote_readback_verified": false,
@@ -138,9 +161,9 @@
     }
   ],
   "latest_three_raw_run_ids": [
-    "cloud-movement-narrow-qualification",
     "cloud-movement-full-narrow",
-    "cloud-door-clearance-bounded-v1"
+    "cloud-door-clearance-bounded-v1",
+    "cloud-door-clearance-observer8-v2"
   ],
   "latest_three_complete_window_ids": [
     "cloud-recovery-full-plain",
