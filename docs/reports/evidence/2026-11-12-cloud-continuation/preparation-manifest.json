@@ -1,0 +1,142 @@
+{
+  "archive_sha256": "f2e70fc88c7bfa3a57563fdd693535cde30dbd0f130b9c6337353c8e24e0bbbd",
+  "archive_bytes": 6782374,
+  "members": {
+    "preparation-result.json": {
+      "sha256": "3a6d249bc4a678fbd093854a787b0568b32d762e55e74f038da67fb89d3ac9b0",
+      "bytes": 61888
+    },
+    "provisioning-manifest.json": {
+      "sha256": "6cdd98be10cb4983344e240453e4c1df4bd50b86c2eb9a1d9e645544623afa72",
+      "bytes": 5250
+    },
+    "linux-dependency-inputs.json": {
+      "sha256": "776005a8e1122c9948056661b54a48b0c6d04eedef88add67c2c0f7ff60e9a8a",
+      "bytes": 15166972
+    },
+    "native-build/build-manifest.json": {
+      "sha256": "2840b99197a9eccce16aafe1a8435dc20e430f091b9e64f77a2cfd66e108a585",
+      "bytes": 15787290
+    },
+    "native-build/extension_api.json": {
+      "sha256": "d0e4c08c03b165156dabe6bfb6a906baf0069189f62035341230a246c86d6986",
+      "bytes": 6965057
+    },
+    "native-build/gdextension_interface.h": {
+      "sha256": "640b48188708ba0016f8d7ace9e0e1d3279a41fa1226c59ff3193b15538bd254",
+      "bytes": 142425
+    },
+    "native-build/platform_guard_abi.h": {
+      "sha256": "c6d1897b26f3745ca4339c2494ec957b28aadcce1a08f1067b531d3a54d748d8",
+      "bytes": 789
+    },
+    "native_load_probe.gd": {
+      "sha256": "d76acd261b1d90972894bfcc06faab8794413cded91fcc343303461699726290",
+      "bytes": 723
+    },
+    "logs/boost-bootstrap.log": {
+      "sha256": "7ef8b96d28722df4ab6c20d92a32995942029c822fc4a467510229612f335844",
+      "bytes": 1811
+    },
+    "logs/boost-end.txt": {
+      "sha256": "d293f3b030c08df9bb17a20d9c270936578ce0fc806a01220e6e475d6e469670",
+      "bytes": 21
+    },
+    "logs/boost-install.log": {
+      "sha256": "fa56a419d66658da96cf6e5ffd97045b960f20e53606310c9c894a8b7d87d310",
+      "bytes": 2169961
+    },
+    "logs/boost-start.txt": {
+      "sha256": "4951233b0f6dc319285cb362883e1c5cbca06f21e272b82d662363f02f662100",
+      "bytes": 21
+    },
+    "logs/build-tools-install.log": {
+      "sha256": "df8b0dbf98340d711fe373c7185bc052341d4d8958a49f72751151bf8d72c6a7",
+      "bytes": 775
+    },
+    "logs/cache-capture.log": {
+      "sha256": "fa708bf3415bf28df517a400fb066ebd898970534a0fde4ba161bf51c98cc73a",
+      "bytes": 112
+    },
+    "logs/dependencies-build.log": {
+      "sha256": "ece6fb2926af16933826bac8040a659b506a7765e3c9a2bf13e10ea07afa400a",
+      "bytes": 24
+    },
+    "logs/dependencies-retry-build.log": {
+      "sha256": "e931f0d85c5f2f19615e4efd4c7bc247f3aeb0bd4069bfda66dcbfe8ecb4d2a7",
+      "bytes": 34492
+    },
+    "logs/dependencies-retry-end.txt": {
+      "sha256": "a9605a117dd77e461d988c15005535946f812e6e1bff8af0e337bc9b005bd2bb",
+      "bytes": 21
+    },
+    "logs/dependencies-retry-start.txt": {
+      "sha256": "ebf69c5cc4603fa04d71f2dd1f2db51fe9006330d420005d37b65d10a351381e",
+      "bytes": 21
+    },
+    "logs/dependencies-start.txt": {
+      "sha256": "f385b356d09a83585d47d96609c1e4a5ac7716478f470d54a7480fea6dc42603",
+      "bytes": 21
+    },
+    "logs/extraction.json": {
+      "sha256": "edc4d30c2b7f55e9781b80406d0fb69d2c9a925cbcb2ca5204d7433fa0338b6d",
+      "bytes": 1779
+    },
+    "logs/import-end.txt": {
+      "sha256": "ce2d9f38489a3417c52521dbe7cd6d9158eb259282559879bd27da5be51f5314",
+      "bytes": 21
+    },
+    "logs/import-start.txt": {
+      "sha256": "4ec7f1d781f82a9b68d1c96dc83c704fc1a8c86aa03cda220f09640b0027134e",
+      "bytes": 21
+    },
+    "logs/import.log": {
+      "sha256": "f05618b4de415d82e877f44e4a4f0bec585a0adc34c3dd3237062de19cfd3912",
+      "bytes": 46437
+    },
+    "logs/load-end.txt": {
+      "sha256": "18c32656486a5a8a3c92043518bd27267afcc1a2e3a1cf246765d1d13d13a930",
+      "bytes": 21
+    },
+    "logs/load-start.txt": {
+      "sha256": "18c32656486a5a8a3c92043518bd27267afcc1a2e3a1cf246765d1d13d13a930",
+      "bytes": 21
+    },
+    "logs/mpfr-build.log": {
+      "sha256": "303f0a4d974e47a947438bede6ac3860281d7693ddab179c97f42e6a1691a1da",
+      "bytes": 769335
+    },
+    "logs/mpfr-configure.log": {
+      "sha256": "a6d59e23a32e09dbe12d96d2e48419b9096128540795903acbbb45c37459bf03",
+      "bytes": 7633
+    },
+    "logs/mpfr-end.txt": {
+      "sha256": "60b7d07e41a21d44663835ef3ac161541b6d60d6b867774bf227f5cda9b73223",
+      "bytes": 21
+    },
+    "logs/mpfr-install.log": {
+      "sha256": "01137f25b96d3758e6a0b06c217b5ddc1d6df582d6241ff945858d733dd7e3e8",
+      "bytes": 7496
+    },
+    "logs/mpfr-start.txt": {
+      "sha256": "022b8b1a7a9ef8be459c736f89840a58b3191b2b42605a0fd038ded2330ea34b",
+      "bytes": 21
+    },
+    "logs/native-build.log": {
+      "sha256": "ca1648046c2d6853203f1d27295c4d6af72392dfff1a744031df7ae84c80f87b",
+      "bytes": 19802
+    },
+    "logs/native-end.txt": {
+      "sha256": "411368a26189c9eb2a5addc846a3988c5dc5efcc385e9e2ca7f3f8334b307789",
+      "bytes": 21
+    },
+    "logs/native-load.log": {
+      "sha256": "2ded8f0ec932d3423fe6ec0f1b6052e94648b70484cba75c49b5512328688891",
+      "bytes": 423
+    },
+    "logs/native-start.txt": {
+      "sha256": "e69489bc033faadf3812c8605100cfe26255ec0347d6b6ed1f9c11b04fdad25a",
+      "bytes": 21
+    }
+  }
+}
