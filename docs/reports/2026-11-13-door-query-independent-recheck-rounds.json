@@ -1,0 +1,121 @@
+{
+  "order": [
+    "O1",
+    "C1",
+    "O2",
+    "C2",
+    "O3",
+    "C3"
+  ],
+  "rows": [
+    {
+      "group": "control",
+      "round": 1,
+      "dense_p95_ms": 121.919,
+      "dense_p99_ms": 151.345,
+      "dense_max_ms": 538.618,
+      "dense_mean_ms": 65.2698843537415,
+      "all_6000_step_seconds": 379.689158,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "control",
+      "round": 2,
+      "dense_p95_ms": 121.094,
+      "dense_p99_ms": 145.002,
+      "dense_max_ms": 446.479,
+      "dense_mean_ms": 64.402361279647,
+      "all_6000_step_seconds": 374.243125,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "control",
+      "round": 3,
+      "dense_p95_ms": 116.729,
+      "dense_p99_ms": 141.718,
+      "dense_max_ms": 454.169,
+      "dense_mean_ms": 63.7672011399154,
+      "all_6000_step_seconds": 373.679164,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "candidate",
+      "round": 1,
+      "dense_p95_ms": 121.854,
+      "dense_p99_ms": 146.185,
+      "dense_max_ms": 464.774,
+      "dense_mean_ms": 66.362510387939,
+      "all_6000_step_seconds": 386.800966,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "candidate",
+      "round": 2,
+      "dense_p95_ms": 119.342,
+      "dense_p99_ms": 150.374,
+      "dense_max_ms": 443.997,
+      "dense_mean_ms": 64.3770588343445,
+      "all_6000_step_seconds": 374.427783,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "candidate",
+      "round": 3,
+      "dense_p95_ms": 116.913,
+      "dense_p99_ms": 138.764,
+      "dense_max_ms": 426.826,
+      "dense_mean_ms": 63.1669470490899,
+      "all_6000_step_seconds": 367.762354,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    }
+  ],
+  "medians": {
+    "control": {
+      "dense_p95_ms": 121.094,
+      "dense_p99_ms": 145.002,
+      "dense_max_ms": 454.169,
+      "dense_mean_ms": 64.402361279647,
+      "all_6000_step_seconds": 374.243125
+    },
+    "candidate": {
+      "dense_p95_ms": 119.342,
+      "dense_p99_ms": 146.185,
+      "dense_max_ms": 443.997,
+      "dense_mean_ms": 64.3770588343445,
+      "all_6000_step_seconds": 374.427783
+    }
+  },
+  "candidate_percent_vs_control_medians": {
+    "dense_p95_ms": -1.4468099162633918,
+    "dense_p99_ms": 0.8158508158508049,
+    "dense_max_ms": -2.2396949153288714,
+    "dense_mean_ms": -0.03928807080944008,
+    "all_6000_step_seconds": 0.04934172137429638
+  },
+  "limits": [
+    "ABABAB strictly interleaved; no coordinated backup/compression while engine active, still not randomized; environment and historical unguarded process uncertainty retained",
+    "Same full workload and exact World RNG ordered events; absolute performance targets separately evaluated",
+    "All6000 sum excludes1000 prefix, dense only5439 fixed qualified window",
+    "Independent recheck3ffb vs ee71 only, no0f increment or previous groups mixed; paired total direction matters"
+  ],
+  "adjacent_pairs": [
+    {
+      "pair": 1,
+      "sum_delta_s": 7.111807999999996,
+      "sum_delta_pct": 1.8730605944771161,
+      "p95_delta_pct": -0.05331408558141293
+    },
+    {
+      "pair": 2,
+      "sum_delta_s": 0.18465799999995625,
+      "sum_delta_pct": 0.04934172137429638,
+      "p95_delta_pct": -1.4468099162633918
+    },
+    {
+      "pair": 3,
+      "sum_delta_s": -5.916809999999998,
+      "sum_delta_pct": -1.5833930735297819,
+      "p95_delta_pct": 0.1576300662217589
+    }
+  ]
+}
