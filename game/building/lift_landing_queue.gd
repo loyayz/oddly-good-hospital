@@ -124,7 +124,7 @@ static func release(space: HospitalSpace, world: WorldState, connection: Diction
 		var movement: Dictionary=world.facts.moves.get(id,{})
 		if movement.is_empty() or movement.has("local_move") or movement.has("detour"): return false
 		var actor: Dictionary=world.facts.actors[id]
-		if actor.location.kind!="floor" or _continuation(movement,connection.id).is_empty(): return false
+		if actor.location.kind!="floor" or not _has_continuation(movement,connection.id): return false
 		var cell: Vector2=ConvoyTrail.point(connection.anchor)+Vector2(side)*offset
 		if not movement.has("convoy") and not articulated.is_empty():
 			# Keep the independent family fully outside and clear of the
@@ -566,3 +566,19 @@ static func companion_entry(space: HospitalSpace, actor: Dictionary, nursing: Di
 	var inward: Vector2=ConvoyTrail.point(nursing.inward)
 	var side: Vector2=Vector2(-inward.y,inward.x)
 	return ConvoyTrail.point(nursing.entry)-side*(offset+space.clearance(actor)+2.0)-inward*space.clearance(actor)
+
+# Existence-only release guard: published paths still use _continuation's copy.
+static func _has_continuation(movement: Dictionary, connector_id: String) -> bool:
+	var waypoint: Dictionary=movement.get("route_waypoint",{})
+	var source: Array
+	var start: int=0
+	if waypoint.has("continuation"):
+		source=waypoint.continuation
+	else:
+		source=movement.get("path",[])
+		start=int(movement.get("cursor",0))
+		if start<0: start=source.size()+start
+		start=clampi(start,0,source.size())
+	for index: int in range(start,source.size()):
+		if source[index].kind=="connector" and source[index].connector_id==connector_id: return true
+	return false
