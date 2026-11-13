@@ -314,8 +314,21 @@ static func _landing_in_use(connection: Dictionary, floor_id: int) -> bool:
 
 # The route is the only journey intention. No ticket, reservation or queue token.
 static func journey(movement: Dictionary) -> Dictionary:
-	var path: Array = movement.get("route_waypoint",{}).get("continuation",movement.get("path",[]).slice(int(movement.get("cursor",0))))
-	for segment: Dictionary in path:
+	# Read the original array in place. Dictionary.get's default expression is
+	# eager, so nesting path.slice there copied even a waypoint continuation.
+	var waypoint: Dictionary=movement.get("route_waypoint",{})
+	var path: Array
+	var start: int=0
+	if waypoint.has("continuation"):
+		path=waypoint.continuation
+	else:
+		path=movement.get("path",[])
+		start=int(movement.get("cursor",0))
+		# Preserve Array.slice(begin) semantics, including negative indices.
+		if start<0: start=path.size()+start
+		start=clampi(start,0,path.size())
+	for index: int in range(start,path.size()):
+		var segment: Dictionary=path[index]
 		if segment.kind=="connector": return segment
 	return {}
 
