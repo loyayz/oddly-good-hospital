@@ -207,8 +207,9 @@ func cancel_ground(world: WorldState, actor_id: String) -> bool:
 		return actor.location.kind=="floor" and actor.get("posture","standing")!="lying"
 	for id: String in movement.get("members",[actor_id]):
 		var actor: Dictionary = world.facts.actors[id]
-		if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return false
+		if actor.location.kind!="floor" or actor.get("posture","standing")=="lying" or LiftController.pending_holds(world,id): return false
 	if int(movement.cursor)<movement.path.size() and int(movement.cursor)>=0 and movement.path[int(movement.cursor)].kind=="support_exit": return false
+	LiftLandingQueue.cancel_waiting(world,actor_id)
 	world.facts.moves.erase(actor_id)
 	if movement.has("convoy"):
 		_unregister_members(movement)
@@ -1264,13 +1265,28 @@ func _local_choose_options(world: WorldState, actor: Dictionary, movement: Dicti
 					# not a lateral snap. Keep the current real axis exactly.
 					target=Vector2(past.x,origin.y) if direction.x!=0.0 else Vector2(origin.x,past.y)
 					break
+		# A one-cell retreat endpoint can still lie inside the doorway that
+		# the walker is clearing. Extend that same straight local leg only to
+		# the current doorway boundary, then prove the entire leg as usual.
+		var final_pose: Dictionary=actor.duplicate()
+		final_pose.facing=atan2(direction.x,direction.y)
+		var endpoint: Rect2 = space._actor_rect(final_pose,target)
+		var extension: float=0.0
+		for door: Dictionary in space.movement_doors(world,actor,endpoint,[]):
+			var doorway: Rect2=space._door_rect(door,space._door_span(actor,door))
+			if not endpoint.intersects(doorway,false): continue
+			if direction.x>0: extension=maxf(extension,doorway.end.x-endpoint.position.x)
+			elif direction.x<0: extension=maxf(extension,endpoint.end.x-doorway.position.x)
+			elif direction.y>0: extension=maxf(extension,doorway.end.y-endpoint.position.y)
+			else: extension=maxf(extension,endpoint.end.y-doorway.position.y)
+		target+=direction*extension
 		var path: Array = [_floor_point(actor,target)]
 		if not _bed_local_path_blocker(world,actor,movement,path).is_empty(): continue
 		if direction==-forward:
 			if not _retreat_intention_clear(world,actor,movement,path): continue
 		elif not _local_path_clear(world,actor,path): continue
 		elif not fixed.is_empty() and not _local_side_exit(world,actor,movement,target,fixed): continue
-		var rect: Rect2 = space._actor_rect(actor,target)
+		var rect: Rect2 = space._actor_rect(final_pose,target)
 		var in_door: bool = false
 		for door: Dictionary in space.movement_doors(world,actor,rect,[]):
 			if rect.intersects(space._door_rect(door,space._door_span(actor,door)),false): in_door=true;break

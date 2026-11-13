@@ -20,6 +20,26 @@ static func remove(connection: Dictionary, leader: String) -> void:
 		for index: int in range(line.size()-1,-1,-1):
 			if line[index].actor_id==leader: line.remove_at(index)
 
+# Cancel a ground journey at the same boundary as its movement owner. A
+# patient's companion can own a separate movement within this one queue row.
+# Remove that whole waiting row, not accepted cabin groups or another row's FIFO.
+static func cancel_waiting(world: WorldState, actor_id: String) -> void:
+	for connection: Dictionary in world.facts.connectors.values():
+		for line: Array in connection.get("landing_queues",{}).values():
+			for index: int in range(line.size()-1,-1,-1):
+				var entry: Dictionary=line[index]
+				var owners: Array=entry.get("leader_ids",[entry.actor_id])
+				if not actor_id in owners: continue
+				line.remove_at(index)
+				connection.get("unavailable_heads",{}).erase(entry.actor_id)
+				for owner: String in owners:
+					var movement: Dictionary=world.facts.moves.get(owner,{})
+					for key: String in ["lift_queue_target","lift_queue_standby"]:
+						if movement.get(key,{}).get("connector_id","")==connection.id: movement.erase(key)
+					var call: Dictionary=movement.get("lift_boarding_call",{})
+					if call.get("connector_id","")==connection.id and call.get("group_leader","")==entry.actor_id: movement.erase("lift_boarding_call")
+					movement.erase("lift_queue_wait_basis")
+
 static func holds(world: WorldState, actor_id: String) -> bool:
 	var movement: Dictionary=world.facts.moves.get(actor_id,{})
 	if movement.has("lift_boarding_call") or movement.has("local_move") or movement.has("detour"): return false

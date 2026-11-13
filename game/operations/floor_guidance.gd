@@ -1058,6 +1058,11 @@ func release(world: WorldState, visit_id: String) -> void:
 	_queue_leave(world,current)
 	world.facts.floor_guidance.visits.erase(visit_id)
 
+func _can_answer_call(world: WorldState, visit_id: String) -> bool:
+	# Ready records a prior arrival, not availability while a life need owns
+	# the patient's journey. Timeout rotation must not seize that movement.
+	return state(world,visit_id).get("phase","")=="ready" and not world.facts.get("waiting_life",{}).get("needs",{}).has(visit_id)
+
 func can_call(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
 	if ticket.has("resume_session_id") or ticket.get("service_assigned",false): return true
 	if ticket.kind in ["consult","plan"] and visit.get("continuation",{}).get("stage","")=="guidance": return true
@@ -1075,14 +1080,14 @@ func can_call(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
 		queue.visit_ids.pop_front()
 	if queue.visit_ids.is_empty(): return false
 	var head: String=str(queue.visit_ids[0])
-	var expired: bool=state(world,head).get("phase","")!="ready" and queue.visit_ids.size()>1 and world.sim_tick>=int(queue.deadline_tick)
+	var expired: bool=not _can_answer_call(world,head) and queue.visit_ids.size()>1 and world.sim_tick>=int(queue.deadline_tick)
 	if visit.id!=head and queue.called_id==head and not expired: return false
 	for session: Dictionary in world.facts.sessions.values():
 		if world.facts.facilities[session.facility_id].get("room_id","")==room_id: return false
 	if queue.called_id!=head:
 		queue.called_id=head
 		queue.deadline_tick=world.sim_tick+300
-	if state(world,head).get("phase","")!="ready" and queue.visit_ids.size()>1 and world.sim_tick>=int(queue.deadline_tick):
+	if not _can_answer_call(world,head) and queue.visit_ids.size()>1 and world.sim_tick>=int(queue.deadline_tick):
 		# A timeout counts three live waiting people, never abandoned tail rows.
 		for index: int in range(queue.visit_ids.size()-1,0,-1):
 			var id: String=str(queue.visit_ids[index])

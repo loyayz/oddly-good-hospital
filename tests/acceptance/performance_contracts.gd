@@ -189,6 +189,48 @@ func _case_04(content: HospitalContent) -> Dictionary:
 	world.facts.floor_guidance.visits.queue_new={"visit_id":"queue_new","request_key":"ticket_queue_new:plan","ticket_id":"ticket_queue_new","target_id":"queue_station","target_room_id":"queue_room","desk_id":"","guided_target":"queue_station","reason":"","phase":"ready","initial_done":true,"guide_floor":1,"arrived_seq":8,"next_recheck":0,"receipts":[]}
 	queue.visit_ids.append("queue_new")
 	checks.same_step_newcomer_joins_tail=not guide.can_call(world,newcomer,{"kind":"plan"}) and queue.visit_ids.back()=="queue_new"
+	# A prior arrival stays ready while a life need owns movement. It must
+	# obey the same 300-tick call timeout without losing that owner's facts.
+	world.facts.floor_guidance.visits.queue_1.phase="ready"
+	world.facts.waiting_life={"needs":{"queue_1":{"kind":"drinking","phase":"fallback_travel"}}}
+	world.facts.moves.queue_1={"owner_id":"life_need:queue_1","target_cell":[60,86]}
+	var need_before: Dictionary=world.facts.waiting_life.duplicate(true)
+	var move_before: Dictionary=world.facts.moves.duplicate(true)
+	var tickets_before: Dictionary=world.facts.tickets.duplicate(true)
+	queue.visit_ids=["queue_1","queue_3","queue_5","queue_4","queue_6","queue_7","queue_new"]
+	queue.called_id=""
+	queue.deadline_tick=-1
+	world.facts.sim_tick=2000
+	guide.can_call(world,world.facts.visits.queue_1,{"kind":"gp"})
+	checks.life_need_call_deadline=queue.called_id=="queue_1" and queue.deadline_tick==2300
+	world.facts.sim_tick=2299
+	checks.life_need_before_deadline=not guide.can_call(world,world.facts.visits.queue_3,{"kind":"gp"}) and queue.visit_ids[0]=="queue_1"
+	world.facts.sim_tick=2300
+	checks.life_need_exact_deadline=guide.can_call(world,world.facts.visits.queue_3,{"kind":"gp"}) and queue.visit_ids==["queue_3","queue_4","queue_7","queue_1","queue_new"]
+	checks.life_need_owners_untouched=world.facts.waiting_life==need_before and world.facts.moves==move_before and world.facts.tickets==tickets_before and world.facts.floor_guidance.visits.queue_1.phase=="ready"
+	# Fewer than three effective followers places the absent patient last.
+	queue.visit_ids=["queue_1","queue_5","queue_4","queue_6","queue_7"]
+	queue.called_id="queue_1"
+	queue.deadline_tick=2300
+	checks.life_need_short_queue=guide.can_call(world,world.facts.visits.queue_4,{"kind":"gp"}) and queue.visit_ids==["queue_4","queue_7","queue_1"]
+	queue.visit_ids=["queue_1"]
+	queue.called_id="queue_1"
+	queue.deadline_tick=2300
+	guide.can_call(world,world.facts.visits.queue_1,{"kind":"gp"})
+	checks.life_need_single_keeps_waiting=queue.visit_ids==["queue_1"] and queue.called_id=="queue_1" and queue.deadline_tick==2300
+	# Returning does not reclaim an old rank. Once called again at the live
+	# head, a fresh 300 ticks applies and a ready patient is not demoted.
+	queue.visit_ids=["queue_4","queue_1"]
+	queue.called_id="queue_4"
+	queue.deadline_tick=2600
+	world.facts.waiting_life.needs.erase("queue_1")
+	checks.return_keeps_rotated_rank=not guide.can_call(world,world.facts.visits.queue_1,{"kind":"gp"}) and queue.visit_ids==["queue_4","queue_1"]
+	guide.release(world,"queue_4")
+	world.facts.sim_tick=2400
+	checks.return_recalled_new_deadline=guide.can_call(world,world.facts.visits.queue_1,{"kind":"gp"}) and queue.called_id=="queue_1" and queue.deadline_tick==2700
+	queue.visit_ids.append("queue_7")
+	world.facts.sim_tick=2700
+	checks.return_ready_not_demoted=not guide.can_call(world,world.facts.visits.queue_7,{"kind":"gp"}) and queue.visit_ids==["queue_1","queue_7"]
 	return {"checks":checks,"queue":queue.duplicate(true)}
 
 func _case_05(content: HospitalContent) -> Dictionary:

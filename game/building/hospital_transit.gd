@@ -477,6 +477,21 @@ static func _yield_contact(space: HospitalSpace, world: WorldState, actor: Dicti
 static func _waiting_contact_exit(space: HospitalSpace, world: WorldState, connection: Dictionary, floor_id: int) -> Dictionary:
 	var exit: Rect2
 	if _landing_in_use(connection,floor_id):
+		if connection.has("lift_control_version"):
+			# The cabin can contain unrelated journeys. Only the group currently
+			# using this landing owns an exit; offsets belong to each movement,
+			# never to the complete cabin rider list.
+			var active: Dictionary=Lift.group(connection,str(connection.get("active_group","")))
+			if active.is_empty(): return {"ok":false}
+			var has_exit: bool=false
+			for owner: String in Lift._leaders(active):
+				var move: Dictionary=world.facts.moves.get(owner,{})
+				if move.is_empty() or move.has("convoy") or not owner in connection.riders or not world.facts.actors.has(owner): return {"ok":false}
+				var origin: Vector2=ConvoyTrail.point(active.get("entry_cells",{}).get(owner,connection.anchor))
+				var body: Rect2=space._unit_rect(world,world.facts.actors[owner],origin,move.get("members",[owner]),move.get("offsets",{}))
+				exit=exit.merge(body) if has_exit else body
+				has_exit=true
+			return {"ok":has_exit,"rect":exit}
 		var primary: String=connection.get("primary_actor_id","")
 		var incoming: Dictionary=world.facts.moves.get(primary,{})
 		if incoming.is_empty() or incoming.has("convoy") or not primary in connection.get("riders",[]) or not world.facts.actors.has(primary): return {"ok":false}
