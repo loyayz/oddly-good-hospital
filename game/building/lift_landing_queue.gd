@@ -452,13 +452,15 @@ static func sync(space: HospitalSpace, world: WorldState, connection: Dictionary
 			if not occupied.has(floor_id): occupied[floor_id]=[]
 			var basis: Array=[LAYOUT_VERSION,space._navigation.floor_static_version(space,world,floor_id),space.passage_profile_signature(world,floor_id).duplicate(),_occupied_signature(occupied[floor_id]),prefix.duplicate(),group.leader_ids.duplicate(),group.members.duplicate(),_identity(world,str(connection.id),group)]
 			prefix.append(entry.actor_id)
-			if world.facts.moves[entry.actor_id].has("lift_boarding_call") and entry.get("layout_basis",[])==basis: continue
-			if entry.get("layout_basis",[])!=basis:
+			var has_boarding_call: bool=world.facts.moves[entry.actor_id].has("lift_boarding_call")
+			var same_basis: bool=entry.get("layout_basis",[])==basis
+			if has_boarding_call and same_basis: continue
+			if not same_basis:
 				for id: String in group.leader_ids: world.facts.moves[id].erase("lift_boarding_call")
 				entry.erase("entry_cells")
 			# A real queue position remains stable. Only changed predecessors,
 			# membership or geometry can require another floor-route query.
-			if entry.get("layout_basis",[])==basis:
+			if same_basis:
 				if entry.has("owner_cells"):
 					for id: String in group.leader_ids: occupied[floor_id].append(_body(space,world,world.facts.moves[id],entry.owner_cells[id]))
 				continue
