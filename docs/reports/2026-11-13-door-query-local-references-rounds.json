@@ -1,0 +1,101 @@
+{
+  "order": [
+    "O1",
+    "C1",
+    "C2",
+    "O2",
+    "O3",
+    "C3"
+  ],
+  "rows": [
+    {
+      "group": "control",
+      "round": 1,
+      "dense_p95_ms": 123.582,
+      "dense_p99_ms": 151.745,
+      "dense_max_ms": 427.645,
+      "dense_mean_ms": 64.7208854568855,
+      "all_6000_step_seconds": 377.272909,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "control",
+      "round": 2,
+      "dense_p95_ms": 122.628,
+      "dense_p99_ms": 148.411,
+      "dense_max_ms": 437.701,
+      "dense_mean_ms": 64.9038051112337,
+      "all_6000_step_seconds": 379.639619,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "control",
+      "round": 3,
+      "dense_p95_ms": 125.023,
+      "dense_p99_ms": 153.367,
+      "dense_max_ms": 469.526,
+      "dense_mean_ms": 66.57718716675859,
+      "all_6000_step_seconds": 387.385929,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "candidate",
+      "round": 1,
+      "dense_p95_ms": 120.216,
+      "dense_p99_ms": 155.943,
+      "dense_max_ms": 479.253,
+      "dense_mean_ms": 66.31416731016729,
+      "all_6000_step_seconds": 385.524376,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "candidate",
+      "round": 2,
+      "dense_p95_ms": 119.615,
+      "dense_p99_ms": 146.721,
+      "dense_max_ms": 428.572,
+      "dense_mean_ms": 65.6657087699945,
+      "all_6000_step_seconds": 382.087113,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "group": "candidate",
+      "round": 3,
+      "dense_p95_ms": 126.22,
+      "dense_p99_ms": 160.893,
+      "dense_max_ms": 451.6,
+      "dense_mean_ms": 67.50384537598819,
+      "all_6000_step_seconds": 393.654046,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    }
+  ],
+  "medians": {
+    "control": {
+      "dense_p95_ms": 123.582,
+      "dense_p99_ms": 151.745,
+      "dense_max_ms": 437.701,
+      "dense_mean_ms": 64.9038051112337,
+      "all_6000_step_seconds": 379.639619
+    },
+    "candidate": {
+      "dense_p95_ms": 120.216,
+      "dense_p99_ms": 155.943,
+      "dense_max_ms": 451.6,
+      "dense_mean_ms": 66.31416731016729,
+      "all_6000_step_seconds": 385.524376
+    }
+  },
+  "candidate_percent_vs_control_medians": {
+    "dense_p95_ms": -2.723697625867849,
+    "dense_p99_ms": 2.7664832449174614,
+    "dense_max_ms": 3.1754553907804572,
+    "dense_mean_ms": 2.1730038732189705,
+    "all_6000_step_seconds": 1.550090323950104
+  },
+  "limits": [
+    "ABBAAB sequence not randomized, environment and historical unguarded process uncertainty retained",
+    "Same full workload and exact World RNG ordered events; absolute performance targets separately evaluated",
+    "All6000 sum excludes1000 prefix, dense only5439 fixed qualified window",
+    "Local micro5.7\u20137.8 percent not total gain; decision uses user local reduction/no large degradation strategy"
+  ]
+}
