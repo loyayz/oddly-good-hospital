@@ -1,0 +1,55 @@
+{
+  "qualification": {
+    "checked_utc": "2026-11-13T10:03:59.485582+00:00",
+    "identity_checks": {
+      "source": true,
+      "engine": true,
+      "native": true,
+      "input": true
+    },
+    "legacy_unlocked_engine_status": "uncertain; user authorized fresh measurement rather than continued search",
+    "guard_scope": "cooperative lock across new runs only; cannot prove no surviving legacy unguarded engine",
+    "interpretation": "Do not claim certain performance improvement if possible external interference; business and exact outcome gates unchanged",
+    "new_rounds": 3
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "returncode": 0,
+      "p95_ms": 122.791,
+      "p99_ms": 153.129,
+      "max_ms": 436.242,
+      "total_step_s": 389.923497,
+      "dense_count": 5439,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "round": 2,
+      "returncode": 0,
+      "p95_ms": 125.202,
+      "p99_ms": 152.013,
+      "max_ms": 430.977,
+      "total_step_s": 382.664726,
+      "dense_count": 5439,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    },
+    {
+      "round": 3,
+      "returncode": 0,
+      "p95_ms": 119.312,
+      "p99_ms": 142.85,
+      "max_ms": 469.464,
+      "total_step_s": 376.108363,
+      "dense_count": 5439,
+      "final_sha256": "8baf906509e5d0bfd5266adcfe5a3455fb274cc3aae00e786a6996b46d15dbbb"
+    }
+  ],
+  "median": {
+    "p95_ms": 122.791,
+    "p99_ms": 152.013,
+    "max_ms": 436.242,
+    "total_step_s": 382.664726
+  },
+  "cpu_absolute_target_pass": false,
+  "interpretation": "Pure prefilter removes proven redundant reachability work. Whole-run median not materially better; uncertain legacy process interference prevents attributing numeric differences as certain benefit."
+}

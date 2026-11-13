@@ -2573,6 +2573,17 @@ func suspend_outpatient(world: WorldState, facility_id: String) -> void:
 		if world.facts.adaptations.has(facility_id): world.facts.adaptations[facility_id].owner_id = visit.actor_id
 		space.sync_actor(world,visit.actor_id)
 
+# Read-only and invocation-local: no eligibility result survives a dispatch,
+# reservation, movement, or tick boundary.
+func _suspended_pair_eligible(pair: Dictionary, world: WorldState, visit: Dictionary, record: Dictionary) -> bool:
+	var facility: Dictionary = world.facts.facilities[pair.facility_id]
+	var staff: Dictionary = world.facts.staff[pair.staff_id]
+	if facility.definition_id!=record.definition_id or _facility_unavailable(facility) or _facility_busy(world,facility.id) or _staff_busy(world,staff.id) or not staff.on_shift or not _can_start(world,staff) or not _schedule_allows(world,staff.id,record.kind,visit,facility.id): return false
+	var attempt: Dictionary = world.facts.attempts.get(record.get("attempt_id",""),{})
+	if record.kind=="outpatient" and int(staff.abilities.treatment)<_outpatient_minimum(visit,attempt.plan_id): return false
+	if attempt.has("bed_id") and int(world.facts.facilities[attempt.bed_id].floor_id)!=int(facility.floor_id): return false
+	return true
+
 func _dispatch_suspended(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
 	var record: Dictionary = world.facts.clinical_suspensions.get(str(ticket.resume_session_id),{})
 	if record.is_empty(): return
@@ -2585,7 +2596,11 @@ func _dispatch_suspended(world: WorldState, visit: Dictionary, ticket: Dictionar
 		ticket.service_assigned = false
 		ticket.called_tick = -1
 	if preparation.is_empty():
-		for pair: Dictionary in service_candidates(world,visit,str(record.kind),true):
+		# Reject actual resume-ineligible pairs before the read-only route proof.
+		# Keep structural enumeration and its ordering; the commit path below
+		# still rechecks every condition after leaving the query scope.
+		var selection: Dictionary = {"eligible":_suspended_pair_eligible.bind(world,visit,record)}
+		for pair: Dictionary in service_candidates(world,visit,str(record.kind),true,false,selection):
 			var facility: Dictionary = world.facts.facilities[pair.facility_id]
 			var staff: Dictionary = world.facts.staff[pair.staff_id]
 			if facility.definition_id!=record.definition_id or _facility_unavailable(facility) or _facility_busy(world,facility.id) or _staff_busy(world,staff.id) or not staff.on_shift or not _can_start(world,staff) or not _schedule_allows(world,staff.id,record.kind,visit,facility.id): continue
