@@ -1,0 +1,128 @@
+{
+	"completed": true,
+	"details": [
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "boarding_max_nurse",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "boarding_max_patient",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "family_boarding_partial",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "boarding_complete",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "family_boarding_complete",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "convoy_idle",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "convoy_riding",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "family_alighting_partial",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "alighting_max_patient",
+			"tick": 1979,
+			"validation": ""
+		},
+		{
+			"completed": true,
+			"exact_restore": true,
+			"same_final": true,
+			"stage": "alighting_max_nurse",
+			"tick": 1979,
+			"validation": ""
+		}
+	],
+	"errors": [],
+	"initial_validation": "",
+	"input_sha256": "2f2b95806cc296a9b80a6cc63c9c3a56c1af725da2f0d88246d8af767106c048",
+	"metadata": {
+		"scope": "Independent max three-body ground-to-ground transport",
+		"targets": {
+			"max_family": {
+				"cell": [
+					65.0,
+					50.0
+				],
+				"floor_id": 2.0
+			},
+			"max_nurse": {
+				"cell": [
+					48.9000015258789,
+					69.25
+				],
+				"floor_id": 2.0
+			}
+		}
+	},
+	"negative_loaded_idle": {
+		"owner": "max_nurse",
+		"reason": "分体乘员未完成登舱不能行驶或待站",
+		"rejected": true,
+		"scope": "Consistent initial handoff poses illegally substituted into actual loaded-idle snapshot"
+	},
+	"ok": true,
+	"scope": "Actual max-body spatial handoff and complete raw-facts cold replay; not clinical treatment or performance proof",
+	"stages": [
+		"boarding_max_nurse",
+		"boarding_max_patient",
+		"family_boarding_partial",
+		"boarding_complete",
+		"family_boarding_complete",
+		"convoy_idle",
+		"convoy_riding",
+		"family_alighting_partial",
+		"alighting_max_patient",
+		"alighting_max_nurse"
+	],
+	"step_bound": 4000
+}

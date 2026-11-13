@@ -908,6 +908,7 @@ func _case_30(t) -> void:
 	HospitalFactory._add_staff(parallel.world,"second_research_worker","研究员二","researcher",[45,72],_content)
 	parallel.simulation.services.scheduler.ensure(parallel.world)
 	parallel.simulation.services.recruitment.ensure(parallel.world)
+	_assign_research_room(parallel,"second_research_worker")
 	_fresh_space(parallel)
 	var one: CommandResult = _start(parallel,"R12",{"desk_id":"research_desk","worker_id":"research_worker"})
 	var two: CommandResult = _start(parallel,"R14",{"desk_id":"second_research_desk","worker_id":"second_research_worker"})

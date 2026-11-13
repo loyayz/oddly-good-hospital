@@ -3,8 +3,8 @@ const Phase=preload("res://tests/acceptance/public_phase_use.gd")
 const Boundary=preload("res://tests/acceptance/public_arrival_boundaries.gd")
 class TraceSpace extends HospitalSpace:
 	var events: Array=[]
-	func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array=[], offsets: Dictionary={}, ignore_people: bool=false) -> bool:
-		var result: bool=super.can_reach(world,actor_id,floor_id,target,members,offsets,ignore_people)
+	func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array=[], offsets: Dictionary={}, ignore_people: bool=false, route_filter: Dictionary = {}) -> bool:
+		var result: bool=super.can_reach(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 		events.append({"kind":"reach","cell":target.duplicate(),"result":result})
 		return result
 class TraceAreas extends HospitalPublicAreas:

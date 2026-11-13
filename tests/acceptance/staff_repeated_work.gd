@@ -6,12 +6,12 @@ class Routes extends HospitalSpace:
 	func begin_dynamic_route_query(world: WorldState, refresh_actors: bool = true) -> void:
 		dynamic_batches += 1
 		super.begin_dynamic_route_query(world,refresh_actors)
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		route_calls += 1
-		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
-	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
+	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		route_calls += 1
-		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 
 class Wellbeing extends HospitalStaffWellbeing:
 	var tea_calls: int = 0

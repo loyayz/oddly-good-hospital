@@ -136,7 +136,9 @@ func _case_02(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse"})
 	_facility(x,"diagnosis","FUR02",[42,76])
 	var visit: Dictionary = _visit(x)
-	var session: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
+	var gp_data: Dictionary = {"doctor_fee":12,"facility_fee":8}
+	HospitalClinic.Flow.freeze_gp(x.c,x.world,visit,x.world.facts.staff.doctor,x.world.facts.facilities.diagnosis,gp_data)
+	var session: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,gp_data)
 	session.remaining_ticks = 1
 	x.c.advance(x.world)
 	x.c._complete_service(x.world,session)
@@ -423,7 +425,9 @@ func _case_16(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor","anesthetist":"doctor","nurse":"nurse"})
 	_facility(x,"diagnosis","FUR02",[43,75])
 	var visit: Dictionary = _visit(x)
-	var current: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
+	var gp_data: Dictionary = {"doctor_fee":12,"facility_fee":8}
+	HospitalClinic.Flow.freeze_gp(x.c,x.world,visit,x.world.facts.staff.doctor,x.world.facts.facilities.diagnosis,gp_data)
+	var current: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,gp_data)
 	current.remaining_ticks = 2
 	var remaining: int = current.remaining_ticks
 	var rest: CommandResult = x.s.execute(x.world,"apply_schedule",{"changes":[{"staff_id":"doctor","schedule":_schedule(["rest","outpatient","outpatient"])}]})
@@ -475,7 +479,9 @@ func _case_18(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor"})
 	_facility(x,"diagnosis","FUR02",[43,75])
 	var visit: Dictionary = _visit(x)
-	var current: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
+	var gp_data: Dictionary = {"doctor_fee":12,"facility_fee":8}
+	HospitalClinic.Flow.freeze_gp(x.c,x.world,visit,x.world.facts.staff.doctor,x.world.facts.facilities.diagnosis,gp_data)
+	var current: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,gp_data)
 	current.remaining_ticks = 2
 	var requested_tick: int = x.world.sim_tick
 	var leave: CommandResult = x.s.execute(x.world,"plan_leave",{"staff_id":"doctor","days":1,"start":"now"})

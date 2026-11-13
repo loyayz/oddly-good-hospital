@@ -32,7 +32,7 @@ func preview(world: WorldState, kind: String, payload: Dictionary) -> Dictionary
 		if rotation%2==1: size.reverse()
 		id = candidate.new_id("connector")
 		var cell: Array = payload.cell.duplicate()
-		var record: Dictionary = {"id":id,"definition_id":definition.id,"first_floor":first,"last_floor":first+1 if definition.kind=="stairs" else first,"cell":cell,"footprint":size,"rotation":rotation,"anchor":[int(cell[0])+front.x,int(cell[1])+front.y],"repair_cell":[int(cell[0])+repair.x,int(cell[1])+repair.y],"floor_id":first,"phase":"idle","riders":[],"remaining_ticks":0,"ticket_next":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":int(definition.base_price),"used":false}
+		var record: Dictionary = {"id":id,"definition_id":definition.id,"first_floor":first,"last_floor":first+1 if definition.kind=="stairs" else first,"cell":cell,"footprint":size,"rotation":rotation,"anchor":[int(cell[0])+front.x,int(cell[1])+front.y],"repair_cell":[int(cell[0])+repair.x,int(cell[1])+repair.y],"floor_id":first,"phase":"idle","riders":[],"remaining_ticks":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":int(definition.base_price),"used":false}
 		var geometry: String = _geometry(candidate,record,int(record.first_floor),int(record.last_floor))
 		if not geometry.is_empty(): return BuildGeometry.failure(geometry)
 		candidate.facts.connectors[id] = record
@@ -53,7 +53,11 @@ func preview(world: WorldState, kind: String, payload: Dictionary) -> Dictionary
 		record.paid_cost = int(record.paid_cost)+price
 	elif kind=="connector_remove":
 		var record: Dictionary = candidate.facts.connectors[id]
-		if record.phase!="idle" or not HospitalTransit._waiting(space,candidate,id).is_empty(): return BuildGeometry.failure("等待原乘员和叫梯票安全完成")
+		var queued: bool=false
+		for line: Array in record.get("landing_queues",{}).values():
+			if not line.is_empty(): queued=true;break
+		if record.phase!="idle" or not record.get("riders",[]).is_empty() or not record.get("passenger_groups",[]).is_empty() or queued or not HospitalTransit._waiting(space,candidate,id).is_empty():
+			return BuildGeometry.failure("等待车内乘员及实际候梯队列安全结束后再拆除")
 		for collection: String in ["jobs","upgrades"]:
 			for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
 				if job.facility_id==id and not job.phase in ["completed","cancelled","abandoned"]: return BuildGeometry.failure("请先安全结束该设备维护工单")

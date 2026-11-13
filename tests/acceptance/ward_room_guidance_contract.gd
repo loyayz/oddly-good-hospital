@@ -92,6 +92,9 @@ func _run_contract(c: Dictionary, mode: String) -> Dictionary:
 	var initial_remaining: int = int(stay_input.remaining_ticks)
 	var initial_rest_tick: int = int(c.world.facts.staff[nurse_id].last_rest_end_tick)
 	var checks: Dictionary = {"legal_real_input":c.world.validate(_content).is_empty() and stay_input.phase=="recovery" and initial_remaining>0 and int(care_input.total_ticks)==80 and int(c.nursing_handoff_ticks.get(nurse_id,0))==60 and c.nursing_handoff_not_at_base.is_empty(),"one_original_attempt":_visit(c).attempt_ids.size()==1,"real_bodies":true,"world_valid":true,"full_recovery":false,"care_at_bedside":true,"exact_work_rate":true,"no_early_fees":true,"original_commitments":true,"original_stay_resources":true,"actual_safe_bed_exit":false,"actual_departure":false,"unique_original_bill":false,"one_original_supply_issue":false,"no_round":true}
+	checks.release_owner_handoff = false
+	checks.release_boundary_idempotent = false
+	checks.release_boundary_cold_restore = false
 	var operation: Dictionary = {}
 	if mode=="room_loss":
 		var ward: Dictionary = c.world.facts.rooms[ward_id]
@@ -118,6 +121,7 @@ func _run_contract(c: Dictionary, mode: String) -> Dictionary:
 	var final_entries: Dictionary = {}
 	for index: int in 3600:
 		var before_stay: Dictionary = _stay(c).duplicate(true)
+		var before_held: Dictionary = c.world.facts.adaptations.get(bed_id,{}).duplicate(true)
 		var before_care: Dictionary = _session(c,"care").duplicate(true)
 		var before_need: Dictionary = c.world.facts.staff[nurse_id].life_task.duplicate(true)
 		_tick(c)
@@ -128,6 +132,29 @@ func _run_contract(c: Dictionary, mode: String) -> Dictionary:
 		if not validation.is_empty() or not overlap.is_empty():
 			errors.append({"tick":c.world.sim_tick,"validation":validation,"overlap":overlap})
 			break
+		# Observe the real production handoff, never fabricate a release phase.
+		if not before_stay.is_empty() and _stay(c).is_empty() and before_held.get("owner_id","")==str(before_stay.id):
+			var held: Dictionary = c.world.facts.adaptations.get(bed_id,{}).duplicate(true)
+			var patient_id: String = str(_visit(c).actor_id)
+			var content_before: Dictionary = before_held.duplicate(true)
+			var content_after: Dictionary = held.duplicate(true)
+			content_before.erase("owner_id");content_after.erase("owner_id")
+			var still_inside: bool = false
+			var participants: Array = before_held.staff_ids.duplicate()
+			if not patient_id in participants: participants.append(patient_id)
+			for participant_id: String in participants:
+				var actor: Dictionary = c.world.facts.actors[participant_id]
+				if actor.location.kind!="floor" or int(actor.location.floor_id)!=int(before_held.floor_id): continue
+				for raw: Array in before_held.regions:
+					if c.sim.space.body_rectangle(actor).intersects(Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3])),false): still_inside=true
+			checks.release_owner_handoff = held.get("owner_id","")==patient_id and content_before==content_after and still_inside
+			var release_facts: Dictionary = c.world.freeze()
+			c.sim.clinic.release_departed(c.world)
+			c.sim.clinic.release_departed(c.world)
+			checks.release_boundary_idempotent = c.world.freeze()==release_facts
+			var restored: Dictionary = _roundtrip(c)
+			checks.release_boundary_cold_restore = restored.ok and c.world.freeze()==release_facts and c.world.validate(_content).is_empty()
+			observed.release_boundary = {"tick":c.world.sim_tick,"restore":restored,"old_owner":before_stay.id,"new_owner":held.get("owner_id","")}
 		var stay: Dictionary = _stay(c)
 		var care: Dictionary = _session(c,"care")
 		var nurse: Dictionary = c.world.facts.staff[nurse_id]

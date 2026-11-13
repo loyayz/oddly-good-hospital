@@ -8,7 +8,7 @@ const SECOND: String = "sole_route_second"
 class FullSolver extends HospitalNavigation:
 	func _init(geometry: HospitalSpace) -> void:
 		super(geometry)
-	func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, initial_ticks: int, distance_only: bool) -> Dictionary:
+	func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, initial_ticks: int, distance_only: bool, route_filter: Dictionary = {}) -> Dictionary:
 		var direct: Dictionary = {"ok":false,"status":"unreachable","reason":"没有合法通路"}
 		if source_floor==target_floor:
 			direct = _floor_route(world,actor,source_floor,start,goal,members,offsets,true,{},true,distance_only)

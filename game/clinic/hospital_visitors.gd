@@ -116,6 +116,7 @@ func dispatch(world: WorldState) -> void:
 		var stay: Dictionary=world.facts.visitors.stays[id]
 		var visit: Dictionary=world.facts.visits[stay.visit_id]
 		var actor: Dictionary=world.facts.actors[stay.actor_id]
+		if LiftController.pending_holds(world,str(stay.actor_id)): continue
 		var ward: Dictionary=_ward_stay(world,visit.id)
 		var terminal: bool=_terminal(visit,ward)
 		if terminal:
@@ -138,6 +139,7 @@ func dispatch(world: WorldState) -> void:
 		if stay.purpose=="companion" and not _daytime(world) and not away and _inside_ward(world,visit.actor_id,ward) and not stay.return_ward_first:
 			stay.phase="leaving"
 			continue
+		if stay.purpose=="companion" and _join_patient_lift(world,stay,visit): continue
 		var medical: bool=_medical_work(world,ward)
 		if stay.yielding and not medical:
 			var yielding_move: Dictionary=world.facts.moves.get(actor.id,{})
@@ -190,9 +192,37 @@ func _outside_point(world: WorldState, stay: Dictionary, facility_id: String) ->
 		avoid=space._actor_rect(world.facts.actors[other.actor_id],Vector2(float(destination.cell[0]),float(destination.cell[1])))
 	return waiting_scope.point(world,stay.actor_id,facility_id,avoid)
 
+# A companion finishes an active life/safe-release action before dispatch
+# reaches this handoff. Both owners then walk their own real cross-floor route;
+# the landing queue admits them together only after actual rendezvous.
+func _join_patient_lift(world: WorldState, stay: Dictionary, visit: Dictionary) -> bool:
+	var patient: Dictionary=world.facts.actors.get(visit.get("actor_id",""),{})
+	if patient.get("location",{}).get("kind")!="floor": return false
+	var journey: Dictionary=world.facts.moves.get(patient.get("id",""),{})
+	if journey.is_empty():
+		for m: Dictionary in world.facts.moves.values():
+			if patient.get("id","") in m.get("members",[]): journey=m;break
+	if journey.is_empty(): return false
+	var trip: Dictionary=HospitalTransit.journey(journey)
+	if trip.is_empty() or int(trip.from)!=int(patient.location.floor_id): return false
+	var connection: Dictionary=world.facts.connectors.get(trip.connector_id,{})
+	if connection.is_empty() or content.definition("vertical_connectors",connection.definition_id).kind!="lift": return false
+	var companion_location: Dictionary=world.facts.actors[stay.actor_id].location
+	if companion_location.kind=="floor" and int(companion_location.floor_id)!=int(trip.from):
+		_travel(world,stay,{"floor_id":int(trip.from),"cell":connection.anchor.duplicate()},"companion_rendezvous")
+		stay.waiting_reason="先实际到患者所在楼层会合"
+		return true
+	var own: Dictionary=world.facts.moves.get(stay.actor_id,{})
+	var own_trip: Dictionary=HospitalTransit.journey(own)
+	if own_trip==trip and own.get("visitor_stay_id","")==stay.id: return true
+	var cell: Array=journey.target_cell if int(journey.target_floor)==int(trip.to) else connection.anchor
+	_travel(world,stay,{"floor_id":int(trip.to),"cell":cell.duplicate()},"companion_transit")
+	stay.waiting_reason="沿真实路线与患者会合候梯"
+	return true
+
 func _cancel_optional_ground(world: WorldState, actor_id: String) -> bool:
 	var movement: Dictionary=world.facts.moves.get(actor_id,{})
-	if movement.has("detour") or movement.has("convoy") or movement.get("members",[actor_id])!=[actor_id]: return false
+	if movement.has("detour") or movement.has("local_move") or movement.has("convoy") or movement.get("members",[actor_id])!=[actor_id]: return false
 	return space.cancel_ground_move(world,actor_id)
 
 # A family journey owns only its own optional ground movement. Transit,
@@ -429,7 +459,7 @@ func _owns_public_move(world: WorldState, stay: Dictionary) -> bool:
 	var actor_id: String = str(stay.actor_id)
 	var movement: Dictionary = world.facts.moves.get(actor_id,{})
 	if movement.is_empty() or movement.get("waiting_seat_id","")!=stay.public_use.id: return false
-	if movement.has("detour") or movement.has("convoy") or movement.get("members",[actor_id])!=[actor_id]: return false
+	if movement.has("detour") or movement.has("local_move") or movement.has("convoy") or movement.get("members",[actor_id])!=[actor_id]: return false
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor" or actor.get("posture","")=="lying": return false
 	var cursor: int = int(movement.cursor)

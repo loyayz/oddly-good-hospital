@@ -198,8 +198,15 @@ func _research_context(desk: bool = true, worker: bool = true) -> Dictionary:
 		HospitalFactory._add_staff(ctx.world,"research_worker","研究员","researcher",[45,70],_content)
 		ctx.simulation.services.scheduler.ensure(ctx.world)
 		ctx.simulation.services.recruitment.ensure(ctx.world)
+		if desk: _assign_research_room(ctx,"research_worker")
 	_fresh_space(ctx)
 	return ctx
+
+func _assign_research_room(ctx: Dictionary, worker_id: String) -> void:
+	var schedule: Array = [{"kind":"work","pools":["research_room"]},{"kind":"work","pools":["research_room"]},{"kind":"rest","pools":[]}]
+	var applied: CommandResult = ctx.simulation.services.scheduler.execute(ctx.world,"apply_schedule",{"changes":[{"staff_id":worker_id,"schedule":schedule}]})
+	if not applied.accepted: _fixture_errors.append({"worker":worker_id,"schedule_error":applied.reason})
+	ctx.simulation.services.scheduler.boundaries(ctx.world)
 
 func _finish_opening_handoff(ctx: Dictionary) -> Dictionary:
 	var opening: Dictionary = {}

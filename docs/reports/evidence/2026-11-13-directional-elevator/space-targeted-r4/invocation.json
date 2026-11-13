@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+    "--headless",
+    "--path",
+    "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+    "--script",
+    "res://tests/acceptance/runner.gd",
+    "--",
+    "space",
+    "--case=SPACE-25",
+    "--case=SPACE-26",
+    "--case=SPACE-29",
+    "--case=SPACE-54",
+    "--case=SPACE-55",
+    "--case=SPACE-59"
+  ],
+  "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+  "started_utc": "2026-11-13T06:32:31.146152+00:00",
+  "OMP_NUM_THREADS": "1",
+  "isolated_environment": {
+    "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/space-targeted-r4/runtime-data",
+    "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/space-targeted-r4/runtime-config",
+    "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/space-targeted-r4/runtime-cache"
+  },
+  "scope": "Selected functional check; not performance proof"
+}

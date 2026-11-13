@@ -10,16 +10,16 @@ class CountedSpace extends HospitalSpace:
 	var condition_trace: Array = []
 	var route_calls: int = 0
 	var route_us: int = 0
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		route_calls += 1
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 		route_us += Time.get_ticks_usec()-started
 		return result
-	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		route_calls += 1
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		var result: Dictionary = super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 		route_us += Time.get_ticks_usec()-started
 		return result
 	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, cost_only: bool = false) -> Dictionary:

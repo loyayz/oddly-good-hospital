@@ -5,11 +5,11 @@ extends RefCounted
 class ObservedSpace extends HospitalSpace:
 	var calls: int = 0
 	var moving_calls: int = 0
-	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		calls += 1
 		var move: Dictionary = world.facts.moves.get(actor_id,{})
 		if move.get("target_floor",-1)==floor_id and move.get("target_cell",[])==target: moving_calls += 1
-		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 
 func maintenance(suite) -> Dictionary:
 	var normal: Dictionary = _maintenance_trip(suite,false)

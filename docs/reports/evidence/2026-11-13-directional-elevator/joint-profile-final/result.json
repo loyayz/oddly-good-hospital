@@ -1,0 +1,27 @@
+{
+	"family": [
+		45.2666664123535,
+		83.2666702270508,
+		0.466666668653488,
+		0.466666668653488
+	],
+	"large_legal": "",
+	"new_joint": false,
+	"new_publication": false,
+	"nursing": [
+		43.0,
+		76.0,
+		5.0,
+		5.0
+	],
+	"occupancy_signature_movement_changes": true,
+	"occupancy_signature_order_independent": true,
+	"ok": true,
+	"old_joint": true,
+	"old_publication": true,
+	"request": "",
+	"scope": "Composite nursing convoy and family waiting envelopes; geometry proof only, no claimed actual elevator arrival",
+	"single_family": true,
+	"single_nursing": true,
+	"validation": ""
+}

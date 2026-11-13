@@ -133,7 +133,6 @@ func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: A
 	previous.erase("floor_guidance_key")
 	previous.erase("guidance_nurse_desk")
 	previous.erase("floor_only")
-	HospitalTransit.cancel_waiting(world,previous)
 	previous.erase("route_waypoint")
 	previous.erase("detour")
 	previous.erase("live_floor_route")
@@ -210,7 +209,6 @@ func cancel_ground(world: WorldState, actor_id: String) -> bool:
 		var actor: Dictionary = world.facts.actors[id]
 		if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return false
 	if int(movement.cursor)<movement.path.size() and int(movement.cursor)>=0 and movement.path[int(movement.cursor)].kind=="support_exit": return false
-	HospitalTransit.cancel_waiting(world,movement)
 	world.facts.moves.erase(actor_id)
 	if movement.has("convoy"):
 		_unregister_members(movement)
@@ -222,7 +220,7 @@ func cancel_ground(world: WorldState, actor_id: String) -> bool:
 	return true
 
 func _failure_body_basis(world: WorldState, movement: Dictionary) -> Array:
-	var result: Array = [movement.target_floor,movement.target_cell,movement.get("members",[]),movement.get("offsets",{})]
+	var result: Array = [movement.target_floor,movement.target_cell,movement.get("members",[]),movement.get("offsets",{}),movement.get("route_filter",{})]
 	for id: String in movement.get("members",[str(movement.actor_id)]):
 		var actor: Dictionary = world.facts.actors[id]
 		result.append([id,actor.location,_route_body_basis(actor)])
@@ -264,6 +262,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			continue
 		var movement: Dictionary = world.facts.moves[actor_id]
 		var actor: Dictionary = world.facts.actors[actor_id]
+		if LiftController.pending_holds(world,actor_id) or LiftLandingQueue.holds(world,actor_id): continue
 		if movement.get("replan_after_transit",false) and actor.location.kind=="floor":
 			movement.erase("replan_after_transit")
 			_replan_goal(world,movement)
@@ -374,7 +373,6 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			_yield(world,actor,movement,result)
 	# Publish departure from a landing in this same movement boundary, before
 	# other services quote transport or save the world. Active rides are untouched.
-	HospitalTransit.cancel_absent_waiters(space,world)
 	# Historic sweeps exist only during movement phase, never in later queries.
 	_accepted_sweeps.clear()
 	_sweep_index.expire_boundary()
@@ -604,11 +602,6 @@ func _checkpoint(actor: Dictionary) -> Dictionary:
 	return {"kind":"floor","floor_id":int(actor.location.floor_id),"cell":actor.location.cell.duplicate()}
 
 func _replan_goal(world: WorldState, movement: Dictionary, preserve_order: bool = false) -> void:
-	if HospitalTransit.waiting_route_failed(world,movement):
-		_route_checks.erase(movement.actor_id)
-		_queue_route(world,movement,true)
-		return
-	HospitalTransit.cancel_waiting(world,movement)
 	movement.erase("route_waypoint")
 	movement.erase("detour")
 	movement.erase("local_move")
@@ -793,20 +786,9 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			quote={"ok":true,"path":waypoint.prefix.duplicate(true)}
 			_route_checks.erase(id)
 		elif not waypoint.is_empty() and movement.has("convoy"):
-			var ticket: Dictionary=movement.get("transit_ticket",{})
-			var connection: Dictionary=world.facts.connectors.get(ticket.get("connector_id",""),{})
-			if movement.has("transit_wait") and connection.get("assigned_actor_id","")==id:
-				var plan: Dictionary=ConvoyPortal.plan(space,world,connection,id,movement.members,movement.convoy)
-				if plan.ok:
-					var proxy: Dictionary=ConvoyTrail.proxy(world,movement)
-					quote=space.navigation._convoy_portal_approach(world,proxy,floor_id,{"cell":ConvoyTrail.point(proxy.location.cell),"convoy":movement.convoy},plan)
-					if quote.ok:
-						var shift: float=float(movement.convoy.shift)
-						for point: Dictionary in quote.path: point.cell=[float(point.cell[0])-shift,float(point.cell[1])-shift]
-				else: quote={"ok":false,"status":"unreachable","reason":plan.reason}
-			else: quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
+			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
 		elif waypoint.is_empty() and not movement.get("floor_only",false):
-			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
+			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}),false,movement.get("route_filter",{}))
 		else:
 			var actor: Dictionary = world.facts.actors[id]
 			quote = space.navigation.exact_floor_route(world,actor,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
@@ -819,12 +801,9 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			movement.route_retry_tick = world.sim_tick+int(space.content.balance.movement_courtesy.retry_hard_block_seconds)*10
 			_schedule_route(world,movement)
 			if quote.get("status","")=="unreachable":
-				if HospitalTransit.waiting_route_failed(world,movement): _route_failures.erase(id)
-				else: _remember_failure(world,movement,str(quote.reason))
+				_remember_failure(world,movement,str(quote.reason))
 			else: _route_failures.erase(id)
 			continue
-		if waypoint.has("prefix") and movement.has("transit_ticket"):
-			movement.transit_wait={"sequence":movement.request_sequence,"cell":waypoint.cell.duplicate()}
 		movement.path = quote.path
 		if not waypoint.is_empty():
 			movement.path.append_array(waypoint.continuation)
@@ -888,7 +867,7 @@ func queue_waypoint_prefix(world: WorldState, movement: Dictionary, prefix: Arra
 	var actor: Dictionary=world.facts.actors[movement.actor_id]
 	var last: Dictionary=prefix[-1]
 	movement.route_waypoint={"floor_id":last.floor_id,"cell":last.cell.duplicate(),"continuation":movement.path.slice(int(movement.cursor)).duplicate(true),"prefix":prefix.duplicate(true),"binding":{"origin":actor.location.cell.duplicate(),"sequence":movement.request_sequence,"target_floor":movement.target_floor,"target_cell":movement.target_cell.duplicate(),"connector_id":owner.connector_id}}
-	for key: String in ["trip_sequence","selected_id","selected_request","selected_ticket","waiting_ticket","retreat_actor","retreat_request","retreat_target"]:
+	for key: String in ["trip_receipt","retreat_actor","retreat_request","retreat_target"]:
 		if owner.has(key): movement.route_waypoint.binding[key]=owner[key]
 	_queue_route(world,movement,true)
 
@@ -918,7 +897,6 @@ func _waypoint_prefix_valid(world: WorldState, movement: Dictionary, waypoint: D
 	return _bounded_prefix_clear(world,actor,movement,waypoint.prefix)
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array, transit_owned: bool = false) -> void:
-	if movement.has("transit_wait") and not transit_owned: HospitalTransit.cancel_waiting(world,movement)
 	var remaining: Array = movement.path.slice(int(movement.cursor))
 	movement.route_waypoint = {"floor_id":floor_id,"cell":cell.duplicate(),"continuation":remaining}
 	# A temporary stop belongs to the original journey, not a new request.
@@ -1251,7 +1229,8 @@ func _local_floor_segment(actor: Dictionary, movement: Dictionary) -> bool:
 	var point: Dictionary=path[cursor]
 	return point.get("kind")=="floor" and point.get("floor_id")==actor.location.floor_id
 
-func _local_movable(_world:WorldState,actor:Dictionary,journey:Dictionary)->bool:
+func _local_movable(world:WorldState,actor:Dictionary,journey:Dictionary)->bool:
+	if actor.is_empty() or LiftController.pending_holds(world,str(actor.id)): return false
 	if not _local_floor_segment(actor,journey) or journey.has("convoy") or journey.get("members",[actor.id]).size()!=1 or actor.get("posture")!="standing": return false
 	# The existing ground journey owns this walking body. Duties still own
 	# their commitments and safe release; they do not make its walk a fixed post.
@@ -1330,11 +1309,6 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		# An intention alone cannot clear this contact. Only an actually clear
 		# next step lets the other body leave without another local manoeuvre.
 		if next!=origin and _local_path_clear(world,other,[_floor_point(other,next)]): return
-	# Only Transit can lend a waiting body to its selected actual contact.
-	# This is after effective-departure protection, before choosing a bypass.
-	for id: String in contact.blocker_actor_ids:
-		var other: Dictionary=world.facts.actors.get(id,{})
-		if not other.is_empty() and HospitalTransit.yield_to_selected(space,world,other,world.facts.moves.get(id,{}),actor,movement,contact.requested_motion): return
 	if movement.get("local_move",{}).has("rejoin") and not bool(movement.local_move.get("retreat",false)):
 		# A blocked B is an attempted target, not earned route progress. Try C
 		# only after the existing single local mover has been considered.
@@ -1411,6 +1385,15 @@ func _local_fixed_path_clear(world: WorldState, actor: Dictionary, path: Array, 
 	var bodies: Array[Rect2]=[]
 	for id: String in fixed:
 		var other: Dictionary=world.facts.actors[id]
+		if other.location.kind!="floor":
+			# An active lift portal owns this body. It cannot be recruited as
+			# a floor side-stepper, but its actual exposed indexed regions
+			# must remain obstacles to the ordinary walker's local bypass.
+			var record: BodyIndex.Record=space._actor_index._records.get(id)
+			if record==null or record.floor_id!=int(actor.location.floor_id): return false
+			if record.regions.is_empty(): bodies.append(record.rect)
+			else: bodies.append_array(record.regions)
+			continue
 		bodies.append(space._actor_rect(other,ConvoyTrail.point(other.location.cell)))
 	var sample: Dictionary=actor.duplicate()
 	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
@@ -2047,6 +2030,8 @@ func _move_convoy(world: WorldState, actor: Dictionary, movement: Dictionary, se
 # A portal frame is one atomic compound leader trajectory. Half-size proof
 # milestones may split it, but never discard the remaining walking budget.
 func _move_convoy_portal(world: WorldState, actor: Dictionary, movement: Dictionary, targets: Array, floor_id: int, connector_id: String) -> MotionResult:
+	if movement.convoy.portal.plan.get("mode","")=="articulated":
+		return _move_articulated_portal(world,actor,movement,targets,floor_id,connector_id)
 	var result: MotionResult=MotionResult.new()
 	var start: Vector2=ConvoyTrail.point(movement.convoy.points[-1])
 	space.query_counts["convoy_leader_checks"]=int(space.query_counts.get("convoy_leader_checks",0))+1
@@ -2056,6 +2041,34 @@ func _move_convoy_portal(world: WorldState, actor: Dictionary, movement: Diction
 	space.query_counts["convoy_portal_subsegments"]=int(space.query_counts.get("convoy_portal_subsegments",0))+int(proposal.segment_count)
 	var next: Vector2=ConvoyTrail.point(proposal.points[-1])
 	result.requested_motion=next-start
+	# Legacy cabin coordinates use the same portal-entry projection as
+	# LiftController.placement. Preserve the full swept proxy contract.
+	var connection: Dictionary=world.facts.connectors[connector_id]
+	var plan: Dictionary=movement.convoy.portal.plan
+	var inward: Vector2=ConvoyTrail.point(plan.inward)
+	var side: Vector2=Vector2(-inward.y,inward.x)
+	var origin: Vector2=ConvoyTrail.point(plan.entry)
+	var definition: Dictionary=space.content.definition("vertical_connectors",connection.definition_id)
+	var cabin: Rect2=Rect2(Vector2.ZERO,ConvoyTrail.point(definition.cabin_size))
+	for front: Rect2 in proposal.fronts:
+		var lo: Vector2=Vector2(INF,INF);var hi: Vector2=Vector2(-INF,-INF)
+		for corner: Vector2 in [front.position,Vector2(front.end.x,front.position.y),front.end,Vector2(front.position.x,front.end.y)]:
+			var delta: Vector2=corner-origin
+			var local: Vector2=Vector2(delta.dot(side),delta.dot(inward))
+			lo=lo.min(local);hi=hi.max(local)
+		var swept: Rect2=Rect2(lo,hi-lo).intersection(cabin)
+		if not swept.has_area(): continue
+		for group: Dictionary in connection.get("passenger_groups",[]):
+			for id: String in group.members:
+				if id in movement.members: continue
+				var shape: Dictionary=world._articulated_member_plan(id)
+				var region: Rect2=Rect2(ConvoyTrail.point(group.cabin_positions[id]),Vector2.ONE*space.clearance(world.facts.actors[id]))
+				if not shape.is_empty():
+					var raw: Array=shape.cabin_regions[id]
+					region=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+				if swept.intersects(region,false):
+					movement.waiting_reason="护理队列过门代理扫掠被实际舱内身体阻挡"
+					return result
 	var proxy: Dictionary=ConvoyTrail.proxy(world,movement)
 	var shift: Vector2=Vector2.ONE*float(movement.convoy.shift)
 	proxy.location={"kind":"floor","floor_id":floor_id,"cell":[start.x+shift.x,start.y+shift.y]}
@@ -2154,3 +2167,76 @@ func _convoy_goal_reason(world: WorldState, movement: Dictionary, floor_id: int,
 	var blocked_bed: String=space.bed_destination_blocker(world,str(movement.actor_id),floor_id,space._actor_rect(proxy,origin),movement.members)
 	if not blocked_bed.is_empty(): return "护理床岗位已有使用预约："+blocked_bed
 	return space.navigation.structural_clearance(world,proxy,floor_id).sweep_reason(origin,origin)
+
+# Current open-door handoff only. Independent body poses explicitly permit
+# controlled side/back steps; facing is not silently replaced by velocity.
+func _move_articulated_portal(world: WorldState, actor: Dictionary, movement: Dictionary, frames: Array, floor_id: int, connector_id: String) -> MotionResult:
+	var result: MotionResult=MotionResult.new()
+	var portal: Dictionary=movement.convoy.portal
+	var cursor: int=int(portal.cursor)
+	if cursor>=frames.size(): return result
+	var frame: Dictionary=frames[cursor]
+	# Cabin occupants are deliberately absent from the floor body index.
+	# Check them in cabin coordinates before any articulated frame is published.
+	var connection: Dictionary=world.facts.connectors[connector_id]
+	for sweep: Dictionary in frame.get("cabin_sweeps",[]):
+		var raw: Array=sweep.rect
+		var swept: Rect2=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+		for group: Dictionary in connection.passenger_groups:
+			for id: String in group.members:
+				if id in movement.members: continue
+				var shape: Dictionary=world._articulated_member_plan(id)
+				var region: Rect2=Rect2(ConvoyTrail.point(group.cabin_positions[id]),Vector2.ONE*space.clearance(world.facts.actors[id]))
+				if not shape.is_empty():
+					var body: Array=shape.cabin_regions[id]
+					region=Rect2(float(body[0]),float(body[1]),float(body[2]),float(body[3]))
+				if swept.intersects(region,false):
+					movement.waiting_reason="护理组连续过门被实际舱内身体阻挡"
+					return result
+	var source: Dictionary=space._navigation.floor_source(space,world,floor_id).duplicate()
+	source.connectors=source.connectors.duplicate();source.connectors.erase(connector_id)
+	var history: Array[Rect2]=[]
+	var contacts: Array[BodyIndex.Record]=[]
+	var combined: Rect2=Rect2()
+	for sweep: Dictionary in frame.sweeps:
+		var raw: Array=sweep.rect
+		var rect: Rect2=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+		var body: Dictionary=world.facts.actors[sweep.actor_id]
+		var query: RouteClearance=RouteClearance.new(space,world,body,floor_id,[body.id],{},true,source)
+		var reason: String=query.rectangle_reason(rect)
+		if not reason.is_empty(): movement.waiting_reason=reason;return result
+		history.append(rect)
+		combined=rect if contacts.is_empty() else combined.merge(rect)
+		var record: BodyIndex.Record=BodyIndex.Record.new()
+		record.id=actor.id;record.sweep_from=rect;record.sweep_to=rect;contacts.append(record)
+	_movement_contacts(world,actor.id,floor_id,combined,contacts,movement.members,result)
+	if result.blocked: movement.waiting_reason="分阶段过门真实身体扫掠受阻，保留当前护理交接";return result
+	# Reserve any room-door passages atomically before publishing any body.
+	var doors: Array[Dictionary]=[];var seen: Dictionary={}
+	for sweep: Dictionary in frame.sweeps:
+		var raw: Array=sweep.rect
+		var rect: Rect2=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+		var body: Dictionary=world.facts.actors[sweep.actor_id]
+		for door: Dictionary in space.movement_doors(world,body,rect,[],floor_id):
+			if seen.has(door.id): continue
+			var quote: Dictionary=space.door_quote(world,body,floor_id,door,[])
+			if not quote.ok or not rect.intersects(space._door_rect(door,int(quote.span)),false):continue
+			seen[door.id]=true;doors.append(door)
+	# Articulation changes the lift doorway only. Room-door reservations
+	# retain the original complete convoy envelope and restore contract;
+	# reserving from the nurse body would understate the patient opening.
+	var ground_actor: Dictionary=ConvoyTrail.proxy(world,movement)
+	ground_actor.location={"kind":"floor","floor_id":floor_id,"cell":frame.poses[actor.id].cell.duplicate()}
+	if not _reserve_doors(world,ground_actor,movement,combined,doors,result):return result
+	portal.cursor=cursor+1
+	for id: String in movement.members:
+		var pose: Dictionary=frame.poses[id]
+		world.facts.actors[id].location.queue_cell=pose.cell.duplicate()
+		world.facts.actors[id].facing=float(pose.facing)
+		space._sync_actor(world,id)
+	space._sync_convoy(world,movement)
+	var accepted: BodyIndex.Record=BodyIndex.Record.new();accepted.id=actor.id;accepted.regions=history
+	_accepted_sweeps[actor.id]=accepted;_sweep_index.update_compound(actor.id,floor_id,history)
+	_mark_door_use(world,floor_id,combined,doors)
+	movement.blocked_since=-1;movement.erase("waiting_reason")
+	return result

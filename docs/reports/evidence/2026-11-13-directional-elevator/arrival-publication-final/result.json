@@ -1,0 +1,127 @@
+{
+	"ok": true,
+	"rows": [
+		{
+			"boundary_found": true,
+			"case": "old_target_walking",
+			"errors": [],
+			"final_location": {
+				"cell": [
+					32.0,
+					76.0
+				],
+				"floor_id": 1,
+				"height_m": 0.0,
+				"kind": "floor"
+			},
+			"initial_no_overlap": true,
+			"large_legal": "",
+			"no_false_entry": true,
+			"no_invitation": true,
+			"no_teleport": true,
+			"ok": true,
+			"old_target": {
+				"cell": [
+					39,
+					76
+				],
+				"connector_id": "connector_00000001",
+				"destination": 2,
+				"direction": 1,
+				"floor_id": 1,
+				"geometry_revision": "3d0562480922c41b9c432074773e5b63a48f9ec08198ea059f70397c44d17ed2",
+				"passage_profiles": [
+					"[1,{\"depth_m\":0.7,\"height_m\":1.75,\"width_m\":0.7}]"
+				],
+				"request_sequence": 1,
+				"target_cell": [
+					45,
+					82
+				],
+				"target_floor": 2
+			},
+			"old_target_unsafe": true,
+			"request": "",
+			"signature_changed": true,
+			"standby": {
+				"blocked_in_place": false,
+				"cell": [
+					32,
+					76
+				],
+				"connector_id": "connector_00000001",
+				"destination": 2,
+				"floor_id": 1,
+				"request_sequence": 1,
+				"target_cell": [
+					45,
+					82
+				],
+				"target_floor": 2,
+				"traveling": true
+			},
+			"validation": ""
+		},
+		{
+			"boundary_found": true,
+			"case": "endpoint_before_publication",
+			"errors": [],
+			"final_location": {
+				"cell": [
+					32.0,
+					76.0
+				],
+				"floor_id": 1,
+				"height_m": 0.0,
+				"kind": "floor"
+			},
+			"initial_no_overlap": true,
+			"large_legal": "",
+			"no_false_entry": true,
+			"no_invitation": true,
+			"no_teleport": true,
+			"ok": true,
+			"old_target": {
+				"cell": [
+					39,
+					76
+				],
+				"connector_id": "connector_00000001",
+				"destination": 2,
+				"direction": 1,
+				"floor_id": 1,
+				"geometry_revision": "3d0562480922c41b9c432074773e5b63a48f9ec08198ea059f70397c44d17ed2",
+				"passage_profiles": [
+					"[1,{\"depth_m\":0.7,\"height_m\":1.75,\"width_m\":0.7}]"
+				],
+				"request_sequence": 1,
+				"target_cell": [
+					45,
+					82
+				],
+				"target_floor": 2
+			},
+			"old_target_unsafe": true,
+			"request": "",
+			"signature_changed": true,
+			"standby": {
+				"blocked_in_place": false,
+				"cell": [
+					32,
+					76
+				],
+				"connector_id": "connector_00000001",
+				"destination": 2,
+				"floor_id": 1,
+				"request_sequence": 1,
+				"target_cell": [
+					45,
+					82
+				],
+				"target_floor": 2,
+				"traveling": true
+			},
+			"validation": ""
+		}
+	]
+}

@@ -15,7 +15,7 @@ func _input(mode: String) -> Dictionary:
 	for plot: Array in plots: x.world.facts.floors.completed_top_floor[HospitalSpace.plot_key(plot)]=2
 	x.world.facts.floors.height_intervals=[{"first":1,"last":2,"height_m":float(content.balance.floors.clear_height_m)}]
 	x.world.facts.floors.overrides["2"]={"plots":plots.duplicate(true),"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
-	x.world.facts.connectors[LIFT]={"id":LIFT,"definition_id":"VC02","first_floor":1,"last_floor":2,"cell":[58,70],"footprint":[4,4],"rotation":0,"anchor":[59,74],"repair_cell":[57,71],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"ticket_next":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+	x.world.facts.connectors[LIFT]={"id":LIFT,"definition_id":"VC02","first_floor":1,"last_floor":2,"cell":[58,70],"footprint":[4,4],"rotation":0,"anchor":[59,74],"repair_cell":[57,71],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
 	x.world.touch()
 	x.sim.services.maintenance.ensure(x.world)
 	x.checks.water_downstairs=_facility(x,"water_downstairs","FUR17",[37,82])

@@ -15,14 +15,14 @@ class SubjectProbe extends HospitalNavigation:
 	func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
 		source_proofs += 1
 		return super.structural_clearance(world,actor,floor_id,members,offsets)
-	func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, initial_ticks: int, distance_only: bool) -> Dictionary:
+	func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, initial_ticks: int, distance_only: bool, route_filter: Dictionary = {}) -> Dictionary:
 		point_queries += 1
-		return super._point_route(world,actor,source_floor,start,target_floor,goal,members,offsets,initial_ticks,distance_only)
+		return super._point_route(world,actor,source_floor,start,target_floor,goal,members,offsets,initial_ticks,distance_only,route_filter)
 
 # Frozen 87af6a6 complete entry function. Source work remains per call and the
 # original full key still owns its results; it never uses prepared subjects.
 class OriginalNavigation extends SubjectProbe:
-	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, _ignore_people: bool, distance_only: bool) -> Dictionary:
+	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, _ignore_people: bool, distance_only: bool, route_filter: Dictionary = {}) -> Dictionary:
 		space.query_counts.routes += 1
 		var actor: Dictionary = world.facts.actors[actor_id]
 		if actor.location.kind!="floor": return {"ok":false,"status":"unavailable","reason":"角色正在竖向通行或院外"}

@@ -11,9 +11,11 @@ static func _raw(v: Vector2) -> Array:
 static func plan(space: HospitalSpace, world: WorldState, connection: Dictionary, primary: String, members: Array, convoy: Dictionary) -> Dictionary:
 	# Derived geometry is owned by this runtime space, never by a saved world
 	# or a process-global cache. Every input that affects the proof is a value
-	# in the key; current poses, queue tickets and occupancy are not inputs.
+	# in the key; current poses, physical queues and occupancy are not inputs.
 	var definition: Dictionary=space.content.definition("vertical_connectors",connection.definition_id)
 	var key: Array=[connection.definition_id,connection.cell,connection.get("rotation",0),connection.get("footprint",[]),definition.kind,definition.max_group_size,definition.clear_width_m,definition.clear_height_m,definition.get("cabin_size"),definition.footprint,convoy.size,convoy.height,convoy.shift,convoy.spacing,convoy.centers.size(),members.size(),space.walking_speed(world.facts.actors[primary])].duplicate(true)
+	for id: String in members:
+		key.append([id,space.body(world.facts.actors[id]).duplicate(true),world.facts.actors[id].get("posture","standing"),space.clearance(world.facts.actors[id]),space.walking_speed(world.facts.actors[id])])
 	var cache: Dictionary=space.get_meta("convoy_portal_plan_cache",{})
 	if cache.has(key):
 		space.query_counts["convoy_portal_plan_hits"]=int(space.query_counts.get("convoy_portal_plan_hits",0))+1
@@ -21,6 +23,8 @@ static func plan(space: HospitalSpace, world: WorldState, connection: Dictionary
 		# canonical restore check or another actor's geometry proof.
 		return cache[key].duplicate(true)
 	var result: Dictionary=_build_plan(space,world,connection,primary,members,convoy)
+	if not result.get("ok",false) and definition.kind=="lift" and members.size()==2:
+		result=ArticulatedLiftPortal.plan(space,world,connection,primary,members,convoy)
 	space.query_counts["convoy_portal_plan_builds"]=int(space.query_counts.get("convoy_portal_plan_builds",0))+1
 	if cache.size()>=128: cache.clear()
 	cache[key]=result.duplicate(true)
@@ -93,7 +97,7 @@ static func _outside(region: Rect2, front: Vector2, inward: Vector2) -> Rect2:
 
 static func ground_regions(convoy: Dictionary, connection: Dictionary) -> Array[Rect2]:
 	var result: Array[Rect2]=[]
-	if connection.phase=="riding": return result
+	if connection.phase=="riding" or connection.has("lift_control_version") and connection.phase=="idle": return result
 	if not convoy.has("portal"): return ConvoyTrail.regions(convoy)
 	var cabin: Rect2=Rect2(ConvoyTrail.point(connection.cell),ConvoyTrail.point(connection.footprint))
 	for region: Rect2 in ConvoyTrail.regions(convoy):
@@ -112,6 +116,8 @@ static func ground_regions(convoy: Dictionary, connection: Dictionary) -> Array[
 
 static func predict(convoy: Dictionary, p: Dictionary, tofloor: int) -> Dictionary:
 	var result: Dictionary=convoy.duplicate(true)
+	if p.get("mode","")=="articulated":
+		result.points=p.final_ground_points.duplicate(true);result.floor_id=tofloor;result.erase("portal");return result
 	var head: Vector2=ConvoyTrail.point(p.egress)
 	var inward: Vector2=ConvoyTrail.point(p.inward)
 	var span: float=float(convoy.spacing)*(convoy.centers.size()-1)

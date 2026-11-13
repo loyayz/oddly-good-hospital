@@ -1,0 +1,1741 @@
+{
+	"ok": true,
+	"rows": [
+		{
+			"case": "no_demand_stays",
+			"errors": [],
+			"ok": true
+		},
+		{
+			"case": "direction_calculation",
+			"checks": {
+				"empty_to_farthest_opposing_call": true,
+				"equal_distance_fixed_up": true,
+				"keep_current_direction": true,
+				"nearest_up": true,
+				"reverse_at_extreme": true
+			},
+			"ok": true,
+			"scope": "Pure legal demand boundaries; separate physical journey tests verify actual motion"
+		},
+		{
+			"actual_phases": [
+				"boarding",
+				"idle",
+				"riding",
+				"alighting"
+			],
+			"case": "multi_group_cold_phases",
+			"details": [
+				{
+					"complete": true,
+					"exact_facts_rng_events": true,
+					"initial_tick": 112,
+					"no_tokens": true,
+					"phase": "boarding",
+					"same_complete_final_state": true,
+					"steps": 152,
+					"validation": ""
+				},
+				{
+					"complete": true,
+					"exact_facts_rng_events": true,
+					"initial_tick": 127,
+					"no_tokens": true,
+					"phase": "idle",
+					"same_complete_final_state": true,
+					"steps": 137,
+					"validation": ""
+				},
+				{
+					"complete": true,
+					"exact_facts_rng_events": true,
+					"initial_tick": 128,
+					"no_tokens": true,
+					"phase": "riding",
+					"same_complete_final_state": true,
+					"steps": 136,
+					"validation": ""
+				},
+				{
+					"complete": true,
+					"exact_facts_rng_events": true,
+					"initial_tick": 138,
+					"no_tokens": true,
+					"phase": "alighting",
+					"same_complete_final_state": true,
+					"steps": 126,
+					"validation": ""
+				}
+			],
+			"errors": [],
+			"ok": true
+		},
+		{
+			"actual_arrivals": {
+				"upper": 90
+			},
+			"case": "far_down_only",
+			"checks": {
+				"all_arrived": true,
+				"correct_landings": true,
+				"real_boarding": true,
+				"valid": true
+			},
+			"errors": [],
+			"events": [
+				{
+					"actor": "upper",
+					"lift_floor": 1,
+					"location": {
+						"cell": [
+							44.0,
+							81.8000030517578
+						],
+						"floor_id": 4,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "upper",
+					"lift_floor": 4,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 4,
+						"kind": "transit",
+						"to": 1
+					},
+					"phase": "boarding",
+					"tick": 141
+				},
+				{
+					"actor": "upper",
+					"lift_floor": 1,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 202
+				}
+			],
+			"final_actors": {
+				"upper": {
+					"facing": 0.0,
+					"id": "upper",
+					"location": {
+						"cell": [
+							45.0,
+							82.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					"name": "upper",
+					"posture": "standing",
+					"species_id": "S49"
+				}
+			},
+			"final_connector": {
+				"active_group": "",
+				"anchor": [
+					36,
+					76
+				],
+				"cell": [
+					36,
+					72
+				],
+				"condition": 99.5,
+				"definition_id": "VC02",
+				"direction": 0,
+				"failed": false,
+				"first_floor": 1,
+				"floor_id": 1,
+				"footprint": [
+					4,
+					4
+				],
+				"from": 1,
+				"id": "connector_00000001",
+				"landing_queues": {
+					"4:-1": []
+				},
+				"last_floor": 4,
+				"last_wear_day": 0,
+				"lift_control_version": 1,
+				"maintenance_order_id": "",
+				"paid_cost": 5600,
+				"passenger_groups": [],
+				"pending_failure": false,
+				"phase": "idle",
+				"remaining_ticks": 0,
+				"repair_cell": [
+					40,
+					76
+				],
+				"repair_grace_until": 0,
+				"riders": [],
+				"rotation": 0,
+				"to": 1,
+				"unavailable_heads": {},
+				"use_receipts": {
+					"lift:connector_00000001:upper:140": 201
+				},
+				"used": true,
+				"waiting_reason": ""
+			},
+			"final_moves": {},
+			"max_riders": 1,
+			"ok": true,
+			"source": "Legal historical floor/input positions; all queueing and journeys are real movement",
+			"steps": 277
+		},
+		{
+			"actual_arrivals": {
+				"middle": 90,
+				"upper": 70
+			},
+			"case": "opposite_calls_extreme",
+			"checks": {
+				"all_arrived": true,
+				"correct_landings": true,
+				"farthest_then_reverse_pickup": true,
+				"real_boarding": true,
+				"valid": true
+			},
+			"errors": [],
+			"events": [
+				{
+					"actor": "upper",
+					"lift_floor": 1,
+					"location": {
+						"cell": [
+							42.0,
+							79.8000030517578
+						],
+						"floor_id": 4,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "middle",
+					"lift_floor": 1,
+					"location": {
+						"cell": [
+							44.0,
+							81.8000030517578
+						],
+						"floor_id": 3,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "upper",
+					"lift_floor": 4,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 4,
+						"kind": "transit",
+						"to": 1
+					},
+					"phase": "boarding",
+					"tick": 121
+				},
+				{
+					"actor": "middle",
+					"lift_floor": 3,
+					"location": {
+						"cabin_cell": [
+							1,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 3,
+						"kind": "transit",
+						"to": 1
+					},
+					"phase": "boarding",
+					"tick": 167
+				},
+				{
+					"actor": "upper",
+					"lift_floor": 1,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 218
+				},
+				{
+					"actor": "middle",
+					"lift_floor": 1,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 234
+				}
+			],
+			"final_actors": {
+				"middle": {
+					"facing": 0.0,
+					"id": "middle",
+					"location": {
+						"cell": [
+							47.0,
+							82.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					"name": "middle",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"upper": {
+					"facing": 0.0,
+					"id": "upper",
+					"location": {
+						"cell": [
+							45.0,
+							82.0
+						],
+						"floor_id": 1,
+						"kind": "floor"
+					},
+					"name": "upper",
+					"posture": "standing",
+					"species_id": "S49"
+				}
+			},
+			"final_connector": {
+				"active_group": "",
+				"anchor": [
+					36,
+					76
+				],
+				"cell": [
+					36,
+					72
+				],
+				"condition": 99.0,
+				"definition_id": "VC02",
+				"direction": 0,
+				"failed": false,
+				"first_floor": 1,
+				"floor_id": 1,
+				"footprint": [
+					4,
+					4
+				],
+				"from": 1,
+				"id": "connector_00000001",
+				"landing_queues": {
+					"3:-1": [],
+					"4:-1": []
+				},
+				"last_floor": 4,
+				"last_wear_day": 0,
+				"lift_control_version": 1,
+				"maintenance_order_id": "",
+				"paid_cost": 5600,
+				"passenger_groups": [],
+				"pending_failure": false,
+				"phase": "idle",
+				"remaining_ticks": 0,
+				"repair_cell": [
+					40,
+					76
+				],
+				"repair_grace_until": 0,
+				"riders": [],
+				"rotation": 0,
+				"to": 1,
+				"unavailable_heads": {},
+				"use_receipts": {
+					"lift:connector_00000001:middle:166": 233,
+					"lift:connector_00000001:upper:120": 217
+				},
+				"used": true,
+				"waiting_reason": ""
+			},
+			"final_moves": {},
+			"max_riders": 2,
+			"ok": true,
+			"source": "Legal historical floor/input positions; all queueing and journeys are real movement",
+			"steps": 319
+		},
+		{
+			"actual_arrivals": {
+				"far": 82,
+				"near": 35
+			},
+			"case": "multi_destination",
+			"checks": {
+				"all_arrived": true,
+				"ascending_drop_order": true,
+				"correct_landings": true,
+				"real_boarding": true,
+				"shared_cabin": true,
+				"valid": true
+			},
+			"errors": [],
+			"events": [
+				{
+					"actor": "near",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							42.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "far",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							44.0,
+							81.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "near",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 81
+				},
+				{
+					"actor": "far",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							1,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 3
+					},
+					"phase": "boarding",
+					"tick": 112
+				},
+				{
+					"actor": "near",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 153
+				},
+				{
+					"actor": "far",
+					"lift_floor": 3,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 3,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 179
+				}
+			],
+			"final_actors": {
+				"far": {
+					"facing": 0.0,
+					"id": "far",
+					"location": {
+						"cell": [
+							47.0,
+							82.0
+						],
+						"floor_id": 3,
+						"kind": "floor"
+					},
+					"name": "far",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"near": {
+					"facing": 0.0,
+					"id": "near",
+					"location": {
+						"cell": [
+							45.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "near",
+					"posture": "standing",
+					"species_id": "S49"
+				}
+			},
+			"final_connector": {
+				"active_group": "",
+				"anchor": [
+					36,
+					76
+				],
+				"cell": [
+					36,
+					72
+				],
+				"condition": 99.0,
+				"definition_id": "VC02",
+				"direction": 0,
+				"failed": false,
+				"first_floor": 1,
+				"floor_id": 3,
+				"footprint": [
+					4,
+					4
+				],
+				"from": 3,
+				"id": "connector_00000001",
+				"landing_queues": {
+					"1:1": []
+				},
+				"last_floor": 4,
+				"last_wear_day": 0,
+				"lift_control_version": 1,
+				"maintenance_order_id": "",
+				"paid_cost": 5600,
+				"passenger_groups": [],
+				"pending_failure": false,
+				"phase": "idle",
+				"remaining_ticks": 0,
+				"repair_cell": [
+					40,
+					76
+				],
+				"repair_grace_until": 0,
+				"riders": [],
+				"rotation": 0,
+				"to": 3,
+				"unavailable_heads": {},
+				"use_receipts": {
+					"lift:connector_00000001:far:111": 178,
+					"lift:connector_00000001:near:80": 152
+				},
+				"used": true,
+				"waiting_reason": ""
+			},
+			"final_moves": {},
+			"max_riders": 2,
+			"ok": true,
+			"source": "Legal historical floor/input positions; all queueing and journeys are real movement",
+			"steps": 264
+		},
+		{
+			"actual_arrivals": {
+				"early_request": 185,
+				"late_request": 15
+			},
+			"case": "arrival_fifo",
+			"checks": {
+				"actual_arrival_not_request": true,
+				"all_arrived": true,
+				"boarding_fifo": true,
+				"correct_landings": true,
+				"real_boarding": true,
+				"valid": true
+			},
+			"errors": [],
+			"events": [
+				{
+					"actor": "early_request",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							60.0,
+							91.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "late_request",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							41.0,
+							76.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "late_request",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 61
+				},
+				{
+					"actor": "late_request",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 102
+				},
+				{
+					"actor": "early_request",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 211
+				},
+				{
+					"actor": "early_request",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 252
+				}
+			],
+			"final_actors": {
+				"early_request": {
+					"facing": 0.0,
+					"id": "early_request",
+					"location": {
+						"cell": [
+							45.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "early_request",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"late_request": {
+					"facing": 0.0,
+					"id": "late_request",
+					"location": {
+						"cell": [
+							47.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "late_request",
+					"posture": "standing",
+					"species_id": "S49"
+				}
+			},
+			"final_connector": {
+				"active_group": "",
+				"anchor": [
+					36,
+					76
+				],
+				"cell": [
+					36,
+					72
+				],
+				"condition": 99.0,
+				"definition_id": "VC02",
+				"direction": 0,
+				"failed": false,
+				"first_floor": 1,
+				"floor_id": 2,
+				"footprint": [
+					4,
+					4
+				],
+				"from": 2,
+				"id": "connector_00000001",
+				"landing_queues": {
+					"1:1": []
+				},
+				"last_floor": 4,
+				"last_wear_day": 0,
+				"lift_control_version": 1,
+				"maintenance_order_id": "",
+				"paid_cost": 5600,
+				"passenger_groups": [],
+				"pending_failure": false,
+				"phase": "idle",
+				"remaining_ticks": 0,
+				"repair_cell": [
+					40,
+					76
+				],
+				"repair_grace_until": 0,
+				"riders": [],
+				"rotation": 0,
+				"to": 2,
+				"unavailable_heads": {},
+				"use_receipts": {
+					"lift:connector_00000001:early_request:210": 251,
+					"lift:connector_00000001:late_request:60": 101
+				},
+				"used": true,
+				"waiting_reason": ""
+			},
+			"final_moves": {},
+			"max_riders": 1,
+			"ok": true,
+			"source": "Legal historical floor/input positions; all queueing and journeys are real movement",
+			"steps": 327
+		},
+		{
+			"actual_arrivals": {
+				"drop": 35,
+				"pickup": 65,
+				"through": 71
+			},
+			"case": "drop_before_pickup",
+			"checks": {
+				"all_arrived": true,
+				"correct_landings": true,
+				"first_out_then_in": true,
+				"real_boarding": true,
+				"through_rider_preserved": true,
+				"valid": true
+			},
+			"errors": [],
+			"events": [
+				{
+					"actor": "drop",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							42.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "through",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							44.0,
+							81.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "pickup",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							46.0,
+							81.8000030517578
+						],
+						"floor_id": 2,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "drop",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 81
+				},
+				{
+					"actor": "through",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							1,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 3
+					},
+					"phase": "boarding",
+					"tick": 112
+				},
+				{
+					"actor": "drop",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 153
+				},
+				{
+					"actor": "pickup",
+					"lift_floor": 2,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 2,
+						"kind": "transit",
+						"to": 3
+					},
+					"phase": "boarding",
+					"tick": 180
+				},
+				{
+					"actor": "through",
+					"lift_floor": 3,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 3,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 221
+				},
+				{
+					"actor": "pickup",
+					"lift_floor": 3,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 3,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 237
+				}
+			],
+			"final_actors": {
+				"drop": {
+					"facing": 0.0,
+					"id": "drop",
+					"location": {
+						"cell": [
+							45.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "drop",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"pickup": {
+					"facing": 0.0,
+					"id": "pickup",
+					"location": {
+						"cell": [
+							49.0,
+							82.0
+						],
+						"floor_id": 3,
+						"kind": "floor"
+					},
+					"name": "pickup",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"through": {
+					"facing": 0.0,
+					"id": "through",
+					"location": {
+						"cell": [
+							47.0,
+							82.0
+						],
+						"floor_id": 3,
+						"kind": "floor"
+					},
+					"name": "through",
+					"posture": "standing",
+					"species_id": "S49"
+				}
+			},
+			"final_connector": {
+				"active_group": "",
+				"anchor": [
+					36,
+					76
+				],
+				"cell": [
+					36,
+					72
+				],
+				"condition": 98.5,
+				"definition_id": "VC02",
+				"direction": 0,
+				"failed": false,
+				"first_floor": 1,
+				"floor_id": 3,
+				"footprint": [
+					4,
+					4
+				],
+				"from": 3,
+				"id": "connector_00000001",
+				"landing_queues": {
+					"1:1": [],
+					"2:1": []
+				},
+				"last_floor": 4,
+				"last_wear_day": 0,
+				"lift_control_version": 1,
+				"maintenance_order_id": "",
+				"paid_cost": 5600,
+				"passenger_groups": [],
+				"pending_failure": false,
+				"phase": "idle",
+				"remaining_ticks": 0,
+				"repair_cell": [
+					40,
+					76
+				],
+				"repair_grace_until": 0,
+				"riders": [],
+				"rotation": 0,
+				"to": 3,
+				"unavailable_heads": {},
+				"use_receipts": {
+					"lift:connector_00000001:drop:80": 152,
+					"lift:connector_00000001:pickup:179": 236,
+					"lift:connector_00000001:through:111": 220
+				},
+				"used": true,
+				"waiting_reason": ""
+			},
+			"final_moves": {},
+			"max_riders": 2,
+			"ok": true,
+			"source": "Legal historical floor/input positions; all queueing and journeys are real movement",
+			"steps": 332
+		},
+		{
+			"actual_arrivals": {
+				"capacity_00": 35,
+				"capacity_01": 334,
+				"capacity_02": 430,
+				"capacity_03": 68,
+				"capacity_04": 402,
+				"capacity_05": 366,
+				"capacity_06": 295,
+				"capacity_07": 205,
+				"capacity_08": 108,
+				"capacity_09": 271
+			},
+			"case": "cabin_capacity",
+			"checks": {
+				"all_arrived": true,
+				"correct_landings": true,
+				"multiple_trips": true,
+				"physical_capacity_respected": true,
+				"real_boarding": true,
+				"valid": true
+			},
+			"errors": [],
+			"events": [
+				{
+					"actor": "capacity_00",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							42.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_01",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							44.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_02",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							46.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_03",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							48.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_04",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							50.0,
+							79.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_05",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							42.0,
+							81.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_06",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							44.0,
+							81.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_07",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							46.0,
+							81.8000030517578
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_08",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							48,
+							82
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_09",
+					"lift_floor": 4,
+					"location": {
+						"cell": [
+							50,
+							82
+						],
+						"floor_id": 1,
+						"height_m": 0.0,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 1
+				},
+				{
+					"actor": "capacity_00",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 81
+				},
+				{
+					"actor": "capacity_03",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							1,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 142
+				},
+				{
+					"actor": "capacity_08",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							2,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 241
+				},
+				{
+					"actor": "capacity_07",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							1
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 272
+				},
+				{
+					"actor": "capacity_09",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							1,
+							1
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 307
+				},
+				{
+					"actor": "capacity_06",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							2,
+							1
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 338
+				},
+				{
+					"actor": "capacity_01",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							2
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 372
+				},
+				{
+					"actor": "capacity_05",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							1,
+							2
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 403
+				},
+				{
+					"actor": "capacity_04",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							2,
+							2
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 434
+				},
+				{
+					"actor": "capacity_00",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 475
+				},
+				{
+					"actor": "capacity_03",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 491
+				},
+				{
+					"actor": "capacity_08",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 507
+				},
+				{
+					"actor": "capacity_07",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 523
+				},
+				{
+					"actor": "capacity_09",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 539
+				},
+				{
+					"actor": "capacity_06",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 555
+				},
+				{
+					"actor": "capacity_01",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 571
+				},
+				{
+					"actor": "capacity_05",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 587
+				},
+				{
+					"actor": "capacity_04",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 603
+				},
+				{
+					"actor": "capacity_02",
+					"lift_floor": 1,
+					"location": {
+						"cabin_cell": [
+							0,
+							0
+						],
+						"connector_id": "connector_00000001",
+						"from": 1,
+						"kind": "transit",
+						"to": 2
+					},
+					"phase": "boarding",
+					"tick": 629
+				},
+				{
+					"actor": "capacity_02",
+					"lift_floor": 2,
+					"location": {
+						"cell": [
+							36.2000007629395,
+							76.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"phase": "idle",
+					"tick": 670
+				}
+			],
+			"final_actors": {
+				"capacity_00": {
+					"facing": 0.0,
+					"id": "capacity_00",
+					"location": {
+						"cell": [
+							45.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_00",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_01": {
+					"facing": 0.0,
+					"id": "capacity_01",
+					"location": {
+						"cell": [
+							47.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_01",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_02": {
+					"facing": 0.0,
+					"id": "capacity_02",
+					"location": {
+						"cell": [
+							49.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_02",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_03": {
+					"facing": 0.0,
+					"id": "capacity_03",
+					"location": {
+						"cell": [
+							51.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_03",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_04": {
+					"facing": 0.0,
+					"id": "capacity_04",
+					"location": {
+						"cell": [
+							53.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_04",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_05": {
+					"facing": 0.0,
+					"id": "capacity_05",
+					"location": {
+						"cell": [
+							55.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_05",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_06": {
+					"facing": 0.0,
+					"id": "capacity_06",
+					"location": {
+						"cell": [
+							57.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_06",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_07": {
+					"facing": 0.0,
+					"id": "capacity_07",
+					"location": {
+						"cell": [
+							59.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_07",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_08": {
+					"facing": 0.0,
+					"id": "capacity_08",
+					"location": {
+						"cell": [
+							61.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_08",
+					"posture": "standing",
+					"species_id": "S49"
+				},
+				"capacity_09": {
+					"facing": 0.0,
+					"id": "capacity_09",
+					"location": {
+						"cell": [
+							63.0,
+							82.0
+						],
+						"floor_id": 2,
+						"kind": "floor"
+					},
+					"name": "capacity_09",
+					"posture": "standing",
+					"species_id": "S49"
+				}
+			},
+			"final_connector": {
+				"active_group": "",
+				"anchor": [
+					36,
+					76
+				],
+				"cell": [
+					36,
+					72
+				],
+				"condition": 95.0,
+				"definition_id": "VC02",
+				"direction": 0,
+				"failed": false,
+				"first_floor": 1,
+				"floor_id": 2,
+				"footprint": [
+					4,
+					4
+				],
+				"from": 2,
+				"id": "connector_00000001",
+				"landing_queues": {
+					"1:1": []
+				},
+				"last_floor": 4,
+				"last_wear_day": 0,
+				"lift_control_version": 1,
+				"maintenance_order_id": "",
+				"paid_cost": 5600,
+				"passenger_groups": [],
+				"pending_failure": false,
+				"phase": "idle",
+				"remaining_ticks": 0,
+				"repair_cell": [
+					40,
+					76
+				],
+				"repair_grace_until": 0,
+				"riders": [],
+				"rotation": 0,
+				"to": 2,
+				"unavailable_heads": {},
+				"use_receipts": {
+					"lift:connector_00000001:capacity_00:80": 474,
+					"lift:connector_00000001:capacity_01:371": 570,
+					"lift:connector_00000001:capacity_02:628": 669,
+					"lift:connector_00000001:capacity_03:141": 490,
+					"lift:connector_00000001:capacity_04:433": 602,
+					"lift:connector_00000001:capacity_05:402": 586,
+					"lift:connector_00000001:capacity_06:337": 554,
+					"lift:connector_00000001:capacity_07:271": 522,
+					"lift:connector_00000001:capacity_08:240": 506,
+					"lift:connector_00000001:capacity_09:306": 538
+				},
+				"used": true,
+				"waiting_reason": ""
+			},
+			"final_moves": {},
+			"max_riders": 9,
+			"ok": true,
+			"source": "Legal historical floor/input positions; all queueing and journeys are real movement",
+			"steps": 765
+		}
+	],
+	"scope": "Selected directional lift physical boundaries; not full functional coverage or performance evidence"
+}

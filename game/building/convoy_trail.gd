@@ -60,7 +60,28 @@ static func length(points: Array) -> float:
  return total
 # A singleton has no historical segment. Its publisher supplies the accepted
 # motion tangent, or the actor's existing heading when no motion was accepted.
+static func articulated(convoy: Dictionary) -> bool:
+ var portal: Variant=convoy.get("portal",{})
+ return portal is Dictionary and portal.get("plan",{}) is Dictionary and portal.get("plan",{}).get("mode","")=="articulated"
+
+static func articulated_poses(convoy: Dictionary) -> Dictionary:
+ var portal: Dictionary=convoy.get("portal",{})
+ var plan: Dictionary=portal.get("plan",{})
+ var stage: String=str(portal.get("stage",""))
+ if not stage in ["boarding","alighting"] or not portal.get("cursor") is int: return {}
+ var frames: Variant=plan.get(stage,[])
+ var cursor: int=int(portal.cursor)
+ if not frames is Array or cursor<0 or cursor>frames.size(): return {}
+ var frame: Variant=plan.get("initial_poses",{}) if cursor==0 and stage=="boarding" else {}
+ if cursor>0: frame=frames[cursor-1]
+ elif stage=="alighting":
+  var boarding: Variant=plan.get("boarding",[])
+  if boarding is Array and not boarding.is_empty(): frame=boarding[-1]
+ if not frame is Dictionary: return {}
+ return frame.get("poses",frame)
+
 static func positions(convoy: Dictionary, members: Array, leader_facing: float = PI*0.5) -> Dictionary:
+ if articulated(convoy): return articulated_poses(convoy).duplicate(true)
  var result: Dictionary={}
  for index: int in members.size():
   var distance: float=index*float(convoy.spacing)
@@ -79,6 +100,12 @@ static func positions(convoy: Dictionary, members: Array, leader_facing: float =
   result[members[index]]=pose
  return result
 static func regions(convoy: Dictionary, points: Array = []) -> Array[Rect2]:
+ if points.is_empty() and articulated(convoy):
+  var actual: Array[Rect2]=[]
+  for pose: Dictionary in articulated_poses(convoy).values():
+   var raw: Array=pose.get("region",[])
+   if raw.size()==4: actual.append(Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3])))
+  return actual
  if points.is_empty(): points=convoy.points
  var result: Array[Rect2]=[];var shift: Vector2 = Vector2.ONE*float(convoy.shift);var size: Vector2=Vector2.ONE*float(convoy.size)
  if points.size()==1: result.append(Rect2(point(points[0])+shift,size))
@@ -162,13 +189,29 @@ static func validate(space: HospitalSpace, world: WorldState, movement: Dictiona
  var expected: Dictionary=positions(convoy,movement.members)
  if leader.location.kind=="transit":
   var connection: Dictionary=world.facts.connectors.get(leader.location.connector_id,{})
-  if connection.is_empty() or connection.get("primary_actor_id","")!=movement.actor_id or connection.riders!=movement.members: return "队列连接拥有者不一致"
+  if connection.is_empty(): return "队列连接拥有者不一致"
+  var portal_connection: Dictionary=connection
+  if connection.has("lift_control_version"):
+   var manifest: Dictionary={}
+   for g: Dictionary in connection.passenger_groups:
+    if movement.actor_id in g.get("leader_ids",[g.actor_id]): manifest=g;break
+   if manifest.is_empty() or not movement.members.all(func(id:String)->bool:return id in manifest.members): return "队列连接拥有者不一致"
+   # The car may stop or serve another group en route. This trail retains
+   # its own committed portal/origin until its group actually starts exiting.
+   portal_connection=connection.duplicate()
+   portal_connection.from=int(manifest.from)
+   portal_connection.to=int(manifest.to)
+   var active: bool=connection.get("active_group","")==manifest.actor_id
+   portal_connection.phase=connection.phase if active and connection.phase in ["boarding","alighting"] and manifest.get("exit_stage","")!="companions" else "riding"
+  elif connection.get("primary_actor_id","")!=movement.actor_id or connection.riders!=movement.members: return "队列连接拥有者不一致"
   if not convoy.has("portal"):
    if movement.members.size()!=1 or space.content.definition("vertical_connectors",connection.definition_id).kind!="stairs": return "队列登离舱路径缺失"
    return ""
   var portal: Variant=convoy.portal
-  if not portal is Dictionary or portal.size()!=2 or not portal.get("plan") is Dictionary or not portal.get("cursor") is int: return "队列登离舱状态无效"
+  if not portal is Dictionary or not portal.get("plan") is Dictionary or not portal.get("cursor") is int: return "队列登离舱状态无效"
+  if portal.size()!=(3 if articulated(convoy) else 2): return "队列登离舱状态字段无效"
   var plan: Dictionary=portal.plan
+  if articulated(convoy): return _validate_articulated(space,world,movement,connection,portal_connection)
   for field: String in ["entry","egress","inward"]:
    if not _finite_point(plan.get(field)): return "队列登离舱派生坐标缺失"
   for field: String in ["boarding_ticks","alighting_ticks","walk_distance"]:
@@ -178,14 +221,14 @@ static func validate(space: HospitalSpace, world: WorldState, movement: Dictiona
    if not plan.get(field) is Array or plan[field].is_empty(): return "队列登离舱路径为空"
    for raw: Variant in plan[field]:
     if not _finite_point(raw): return "队列登离舱路径坐标无效"
-  if not connection.phase in ["boarding","riding","alighting"]: return "队列登离舱阶段无效"
+  if not connection.phase in ["boarding","riding","alighting"] and not (connection.has("lift_control_version") and connection.phase=="idle"): return "队列登离舱阶段无效"
   var canonical: Dictionary=ConvoyPortal.plan(space,world,connection,movement.actor_id,movement.members,convoy)
   if not canonical.get("ok",false) or plan!=canonical: return "队列登离舱保存路径与当前连接不一致"
-  var targets: Array=plan.boarding if connection.phase in ["boarding","riding"] else plan.alighting
+  var targets: Array=plan.boarding if portal_connection.phase in ["boarding","riding"] else plan.alighting
   if int(portal.cursor)<0 or int(portal.cursor)>targets.size(): return "队列登离舱游标无效"
-  var progress_error: String=_portal_progress_error(convoy,movement.members,connection,portal)
+  var progress_error: String=_portal_progress_error(convoy,movement.members,portal_connection,portal)
   if not progress_error.is_empty(): return progress_error
-  if int(convoy.floor_id)!=(int(connection.to) if connection.phase=="alighting" else int(connection.from)): return "队列登离舱所在层不一致"
+  if int(convoy.floor_id)!=(int(portal_connection.to) if portal_connection.phase=="alighting" else int(portal_connection.from)): return "队列登离舱所在层不一致"
   for id: String in movement.members:
    if not _finite_point(world.facts.actors[id].location.get("queue_cell")) or point(world.facts.actors[id].location.queue_cell).distance_to(point(expected[id].cell))>0.001: return "队列乘员没有沿真实尾迹移动"
   return ""
@@ -281,4 +324,63 @@ static func _portal_progress_error(convoy: Dictionary, members: Array, connectio
  if expected.size()!=convoy.points.size(): return "队列登离舱尾迹与实际进度不一致"
  for index: int in expected.size():
   if point(expected[index]).distance_to(point(convoy.points[index]))>0.001: return "队列登离舱尾迹与实际进度不一致"
+ return ""
+
+# Articulation changes only the open-door body path, not ground formation or
+# movement ownership. The immutable canonical plan proves all deterministic
+# interior frames; runtime separately checks each external sweep before commit.
+static func _validate_articulated(space: HospitalSpace, world: WorldState, movement: Dictionary, connection: Dictionary, effective: Dictionary) -> String:
+ var convoy: Dictionary=movement.convoy
+ var portal: Dictionary=convoy.portal
+ var plan: Dictionary=portal.plan
+ if plan.get("version",0)!=1 or not portal.get("stage") is String or not portal.stage in ["boarding","alighting"]: return "分体登离舱版本或阶段无效"
+ var stage: String=portal.stage
+ if stage!=("alighting" if effective.phase=="alighting" else "boarding"): return "分体登离舱阶段与实际车组不一致"
+ var canonical: Dictionary=ConvoyPortal.plan(space,world,connection,movement.actor_id,movement.members,convoy)
+ if not canonical.get("ok",false) or canonical!=plan: return "分体登离舱保存计划与当前真实身体或连接不一致"
+ var frames: Variant=plan.get(stage)
+ if not frames is Array or frames.is_empty() or int(portal.cursor)<0 or int(portal.cursor)>frames.size(): return "分体登离舱游标无效"
+ if effective.phase=="riding" and int(portal.cursor)!=frames.size(): return "分体乘员未完成登舱不能行驶或待站"
+ if int(convoy.floor_id)!=(int(effective.to) if stage=="alighting" else int(effective.from)): return "分体交接楼层与原承诺不一致"
+ var ground: Dictionary=convoy.duplicate(true);ground.erase("portal")
+ var initial: Variant=plan.get("initial_poses")
+ if not initial is Dictionary or initial.size()!=movement.members.size(): return "分体入口原队形缺失"
+ var original: Dictionary=positions(ground,movement.members)
+ for id: String in movement.members:
+  if not initial.has(id) or not _finite_point(initial[id].get("cell")) or point(initial[id].cell).distance_to(point(original[id].cell))>0.001: return "分体原地面尾迹未冻结在真实入口队形"
+ var final_points: Variant=plan.get("final_ground_points")
+ if not final_points is Array or final_points.is_empty(): return "分体出口恢复尾迹缺失"
+ for raw: Variant in final_points:
+  if not _finite_point(raw): return "分体出口恢复尾迹坐标无效"
+ ground.points=final_points
+ if absf(length(final_points)-float(convoy.spacing)*(movement.members.size()-1))>0.001 or not _trail_separation_error(ground).is_empty(): return "分体出口未恢复原间距与无重叠尾迹"
+ for index: int in range(1,final_points.size()):
+  var delta: Vector2=point(final_points[index])-point(final_points[index-1])
+  if delta.length()<0.000001 or absf(delta.x)>0.00001 and absf(delta.y)>0.00001: return "分体出口尾迹不是非零正交路径"
+ var final_frames: Variant=plan.get("alighting")
+ if not final_frames is Array or final_frames.is_empty() or not final_frames[-1] is Dictionary: return "分体出口完成帧缺失"
+ var final_poses: Dictionary=final_frames[-1].get("poses",{})
+ var restored: Dictionary=positions(ground,movement.members)
+ for id: String in movement.members:
+  if not final_poses.has(id) or not _finite_point(final_poses[id].get("cell")) or point(final_poses[id].cell).distance_to(point(restored[id].cell))>0.001 or absf(wrapf(float(final_poses[id].get("facing",INF))-float(restored[id].facing),-PI,PI))>0.001: return "分体完成帧未连续恢复原地面队形"
+ var poses: Dictionary=articulated_poses(convoy)
+ if poses.size()!=movement.members.size(): return "分体当前帧成员不完整"
+ var occupied: Array[Rect2]=[]
+ for id: String in movement.members:
+  var pose: Variant=poses.get(id)
+  if not pose is Dictionary or not _finite_point(pose.get("cell")) or not (pose.get("facing") is float or pose.get("facing") is int) or not is_finite(float(pose.facing)): return "分体当前身体姿态无效"
+  var raw: Variant=pose.get("region")
+  if not raw is Array or raw.size()!=4: return "分体当前身体包络缺失"
+  for number: Variant in raw:
+   if not (number is float or number is int) or not is_finite(float(number)): return "分体当前身体包络无效"
+  var region: Rect2=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+  if region.size.x<=0 or region.size.y<=0: return "分体当前身体包络为空"
+  var actor: Dictionary=world.facts.actors[id]
+  var posed: Dictionary=actor.duplicate(true);posed.facing=float(pose.facing)
+  var actual: Rect2=space._actor_rect(posed,point(pose.cell))
+  if actual.position.distance_to(region.position)>0.001 or actual.size.distance_to(region.size)>0.001: return "分体计划身体包络与真实体型不一致"
+  for prior: Rect2 in occupied:
+   if region.intersects(prior,false): return "分体当前帧身体互相穿越"
+  occupied.append(region)
+  if not _finite_point(actor.location.get("queue_cell")) or point(actor.location.queue_cell).distance_to(point(pose.cell))>0.001 or absf(wrapf(float(actor.facing)-float(pose.facing),-PI,PI))>0.001: return "分体实际身体未处于确定交接帧"
  return ""

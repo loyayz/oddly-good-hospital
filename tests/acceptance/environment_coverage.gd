@@ -165,7 +165,7 @@ func _cache_lifecycle() -> Dictionary:
 func run_barriers(database: HospitalContent) -> Dictionary:
 	_content = database
 	var x: Dictionary = _fixture()
-	HospitalFactory._add_room(x.world,{"id":"coverage_room","type":"waiting","anchor":[40,70],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},database)
+	HospitalFactory._add_room(x.world,{"id":"coverage_room","type":"rest","anchor":[40,70],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},database)
 	_facility(x,"coverage_screen","FUR23",[45,75],"coverage_room")
 	x.world.touch()
 	var rows: Array = []

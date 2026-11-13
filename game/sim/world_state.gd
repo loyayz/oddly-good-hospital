@@ -321,7 +321,52 @@ func entry_validation_error() -> String:
 		return "医院入口坐标无效"
 	return ""
 
-func validate(content: HospitalContent) -> String:
+# Restore only: obsolete dispatch identities never enter the new runtime.
+# Validate the original first, then convert a private copy atomically. This
+# does not move bodies, complete work, change RNG or rewrite old snapshots.
+func migrate_legacy_transit(content: HospitalContent) -> String:
+	var legacy: bool = false
+	if not facts.get("connectors") is Dictionary or not facts.get("moves") is Dictionary:
+		return validate(content)
+	for raw: Variant in facts.connectors.values():
+		if raw is Dictionary and (raw.has("ticket_next") or raw.has("trip_sequence") or raw.has("assigned_actor_id")): legacy = true
+	for raw: Variant in facts.moves.values():
+		if raw is Dictionary and (raw.has("transit_ticket") or raw.has("transit_wait")): legacy = true
+		if raw is Dictionary and raw.get("route_waypoint") is Dictionary and raw.route_waypoint.get("binding") is Dictionary:
+			for field: String in ["trip_sequence","selected_id","selected_ticket","waiting_ticket"]:
+				if raw.route_waypoint.binding.has(field): legacy = true
+	if not legacy: return ""
+	var reason: String = validate(content,true)
+	if not reason.is_empty(): return reason
+	var converted: Dictionary = freeze()
+	for connection: Dictionary in converted.connectors.values():
+		if connection.phase in ["boarding","riding","alighting"] and not connection.has("trip_receipt"):
+			connection.trip_receipt = "transit:"+str(int(connection.get("trip_sequence",connection.get("ticket_next",0))))
+		for field: String in ["ticket_next","trip_sequence","assigned_actor_id"]: connection.erase(field)
+	for movement: Dictionary in converted.moves.values():
+		movement.erase("transit_ticket")
+		movement.erase("transit_wait")
+		var waypoint: Dictionary = movement.get("route_waypoint",{})
+		if waypoint.has("prefix"):
+			var binding: Dictionary = waypoint.binding
+			var retired_owner: bool = false
+			for field: String in ["trip_sequence","selected_id","selected_ticket","waiting_ticket"]:
+				if binding.has(field): retired_owner = true
+			if retired_owner:
+				# The unexecuted prefix had an authority which no longer exists.
+				# Replan the existing business target from the actual body position.
+				movement.erase("route_waypoint")
+				movement.path = []
+				movement.cursor = 0
+				movement.route_pending = true
+				for field: String in ["route_retry_tick","live_floor_route","rejoin_origin"]: movement.erase(field)
+	var candidate: WorldState = WorldState.new(converted)
+	reason = candidate.validate(content)
+	if not reason.is_empty(): return reason
+	facts = converted
+	return ""
+
+func validate(content: HospitalContent, legacy_transit: bool = false) -> String:
 	var required: Array = ["schema_version","hospital_id", "display_name", "mode", "sim_tick", "world_revision",
 		"clock_version", "entity_next", "actors", "staff", "visits", "tickets", "sessions",
 		"attempts", "preparations", "ward_stays", "facilities", "floors", "connectors", "moves",
@@ -339,7 +384,7 @@ func validate(content: HospitalContent) -> String:
 		for id: Variant in facts[collection]:
 			if not id is String or not facts[collection][id] is Dictionary:
 				return "实体记录类型无效："+collection
-	var shape_error: String = _validate_shapes()
+	var shape_error: String = _validate_shapes(legacy_transit)
 	if not shape_error.is_empty():
 		return shape_error
 	for staff: Dictionary in facts.staff.values():
@@ -603,6 +648,16 @@ func validate(content: HospitalContent) -> String:
 		var movement: Dictionary = facts.moves[id]
 		if not facts.actors.has(id) or movement.actor_id!=id:
 			return "移动角色引用无效："+id
+		if movement.has("lift_pending_boarding"):
+			var binding: Variant=movement.lift_pending_boarding
+			if not binding is Dictionary or not _fields(binding,{"connector_id":TYPE_STRING,"group_leader":TYPE_STRING}).is_empty() or binding.size()!=2: return "待登舱移动绑定结构无效"
+			var lift: Dictionary=facts.connectors.get(binding.connector_id,{})
+			var matches: int=0
+			for group: Dictionary in lift.get("passenger_groups",[]):
+				if group.actor_id!=binding.group_leader: continue
+				for pending: Dictionary in group.get("pending_boarding",[]):
+					if pending.actor_id==id: matches+=1
+			if matches!=1: return "待登舱移动绑定没有唯一实际交接组"
 		var leader: Dictionary = facts.actors[id]
 		if leader.location.kind=="outside":
 			return "院外身体不能保留院内移动"
@@ -634,7 +689,7 @@ func validate(content: HospitalContent) -> String:
 			return "竖向连接定义不存在："+id
 		var footprint: Array = definition.footprint.duplicate()
 		if int(connector.get("rotation",0))%2==1: footprint.reverse()
-		if int(connector.footprint[0])!=int(footprint[0]) or int(connector.footprint[1])!=int(footprint[1]) or connector.riders.size()>int(definition.max_group_size):
+		if int(connector.footprint[0])!=int(footprint[0]) or int(connector.footprint[1])!=int(footprint[1]) or (not connector.has("lift_control_version") and connector.riders.size()>int(definition.max_group_size)):
 			return "竖向结构占地或乘员数量与源定义不符"
 		var ends: Array = HospitalTransit.endpoints(connector)
 		if definition.kind=="stairs" and (ends.size()!=2 or absi(int(ends[1])-int(ends[0]))!=1):
@@ -648,9 +703,12 @@ func validate(content: HospitalContent) -> String:
 			if not actor_id is String or not facts.actors.has(actor_id):
 				return "竖向乘员不存在"
 			var location: Dictionary = facts.actors[actor_id].location
-			if location.kind!="transit" or location.connector_id!=id or connector.phase in ["idle","empty_riding"]:
+			if location.kind!="transit" or location.connector_id!=id or connector.phase=="empty_riding" or (connector.phase=="idle" and not connector.has("lift_control_version")):
 				return "乘员与轿厢状态不一致"
-		if not connector.riders.is_empty():
+		if connector.has("lift_control_version"):
+			var manifest_error: String = _validate_lift_manifest(connector,definition,geometry)
+			if not manifest_error.is_empty(): return manifest_error
+		elif not connector.riders.is_empty():
 			var primary: String = connector.get("primary_actor_id",connector.riders[0])
 			if not primary in connector.riders or not facts.moves.has(primary) or facts.moves[primary].get("members",[primary])!=connector.riders:
 				return "真实通行组没有一致的移动拥有者"
@@ -849,7 +907,7 @@ func _ledger_owner_exists(id: String, unit_owners: Dictionary) -> bool:
 		return true
 	return unit_owners.has(id)
 
-func _validate_shapes() -> String:
+func _validate_shapes(legacy_transit: bool = false) -> String:
 	if not _natural(facts.get("move_request_next",0)):
 		return "移动请求序号无效"
 	if not facts.hospital_id is String or not facts.display_name is String or not facts.mode is String or not _natural(facts.entity_next):
@@ -928,7 +986,9 @@ func _validate_shapes() -> String:
 			return "身体位置结构无效"
 		if actor.location.get("kind")=="transit" and (not actor.location.get("connector_id") is String or actor.location.has("floor_id") or actor.location.has("cell")):
 			return "地面与乘梯位置不能同时存在"
-		if actor.location.has("cabin_cell") and (actor.location.kind!="transit" or not _grid_point(actor.location.cabin_cell) or float(actor.location.cabin_cell[0])<0 or float(actor.location.cabin_cell[1])<0):
+		var multi_lift: bool=facts.connectors.get(actor.location.get("connector_id",""),{}).has("lift_control_version")
+		var valid_cabin_cell: bool=_point(actor.location.get("cabin_cell")) if multi_lift else _grid_point(actor.location.get("cabin_cell"))
+		if actor.location.has("cabin_cell") and (actor.location.kind!="transit" or not valid_cabin_cell or ((float(actor.location.cabin_cell[0])<0 or float(actor.location.cabin_cell[1])<0) and _articulated_member_plan(actor.id).is_empty())):
 			return "轿厢内实际位置无效"
 		if actor.location.get("kind")=="floor" and actor.location.has("connector_id"):
 			return "地面身体携带了乘梯身份"
@@ -1007,6 +1067,9 @@ func _validate_shapes() -> String:
 		if not _grid_point(room.origin) or not _extent(room.size) or not facts.floors.overrides.has(str(int(room.floor_id))):
 			return "房间实际坐标、范围或楼层无效"
 	for connector: Dictionary in facts.connectors.values():
+		if connector.has("lift_control_version"):
+			var lift_shape_error: String = _validate_lift_shape(connector)
+			if not lift_shape_error.is_empty(): return lift_shape_error
 		if connector.has("first_floor"):
 			if not _natural(connector.first_floor) or not _natural(connector.get("last_floor")) or int(connector.first_floor)<1 or int(connector.last_floor)<int(connector.first_floor): return "竖向连接连续区间无效"
 		elif not connector.get("stops") is Array: return "竖向连接站点结构无效"
@@ -1014,7 +1077,7 @@ func _validate_shapes() -> String:
 			return "竖向连接状态或锚点无效"
 		if not connector.phase=="idle" and (not _natural(connector.get("from",-1)) or not _natural(connector.get("to",-1)) or not HospitalTransit.has_stop(connector,int(connector.from)) or not HospitalTransit.has_stop(connector,int(connector.to))):
 			return "竖向连接起止楼层不在真实停靠点中"
-		if HospitalTransit.endpoints(connector).is_empty() or not HospitalTransit.has_stop(connector,int(connector.floor_id)) or (connector.phase in ["idle","empty_riding"] and not connector.riders.is_empty()):
+		if HospitalTransit.endpoints(connector).is_empty() or not HospitalTransit.has_stop(connector,int(connector.floor_id)) or ((connector.phase=="empty_riding" or (connector.phase=="idle" and not connector.has("lift_control_version"))) and not connector.riders.is_empty()):
 			return "竖向连接停靠点或实际乘员无效"
 		if connector.phase in ["boarding","riding","alighting"] and connector.riders.is_empty():
 			return "载客阶段缺少真实通行组"
@@ -1023,8 +1086,27 @@ func _validate_shapes() -> String:
 				return "交通拥有者身份无效"
 		if connector.has("primary_actor_id") and not connector.primary_actor_id in connector.riders:
 			return "通行组领队不是实际乘员"
-		if not _natural(connector.get("ticket_next",0)) or (connector.has("trip_travel_ticks") and not _natural(connector.trip_travel_ticks)):
-			return "交通票序或已承诺通行时间无效"
+		if (legacy_transit and (not _natural(connector.get("ticket_next",0)) or (connector.has("trip_sequence") and not _natural(connector.trip_sequence)))) or (connector.has("trip_travel_ticks") and not _natural(connector.trip_travel_ticks)):
+			return "交通身份或已承诺通行时间无效"
+		if connector.has("trip_receipt") and (not connector.trip_receipt is String or connector.trip_receipt.is_empty()): return "交通行程收据无效"
+		if legacy_transit and connector.has("trip_sequence") and connector.has("trip_receipt") and connector.trip_receipt!="transit:"+str(int(connector.trip_sequence)):
+			return "新旧交通行程身份冲突"
+		if connector.phase in ["boarding","riding","alighting"] and not connector.has("lift_control_version"):
+			var receipt: String = str(connector.get("trip_receipt",""))
+			if legacy_transit and not connector.has("trip_receipt"):
+				# Keep the legacy fallback used by its original completion path.
+				var old_sequence: Variant = connector.get("trip_sequence",connector.get("ticket_next",0))
+				if not _natural(old_sequence): return "旧交通行程身份无效"
+				receipt = "transit:"+str(int(old_sequence))
+			if legacy_transit and connector.has("trip_sequence") and connector.has("ticket_next") and int(connector.trip_sequence)>int(connector.ticket_next): return "旧交通行程身份超出原序列"
+			if not connector.get("use_receipts",{}) is Dictionary: return "交通使用收据结构无效"
+			# Both completion paths settle wear and return to idle within one
+			# atomic movement boundary. A loaded trip cannot already be settled.
+			if connector.get("use_receipts",{}).has(receipt): return "实际交通行程已经结算"
+		if not legacy_transit:
+			for retired: String in ["ticket_next","trip_sequence","assigned_actor_id"]:
+				if connector.has(retired): return "旧交通状态尚未迁移"
+			if connector.phase in ["boarding","riding","alighting"] and not connector.has("lift_control_version") and not connector.has("trip_receipt"): return "实际行程缺少收据身份"
 		for field: String in ["failed","pending_failure"]:
 			if connector.has(field) and not connector[field] is bool:
 				return "交通运行模式无效"
@@ -1140,35 +1222,45 @@ func _validate_shapes() -> String:
 				if not waypoint.prefix is Array or waypoint.prefix.is_empty() or waypoint.prefix.size()>2 or not waypoint.get("binding") is Dictionary: return "有限让位前缀结构无效"
 				var binding: Dictionary=waypoint.binding
 				if not _point(binding.get("origin")) or not _natural(binding.get("sequence",-1)) or not _natural(binding.get("target_floor",-1)) or not _point(binding.get("target_cell")) or not binding.get("connector_id") is String: return "有限让位前缀绑定无效"
-				if binding.has("retreat_actor"):
-					if not binding.has("waiting_ticket") or not binding.retreat_actor is String or not _natural(binding.get("retreat_request",-1)) or not _point(binding.get("retreat_target")) or binding.has("trip_sequence") or binding.has("selected_id") or binding.has("selected_request") or binding.has("selected_ticket"): return "实际退行候位绑定无效"
-				elif binding.has("retreat_request") or binding.has("retreat_target"): return "实际退行候位绑定字段无效"
-				elif binding.has("selected_id"):
-					if not binding.has("waiting_ticket") or binding.has("trip_sequence") or not binding.selected_id is String or not _natural(binding.get("selected_request",-1)) or not _natural(binding.get("selected_ticket",-1)): return "召入让位绑定无效"
-				elif binding.has("selected_request") or binding.has("selected_ticket") or not _natural(binding.get("trip_sequence",-1)): return "下客让位绑定无效"
-				if binding.has("waiting_ticket"):
-					if not _natural(binding.waiting_ticket): return "候位让行票绑定无效"
-				elif movement.has("transit_ticket"): return "候位让行缺少票绑定"
+				if legacy_transit:
+					if binding.has("retreat_actor"):
+						if not binding.has("waiting_ticket") or not binding.retreat_actor is String or not _natural(binding.get("retreat_request",-1)) or not _point(binding.get("retreat_target")) or binding.has("trip_sequence") or binding.has("selected_id") or binding.has("selected_request") or binding.has("selected_ticket"): return "实际退行候位绑定无效"
+					elif binding.has("retreat_request") or binding.has("retreat_target"): return "实际退行候位绑定字段无效"
+					elif binding.has("selected_id"):
+						if not binding.has("waiting_ticket") or binding.has("trip_sequence") or not binding.selected_id is String or not _natural(binding.get("selected_request",-1)) or not _natural(binding.get("selected_ticket",-1)): return "召入让位绑定无效"
+					elif binding.has("selected_request") or binding.has("selected_ticket") or not _natural(binding.get("trip_sequence",-1)): return "下客让位绑定无效"
+					if binding.has("waiting_ticket"):
+						if not _natural(binding.waiting_ticket): return "候位让行票绑定无效"
+					elif movement.has("transit_ticket"): return "候位让行缺少票绑定"
+				else:
+					for retired: String in ["trip_sequence","selected_id","selected_request","selected_ticket","waiting_ticket"]:
+						if binding.has(retired): return "旧交通让位授权尚未迁移"
+					if binding.has("retreat_actor"):
+						if not binding.retreat_actor is String or not _natural(binding.get("retreat_request",-1)) or not _point(binding.get("retreat_target")) or binding.has("trip_receipt"): return "实际退行绑定无效"
+					elif binding.has("retreat_request") or binding.has("retreat_target") or not binding.get("trip_receipt") is String or binding.trip_receipt.is_empty(): return "下客让位绑定无效"
 				for point: Variant in waypoint.prefix:
 					if not point is Dictionary or point.get("kind")!="floor" or point.get("floor_id")!=waypoint.floor_id or not _point(point.get("cell")): return "有限让位前缀角点无效"
 				if waypoint.prefix[-1].cell!=waypoint.cell: return "有限让位前缀终点无效"
 
-		if movement.has("transit_wait"):
-			var waiting: Variant=movement.transit_wait
-			if not waiting is Dictionary or not _point(waiting.get("cell")) or waiting.get("sequence")!=movement.get("request_sequence",-1) or not movement.has("transit_ticket"): return "实际候位绑定无效"
-		if movement.has("transit_ticket"):
-			var ticket: Variant = movement.transit_ticket
-			if not ticket is Dictionary or not _fields(ticket,{"connector_id":TYPE_STRING,"sequence":TYPE_INT,"from":TYPE_INT,"to":TYPE_INT}).is_empty() or not facts.connectors.has(ticket.get("connector_id","")):
-				return "到站通行票结构或连接引用无效"
-			var connection: Dictionary = facts.connectors[ticket.connector_id]
-			var key: String = ticket.connector_id+":"+str(ticket.sequence)
-			if not _natural(ticket.sequence) or int(ticket.sequence)<1 or int(ticket.sequence)>int(connection.get("ticket_next",0)) or transit_sequences.has(key) or not HospitalTransit.has_stop(connection,int(ticket.from)) or not HospitalTransit.has_stop(connection,int(ticket.to)):
-				return "到站票序、起止站或连接身份无效"
-			transit_sequences[key] = true
-			for id: String in movement.get("members",[movement.actor_id]):
-				var actor: Dictionary = facts.actors.get(id,{})
-				if actor.is_empty() or actor.location.get("kind")!="floor" or not _natural(actor.location.get("floor_id",-1)) or int(actor.location.floor_id)!=int(ticket.from):
-					return "到站通行组没有实际位于起点层"
+		if legacy_transit:
+			if movement.has("transit_wait"):
+				var waiting: Variant=movement.transit_wait
+				if not waiting is Dictionary or not _point(waiting.get("cell")) or waiting.get("sequence")!=movement.get("request_sequence",-1) or not movement.has("transit_ticket"): return "实际候位绑定无效"
+			if movement.has("transit_ticket"):
+				var ticket: Variant = movement.transit_ticket
+				if not ticket is Dictionary or not _fields(ticket,{"connector_id":TYPE_STRING,"sequence":TYPE_INT,"from":TYPE_INT,"to":TYPE_INT}).is_empty() or not facts.connectors.has(ticket.get("connector_id","")):
+					return "到站通行票结构或连接引用无效"
+				var connection: Dictionary = facts.connectors[ticket.connector_id]
+				var key: String = ticket.connector_id+":"+str(ticket.sequence)
+				if not _natural(ticket.sequence) or int(ticket.sequence)<1 or int(ticket.sequence)>int(connection.get("ticket_next",0)) or transit_sequences.has(key) or not HospitalTransit.has_stop(connection,int(ticket.from)) or not HospitalTransit.has_stop(connection,int(ticket.to)):
+					return "到站票序、起止站或连接身份无效"
+				transit_sequences[key] = true
+				for id: String in movement.get("members",[movement.actor_id]):
+					var actor: Dictionary = facts.actors.get(id,{})
+					if actor.is_empty() or actor.location.get("kind")!="floor" or not _natural(actor.location.get("floor_id",-1)) or int(actor.location.floor_id)!=int(ticket.from):
+						return "到站通行组没有实际位于起点层"
+		elif movement.has("transit_wait") or movement.has("transit_ticket"):
+			return "旧候梯状态尚未迁移"
 		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])+movement.get("detour",{}).get("original_path",[])+movement.get("detour",{}).get("backtrack",[])
 		if movement.has("local_move"): segments.append(movement.local_move.target)
 		for segment: Variant in segments:
@@ -1242,3 +1334,213 @@ static func _point(value: Variant) -> bool:
 
 static func _natural(value: Variant) -> bool:
 	return (value is int or value is float) and is_finite(float(value)) and float(value) >= 0 and float(value)<=1000000000000 and float(value) == floor(float(value))
+
+# Multi-stop lift records are actual arrived queues and actual cabin bodies,
+# never advance reservations. Legacy in-flight single-group records remain
+# valid until their original safe trip finishes; the controller then upgrades.
+func _validate_lift_shape(connection: Dictionary) -> String:
+	if not connection.get("lift_control_version") is int or connection.lift_control_version!=1 or not connection.get("direction") is int or not int(connection.direction) in [-1,0,1]: return "电梯控制版本或方向无效"
+	if not connection.get("landing_queues") is Dictionary or not connection.get("passenger_groups") is Array: return "电梯实际队列或乘员组结构无效"
+	if connection.has("active_group") and not connection.active_group is String: return "电梯上下客组身份无效"
+	var seen: Dictionary={}
+	for key: Variant in connection.landing_queues:
+		if not key is String or not connection.landing_queues[key] is Array: return "电梯楼层方向队列结构无效"
+		var parts: PackedStringArray=str(key).split(":")
+		if parts.size()!=2 or not parts[0].is_valid_int() or not parts[1].is_valid_int() or not int(parts[1]) in [-1,1] or not HospitalTransit.has_stop(connection,int(parts[0])): return "电梯楼层方向队列键无效"
+		var previous: int=-1
+		for item: Variant in connection.landing_queues[key]:
+			if not item is Dictionary or not _fields(item,{"actor_id":TYPE_STRING,"members":TYPE_ARRAY,"destination":TYPE_INT,"arrived_tick":TYPE_INT}).is_empty(): return "电梯到场队列记录无效"
+			if item.has("layout_blocked"):
+				if not item.layout_blocked is bool: return "电梯候梯布局阻挡状态无效"
+				if item.layout_blocked:
+					if item.has("owner_cells") or item.has("entry_cells") or item.has("cell"): return "阻挡候梯组仍持有旧站位"
+					for owner: String in item.get("leader_ids",[item.actor_id]):
+						if facts.moves.get(owner,{}).has("lift_boarding_call"): return "阻挡候梯组仍持有登梯邀请"
+			if not _natural(item.arrived_tick) or int(item.arrived_tick)>sim_tick or int(item.arrived_tick)<previous: return "电梯到场队列顺序无效"
+			previous=int(item.arrived_tick)
+			if not HospitalTransit.has_stop(connection,item.destination) or signi(int(item.destination)-int(parts[0]))!=int(parts[1]): return "电梯到场方向与目的层不一致"
+			if item.members.is_empty() or not item.actor_id in item.members or seen.has(item.actor_id): return "电梯到场组重复或缺少领队"
+			seen[item.actor_id]=true
+			for id: Variant in item.members:
+				if not id is String or not facts.actors.has(id): return "电梯到场组成员不存在"
+	var pending_bodies: Dictionary={}
+	var onboard: Dictionary={}
+	var leaders: Dictionary={}
+	var receipts: Dictionary={}
+	for item: Variant in connection.passenger_groups:
+		if not item is Dictionary or not _fields(item,{"actor_id":TYPE_STRING,"members":TYPE_ARRAY,"from":TYPE_INT,"to":TYPE_INT,"cabin_positions":TYPE_DICTIONARY,"receipt":TYPE_STRING}).is_empty(): return "电梯实际乘员组记录无效"
+		if item.members.is_empty() or not item.actor_id in item.members or leaders.has(item.actor_id) or seen.has(item.actor_id) or item.receipt.is_empty(): return "电梯实际组重复或身份无效"
+		if item.has("exit_stage"):
+			if not item.exit_stage is String or item.exit_stage!="companions" or connection.phase!="alighting" or connection.get("active_group","")!=item.actor_id: return "电梯分阶段下客状态无效"
+		if item.has("pending_boarding"):
+			if not item.pending_boarding is Array or item.pending_boarding.is_empty() or connection.phase!="boarding" or connection.get("active_group","")!=item.actor_id or item.has("exit_stage"): return "电梯待登舱阶段无效"
+			for pending: Variant in item.pending_boarding:
+				if not pending is Dictionary or not _fields(pending,{"actor_id":TYPE_STRING,"members":TYPE_ARRAY,"cabin_positions":TYPE_DICTIONARY,"entry_cell":TYPE_ARRAY}).is_empty(): return "电梯待登舱记录无效"
+				if pending.members!=[pending.actor_id] or not facts.actors.has(pending.actor_id) or pending_bodies.has(pending.actor_id) or not _point(pending.entry_cell) or pending.cabin_positions.size()!=1 or not _point(pending.cabin_positions.get(pending.actor_id)): return "电梯待登舱必须为唯一实际单人"
+				pending_bodies[pending.actor_id]=true
+		leaders[item.actor_id]=true
+		if receipts.has(item.receipt): return "电梯乘员行程收据重复"
+		receipts[item.receipt]=true
+		if not HospitalTransit.has_stop(connection,item.from) or not HospitalTransit.has_stop(connection,item.to) or item.from==item.to: return "电梯乘员目的地无效"
+		if connection.get("use_receipts",{}).has(item.receipt): return "电梯乘员行程已结算"
+		for id: Variant in item.members:
+			if not id is String or not facts.actors.has(id) or onboard.has(id): return "电梯实际乘员重复或不存在"
+			onboard[id]=true
+			if not _point(item.cabin_positions.get(id)): return "电梯乘员舱内位置缺失"
+	for id: String in pending_bodies:
+		if onboard.has(id) or seen.has(id): return "电梯待登舱身体重复在队或舱内"
+	if onboard.size()!=connection.riders.size(): return "电梯乘员清单与身体集合不一致"
+	for id: String in connection.riders:
+		if not onboard.has(id): return "电梯乘员不属于实际组"
+	var active: String=connection.get("active_group","")
+	if not active.is_empty() and not leaders.has(active): return "电梯上下客组不在轿厢"
+	if connection.phase in ["boarding","alighting"] and active.is_empty(): return "电梯上下客缺少当前实际组"
+	if connection.has("primary_actor_id") and connection.primary_actor_id!=active: return "电梯当前上下客拥有者不一致"
+	return ""
+
+func _validate_lift_manifest(connection: Dictionary, definition: Dictionary, geometry: HospitalSpace) -> String:
+	if definition.kind!="lift": return "楼梯不能使用电梯乘员清单"
+	var occupied: Array[Rect2]=[]
+	var cabin: Vector2=Vector2(float(definition.cabin_size[0]),float(definition.cabin_size[1]))
+	var cabin_rect: Rect2=Rect2(Vector2.ZERO,cabin)
+	var queued: Dictionary={}
+	for key: String in connection.landing_queues:
+		var floor_id: int=int(key.split(":")[0])
+		for entry: Dictionary in connection.landing_queues[key]:
+			if not facts.moves.has(entry.actor_id): return "电梯到场组缺少原移动任务"
+			for id: String in entry.members:
+				if queued.has(id): return "身体重复进入电梯到场队列"
+				queued[id]=true
+				var location: Dictionary=facts.actors[id].location
+				if location.kind!="floor" or int(location.floor_id)!=floor_id: return "电梯到场组与实际楼层不一致"
+	for entry: Dictionary in connection.passenger_groups:
+		if entry.has("pending_boarding") or entry.has("exit_stage"):
+			if not facts.moves.get(entry.actor_id,{}).has("convoy"): return "电梯顺序交接缺少护理队列"
+		var companion_error: String=_validate_companion_portals(connection,entry,geometry)
+		if not companion_error.is_empty(): return companion_error
+		var pending_offset: int=0
+		for owner: String in entry.get("leader_ids",[entry.actor_id]):
+			pending_offset+=maxi(1,geometry.clearance(facts.actors[owner]))
+		for pending: Dictionary in entry.get("pending_boarding",[]):
+			var id: String=pending.actor_id
+			if queued.has(id): return "电梯待登舱身体仍在队列"
+			var move: Dictionary=facts.moves.get(id,{})
+			if move.is_empty() or move.has("members") or move.has("convoy") or move.has("local_move") or move.has("detour") or move.has("support_exit") or move.has("portal"): return "电梯待登舱原移动不是静止单人"
+			if move.get("lift_pending_boarding",{})!={"connector_id":connection.id,"group_leader":entry.actor_id}: return "电梯待登舱绑定不一致"
+			var location: Dictionary=facts.actors[id].location
+			var pending_cell: Array=pending.entry_cell
+			var companion: Dictionary=entry.get("companion_portals",{}).get(id,{})
+			if not companion.is_empty() and int(companion.cursor)>0: pending_cell=companion.plan.boarding[int(companion.cursor)-1].poses[id].cell
+			if location.kind!="floor" or int(location.floor_id)!=int(entry.from) or ConvoyTrail.point(location.cell).distance_to(ConvoyTrail.point(pending_cell))>0.001: return "电梯待登舱身体未在实际入口" if companion.is_empty() else "电梯待登舱身体未在实际连续交接帧"
+			if entry.get("entry_cells",{}).get(id,[])!=pending.entry_cell: return "电梯待登舱入口与原同行入口不一致"
+			var normal: Vector2i=LiftController.Landing._normal(connection)
+			var expected: Vector2=ConvoyTrail.point(connection.anchor)+Vector2(normal.y,-normal.x)*pending_offset
+			if companion.is_empty() and expected.distance_to(ConvoyTrail.point(pending.entry_cell))>0.001: return "电梯待登舱入口不是实际门侧交接点"
+			pending_offset+=maxi(1,geometry.clearance(facts.actors[id]))
+			for other: Dictionary in facts.connectors.values():
+				if other.id==connection.id: continue
+				for line: Array in other.get("landing_queues",{}).values():
+					for queued_entry: Dictionary in line:
+						if id in queued_entry.members: return "电梯待登舱身体仍在其他梯队列"
+			var region: Rect2=Rect2(ConvoyTrail.point(pending.cabin_positions[id]),Vector2.ONE*float(geometry.clearance(facts.actors[id])))
+			if not cabin_rect.encloses(region): return "电梯待登舱预期身体超出轿厢"
+			# Pending positions are not occupied bodies during the convoy turn.
+			# Their actual collision is checked when boarding takes place.
+		var owners: Variant=entry.get("leader_ids",[entry.actor_id])
+		if not owners is Array or owners.is_empty() or not entry.actor_id in owners: return "电梯乘员组原移动拥有者缺失"
+		var group_members: Dictionary={}
+		for owner: Variant in owners:
+			if not owner is String or not facts.moves.has(owner): return "电梯乘员组原移动拥有者不存在"
+			for id: String in facts.moves[owner].get("members",[owner]):
+				if group_members.has(id): return "电梯同行组移动拥有者重复"
+				group_members[id]=true
+		if group_members.size()!=entry.members.size(): return "电梯乘员组缺少一致原移动拥有者"
+		for id: String in entry.members:
+			if not group_members.has(id): return "电梯乘员组成员与原任务不一致"
+		for id: String in entry.members:
+			if queued.has(id): return "电梯实际乘员仍在到场队列"
+			var actor: Dictionary=facts.actors[id]
+			if actor.location.kind!="transit" or actor.location.connector_id!=connection.id or not _natural(actor.location.get("from",-1)) or not _natural(actor.location.get("to",-1)) or int(actor.location.get("from",-1))!=int(entry.from) or int(actor.location.get("to",-1))!=int(entry.to): return "电梯实际身体与本组行程不一致"
+			var point: Array=entry.cabin_positions[id]
+			var region: Rect2=Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE*float(geometry.clearance(actor)))
+			var articulated_plan: Dictionary=_articulated_member_plan(id)
+			if not articulated_plan.is_empty():
+				if articulated_plan.get("cabin_positions",{}).get(id,[])!=point or actor.location.get("cabin_cell",[])!=point: return "分体乘员舱内投影与确定计划不一致"
+				var raw: Variant=articulated_plan.get("cabin_regions",{}).get(id)
+				if not raw is Array or raw.size()!=4: return "分体乘员真实舱内身体包络缺失"
+				for n: Variant in raw:
+					if not (n is float or n is int) or not is_finite(float(n)): return "分体乘员舱内身体包络无效"
+				region=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+				if region.size.x<=0 or region.size.y<=0: return "分体乘员舱内身体包络为空"
+			if not cabin_rect.encloses(region): return "电梯身体超出轿厢"
+			for prior: Rect2 in occupied:
+				if region.intersects(prior,false): return "电梯舱内实际身体重叠"
+			occupied.append(region)
+	return ""
+
+# Resolve only actual convoy ownership. Signed articulated cabin cell projections
+# are not body envelopes: strict canonical cabin_regions validate containment.
+func _articulated_member_plan(actor_id: String) -> Dictionary:
+	for raw: Variant in facts.moves.values():
+		if not raw is Dictionary or not raw.get("members",[]) is Array or not actor_id in raw.get("members",[]): continue
+		var convoy: Variant=raw.get("convoy",{})
+		if not convoy is Dictionary: continue
+		var portal: Variant=convoy.get("portal",{})
+		if not portal is Dictionary: continue
+		var plan: Variant=portal.get("plan",{})
+		if plan is Dictionary and plan.get("mode","")=="articulated": return plan
+	for connection: Dictionary in facts.connectors.values():
+		for group: Dictionary in connection.get("passenger_groups",[]):
+			var collection: Variant=group.get("companion_portals",{})
+			if not collection is Dictionary: continue
+			var portal: Variant=collection.get(actor_id,{})
+			if not portal is Dictionary or portal.is_empty() or not actor_id in group.members: continue
+			if not portal.get("plan") is Dictionary or not portal.plan.get("seated_pose") is Dictionary or not portal.plan.seated_pose.get("region") is Array or portal.plan.seated_pose.region.size()!=4 or not _point(portal.plan.get("cabin_position")): continue
+			var raw: Array=portal.plan.seated_pose.region
+			if raw.any(func(n:Variant)->bool:return not (n is float or n is int) or not is_finite(float(n))): continue
+			var region: Rect2=Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3]))
+			var inward: Vector2=Vector2.UP.rotated(float(connection.get("rotation",0))*PI*0.5).round()
+			var side: Vector2=Vector2(-inward.y,inward.x)
+			var lo: Vector2=Vector2(INF,INF);var hi: Vector2=Vector2(-INF,-INF)
+			for corner: Vector2 in [region.position,Vector2(region.end.x,region.position.y),region.end,Vector2(region.position.x,region.end.y)]:
+				var delta: Vector2=corner-ConvoyTrail.point(connection.anchor)
+				var projected: Vector2=Vector2(delta.dot(side),delta.dot(inward))
+				lo=lo.min(projected);hi=hi.max(projected)
+			return {"cabin_positions":{actor_id:portal.plan.cabin_position},"cabin_regions":{actor_id:[lo.x,lo.y,hi.x-lo.x,hi.y-lo.y]}}
+	return {}
+
+# A saved family handoff must be reproducible from its nursing owner's plan,
+# body and original landing/cabin positions; stored frames are not authority.
+func _validate_companion_portals(connection: Dictionary, group: Dictionary, geometry: HospitalSpace) -> String:
+	var portals: Variant=group.get("companion_portals",{})
+	if not portals is Dictionary: return "家属连续交接集合无效"
+	for id: Variant in portals:
+		if not id is String or not facts.actors.has(id) or not facts.moves.has(id): return "家属连续交接成员不存在"
+		var portal: Variant=portals[id]
+		if not portal is Dictionary or not portal.get("plan") is Dictionary or not _natural(portal.get("cursor",-1)) or not portal.get("stage","") in ["boarding","alighting"]: return "家属连续交接状态无效"
+		var nursing: Dictionary=facts.moves.get(group.actor_id,{}).get("convoy",{}).get("portal",{}).get("plan",{})
+		if nursing.get("mode","")!="articulated": return "家属连续交接缺少实际护理拥有者"
+		var pending: Dictionary={}
+		for item: Dictionary in group.get("pending_boarding",[]):
+			if item.actor_id==id: pending=item
+		if pending.is_empty() and not id in group.members: return "家属连续交接不属于此乘员组"
+		var position: Variant=group.cabin_positions.get(id,pending.get("cabin_positions",{}).get(id))
+		var entry: Variant=group.get("entry_cells",{}).get(id)
+		if not _point(position) or not _point(entry): return "家属连续交接入口或座位缺失"
+		if not portal.plan.get("initial_pose") is Dictionary or not (portal.plan.initial_pose.get("facing") is int or portal.plan.initial_pose.get("facing") is float) or not is_finite(float(portal.plan.initial_pose.facing)): return "家属初始朝向无效"
+		var canonical: Dictionary=ArticulatedLiftPortal.companion_plan(geometry,self,connection,nursing,id,entry,position,float(portal.plan.get("initial_pose",{}).get("facing",NAN)))
+		if not canonical.get("ok",false) or JSON.stringify(canonical,"",true)!=JSON.stringify(portal.plan,"",true): return "家属连续交接计划与身体或路径不一致"
+		var frames: Array=canonical[portal.stage]
+		var cursor: int=int(portal.cursor)
+		if cursor>frames.size(): return "家属连续交接帧越界"
+		if portal.stage=="alighting" and (connection.phase!="alighting" or connection.get("active_group","")!=group.actor_id or group.get("exit_stage","")!="companions" or not pending.is_empty()): return "家属下梯阶段与轿厢不一致"
+		if not pending.is_empty() and (portal.stage!="boarding" or connection.phase!="boarding" or connection.get("active_group","")!=group.actor_id): return "家属上梯阶段与轿厢不一致"
+		if pending.is_empty() and portal.stage=="boarding" and cursor!=frames.size(): return "家属未走完入口却已在舱内"
+		var pose: Dictionary=canonical.initial_pose if cursor==0 and portal.stage=="boarding" else (canonical.seated_pose if cursor==0 else frames[cursor-1].poses[id])
+		var actor: Dictionary=facts.actors[id]
+		if absf(angle_difference(float(actor.facing),float(pose.facing)))>0.001: return "家属身体朝向与连续帧不一致"
+		if not pending.is_empty():
+			if actor.location.kind!="floor" or int(actor.location.floor_id)!=int(group.from) or ConvoyTrail.point(actor.location.cell).distance_to(ConvoyTrail.point(pose.cell))>0.001: return "家属身体与上梯连续帧不一致"
+		elif portal.stage=="alighting":
+			if not _point(actor.location.get("queue_cell")) or ConvoyTrail.point(actor.location.queue_cell).distance_to(ConvoyTrail.point(pose.cell))>0.001: return "家属身体与下梯连续帧不一致"
+	return ""

@@ -320,10 +320,35 @@ func _sleep_handoff(suite: RefCounted) -> Dictionary:
 	var errors: Array = []
 	var trace: Array = []
 	var arrivals: Dictionary = {}
+	var checkpoints: Dictionary = {}
 	for index: int in 600:
 		before.clear()
 		for id: String in observed:
 			before[id] = {"actor":world.facts.actors[id].duplicate(true),"task":world.facts.staff[id].life_task.duplicate(true),"move":world.facts.moves.get(id,{}).duplicate(true),"sleep_remaining_ticks":world.facts.staff[id].sleep_remaining_ticks}
+			# Observe a real completed route before its owner closes it. Retain
+			# only across an unchanged standing-at-goal handoff, never infer
+			# arrival from the later supported pose or a supplied task target.
+			var current: Dictionary = before[id]
+			var task: Dictionary = current.task
+			if task.phase=="sleep": continue
+			var move: Dictionary = current.move
+			var checkpoint: Dictionary = checkpoints.get(id,{})
+			var location: Dictionary = current.actor.location
+			var at_goal: bool = task.get("kind","")=="sleep" and task.phase=="travel" and current.actor.get("posture","")=="standing" and location.kind=="floor" and int(location.floor_id)==int(task.get("floor_id",-1)) and _equal(location.cell,task.get("cell",[]))
+			var same_task: bool = not checkpoint.is_empty() and checkpoint.actor_id==id and checkpoint.task_id==task.get("id","") and checkpoint.facility_id==task.get("facility_id","") and checkpoint.target_floor==task.get("floor_id",-1) and checkpoint.target_cell==task.get("cell",[])
+			var active: bool = not move.is_empty() and (move.get("route_pending",false) or move.has("local_move") or move.has("detour"))
+			var changed_request: bool = not move.is_empty() and not checkpoint.is_empty() and (checkpoint.closed or int(move.get("request_sequence",-1))!=int(checkpoint.request_sequence))
+			if not at_goal or not same_task or active or changed_request:
+				checkpoints.erase(id)
+				checkpoint = {}
+			if at_goal and not move.is_empty() and not active:
+				var travelled: Array = move.get("travelled",[])
+				var complete: bool = move.get("actor_id","")==id and not move.get("path",[]).is_empty() and int(move.get("cursor",-1))==move.path.size() and int(move.get("target_floor",-1))==int(task.floor_id) and move.get("target_cell",[])==task.cell and not travelled.is_empty() and int(travelled.back().get("floor_id",-1))==int(task.floor_id) and _equal(travelled.back().cell,task.cell)
+				if complete:
+					checkpoints[id] = {"actor_id":id,"task_id":task.id,"facility_id":task.facility_id,"target_floor":task.floor_id,"target_cell":task.cell.duplicate(),"request_sequence":move.request_sequence,"arrival_tick":world.sim_tick,"cursor":move.cursor,"path_size":move.path.size(),"travelled_terminal":travelled.back().duplicate(true),"standing_location":location.duplicate(true),"closed":false}
+				else: checkpoints.erase(id)
+			elif at_goal and move.is_empty() and not checkpoint.is_empty():
+				checkpoint.closed = true
 		var step = sim.step()
 		if step==null: errors.append("Production step did not complete");break
 		for id: String in observed:
@@ -333,10 +358,9 @@ func _sleep_handoff(suite: RefCounted) -> Dictionary:
 			var actor: Dictionary = world.facts.actors[id]
 			if before[id].task.phase!="sleep":
 				var move: Dictionary = before[id].move
-				var target: Array = move.get("target_cell",[])
-				var travelled: Array = move.get("travelled",[])
-				var actual_arrival: bool = not move.is_empty() and int(move.cursor)>=move.path.size() and before[id].actor.location.kind=="floor" and int(before[id].actor.location.floor_id)==int(move.target_floor) and _equal(before[id].actor.location.cell,target) and not travelled.is_empty() and _equal(travelled.back().cell,target)
-				arrivals[id] = {"tick":world.sim_tick,"real_target_arrival_before_support":actual_arrival,"before":before[id],"supported_actor":actor.duplicate(true),"move_after":world.facts.moves.get(id,{}).duplicate(true)}
+				var checkpoint: Dictionary = checkpoints.get(id,{})
+				var actual_arrival: bool = not checkpoint.is_empty() and checkpoint.closed and move.is_empty() and checkpoint.actor_id==id and checkpoint.task_id==staff.life_task.id and checkpoint.target_floor==staff.life_task.floor_id and checkpoint.target_cell==staff.life_task.cell and before[id].actor.location.kind=="floor" and before[id].actor.get("posture","")=="standing" and int(before[id].actor.location.floor_id)==int(checkpoint.target_floor) and _equal(before[id].actor.location.cell,checkpoint.target_cell)
+				arrivals[id] = {"tick":world.sim_tick,"real_target_arrival_before_support":actual_arrival,"checkpoint":checkpoint.duplicate(true),"before":before[id],"supported_actor":actor.duplicate(true),"move_after":world.facts.moves.get(id,{}).duplicate(true)}
 				if not actual_arrival: errors.append("Sleep began without real target arrival: "+id)
 			if world.facts.moves.has(id): errors.append("Completed bed walk retained or requeued after support: "+id)
 			if actor.get("posture","")!="lying": errors.append("Sleep lost supported posture: "+id)

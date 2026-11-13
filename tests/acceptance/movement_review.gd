@@ -25,7 +25,9 @@ func run_case(suite: RefCounted) -> Dictionary:
 		var result: Dictionary = _group(suite,phase)
 		groups.append(result)
 		ok = ok and result.ok
-	return {"ok":ok,"spatial":spatial,"quotes":quotes,"trip_quotes":trips,"projection_topology":topology,"static_versions":static_versions,"distance_fields":distance_fields,"cold_graph":cold_graph,"cost_consumers":cost_consumers,"shapes":shapes,"matching":matching,"search":search,"group_retargets":groups,"ready_support_exit":ready_reuse,"delayed_retarget":delayed_retarget,"delayed_cancel":delayed_cancel,"high_floor_topology":high_floors,"door_layers":door_layers,"group_door":group_door,"pose_page_sizes":page_sizes}
+	var no_space: Dictionary = _group_no_landing_space(suite)
+	ok = ok and no_space.ok
+	return {"ok":ok,"spatial":spatial,"quotes":quotes,"trip_quotes":trips,"projection_topology":topology,"static_versions":static_versions,"distance_fields":distance_fields,"cold_graph":cold_graph,"cost_consumers":cost_consumers,"shapes":shapes,"matching":matching,"search":search,"group_retargets":groups,"group_no_landing_space":no_space,"ready_support_exit":ready_reuse,"delayed_retarget":delayed_retarget,"delayed_cancel":delayed_cancel,"high_floor_topology":high_floors,"door_layers":door_layers,"group_door":group_door,"pose_page_sizes":page_sizes}
 
 func _pose_page_sizes() -> Dictionary:
 	var rows: Array = []
@@ -359,6 +361,11 @@ func _trip_quotes(suite: RefCounted) -> Dictionary:
 
 func _group(suite: RefCounted, phase: String) -> Dictionary:
 	var sim: HospitalSimulation = suite._transit_fixture()
+	# Both directional queues need actual floor beyond their full convoy bodies.
+	# The old edge-of-plot fixture cannot physically fit the downward queue.
+	sim.world.facts.floors.overrides["1"].plots.append([0,2])
+	sim.world.facts.floors.completed_top_floor["0:2"] = 2
+	sim.world.touch()
 	var busy_started: bool = true
 	var connection_id: String = suite._connection(sim)
 	if phase=="waiting":
@@ -382,7 +389,7 @@ func _group(suite: RefCounted, phase: String) -> Dictionary:
 	var reached: bool = true
 	if phase!="pending":
 		reached = suite._wait(sim,func()->bool:
-			return sim.world.facts.actors.party_a.location.kind=="transit" if phase=="riding" else sim.world.facts.moves.get("party_a",{}).has("transit_ticket") and sim.world.facts.actors.party_a.location.kind=="floor" and sim.world.facts.connectors[connection_id].phase!="idle",600,suite._movement_tick.bind(sim))
+			return sim.world.facts.actors.party_a.location.kind=="transit" if phase=="riding" else not suite._directional_queue_entry(sim.world.facts.connectors[connection_id],"party_a").is_empty() and sim.world.facts.actors.party_a.location.kind=="floor",600,suite._movement_tick.bind(sim))
 	var location: Dictionary = sim.world.facts.actors.party_a.location.duplicate(true)
 	var sequence: int = int(sim.world.facts.moves.get("party_a",{}).get("request_sequence",-1))
 	var same: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},2,[46,84])
@@ -401,5 +408,55 @@ func _group(suite: RefCounted, phase: String) -> Dictionary:
 	var arrived: bool = suite._wait(sim,func()->bool:
 		return not sim.world.facts.moves.has("party_a") and sim.space.at(sim.world,"party_a",1,[50,86]) and sim.world.facts.actors.party_b.location.kind=="floor" and int(sim.world.facts.actors.party_b.location.floor_id)==1 and absf(ConvoyTrail.point(sim.world.facts.actors.party_a.location.cell).distance_to(ConvoyTrail.point(sim.world.facts.actors.party_b.location.cell))-2.0)<0.001,1400,suite._movement_tick.bind(sim))
 	var result: Dictionary = {"ok":busy_started and reached and same.is_empty() and reused and atomic and changed.is_empty() and goal and safe and arrived,"phase":phase,"earlier_passenger_actually_boarded":busy_started if phase=="waiting" else null,"boundary_reached":reached,"same_goal_reused":reused,"invalid_goal_atomic":atomic,"change_error":changed,"new_goal_retained":goal,"safe_position_retained":safe,"actual_group_arrival":arrived,"remaining":sim.world.facts.moves.duplicate(true)}
+	sim.dispose()
+	return result
+
+# Negative production journey: the original edge-of-plot landing cannot hold
+# the complete downward convoy three cells from the door. Do not expand land,
+# shrink bodies, clear the failed-layout cache or fabricate waiting/transit.
+func _group_no_landing_space(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation = suite._transit_fixture()
+	var connection_id: String = suite._connection(sim)
+	suite._add_actor(sim,"party_a","S49",[40,80])
+	suite._add_actor(sim,"party_b","S49",[40,82])
+	var members: Array = ["party_a","party_b"]
+	var requested: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},2,[46,84])
+	var riding: bool = suite._wait(sim,func()->bool:return sim.world.facts.actors.party_a.location.kind=="transit",600,suite._movement_tick.bind(sim))
+	var changed: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},1,[50,86])
+	var parked: bool = suite._wait(sim,func()->bool:
+		var movement: Dictionary = sim.world.facts.moves.get("party_a",{})
+		var standby: Dictionary = movement.get("lift_queue_standby",{})
+		return not standby.is_empty() and int(standby.floor_id)==2 and not standby.get("traveling",true) and LiftLandingQueue.space_at_cell(sim.world.facts.actors.party_a,2,standby.cell),1400,suite._movement_tick.bind(sim))
+	var errors: Array = []
+	var rows: Array = []
+	var restored_exact: bool = false
+	if requested.is_empty() and riding and changed.is_empty() and parked:
+		var poses: Dictionary = {}
+		for id: String in members: poses[id] = sim.world.facts.actors[id].duplicate(true)
+		for phase: String in ["warm","cold"]:
+			if phase=="cold":
+				var facts: Dictionary = sim.world.freeze()
+				var restored: HospitalSimulation = HospitalSimulation.new(WorldState.new(facts),suite.content)
+				restored_exact = restored.world.freeze()==facts
+				sim.dispose();sim = restored
+			var reason: String = str(sim.world.facts.moves.party_a.get("waiting_reason",""))
+			var stable: bool = not reason.is_empty()
+			for step: int in 120:
+				suite._movement_tick(sim)
+				var error: String = sim.world.validate(suite.content)
+				if not error.is_empty():errors.append({"phase":phase,"tick":sim.world.sim_tick,"error":error});break
+				var current: Dictionary = sim.world.facts.moves.get("party_a",{})
+				stable = stable and not str(current.get("waiting_reason","")).is_empty() and int(current.get("target_floor",-1))==1 and current.get("target_cell",[])==[50,86]
+				for id: String in members: stable = stable and sim.world.facts.actors[id]==poses[id]
+			var before: Dictionary = sim.world.freeze()
+			var groups: Dictionary = LiftLandingQueue._groups(sim.world,connection_id)
+			var slots: Dictionary = {}
+			if groups.has("party_a"):
+				slots = LiftLandingQueue._group_slots(sim.space,sim.world,sim.world.facts.connectors[connection_id],groups.party_a,[],false)
+			var readonly: bool = before==sim.world.freeze()
+			rows.append({"phase":phase,"ticks":120,"reason":sim.world.facts.moves.get("party_a",{}).get("waiting_reason",""),"stable_bodies_and_reason":stable,"group_present":groups.has("party_a"),"slots_still_unavailable":slots.is_empty(),"readonly_recheck":readonly})
+	var ok: bool = requested.is_empty() and riding and changed.is_empty() and parked and restored_exact and errors.is_empty() and rows.size()==2
+	for row: Dictionary in rows:ok = ok and row.stable_bodies_and_reason and row.group_present and row.slots_still_unavailable and row.readonly_recheck
+	var result: Dictionary = {"ok":ok,"riding":riding,"actual_standby_arrival":parked,"exact_cold_restore":restored_exact,"errors":errors,"rows":rows,"scope":"Original insufficient physical landing; complete bodies and three-cell corridor preserved, no expanded plot or failed-cache clearing"}
 	sim.dispose()
 	return result

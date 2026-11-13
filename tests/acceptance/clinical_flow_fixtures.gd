@@ -338,7 +338,7 @@ func flow_add_floor(c: Dictionary, last_floor: int = 2) -> void:
 	c.world.facts.floors.completed_top_floor={HospitalSpace.plot_key([1,2]):last_floor}
 	for floor_id: int in range(2,last_floor+1):
 		c.world.facts.floors.overrides[str(floor_id)]={"plots":[[1,2]],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
-	c.world.facts.connectors["flow_lift"]={"id":"flow_lift","definition_id":"VC02","first_floor":1,"last_floor":last_floor,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"ticket_next":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+	c.world.facts.connectors["flow_lift"]={"id":"flow_lift","definition_id":"VC02","first_floor":1,"last_floor":last_floor,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
 	c.world.touch(true)
 
 func flow_add_worker(c: Dictionary, id: String, role: String, floor_id: int, cell: Array, room_id: String = "") -> void:

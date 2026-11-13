@@ -1,0 +1,593 @@
+[
+  {
+    "run": "max-family-cold-final-r2",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 268.2128179073334,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/directional_max_cold.gd",
+        "--",
+        "/workspace/scratch/6962cc21ddf3/elevator-validation/max-family-final-r1/result.json.input.bin",
+        "/workspace/scratch/6962cc21ddf3/elevator-validation/max-family-final-r1/result.json.metadata.json",
+        "/workspace/scratch/6962cc21ddf3/elevator-validation/max-family-cold-final-r2/data"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:48:12.447315+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/max-family-cold-final-r2/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/max-family-cold-final-r2/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/max-family-cold-final-r2/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "data/alighting_max_nurse-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/alighting_max_nurse.bin": {
+        "bytes": 366324,
+        "sha256": "6dd8c6ce5d89fbf7318303104af0ecd5bbf83851f566c57a1046e760b27df4ea"
+      },
+      "data/alighting_max_patient-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/alighting_max_patient.bin": {
+        "bytes": 365080,
+        "sha256": "2d2812f8e68e1f71eac71fbb5c174caa8965354948ec0b9d99e1052e3304310e"
+      },
+      "data/boarding_complete-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/boarding_complete.bin": {
+        "bytes": 470132,
+        "sha256": "8ebbb7c9ec4a1281a95b636bf54b0ebbb02279b0016e1330033b5e52b24ad2d9"
+      },
+      "data/boarding_max_nurse-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/boarding_max_nurse.bin": {
+        "bytes": 470132,
+        "sha256": "1ae41d664aa15a65a95668c950d24c0d5820c6e369b8fc7cc3d398d5b7ac6153"
+      },
+      "data/boarding_max_patient-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/boarding_max_patient.bin": {
+        "bytes": 470132,
+        "sha256": "7a06bbb18a08282386eff184c03dfc55e5b02491f8f53c90caf217534359b7eb"
+      },
+      "data/convoy_idle-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/convoy_idle.bin": {
+        "bytes": 469856,
+        "sha256": "b9859de36e467ad9014effd1d4a29efd9e23b726c5659a83cb1dd0c017cff17e"
+      },
+      "data/convoy_riding-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/convoy_riding.bin": {
+        "bytes": 469860,
+        "sha256": "df7e33fc2db65fb5e08a0d81d703771f1920f059d8bc9000a7a7ff4c653c20c8"
+      },
+      "data/family_alighting_partial-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/family_alighting_partial.bin": {
+        "bytes": 470008,
+        "sha256": "750c8f97b633be5e03fefc28fcfb1daa34dccbb8ed6623b9918db3e251b2f086"
+      },
+      "data/family_boarding_complete-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/family_boarding_complete.bin": {
+        "bytes": 469916,
+        "sha256": "f99b15151047bf94a7fd48db224288f0a20c407d1551d9034a858b9d91db033c"
+      },
+      "data/family_boarding_partial-restored-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/family_boarding_partial.bin": {
+        "bytes": 470132,
+        "sha256": "8ebbb7c9ec4a1281a95b636bf54b0ebbb02279b0016e1330033b5e52b24ad2d9"
+      },
+      "data/input.bin": {
+        "bytes": 16420,
+        "sha256": "e06304bb41a59c6f6062966f2c9df3dad686fe5ec0121a0d7738a40fa33a7dc2"
+      },
+      "data/original-final.bin": {
+        "bytes": 15344,
+        "sha256": "f446b61f9d0f551f69a482fb7e6089ce80143dff5b79e0f7e28ccd332c13c576"
+      },
+      "data/result.json": {
+        "bytes": 2642,
+        "sha256": "3ff08d7f272041670a6b71a622174dac72b0f9d1d587be8e2a08f09b1af81783"
+      },
+      "execution.json": {
+        "bytes": 133,
+        "sha256": "acbf26622b09c2b2ab39cc95c4ba37f9e8fa27adcd80b0df3ecfb8cddae06d92"
+      },
+      "invocation.json": {
+        "bytes": 1174,
+        "sha256": "40efbc7e5d81071dc7ca326913b96770858daaeb12c6c4176f41e6763e705041"
+      },
+      "run.log": {
+        "bytes": 2609,
+        "sha256": "d6f265278f3cde6205e1e2bb4420e260e7f803192a9007b4c1ba7ac6c1915fc2"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      }
+    }
+  },
+  {
+    "run": "legacy-shared-final-r4",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 10.084537267684937,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/articulated_shared_cabin.gd",
+        "--",
+        "/workspace/scratch/6962cc21ddf3/elevator-validation/legacy-shared-final-r4/data",
+        "S49"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:22:21.904951+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/legacy-shared-final-r4/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/legacy-shared-final-r4/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/legacy-shared-final-r4/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "data/nurse_to_2-final.bin": {
+        "bytes": 14116,
+        "sha256": "146cb51ae0aa0c84bac995e38b74bbf1926cb334dfbb147f108827dfa0f5d739"
+      },
+      "data/nurse_to_2-input.bin": {
+        "bytes": 14740,
+        "sha256": "8461bad6b8c427b034ca1f93cccfa37f425128e00b3d30bf349fd9ce26a64ce2"
+      },
+      "data/nurse_to_2-shared.bin": {
+        "bytes": 24024,
+        "sha256": "73451489d4dc4f15f4ff59a57d30c4ab60c7ae63ddce14ec1e6f45119734a2d6"
+      },
+      "data/nurse_to_2-trace.json": {
+        "bytes": 2417,
+        "sha256": "9bba61624e2220eb1e34fc8560c249bbfeb7891ae18ff6808e46db5693cc5581"
+      },
+      "data/nurse_to_3-final.bin": {
+        "bytes": 14116,
+        "sha256": "ec09a105bea20ef9575d5b0460b2813d93d4c283eb880372414f531c769a6ad5"
+      },
+      "data/nurse_to_3-input.bin": {
+        "bytes": 14740,
+        "sha256": "45004f627450ca55e8c51b03aab89198682a3c01a892e1087a15e53f15db2310"
+      },
+      "data/nurse_to_3-shared.bin": {
+        "bytes": 24024,
+        "sha256": "464ef93fe8de0d42908ba18b330cd11f9e7304be84df1d472b3334dbaf35b136"
+      },
+      "data/nurse_to_3-trace.json": {
+        "bytes": 2413,
+        "sha256": "b1619e5d96f8afff21089d22bb9e1ebc785d288b1922593c5e8889c84cc4539d"
+      },
+      "data/result.json": {
+        "bytes": 801,
+        "sha256": "0ef998824b7e7c5a9e84b98b4e6c7d160c84a75ff643c04da6737f8fb2d1764a"
+      },
+      "execution.json": {
+        "bytes": 134,
+        "sha256": "5130ce8f61528f1a5c29080d4daaa8036ec731f2c885a799fd6bffa823a081d9"
+      },
+      "invocation.json": {
+        "bytes": 975,
+        "sha256": "08a4f63a909186b21c6bfcdf68a26d44f35f48b41dfe7a258f276979371d433f"
+      },
+      "run.log": {
+        "bytes": 902,
+        "sha256": "c207362c5cb3093e5f7c1c90df1a88e284320dbbeb9b52de4e12f88e0c239a81"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "93b1d26f621094a9eac2c1bf6424a986b1c3b8ad1911f8f4090d573350da6eb7"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "93b1d26f621094a9eac2c1bf6424a986b1c3b8ad1911f8f4090d573350da6eb7"
+      }
+    }
+  },
+  {
+    "run": "space-targeted-r3",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 10.08862018585205,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/runner.gd",
+        "--",
+        "space",
+        "--case=SPACE-25",
+        "--case=SPACE-26",
+        "--case=SPACE-29",
+        "--case=SPACE-54",
+        "--case=SPACE-55"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:43:04.317958+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/space-targeted-r3/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/space-targeted-r3/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/space-targeted-r3/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "acceptance-results.json": {
+        "bytes": 137584,
+        "sha256": "8937df9b25ccd07a47e4da1f5c511192cc150967edb52314a8405b0b103951a9"
+      },
+      "execution.json": {
+        "bytes": 133,
+        "sha256": "f76e2d405f79f478ab9b8403ee769921d7dd8a30660709d6b3f49cbb6de77ed6"
+      },
+      "invocation.json": {
+        "bytes": 972,
+        "sha256": "7baa6486dc34d5613abb41da90df40dee33ec47184fcf042e00f04096b1583cf"
+      },
+      "run.log": {
+        "bytes": 343,
+        "sha256": "22f76c3d323e505ba684baa8631cbf94069d9858de3c34af20b480f1e6bca903"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      }
+    }
+  },
+  {
+    "run": "ward-owner-targeted-r1",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 60.10039830207825,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/runner.gd",
+        "--",
+        "rooms_areas_guidance",
+        "--case=RESULT-03",
+        "--case=RESULT-04"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:43:14.718099+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/ward-owner-targeted-r1/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/ward-owner-targeted-r1/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/ward-owner-targeted-r1/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "acceptance-results.json": {
+        "bytes": 28027,
+        "sha256": "e11582b9f8818a2add0273a95f9708663aee2175cd367898e098f19b35aae4fe"
+      },
+      "execution.json": {
+        "bytes": 133,
+        "sha256": "fa81f8f79ad1f5f2e7405737ed700a495f63376ba0e0ae039641f45ea37eb3c9"
+      },
+      "invocation.json": {
+        "bytes": 935,
+        "sha256": "25cead22d1a86c6e60c65296492a0df8c38a558af2e7476d95eedd2904a4050a"
+      },
+      "run.log": {
+        "bytes": 261,
+        "sha256": "d52fc31f47316c2008f6fca15b9808ab38799966d371dd06810877c49b175902"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      }
+    }
+  },
+  {
+    "run": "clinical-ward-r1",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 20.081358432769775,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/runner.gd",
+        "--",
+        "clinical",
+        "--case=CLIN-25"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:44:15.269537+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-ward-r1/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-ward-r1/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-ward-r1/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "acceptance-results.json": {
+        "bytes": 12320,
+        "sha256": "97fa3df9398553e6dc033f96f42c62ade67c416dcb60e859fff1ea196543da02"
+      },
+      "execution.json": {
+        "bytes": 134,
+        "sha256": "2a245ddce30adc42c61451654011c0f229944f7b4e83e2faf2c6088fd6ea4e25"
+      },
+      "invocation.json": {
+        "bytes": 879,
+        "sha256": "f575ef513664b5890cba91cfd55409811fbbc65cfedb55dcb1d34c8275f0359a"
+      },
+      "run.log": {
+        "bytes": 91436,
+        "sha256": "cff598cfb50e713a179f9468ad217ad888a174985b4bd2b77b1d1e9b0b93c6d6"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "3658012a0441dd669d73214fda694525baa2a33650348ceef490abf1e159917c"
+      }
+    }
+  },
+  {
+    "run": "exact-target-r2",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 8.121676683425903,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/runner.gd",
+        "--",
+        "space",
+        "--case=SPACE-59"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T06:00:28.021094+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/exact-target-r2/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/exact-target-r2/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/exact-target-r2/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "acceptance-results.json": {
+        "bytes": 452938,
+        "sha256": "e01d30a98ea5c38668df1f45bf403ab4f94c3bafd72b68b5237b536ae3ea6286"
+      },
+      "execution.json": {
+        "bytes": 133,
+        "sha256": "253bd169554153cb5f8e686027175a3a4abfd1c2c84f80ccba945a6f41dbe69a"
+      },
+      "invocation.json": {
+        "bytes": 874,
+        "sha256": "a018c9c783bfe3ce300e8974e4d0364901ee591c907d44f182daf3efc27775c5"
+      },
+      "run.log": {
+        "bytes": 187,
+        "sha256": "cad04ea97605a44f9e6c1e5103d59356314da43f6a1488afa9beefef0ec4bc1d"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "7c81b744f5e4a3e4529296eed05fd4c268ffe9a313b63f88523b0a66cdfcc514"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "7c81b744f5e4a3e4529296eed05fd4c268ffe9a313b63f88523b0a66cdfcc514"
+      }
+    }
+  },
+  {
+    "run": "clinical-targeted-r2",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 16.08889627456665,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/runner.gd",
+        "--",
+        "clinical",
+        "--case=CLIN-18"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:36:10.773650+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-targeted-r2/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-targeted-r2/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-targeted-r2/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "acceptance-results.json": {
+        "bytes": 16451,
+        "sha256": "f26c4da81653ac54e02b69c750eb9ca27bbb163bb11c78a35856cab33b910abc"
+      },
+      "execution.json": {
+        "bytes": 133,
+        "sha256": "28de7cea37d3841ce6a51f36b5917e37e0ce532c2fbddf760c05ac0ed55448dc"
+      },
+      "invocation.json": {
+        "bytes": 891,
+        "sha256": "e82da1a4039cedd9e591334ff9e0b32741abb0eeea75de96fbd12cb17487ccbc"
+      },
+      "run.log": {
+        "bytes": 80933,
+        "sha256": "ae4e4d5de9f6186c7e2b74ee048664f5d741897639bbfa25a2772ef8bd08958f"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "0d5c52054f4464673b331120064502d31873ff1b78ed6f53ffd6a91a54c4dde5"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "0d5c52054f4464673b331120064502d31873ff1b78ed6f53ffd6a91a54c4dde5"
+      }
+    }
+  },
+  {
+    "run": "clinical-flow-targeted-r2",
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 10.077436923980713,
+      "interruption": "",
+      "source_unchanged": true,
+      "changed_files": []
+    },
+    "invocation": {
+      "command": [
+        "/tmp/ogh-elevator-runtime/engine/Godot_v4.7.2-stable_linux.x86_64",
+        "--headless",
+        "--path",
+        "/workspace/scratch/6962cc21ddf3/hospital-elevator-queues",
+        "--script",
+        "res://tests/acceptance/runner.gd",
+        "--",
+        "clinical_flow",
+        "--case=CLFLOW-23",
+        "--case=CLFLOW-25"
+      ],
+      "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+      "started_utc": "2026-11-13T05:36:27.316583+00:00",
+      "OMP_NUM_THREADS": "1",
+      "isolated_environment": {
+        "XDG_DATA_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-flow-targeted-r2/runtime-data",
+        "XDG_CONFIG_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-flow-targeted-r2/runtime-config",
+        "XDG_CACHE_HOME": "/workspace/scratch/6962cc21ddf3/elevator-validation/clinical-flow-targeted-r2/runtime-cache"
+      },
+      "scope": "Selected functional check; not performance proof"
+    },
+    "files": {
+      "acceptance-results.json": {
+        "bytes": 7595,
+        "sha256": "597a58137cb54ad109cd490cb2e2a1c0a6f9e0b7a2fdfeff978c440e46c2d7e3"
+      },
+      "execution.json": {
+        "bytes": 134,
+        "sha256": "51dc3b8b2f3f2ed33f46f63b5b064638b7fe26c17f490432895acc506e53e55a"
+      },
+      "invocation.json": {
+        "bytes": 937,
+        "sha256": "3bff6ad9cd93ca1575db42a1552ae553093e140a4cb5bca5a9bca76a87ac2fda"
+      },
+      "run.log": {
+        "bytes": 56444,
+        "sha256": "9ecd4ff329621b86287b0014b3b6af337591721b602402018e38decf8dac8ce2"
+      },
+      "source-after.json": {
+        "bytes": 96952,
+        "sha256": "0d5c52054f4464673b331120064502d31873ff1b78ed6f53ffd6a91a54c4dde5"
+      },
+      "source-before.json": {
+        "bytes": 96952,
+        "sha256": "0d5c52054f4464673b331120064502d31873ff1b78ed6f53ffd6a91a54c4dde5"
+      }
+    }
+  }
+]

@@ -20,9 +20,9 @@ class SeatCountingSpace:
 		super(database)
 	func facility_travel_lower_bound_ticks(world: WorldState, facility_id: String, actor_id: String) -> int:
 		return 0 if bypass_lower_bound else super.facility_travel_lower_bound_ticks(world,facility_id,actor_id)
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		route_calls += 1
-		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 
 class SeatCountingLife:
 	extends HospitalWaitingLife
@@ -72,9 +72,9 @@ const CASES: Dictionary = {
 	"SPACE-21":"docs/design/11-growth-arrivals-recruitment.md §4；初装电梯仅1F单站、一份主设备与空车位置",
 	"SPACE-22":"docs/design/11-growth-arrivals-recruitment.md §4；第二站免费硬件须明确安装，完整井道/端口不缺板",
 	"SPACE-23":"docs/design/11-growth-arrivals-recruitment.md §4；净宽高安全余量及真实舱内组合准入",
-	"SPACE-24":"docs/design/11-growth-arrivals-recruitment.md §4.1；报价不取票，实际整组到齐才领当前段票",
-	"SPACE-25":"docs/design/11-growth-arrivals-recruitment.md §4.1；票序公平且不因职业、视图或报价插队",
-	"SPACE-26":"docs/design/11-growth-arrivals-recruitment.md §4.1；同刻max(A,P)+E+G与未知出口等待",
+	"SPACE-24":"docs/design/11-growth-arrivals-recruitment.md §4.1；报价只读，实际整组到齐进入方向队列并整组登舱",
+	"SPACE-25":"docs/design/11-growth-arrivals-recruitment.md §4.1；同楼层同方向实际到队公平且不因职业、视图或报价插队",
+	"SPACE-26":"docs/design/11-growth-arrivals-recruitment.md §4.1；实际登舱余量、配置层间运行与离舱时间，出口阻挡估时未知",
 	"SPACE-27":"docs/design/11-growth-arrivals-recruitment.md §4.1；取消接人保留已启动空车段与恢复余量",
 	"SPACE-28":"docs/design/11-growth-arrivals-recruitment.md §4.1/§8；乘梯与地面位置互斥，恢复安全离舱",
 	"SPACE-29":"docs/design/11-growth-arrivals-recruitment.md §4；途中故障先安全到站，只保留每层4秒缓降",
@@ -687,7 +687,7 @@ func _case_21(_t) -> Dictionary:
 	_add_actor(sim,"passenger","S49",[36,76])
 	var before: Dictionary = sim.world.freeze()
 	var route: Dictionary = sim.space.route(sim.world,"passenger",2,[36,76])
-	return _done(sim,made.accepted and cash-HospitalLedger.balance(sim.world)==3200 and connection.get("first_floor")==1 and connection.get("last_floor")==1 and connection.get("floor_id")==1 and connection.get("phase")=="idle" and connection.get("riders",[]).is_empty() and int(connection.get("ticket_next",-1))==0 and sim.world.facts.connectors.size()==1 and sim.world.facts.facilities.is_empty() and not route.get("ok",true) and before==sim.world.freeze(),{"connection":connection,"route":_public_quote(route)})
+	return _done(sim,made.accepted and cash-HospitalLedger.balance(sim.world)==3200 and connection.get("first_floor")==1 and connection.get("last_floor")==1 and connection.get("floor_id")==1 and connection.get("phase")=="idle" and connection.get("riders",[]).is_empty() and not connection.has("ticket_next") and connection.get("landing_queues",{}).is_empty() and connection.get("passenger_groups",[]).is_empty() and sim.world.facts.connectors.size()==1 and sim.world.facts.facilities.is_empty() and not route.get("ok",true) and before==sim.world.freeze(),{"connection":connection,"route":_public_quote(route)})
 
 func _case_22(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -700,10 +700,10 @@ func _case_22(_t) -> Dictionary:
 	if made.accepted:
 		sim.world.facts.connectors[id].failed = true
 		sim.world.facts.connectors[id].condition = 37.0
-		sim.world.facts.connectors[id].ticket_next = 9
+		sim.world.facts.connectors[id].direction = -1
 	cash = HospitalLedger.balance(sim.world)
 	var third: CommandResult = _command(sim,"connector_extend",{"connection_id":id,"floor_id":3})
-	var state_kept: bool = third.accepted and cash-HospitalLedger.balance(sim.world)==1200 and sim.world.facts.connectors[id].failed and sim.world.facts.connectors[id].condition==37.0 and sim.world.facts.connectors[id].ticket_next==9 and sim.world.facts.connectors[id].floor_id==1
+	var state_kept: bool = third.accepted and cash-HospitalLedger.balance(sim.world)==1200 and sim.world.facts.connectors[id].failed and sim.world.facts.connectors[id].condition==37.0 and sim.world.facts.connectors[id].direction==-1 and not sim.world.facts.connectors[id].has("ticket_next") and sim.world.facts.connectors[id].floor_id==1
 	var cross: HospitalSimulation = _fixture()
 	_command(cross,"build_land",{"plot":[2,2],"floor_id":1})
 	_history_height(cross,2)
@@ -741,7 +741,7 @@ func _case_24(_t) -> Dictionary:
 	var input_validation: String = sim.world.validate(content)
 	var before: Dictionary = sim.world.freeze()
 	var not_ready: String = sim.space.request_group_move(sim.world,"patient",["patient","escort"],{},2,[46,84])
-	var no_ticket: bool = not not_ready.is_empty() and int(sim.world.facts.connectors[id].ticket_next)==0 and sim.world.facts.moves.is_empty() and before==sim.world.freeze()
+	var unready_unchanged: bool = not not_ready.is_empty() and not sim.world.facts.connectors[id].has("ticket_next") and sim.world.facts.moves.is_empty() and before==sim.world.freeze()
 	# The follower must really walk into the current front-to-back formation.
 	# No lateral offsets or manufactured arrival are accepted by this test.
 	var align_request: String = sim.space.request_move(sim.world,"escort",1,[42,80])
@@ -753,52 +753,80 @@ func _case_24(_t) -> Dictionary:
 	for index: int in 4:
 		var quote: Dictionary = sim.space.route_cost(sim.world,"patient",2,[46,84],["patient","escort"],{},true)
 		quotes_ok = quotes_ok and quote.get("ok",false)
-	var readonly: bool = quotes_ok and quote_before==sim.world.freeze() and int(sim.world.facts.connectors[id].ticket_next)==0
+	var readonly: bool = quotes_ok and quote_before==sim.world.freeze() and not sim.world.facts.connectors[id].has("ticket_next")
 	var requested: String = sim.space.request_group_move(sim.world,"patient",["patient","escort"],{},2,[46,84])
-	var before_landing: bool = requested.is_empty() and int(sim.world.facts.connectors[id].ticket_next)==0
+	var before_landing: bool = requested.is_empty() and not sim.world.facts.connectors[id].has("ticket_next") and _directional_queue_entry(sim.world.facts.connectors[id],"patient").is_empty() and sim.world.facts.connectors[id].get("passenger_groups",[]).is_empty() and sim.world.facts.connectors[id].riders.is_empty() and sim.world.facts.actors.patient.location.kind=="floor" and sim.world.facts.actors.escort.location.kind=="floor"
 	var boarded: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.patient.location.kind=="transit" and sim.world.facts.actors.escort.location.kind=="transit",300,_movement_tick.bind(sim))
 	var connection: Dictionary = sim.world.facts.connectors[id]
-	var one_ticket: bool = boarded and connection.ticket_next==1 and connection.riders==["patient","escort"]
+	var one_accepted_group: bool = boarded and not connection.has("ticket_next") and connection.riders==["patient","escort"] and connection.passenger_groups.size()==1 and connection.passenger_groups[0].members==["patient","escort"]
 	var boarding: Dictionary = connection.duplicate(true)
 	var arrived: bool = _wait(sim,func() -> bool: return not sim.world.facts.moves.has("patient") and sim.space.at(sim.world,"patient",2,[46,84]) and sim.world.facts.actors.escort.location.kind=="floor" and int(sim.world.facts.actors.escort.location.floor_id)==2,500,_movement_tick.bind(sim))
 	var final_validation: String = sim.world.validate(content)
-	return _done(sim,input_validation.is_empty() and readonly and no_ticket and align_request.is_empty() and aligned and before_landing and one_ticket and arrived and final_validation.is_empty(),{"input_validation":input_validation,"unready":not_ready,"unready_did_not_mutate":no_ticket,"readonly_quotes":readonly,"align_request":align_request,"follower_actually_aligned":aligned,"group_request":requested,"no_ticket_before_landing":before_landing,"whole_group_boarded":boarded,"one_ticket":one_ticket,"boarding":boarding,"both_reached_destination_floor":arrived,"final_validation":final_validation})
+	return _done(sim,input_validation.is_empty() and readonly and unready_unchanged and align_request.is_empty() and aligned and before_landing and one_accepted_group and arrived and final_validation.is_empty(),{"input_validation":input_validation,"unready":not_ready,"unready_did_not_mutate":unready_unchanged,"readonly_quotes":readonly,"align_request":align_request,"follower_actually_aligned":aligned,"group_request":requested,"unready_unchanged_before_landing":before_landing,"whole_group_boarded":boarded,"one_accepted_group":one_accepted_group,"boarding":boarding,"both_reached_destination_floor":arrived,"final_validation":final_validation})
 
 func _case_25(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
 	var id: String = _connection(sim)
 	_add_actor(sim,"first","S49",[36,76])
 	_add_actor(sim,"second","S49",[32,76])
+	# Open-fixture approach: cover the initial Manhattan distance to the
+	# entrance plus the three-cell stand-off in both directions. Preserve the
+	# former service allowance; wait for the actual phase, never assume tick 30.
+	var entrance: Array = sim.world.facts.connectors[id].anchor
+	var start_cell: Array = sim.world.facts.actors.first.location.cell
+	var approach_cells: float = absf(float(start_cell[0])-float(entrance[0]))+absf(float(start_cell[1])-float(entrance[1]))+6.0
+	var phase_bound: int = 30+ceili(approach_cells/(sim.space.walking_speed(sim.world.facts.actors.first)*WorldState.TICK_SECONDS))
 	sim.space.request_move(sim.world,"first",2,[46,80])
-	var first_boarded: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.first.location.kind=="transit",30)
+	var first_boarded: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.first.location.kind=="transit",phase_bound)
+	if not first_boarded: return _done(sim,false,{"phase_not_reached":true,"phase_bound":phase_bound,"connector":sim.world.facts.connectors[id].duplicate(true),"moves":sim.world.facts.moves.duplicate(true)})
 	sim.space.request_move(sim.world,"second",2,[42,82])
-	var queued: bool = _wait(sim,func() -> bool: return sim.world.facts.moves.get("second",{}).has("transit_ticket"),90)
-	var sequence: int = int(sim.world.facts.moves.get("second",{}).get("transit_ticket",{}).get("sequence",-1))
+	var queued: bool = _wait(sim,func() -> bool: return not _directional_queue_entry(sim.world.facts.connectors[id],"second").is_empty(),90)
+	var queued_entry: Dictionary = _directional_queue_entry(sim.world.facts.connectors[id],"second").duplicate(true)
 	var before: Dictionary = sim.world.freeze()
 	HospitalTransit.quote(sim.space,sim.world,sim.world.facts.connectors[id],"second",1,2,0)
 	var readonly: bool = before==sim.world.freeze()
 	var arrived_first: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.first.location.kind=="floor" and int(sim.world.facts.actors.first.location.floor_id)==2,100)
 	var second_not_ahead: bool = sim.world.facts.actors.second.location.kind!="floor" or int(sim.world.facts.actors.second.location.floor_id)==1
 	var both: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"first",2,[46,80]) and sim.space.at(sim.world,"second",2,[42,82]),400)
-	return _done(sim,first_boarded and queued and sequence==2 and readonly and arrived_first and second_not_ahead and both and int(sim.world.facts.connectors[id].ticket_next)==2,{"first_boarded":first_boarded,"queued":queued,"sequence":sequence,"both_arrived":both})
+	return _done(sim,first_boarded and queued and int(queued_entry.get("floor_id",-1))==1 and int(queued_entry.get("direction",0))==1 and readonly and arrived_first and second_not_ahead and both and not sim.world.facts.connectors[id].has("ticket_next"),{"first_boarded":first_boarded,"queued":queued,"actual_queue_entry":queued_entry,"both_arrived":both})
 
 func _case_26(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
 	var id: String = _connection(sim)
 	_add_actor(sim,"active","S49",[36,76])
 	_add_actor(sim,"querying","S49",[45,84])
+	# Open-fixture approach: cover the initial Manhattan distance to the
+	# entrance plus the three-cell stand-off in both directions. Preserve the
+	# former service allowance; wait for the actual phase, never assume tick 30.
+	var entrance: Array = sim.world.facts.connectors[id].anchor
+	var start_cell: Array = sim.world.facts.actors.active.location.cell
+	var approach_cells: float = absf(float(start_cell[0])-float(entrance[0]))+absf(float(start_cell[1])-float(entrance[1]))+6.0
+	var phase_bound: int = 30+ceili(approach_cells/(sim.space.walking_speed(sim.world.facts.actors.active)*WorldState.TICK_SECONDS))
 	sim.space.request_move(sim.world,"active",2,[46,80])
-	var boarding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="boarding",30)
+	var boarding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="boarding",phase_bound)
+	if not boarding: return _done(sim,false,{"phase_not_reached":true,"phase_bound":phase_bound,"connector":sim.world.facts.connectors[id].duplicate(true),"moves":sim.world.facts.moves.duplicate(true)})
 	var connection: Dictionary = sim.world.facts.connectors[id]
-	var remaining_prefix: int = int(connection.remaining_ticks)+10+15
-	var expected: int = maxi(100,remaining_prefix)+10+40
+	# Independent ordinary-body timing from the accepted boarding boundary.
+	# No new arrival is assumed, no second full boarding is charged, and the
+	# request is already in the cabin rather than forcing a single-group return.
+	var definition: Dictionary = content.definition("vertical_connectors",connection.definition_id)
+	var expected: int = int(connection.remaining_ticks)+ceili(float(definition.travel_seconds_per_floor)/WorldState.TICK_SECONDS)+ceili(float(definition.alighting_seconds)/WorldState.TICK_SECONDS)
 	var before: Dictionary = sim.world.freeze()
-	var quote: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"querying",1,2,100)
+	var quote: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"active",1,2,0)
 	var current_participants: Dictionary = HospitalTransit.route_participants(sim.world)
+	# A future arrival remains a conditional quote, never a real queue entry.
+	# Its completion cannot precede its arrival plus boarding, one floor and
+	# exit. Queue-to-door travel can add time, so this is an independent bound,
+	# not the obsolete exact single-group empty-return formula.
+	var future_arrival: int = 100
+	var future_minimum: int = future_arrival+ceili(float(definition.boarding_seconds)/WorldState.TICK_SECONDS)+ceili(float(definition.travel_seconds_per_floor)/WorldState.TICK_SECONDS)+ceili(float(definition.alighting_seconds)/WorldState.TICK_SECONDS)
+	var future_quote: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"querying",1,2,future_arrival)
+	var future_unregistered: bool = _directional_queue_entry(connection,"querying").is_empty() and not sim.world.facts.moves.has("querying") and not "querying" in connection.riders and sim.world.facts.actors.querying.location.kind=="floor"
+	var future_valid: bool = future_quote.get("ok",false) and future_quote.get("conditional",false) and int(future_quote.get("arrival_ticks",-1))>=future_minimum and future_unregistered
 	var readonly: bool = before==sim.world.freeze()
 	_add_actor(sim,"exit_blocker","S49",[36,76],2)
-	var unknown: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"querying",1,2,100)
-	return _done(sim,boarding and current_participants.has("active") and readonly and quote.get("ok",false) and int(quote.get("arrival_ticks",-1))==expected and int(quote.get("queue_ticks",-1))==0 and int(quote.get("empty_ticks",-1))==10 and not unknown.get("ok",true) and unknown.get("status")=="estimate_unknown" and not str(unknown.get("reason","")).is_empty(),{"quote":quote,"expected":expected,"unknown":unknown,"actual_boarding_participants":current_participants})
+	var unknown: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"active",1,2,0)
+	return _done(sim,boarding and current_participants.has("active") and future_valid and readonly and quote.get("ok",false) and int(quote.get("arrival_ticks",-1))==expected and int(quote.get("queue_ticks",-1))==0 and int(quote.get("empty_ticks",-1))==0 and not unknown.get("ok",true) and unknown.get("status")=="estimate_unknown" and not str(unknown.get("reason","")).is_empty(),{"future_quote":future_quote,"future_minimum":future_minimum,"future_unregistered":future_unregistered,"quote":quote,"expected":expected,"unknown":unknown,"actual_boarding_participants":current_participants})
 
 func _case_27(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
@@ -812,8 +840,8 @@ func _case_27(_t) -> Dictionary:
 	var connection: Dictionary = sim.world.facts.connectors[id]
 	var remaining: int = int(connection.remaining_ticks)
 	var floor_before: int = int(connection.floor_id)
-	var ticket: Dictionary = sim.world.facts.moves.get("cancelled",{}).get("transit_ticket",{}).duplicate(true)
-	if sim.world.facts.moves.has("cancelled"): HospitalTransit.cancel_waiting(sim.world,sim.world.facts.moves.cancelled)
+	var queued_entry: Dictionary = _directional_queue_entry(connection,"cancelled").duplicate(true)
+	var cancelled: bool = sim.space.cancel_ground_move(sim.world,"cancelled")
 	var preserved: bool = connection.phase=="empty_riding" and int(connection.remaining_ticks)==remaining and connection.riders.is_empty() and not connection.has("assigned_actor_id")
 	var restored: WorldState = WorldState.new(sim.world.freeze())
 	var restored_space: HospitalSpace = HospitalSpace.new(content)
@@ -821,7 +849,7 @@ func _case_27(_t) -> Dictionary:
 		# Advance the committed transport segment without dispatching a replacement movement demand.
 		HospitalTransit.advance(restored_space,restored)
 	var after: Dictionary = restored.facts.connectors[id]
-	return _done(sim,delivered and empty_started and not ticket.is_empty() and floor_before==2 and preserved and after.phase=="idle" and int(after.floor_id)==1 and after.riders.is_empty() and int(after.ticket_next)==int(connection.ticket_next) and restored.facts.actors.cancelled.location.kind=="floor",{"started":empty_started,"ticket":ticket,"remaining":remaining,"preserved":preserved,"restored_connection":after})
+	return _done(sim,delivered and empty_started and cancelled and not queued_entry.is_empty() and floor_before==2 and preserved and after.phase=="idle" and int(after.floor_id)==1 and after.riders.is_empty() and not after.has("ticket_next") and _directional_queue_entry(after,"cancelled").is_empty() and restored.facts.actors.cancelled.location.kind=="floor",{"started":empty_started,"actual_queue_entry":queued_entry,"remaining":remaining,"preserved":preserved,"restored_connection":after})
 
 func _case_28(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
@@ -866,16 +894,52 @@ func _case_29(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
 	var id: String = _connection(sim)
 	_add_actor(sim,"passenger","S49",[36,76])
+	# Open-fixture approach: cover the initial Manhattan distance to the
+	# entrance plus the three-cell stand-off in both directions. Preserve the
+	# former service allowance; wait for the actual phase, never assume tick 30.
+	var entrance: Array = sim.world.facts.connectors[id].anchor
+	var start_cell: Array = sim.world.facts.actors.passenger.location.cell
+	var approach_cells: float = absf(float(start_cell[0])-float(entrance[0]))+absf(float(start_cell[1])-float(entrance[1]))+6.0
+	var phase_bound: int = 60+ceili(approach_cells/(sim.space.walking_speed(sim.world.facts.actors.passenger)*WorldState.TICK_SECONDS))
 	sim.space.request_move(sim.world,"passenger",2,[44,80])
-	var riding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="riding",60)
+	var riding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="riding",phase_bound)
+	if not riding: return _done(sim,false,{"phase_not_reached":true,"phase_bound":phase_bound,"connector":sim.world.facts.connectors[id].duplicate(true),"moves":sim.world.facts.moves.duplicate(true)})
 	sim.world.facts.connectors[id].pending_failure = true # External fault injection at an actual committed ride boundary.
-	var safe: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"passenger",2,[44,80]) and not sim.world.facts.moves.has("passenger"),240)
+	# Fork the same actual in-flight fault boundary into two explicit contracts.
+	# The first isolates transport (fault boundaries still run); the second
+	# retains all automatic repair dispatch/work and the real return journey.
+	var full: HospitalSimulation = HospitalSimulation.new(WorldState.new(sim.world.freeze()),content)
+	var transport_tick: Callable = func() -> void:
+		sim.services.maintenance.boundaries(sim.world)
+		_movement_tick(sim)
+	var safe: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"passenger",2,[44,80]) and not sim.world.facts.moves.has("passenger"),240,transport_tick)
 	var failed: bool = bool(sim.world.facts.connectors[id].failed) and not sim.world.facts.connectors[id].pending_failure
+	# group_ticks excludes the queue-to-door approach. For this ordinary solo
+	# passenger it comprises one boarding, one failed downward floor, one exit.
+	var definition: Dictionary = content.definition("vertical_connectors",sim.world.facts.connectors[id].definition_id)
+	var expected_group_ticks: int = ceili(float(definition.boarding_seconds)/WorldState.TICK_SECONDS)+ceili(float(content.balance.floors.emergency_travel_seconds_per_floor)/WorldState.TICK_SECONDS)+ceili(float(definition.alighting_seconds)/WorldState.TICK_SECONDS)
 	var down: Dictionary = HospitalTransit.quote(sim.space,sim.world,sim.world.facts.connectors[id],"passenger",2,1,0)
 	var up: Dictionary = HospitalTransit.quote(sim.space,sim.world,sim.world.facts.connectors[id],"passenger",1,2,0)
-	sim.space.request_move(sim.world,"passenger",1,[44,80])
-	var descended: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"passenger",1,[44,80]) and not sim.world.facts.moves.has("passenger"),300)
-	return _done(sim,riding and safe and failed and down.get("ok",false) and int(down.get("group_ticks",-1))==70 and not up.get("ok",true) and descended and sim.world.facts.connectors[id].failed,{"safe_arrival":safe,"down":down,"up":up,"descended":descended})
+	var return_route: Dictionary = sim.space.route(sim.world,"passenger",1,[44,80])
+	var return_reason: String = sim.space.request_move(sim.world,"passenger",1,[44,80])
+	var descended: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"passenger",1,[44,80]) and not sim.world.facts.moves.has("passenger"),300,transport_tick)
+	var repair_ticks: int = -1
+	for category: Dictionary in content.balance.equipment.classes:
+		if category.id==definition.equipment_class:
+			repair_ticks=ceili(float(category.repair_seconds)/WorldState.TICK_SECONDS)
+	var full_safe: bool = _wait(full,func() -> bool: return full.space.at(full.world,"passenger",2,[44,80]) and not full.world.facts.moves.has("passenger"),240)
+	var full_return_reason: String = full.space.request_move(full.world,"passenger",1,[44,80])
+	var full_bound: int = 300+maxi(0,repair_ticks)
+	var full_returned: bool = _wait(full,func() -> bool: return full.space.at(full.world,"passenger",1,[44,80]) and not full.world.facts.moves.has("passenger"),full_bound)
+	var completed_repairs: Array = []
+	for receipt: Dictionary in full.world.facts.maintenance.receipts.values():
+		if receipt.get("kind","")=="repair_completed" and receipt.get("facility_id","")==id:
+			completed_repairs.append(receipt.duplicate(true))
+	var full_validation: String = full.world.validate(content)
+	var full_ok: bool = repair_ticks>0 and full_safe and full_return_reason.is_empty() and full_returned and completed_repairs.size()==1 and not full.world.facts.connectors[id].failed and not full.world.facts.connectors[id].pending_failure and full_validation.is_empty()
+	var repair_evidence: Dictionary = {"ok":full_ok,"safe_original_arrival":full_safe,"return_request":full_return_reason,"actual_return":full_returned,"configured_repair_ticks":repair_ticks,"return_bound":full_bound,"repair_receipts":completed_repairs,"maintenance":full.world.facts.maintenance.duplicate(true),"final_connector":full.world.facts.connectors[id].duplicate(true),"remaining_move":full.world.facts.moves.get("passenger",{}).duplicate(true),"validation":full_validation}
+	full.dispose()
+	return _done(sim,full_ok and riding and safe and failed and down.get("ok",false) and int(down.get("group_ticks",-1))==expected_group_ticks and float(content.balance.floors.emergency_travel_seconds_per_floor)==4.0 and not up.get("ok",true) and return_route.get("ok",false) and return_reason.is_empty() and descended and sim.world.facts.connectors[id].failed,{"full_business_repair":repair_evidence,"transport_scope":"Movement plus maintenance fault boundaries only; automatic repair separately verified above","return_route":_public_quote(return_route),"return_request_reason":return_reason,"final_connector":sim.world.facts.connectors[id].duplicate(true),"final_actor":sim.world.facts.actors.passenger.duplicate(true),"remaining_move":sim.world.facts.moves.get("passenger",{}).duplicate(true),"safe_arrival":safe,"expected_group_ticks":expected_group_ticks,"down":down,"up":up,"descended":descended})
 
 func _case_30(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
@@ -1734,8 +1798,16 @@ func _case_54(_t) -> Dictionary:
 	var id: String = _connection(sim)
 	_add_actor(sim,"active","S49",[36,76])
 	_add_actor(sim,"traveler","S49",[32,78])
+	# Open-fixture approach: cover the initial Manhattan distance to the
+	# entrance plus the three-cell stand-off in both directions. Preserve the
+	# former service allowance; wait for the actual phase, never assume tick 30.
+	var entrance: Array = sim.world.facts.connectors[id].anchor
+	var start_cell: Array = sim.world.facts.actors.active.location.cell
+	var approach_cells: float = absf(float(start_cell[0])-float(entrance[0]))+absf(float(start_cell[1])-float(entrance[1]))+6.0
+	var phase_bound: int = 30+ceili(approach_cells/(sim.space.walking_speed(sim.world.facts.actors.active)*WorldState.TICK_SECONDS))
 	sim.space.request_move(sim.world,"active",2,[46,80])
-	var boarding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="boarding",30,_movement_tick.bind(sim))
+	var boarding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="boarding",phase_bound,_movement_tick.bind(sim))
+	if not boarding: return _done(sim,false,{"phase_not_reached":true,"phase_bound":phase_bound,"connector":sim.world.facts.connectors[id].duplicate(true),"moves":sim.world.facts.moves.duplicate(true)})
 	_add_actor(sim,"exit_blocker","S49",[36,76],2)
 	var before: Dictionary = sim.world.freeze()
 	var eta: Dictionary = HospitalTransit.quote(sim.space,sim.world,sim.world.facts.connectors[id],"traveler",1,2,0)
@@ -1746,10 +1818,10 @@ func _case_54(_t) -> Dictionary:
 	var sequence: int = int(sim.world.facts.moves.get("traveler",{}).get("request_sequence",-1))
 	sim.space.request_move(sim.world,"traveler",2,[44,84])
 	var reused: bool = sequence==int(sim.world.facts.moves.get("traveler",{}).get("request_sequence",-2))
-	var no_early_ticket: bool = not sim.world.facts.moves.get("traveler",{}).has("transit_ticket")
-	var queued: bool = _wait(sim,func() -> bool: return sim.world.facts.moves.get("traveler",{}).has("transit_ticket"),150,_movement_tick.bind(sim))
-	var ticket: Dictionary = sim.world.facts.moves.get("traveler",{}).get("transit_ticket",{}).duplicate(true)
-	var actual_wait: bool = queued and int(ticket.get("sequence",0))==2 and sim.world.facts.actors.traveler.location.kind=="floor" and int(sim.world.facts.actors.traveler.location.floor_id)==1
+	var no_early_queue: bool = _directional_queue_entry(sim.world.facts.connectors[id],"traveler").is_empty()
+	var queued: bool = _wait(sim,func() -> bool: return not _directional_queue_entry(sim.world.facts.connectors[id],"traveler").is_empty(),150,_movement_tick.bind(sim))
+	var queued_entry: Dictionary = _directional_queue_entry(sim.world.facts.connectors[id],"traveler").duplicate(true)
+	var actual_wait: bool = queued and int(queued_entry.get("floor_id",-1))==1 and int(queued_entry.get("direction",0))==1 and sim.world.facts.actors.traveler.location.kind=="floor" and int(sim.world.facts.actors.traveler.location.floor_id)==1
 	sim.space.request_move(sim.world,"exit_blocker",2,[40,76])
 	var moving: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.traveler.location.kind=="transit",500,_movement_tick.bind(sim))
 	var target_changed_safely: bool = false
@@ -1758,7 +1830,7 @@ func _case_54(_t) -> Dictionary:
 		sim.space.request_move(sim.world,"traveler",1,[48,85])
 		target_changed_safely = sim.world.facts.actors.traveler.location==transit
 	var arrived: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"traveler",1,[48,85]) and not sim.world.facts.moves.has("traveler"),1000,_movement_tick.bind(sim))
-	return _done(sim,boarding and eta.get("status","")=="estimate_unknown" and route.get("ok",false) and reachable and route.has("travel_ticks") and not route.has("arrival_ticks") and readonly and reason.is_empty() and reused and no_early_ticket and actual_wait and moving and target_changed_safely and arrived,{"eta":eta,"route":route,"readonly":readonly,"same_goal_reused":reused,"no_early_ticket":no_early_ticket,"actual_queue":ticket,"actual_wait":actual_wait,"target_changed_in_transit":target_changed_safely,"arrived_at_new_goal":arrived,"tick":sim.world.sim_tick,"remaining":sim.world.facts.moves.duplicate(true)})
+	return _done(sim,boarding and eta.get("status","")=="estimate_unknown" and route.get("ok",false) and reachable and route.has("travel_ticks") and not route.has("arrival_ticks") and readonly and reason.is_empty() and reused and no_early_queue and actual_wait and moving and target_changed_safely and arrived,{"eta":eta,"route":route,"readonly":readonly,"same_goal_reused":reused,"no_early_queue":no_early_queue,"actual_queue":queued_entry,"actual_wait":actual_wait,"target_changed_in_transit":target_changed_safely,"arrived_at_new_goal":arrived,"tick":sim.world.sim_tick,"remaining":sim.world.facts.moves.duplicate(true)})
 
 func _case_55(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_review.gd").new().run_case(self)
@@ -2080,3 +2152,10 @@ func _case_59(_t) -> Dictionary:
 func _case_60(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_precision.gd").new().run(self)
 	return {"ok":result.ok,"details":result}
+
+# Test observation only: never registers demand or changes queue order.
+func _directional_queue_entry(connection: Dictionary, actor_id: String) -> Dictionary:
+	for line: Array in connection.get("landing_queues",{}).values():
+		for entry: Dictionary in line:
+			if entry.get("actor_id","")==actor_id: return entry
+	return {}

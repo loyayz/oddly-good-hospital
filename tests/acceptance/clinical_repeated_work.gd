@@ -6,10 +6,10 @@ class PatientQueries extends HospitalSpace:
 	var patient_calls: int = 0
 	var fits: int = 0
 	var reject_worker: bool = false
-	func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> bool:
+	func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> bool:
 		if actor_id=="gather_patient_0": patient_calls += 1
 		if reject_worker and actor_id=="gather_worker": return false
-		return super.can_reach(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super.can_reach(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 	func facility_preflight_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 		fits += 1
 		return super.facility_preflight_quote(world,facility_id,actor_id,staff_ids)

@@ -85,7 +85,10 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 	var replacement: RefCounted = script.new(simulation.content,simulation.space)
 	for property: Dictionary in original.get_property_list():
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: replacement.set(property.name,original.get(property.name))
-	if key=="wellbeing": replacement.personal_beds._owner = weakref(replacement)
+	if key=="wellbeing":
+		replacement.personal_beds._owner = weakref(replacement)
+		replacement.doctor_visits._wellbeing = weakref(replacement)
+		replacement.doctor_visits.space = simulation.space
 	replacement.set("_acceptance_timing",self)
 	simulation.services[key] = replacement
 	var objects: Array = [simulation.clinic,simulation.clinic.visitors]+simulation.services.values()
@@ -177,9 +180,9 @@ class TimedSpace extends HospitalSpace:
 		var started: int = Time.get_ticks_usec()
 		super.advance(world,present_at_start)
 		timing.count("space.advance",started)
-	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
+	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool, route_filter: Dictionary = {}) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown)
+		var result: Dictionary = super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown,route_filter)
 		timing.count("space.route_query",started)
 		return result
 	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:

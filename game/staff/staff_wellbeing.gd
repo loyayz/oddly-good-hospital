@@ -406,6 +406,9 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			_move_target(world,staff_id,task)
 			return
 		if task.kind=="sleep":
+			# Arrival position does not finish the movement owner's local rejoin.
+			# Let it close before changing the actual body onto its support.
+			if world.facts.moves.has(staff_id): return
 			task.phase = "sleep"
 			_lie_down(world,staff_id,facility_id)
 			staff.life_reason = "正在休息室沙发实际睡眠" if world.facts.facilities[facility_id].definition_id=="FUR06" else "正在本人床实际睡眠"

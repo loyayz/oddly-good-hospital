@@ -231,9 +231,9 @@ class TimedSpace extends HospitalSpace:
 		var started: int = Time.get_ticks_usec()
 		super._dispatch_routes(world,present_at_start)
 		timing.count("space.dispatch_routes",started)
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 		timing.count("space.route",started)
 		return result
 	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
@@ -350,9 +350,9 @@ class PhaseSpace extends TimedSpace:
 		var result: String = super.static_reason(world,actor,floor_id,origin,members,offsets)
 		timing.trace_phase("space.static_reason",world,"return",result)
 		return result
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
 		timing.trace_phase("space.route",world,"enter")
-		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people,route_filter)
 		timing.trace_phase("space.route",world,"return",result)
 		return result
 	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:

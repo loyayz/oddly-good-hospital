@@ -219,6 +219,31 @@ func position_reason(origin: Vector2) -> String:
 				return result
 	return ""
 
+# A caller-proven continuous body/rotation sweep, not a smaller route proxy.
+# Used only by local articulated door handoffs; all floor/structure/claim
+# rules remain identical, while geometry is the actual conservative rectangle.
+func rectangle_reason(rect: Rect2) -> String:
+	if _height_m>float(source.height): return "真实身体超过本层实际净高"
+	for x: int in range(floori(rect.position.x),ceili(rect.end.x)):
+		for y: int in range(floori(rect.position.y),ceili(rect.end.y)):
+			var cell: Vector2i=Vector2i(x,y)
+			if not _plots.has(Vector2i(floori(float(x)/32.0),floori(float(y)/32.0))): return "身体超出已取得地块"
+			if _blocked.has(cell):
+				var open: bool=false
+				for door: Dictionary in _doors:
+					if door.ok and door.opening.has_point(Vector2(cell)): open=true;break
+				if not open: return "实际扫掠被结构占格阻挡"
+	for facility: Dictionary in _facilities:
+		if rect.intersects(facility.rect,false): return "设备真实占地受阻："+str(facility.id)
+	for connector: Dictionary in _connectors:
+		if rect.intersects(connector.rect,false): return "竖向结构真实占地受阻："+str(connector.id)
+	for door: Dictionary in _doors:
+		if not door.ok and rect.intersects(door.original,false): return door.reason
+	for reservation: Dictionary in _reservations:
+		for region: Rect2 in reservation.regions:
+			if rect.intersects(region,false): return "真实展开与岗位预约阻挡："+str(reservation.id)
+	return _wall_reason(rect)
+
 func sweep_reason(from: Vector2, to: Vector2) -> String:
 	if _height_m>float(source.height):
 		return "真实身体超过本层实际净高"

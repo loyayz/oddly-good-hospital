@@ -16,6 +16,14 @@ var _indexed_world: WorldState
 var _indexed_facts: Dictionary = {}
 var _indexed_revision: int = -1
 var _indexed_actor_scope: Dictionary = {}
+# Derived traversal profiles, updated by the same physical fact handoffs as
+# BodyIndex. Coordinates/counts do not invalidate the profile-set signature.
+var _passage_actor_profiles: Dictionary = {}
+var _passage_floor_profiles: Dictionary = {}
+var _passage_signatures: Dictionary = {}
+var _passage_profile_world: WorldState
+var _passage_profile_facts: Dictionary = {}
+var passage_profile_changes: int = 0
 var _navigation: NavigationCache = NavigationCache.new()
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
@@ -198,6 +206,11 @@ func _ensure_actor_index(world: WorldState) -> void:
 	if world!=_indexed_world or not same_facts:
 		if not shared: _actor_shapes.clear()
 	if not shared:
+		_passage_actor_profiles.clear()
+		_passage_floor_profiles.clear()
+		_passage_signatures.clear()
+		_passage_profile_world=world
+		_passage_profile_facts=world.facts
 		_actor_index.clear()
 		_convoy_owner.clear()
 		_convoy_members.clear()
@@ -211,6 +224,60 @@ func _ensure_actor_index(world: WorldState) -> void:
 			query_counts.actor_index_actor_visits += 1
 			_sync_actor(world,id,false)
 		_sync_convoys(world)
+
+func _sync_passage_profile(world: WorldState, id: String) -> void:
+	var actor: Dictionary=world.facts.actors[id]
+	var floor_id: int=int(actor.location.floor_id) if actor.location.kind=="floor" else 0
+	var journey: Dictionary=world.facts.moves.get(id,{})
+	var convoy: Dictionary=journey.get("convoy",{})
+	var source: Array=[floor_id,str(actor.species_id),str(actor.get("body_binding_id","")),convoy.get("size",0),convoy.get("height",0.0)]
+	var old: Dictionary=_passage_actor_profiles.get(id,{})
+	if old.get("source",[])==source: return
+	if not old.is_empty() and int(old.floor)>0:
+		var entries: Dictionary=_passage_floor_profiles[int(old.floor)]
+		var entry: Dictionary=entries[old.profile]
+		entry.ids.erase(id)
+		if entry.ids.is_empty():
+			entries.erase(old.profile)
+			_passage_signatures.erase(int(old.floor))
+			passage_profile_changes+=1
+		elif str(entry.actor.id)==id:
+			var other_id: String=str(entry.ids.keys()[0])
+			var other_move: Dictionary=world.facts.moves.get(other_id,{})
+			entry.actor=ConvoyTrail.proxy(world,other_move) if other_move.has("convoy") else world.facts.actors[other_id].duplicate(true)
+	var record: Dictionary={"source":source,"floor":floor_id,"profile":""}
+	if floor_id>0:
+		var proxy: Dictionary=ConvoyTrail.proxy(world,journey) if journey.has("convoy") else actor
+		var profile: String=JSON.stringify([clearance(proxy),body(proxy)],"",true,true)
+		record.profile=profile
+		if not _passage_floor_profiles.has(floor_id): _passage_floor_profiles[floor_id]={}
+		var entries: Dictionary=_passage_floor_profiles[floor_id]
+		if not entries.has(profile):
+			entries[profile]={"ids":{},"actor":proxy.duplicate(true)}
+			_passage_signatures.erase(floor_id)
+			passage_profile_changes+=1
+		entries[profile].ids[id]=true
+	_passage_actor_profiles[id]=record
+
+func _ensure_passage_profiles(world: WorldState) -> void:
+	_ensure_actor_index(world)
+	# Sealed spatial projections may share the BodyIndex while their Move
+	# collection differs. Never share traversal profiles across those worlds.
+	if _passage_profile_world!=world or not is_same(_passage_profile_facts,world.facts):
+		_passage_actor_profiles.clear();_passage_floor_profiles.clear();_passage_signatures.clear()
+		_passage_profile_world=world;_passage_profile_facts=world.facts
+		for id: String in world.ids("actors"): _sync_passage_profile(world,id)
+
+func passage_profiles(world: WorldState, floor_id: int) -> Dictionary:
+	_ensure_passage_profiles(world)
+	return _passage_floor_profiles.get(floor_id,{})
+
+func passage_profile_signature(world: WorldState, floor_id: int) -> Array:
+	_ensure_passage_profiles(world)
+	if not _passage_signatures.has(floor_id):
+		var keys: Array=_passage_floor_profiles.get(floor_id,{}).keys()
+		keys.sort();_passage_signatures[floor_id]=keys
+	return _passage_signatures[floor_id]
 
 func _actor_index_scope(world: WorldState) -> Dictionary:
 	for active: Dictionary in _route_queries:
@@ -233,6 +300,7 @@ func forget_actor(world: WorldState, id: String) -> bool:
 
 func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 	var actor: Dictionary = world.facts.actors[id]
+	_sync_passage_profile(world,id)
 	var previous: BodyIndex.Record = _actor_index._records.get(id)
 	var old_floor: int = previous.floor_id if previous!=null else 0
 	var old_rect: Rect2 = previous.rect if previous!=null else Rect2()
@@ -243,7 +311,22 @@ func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 		floor_id = int(actor.location.floor_id)
 		if not _convoy_owner.has(id): _actor_index.update(id,floor_id,rectangle)
 	elif not _convoy_owner.has(id):
-		_actor_index.remove(id)
+		# Independent family alighting remains a real, indexed body even
+		# before it is handed back to its ordinary floor movement. This is
+		# also used by cold index reconstruction, not only the live step.
+		var connection: Dictionary=world.facts.connectors.get(actor.location.get("connector_id",""),{})
+		var handoff: Dictionary={}
+		for group: Dictionary in connection.get("passenger_groups",[]):
+			var portal: Dictionary=group.get("companion_portals",{}).get(id,{})
+			if not portal.is_empty() and portal.get("stage","")=="alighting": handoff=portal;break
+		if handoff.is_empty(): _actor_index.remove(id)
+		else:
+			var cursor: int=int(handoff.cursor)
+			var pose: Dictionary=handoff.plan.seated_pose if cursor==0 else handoff.plan.alighting[cursor-1].poses[id]
+			var r: Array=pose.region
+			rectangle=Rect2(float(r[0]),float(r[1]),float(r[2]),float(r[3]))
+			floor_id=int(connection.floor_id)
+			_actor_index.update(id,floor_id,rectangle)
 	if notify and public_areas!=null: public_areas.actor_changed(world,id,old_floor,old_rect,floor_id,rectangle)
 
 func finish_boundary(world: WorldState) -> void:
@@ -295,17 +378,17 @@ func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: 
 			return RouteClearance.new(self,world,actor,floor_id,[],{},true,_navigation.floor_source(self,world,floor_id),geometry).reason(origin)
 	return RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id)).reason(origin)
 
-func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,false)
+func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
+	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,false,route_filter)
 
-func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true)
+func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> Dictionary:
+	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true,route_filter)
 
-func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> bool:
-	return bool(_route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true).ok)
+func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, route_filter: Dictionary = {}) -> bool:
+	return bool(_route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true,route_filter).ok)
 
-func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, distance_only: bool) -> Dictionary:
-	return self.navigation._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,distance_only)
+func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, distance_only: bool, route_filter: Dictionary = {}) -> Dictionary:
+	return self.navigation._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,distance_only,route_filter)
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
 	return self.navigation.travel_quote(world,actor_id,floor_id,target)
@@ -1355,6 +1438,7 @@ func _sync_convoys(world: WorldState) -> void:
 		if journey.has("convoy"): _sync_convoy(world,journey)
 
 func _sync_convoy(world: WorldState, journey: Dictionary) -> void:
+	for id: String in journey.members: _sync_passage_profile(world,id)
 	var owner: String = str(journey.actor_id)
 	if not _convoy_members.has(owner):
 		_convoy_members[owner] = journey.members.duplicate()

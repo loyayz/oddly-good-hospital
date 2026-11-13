@@ -266,7 +266,18 @@ func _connector_wait_basis() -> Dictionary:
 	var queue_visit: Dictionary = _visit(x,"lift_queue",[59,88])
 	var request: String = x.space.request_move(x.world,queue_visit.actor_id,2,[59,88])
 	HospitalTransit.begin(x.space,x.world,x.world.facts.actors[queue_visit.actor_id],x.world.facts.moves[queue_visit.actor_id],{"kind":"connector","connector_id":"lift","from":1,"to":2})
-	var actual_ticket: bool = x.world.facts.moves[queue_visit.actor_id].has("transit_ticket")
+	# The public request must really walk to a queue slot; begin is not arrival.
+	var actual_queue: bool = false
+	for step: int in 150:
+		for line: Array in lift.get("landing_queues",{}).values():
+			for entry: Dictionary in line:
+				if entry.get("actor_id","")==queue_visit.actor_id:
+					actual_queue = int(entry.get("floor_id",-1))==1 and int(entry.get("direction",0))==1 and x.world.facts.actors[queue_visit.actor_id].location.kind=="floor"
+		if actual_queue: break
+		x.space.advance(x.world,x.world.present_actor_count())
+		x.world.facts.sim_tick += 1
+		x.world.touch()
+		x.space.finish_boundary(x.world)
 	var queue_only: bool = not x.space.public_areas.should_recheck(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS)
 	lift.phase = "idle"
 	lift.remaining_ticks = 0
@@ -303,7 +314,7 @@ func _connector_wait_basis() -> Dictionary:
 	x.world.facts.floors.overrides["1"].blocked.append([42,75])
 	x.world.touch()
 	var local_geometry: bool = x.space.public_areas.should_recheck(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS)
-	return {"ok":unchanged and readonly and normal_motion and request.is_empty() and actual_ticket and queue_only and direction_changed and repaired and queue_cancelled and cancelled_queue_only and stops_changed and no_layout_edit and unrelated_floor and local_geometry and live_topology,"unchanged_negative_hit":unchanged,"cache_queries_readonly":readonly,"normal_phase_and_countdown_hit":normal_motion,"real_arrived_transit_ticket":actual_ticket,"queue_only_hit":queue_only,"lowering_direction_rechecked":direction_changed,"repair_without_geometry_rechecked":repaired,"queue_cancelled_before_stop_removal":queue_cancelled,"queue_cancellation_only_hit":cancelled_queue_only,"installed_stop_rechecked":stops_changed,"connection_changes_without_geometry_revision":no_layout_edit,"unconnected_empty_floor_edit_hit":unrelated_floor,"current_area_geometry_rechecked":local_geometry,"hot_topology_observes_stop_remove_and_restore":live_topology,"route_before_removal":before_stop_removal,"route_after_removal":after_stop_removal,"route_after_restore":after_stop_restore}
+	return {"ok":unchanged and readonly and normal_motion and request.is_empty() and actual_queue and queue_only and direction_changed and repaired and queue_cancelled and cancelled_queue_only and stops_changed and no_layout_edit and unrelated_floor and local_geometry and live_topology,"unchanged_negative_hit":unchanged,"cache_queries_readonly":readonly,"normal_phase_and_countdown_hit":normal_motion,"real_arrived_direction_queue":actual_queue,"queue_only_hit":queue_only,"lowering_direction_rechecked":direction_changed,"repair_without_geometry_rechecked":repaired,"queue_cancelled_before_stop_removal":queue_cancelled,"queue_cancellation_only_hit":cancelled_queue_only,"installed_stop_rechecked":stops_changed,"connection_changes_without_geometry_revision":no_layout_edit,"unconnected_empty_floor_edit_hit":unrelated_floor,"current_area_geometry_rechecked":local_geometry,"hot_topology_observes_stop_remove_and_restore":live_topology,"route_before_removal":before_stop_removal,"route_after_removal":after_stop_removal,"route_after_restore":after_stop_restore}
 
 func _case_70(t) -> void:
 	var manual_recreation: Dictionary = _manual_recreation_batch()

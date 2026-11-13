@@ -28,9 +28,20 @@ func enqueue(sim: HospitalSimulation, measured_index: int) -> void:
 		var training_quote: Dictionary=sim.services.development.preview(world,STUDENT,"treatment","course")
 		_send(sim,"training","train_staff",{"staff_id":STUDENT,"track":"treatment","desk_id":TRAINING_DESK,"confirmed_quote":training_quote.get("basis",{})})
 		_send(sim,"maintenance","maintenance_order",{"facility_id":MAINTENANCE_ITEM})
-		_send(sim,"upgrade","machine_upgrade",{"facility_id":UPGRADE_ITEM,"target_level":1})
+		var upgrade_item: Dictionary=world.facts.facilities[UPGRADE_ITEM]
+		_send(sim,"upgrade-prepare","remodel_prepare",{"commands":[{"kind":"build_move","target_id":UPGRADE_ITEM,"floor_id":upgrade_item.floor_id,"cell":upgrade_item.cell.duplicate()}],"safe_transfer":true})
 		_send(sim,"renovation","renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[42,87]},{"cell":[44,87]},{"cell":[46,87]},{"cell":[48,87]}],"allow_waiting":false})
 		_send(sim,"purchase","purchase_supplies",{"units":20,"order_id":PREFIX+"purchase-order"})
+	if submitted.has("upgrade-prepare") and not submitted.has("upgrade"):
+		var arrangement: String=""
+		for order_id: String in world.facts.get("remodels",{}):
+			var order: Dictionary=world.facts.remodels[order_id]
+			if order.get("state","")=="preparing" and UPGRADE_ITEM in order.get("member_ids",[]): arrangement=order_id;break
+		if not arrangement.is_empty():
+			var q: Dictionary=sim.services.remodel.preview(world,arrangement)
+			if q.get("ok",false):
+				_send(sim,"upgrade-apply","remodel_apply",{"order_id":arrangement,"quote":{"price":q.price,"refund":q.refund,"layout":q.layout}})
+				_send(sim,"upgrade","machine_upgrade",{"facility_id":UPGRADE_ITEM,"target_level":1})
 	if not submitted.has("research") and sim.services.research.opened(world):
 		for definition: Dictionary in sim.content.catalog.research:
 			if not definition.id in world.facts.research and definition.disease_ids.is_empty():

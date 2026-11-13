@@ -1,6 +1,8 @@
 extends SceneTree
 const Population = preload("res://tools/performance/acceptance/fixtures/prepare_inputs.gd")
 const Observer = preload("res://tools/performance/current/comprehensive_observer.gd")
+var family_last: String = ""
+var family_stream: FileAccess
 var output: String
 func _initialize() -> void: call_deferred("_run")
 func write_json(path: String, data: Dictionary) -> void:
@@ -122,8 +124,11 @@ func _run() -> void:
 	var scenario: String=str(envelope.get("scenario",""))
 	if not expected_scenario.is_empty() and scenario!=expected_scenario: write_json(output,{"complete":false,"reason":"scenario mismatch","expected_scenario":expected_scenario,"actual_scenario":scenario});quit(2);return
 	if envelope.content_fingerprint!=content.content_fingerprint: write_json(output,{"complete":false,"reason":"content mismatch"});quit(2);return
+	var migration_source: Dictionary = envelope.facts.duplicate(true)
 	var world: WorldState = WorldState.new(envelope.facts)
-	var validation: String = world.validate(content)
+	var migration_error: String = world.migrate_legacy_transit(content)
+	write_json(output+".migration.json",{"migration_error":migration_error,"non_transport_unchanged":envelope.facts.keys().filter(func(k:Variant)->bool:return k not in ["connectors","moves"]).all(func(k:Variant)->bool:return migration_source[k]==world.facts[k]),"source_input_sha256":FileAccess.get_sha256(input)})
+	var validation: String = migration_error if not migration_error.is_empty() else world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
 	var comprehensive: bool = scenario in Observer.SCENARIOS
@@ -159,6 +164,8 @@ func _run() -> void:
 	var sample_start_population: Dictionary = {}
 	var sample_wall_start: int = 0
 	var prefix_wall_us: int = 0
+	family_stream = FileAccess.open(output+".family.ndjson",FileAccess.WRITE)
+	_family_capture(world)
 	var wall_start: int = Time.get_ticks_usec()
 	for index: int in prefix_steps+steps:
 		var iteration_started_us: int=Time.get_ticks_usec()
@@ -179,6 +186,7 @@ func _run() -> void:
 		if result==null: errors.append("Incomplete production step");break
 		if world.sim_tick!=int(initial.tick)+index+1: errors.append("Unexpected tick increment");break
 		if comprehensive: observer.observe(observed_before,world,result,index>=prefix_steps)
+		_family_capture(world)
 		for id: String in before_sessions:
 			var old: Dictionary = before_sessions[id]
 			var now: Dictionary = world.facts.sessions.get(id,{})
@@ -194,6 +202,9 @@ func _run() -> void:
 		var row: Dictionary = {"index":index,"tick":world.sim_tick,"elapsed_us":elapsed,"wall_start_us":iteration_started_us,"present":world.present_actor_count(),"sessions":world.facts.sessions.size(),"moves":world.facts.moves.size()}
 		samples.append(row)
 		stream.store_line(JSON.stringify({"kind":"complete","sample":row}));stream.flush()
+		if index%500==0:
+			var checkpoint: FileAccess = FileAccess.open(output+".checkpoint.bin",FileAccess.WRITE)
+			checkpoint.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"completed_steps":index+1,"scope":"Recovery facts only; not completed coverage"});checkpoint.close()
 		if index%100==0: print("PLAIN_PROGRESS="+JSON.stringify(row))
 	var window_end: int = Time.get_ticks_usec()
 	var all_wall_us: int = window_end-wall_start
@@ -228,3 +239,16 @@ func _run() -> void:
 	write_json(output+".execution.json",{"main_thread_policy":thread_policy,"worker_tasks":worker_tasks,"worker_samples":sim.services.experience.sample_worker_report(),"profile_stages":profile_stages,"scope":"Simulation.step wall elapsed including internal waits; excludes renderer, GameSession and initialization. Stage spans are diagnostic, not function self CPU."})
 	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events,"comprehensive":comprehensive_report},"initialization_us":init_us,"observed_floor":observed_floor,"floor_static_preparation":floor_preparation,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
 	sim.dispose();quit(0 if complete else 1)
+
+func _family_capture(world: WorldState) -> void:
+	var visits: Dictionary = {}
+	for w: Dictionary in world.facts.ward_stays.values():
+		var id: String = str(w.visit_id)
+		var v: Dictionary = world.facts.visits.get(id,{})
+		visits[id] = {"phase":v.get("phase",""),"consent":v.get("visitor_consent",true),"actor":world.facts.actors.get(v.get("actor_id",""),{}).get("location",{})}
+	var row: Dictionary = {"wards":world.facts.ward_stays,"visits":visits,"visitors":world.facts.get("visitors",{})}
+	var serial: String = JSON.stringify(row)
+	if serial == family_last: return
+	family_last = serial
+	family_stream.store_line(JSON.stringify({"tick":world.sim_tick,"state":row}))
+	family_stream.flush()

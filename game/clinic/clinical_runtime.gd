@@ -524,6 +524,11 @@ func release_departed(world: WorldState) -> void:
 					visit.final_result = "referred"
 					visit.phase = "leaving"
 					visit.waiting_reason = "已安全转交院外照护，未完成住院项目不收费"
+				# The bed body may already be clear while its patient/operator
+				# envelope is still in use. Hand ownership to the real patient;
+				# only release_adaptations may remove it after physical clearance.
+				var held: Dictionary = world.facts.adaptations.get(str(stay.bed_id),{})
+				if held.get("owner_id","")==stay_id: held.owner_id=visit.actor_id
 				world.facts.ward_stays.erase(stay_id)
 
 func _queue(world: WorldState, visit: Dictionary, kind: String) -> void:
