@@ -594,8 +594,7 @@ func _suspend_inventory_work(world: WorldState, order: Dictionary) -> void:
 		# An embarked ride is a separate safe movement commitment. Let it finish;
 		# only an unembarked route owned by this work order can be withdrawn.
 		if owned_move and not actor.is_empty() and actor.location.kind=="floor" and movement.get("members",[]).is_empty():
-			HospitalTransit.cancel_waiting(world,movement)
-			world.facts.moves.erase(worker_id)
+			space.cancel_ground_move(world,worker_id)
 		if owns_contractor:
 			# Preserve the real person and original job history until departure.
 			contractor.phase = "leaving"

@@ -550,11 +550,7 @@ func _worker_ready(world: WorldState, id: String, own_job: String = "") -> bool:
 
 func _release(world: WorldState, job: Dictionary) -> void:
 	var id: String = str(job.get("worker_id",""))
-	if world.facts.maintenance.contractors.has(id):
-		world.facts.maintenance.contractors[id].phase = "leaving"
-		if world.facts.moves.has(id) and world.facts.actors[id].location.kind!="transit":
-			HospitalTransit.cancel_waiting(world,world.facts.moves[id])
-			world.facts.moves.erase(id)
+	release_contractor(world,space,id)
 	job.worker_id = ""
 	if job.phase in ["working","travelling"]:
 		job.phase = "queued"
@@ -581,12 +577,12 @@ static func admit_contractor(world: WorldState, space: HospitalSpace, job_id: St
 	space.sync_actor(world,id)
 	return id
 
-static func release_contractor(world: WorldState, id: String) -> void:
+static func release_contractor(world: WorldState, space: HospitalSpace, id: String) -> void:
 	if not world.facts.maintenance.get("contractors",{}).has(id): return
 	world.facts.maintenance.contractors[id].phase = "leaving"
-	if world.facts.moves.has(id) and world.facts.actors[id].location.kind!="transit":
-		HospitalTransit.cancel_waiting(world,world.facts.moves[id])
-		world.facts.moves.erase(id)
+	# The departure intent may be recorded before a committed crossing is safe
+	# to interrupt. Movement keeps that crossing until the body is on the floor.
+	if world.facts.moves.has(id): space.cancel_ground_move(world,id)
 
 func _admit_worker(world: WorldState, job: Dictionary, item: Dictionary) -> void:
 	var entry: Dictionary = world.facts.entry
@@ -632,8 +628,7 @@ func _dispatch_departures(world: WorldState) -> void:
 		else:
 			var movement: Dictionary = world.facts.moves.get(id,{})
 			if not movement.is_empty() and (int(movement.target_floor)!=1 or movement.target_cell!=exit):
-				HospitalTransit.cancel_waiting(world,movement)
-				world.facts.moves.erase(id)
+				space.cancel_ground_move(world,id)
 			if not world.facts.moves.has(id): space.request_move(world,id,1,exit)
 
 func _work_rate(_world: WorldState, _id: String, _action: String) -> float:

@@ -919,7 +919,10 @@ func _case_30(t) -> void:
 
 func _case_31(t) -> void:
 	var pausing: Dictionary = _research_context()
-	_start(pausing)
+	var start: CommandResult = _start(pausing)
+	if not start.accepted:
+		t.check("GROW-31",false,{"research_start":start.to_record()})
+		return
 	_research_tick(pausing)
 	var pause_job: Dictionary = pausing.research.active_job(pausing.world,"R12")
 	var partial: int = int(pause_job.get("remaining_work_milli",-1))

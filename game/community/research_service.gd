@@ -448,8 +448,7 @@ func _release(world: WorldState, job: Dictionary) -> void:
 	var movement: Dictionary = world.facts.moves.get(worker_id,{})
 	var actor: Dictionary = world.facts.actors.get(worker_id,{})
 	if movement.get("owner_job_id","")==job.id and actor.get("location",{}).get("kind","")=="floor" and movement.get("members",[]).is_empty():
-		HospitalTransit.cancel_waiting(world,movement)
-		world.facts.moves.erase(worker_id)
+		space.cancel_ground_move(world,worker_id)
 	job.worker_id = ""
 	job.desk_id = ""
 

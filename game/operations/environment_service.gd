@@ -738,7 +738,7 @@ func _release(world: WorldState, job: Dictionary) -> void:
 	var worker_id: String = str(job.get("worker_id",""))
 	if world.facts.staff.has(worker_id) and world.facts.staff[worker_id].get("active_job_id","")==job.id:
 		world.facts.staff[worker_id].active_job_id = ""
-	HospitalMaintenance.release_contractor(world,worker_id)
+	HospitalMaintenance.release_contractor(world,space,worker_id)
 	job.worker_id = ""
 	if job.get("phase","") in ["working","travelling"]:
 		job.phase = "queued"

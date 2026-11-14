@@ -203,7 +203,7 @@ func _research_context(desk: bool = true, worker: bool = true) -> Dictionary:
 	return ctx
 
 func _assign_research_room(ctx: Dictionary, worker_id: String) -> void:
-	var schedule: Array = [{"kind":"work","pools":["research_room"]},{"kind":"work","pools":["research_room"]},{"kind":"rest","pools":[]}]
+	var schedule: Array = [{"kind":"work","pools":["research_room"],"locked":false},{"kind":"work","pools":["research_room"],"locked":false},{"kind":"rest","pools":[],"locked":false}]
 	var applied: CommandResult = ctx.simulation.services.scheduler.execute(ctx.world,"apply_schedule",{"changes":[{"staff_id":worker_id,"schedule":schedule}]})
 	if not applied.accepted: _fixture_errors.append({"worker":worker_id,"schedule_error":applied.reason})
 	ctx.simulation.services.scheduler.boundaries(ctx.world)

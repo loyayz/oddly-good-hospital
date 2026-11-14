@@ -524,8 +524,7 @@ func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> vo
 			staff.growth_reason = "等待原工作基地改建安排结束"
 			var movement: Dictionary = world.facts.moves.get(staff_id,{})
 			if not _busy(world,staff_id) and not movement.is_empty() and int(movement.target_floor)==int(arranged_base.floor_id) and movement.target_cell==_operator(arranged_base) and world.facts.actors[staff_id].location.kind=="floor" and movement.get("members",[]).is_empty():
-				HospitalTransit.cancel_waiting(world,movement)
-				world.facts.moves.erase(staff_id)
+				space.cancel_ground_move(world,staff_id)
 			return
 	if _busy(world,staff_id) or world.facts.moves.has(staff_id):
 		return
@@ -850,8 +849,7 @@ func _pause(world: WorldState, job: Dictionary, reason: String) -> void:
 	var movement: Dictionary = world.facts.moves.get(job.staff_id,{})
 	var actor: Dictionary = world.facts.actors.get(job.staff_id,{})
 	if movement.get("owner_job_id","")==job.id and actor.get("location",{}).get("kind","")=="floor" and movement.get("members",[]).is_empty():
-		HospitalTransit.cancel_waiting(world,movement)
-		world.facts.moves.erase(job.staff_id)
+		space.cancel_ground_move(world,str(job.staff_id))
 	job.state = "paused"
 	job.reason = reason
 	job.desk_id = ""

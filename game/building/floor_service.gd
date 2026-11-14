@@ -187,7 +187,7 @@ func _complete(world: WorldState, order: Dictionary) -> void:
 
 func _release(world: WorldState, order: Dictionary) -> void:
 	var worker_id: String = str(order.worker_id)
-	HospitalMaintenance.release_contractor(world,worker_id)
+	HospitalMaintenance.release_contractor(world,space,worker_id)
 	order.worker_id = ""
 	if not terminal(order): order.phase = "queued"
 
