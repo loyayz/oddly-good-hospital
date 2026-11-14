@@ -30,9 +30,3 @@
 ```
 
 相关回归使用`transit_presence.gd`的`leave_solo,leave_convoy,order_solo,order_convoy,repeated`，覆盖离位取消、回站新票、仍在位者按票序登舱，以及三轮真实双向运输。
-
-## 证据与边界
-
-旧实现四例均在原请求序断言失败，目标、真实移动、交通票归属和实际到达断言通过。修复后四例及五项相关回归通过，无脚本错误。结果、实际耗时、完整命令及冻结源身份见[专项证据](../../docs/reports/evidence/2026-11-12-clinical-performance/transit-waypoint-order.json)；原失败保留于`.cache/transit-waypoint-order-20261112/baseline`。
-
-这些用例验证临时行程保序及相关交通交接，不证明任意密度的无饥饿性、堵出口角色的局部让行正确性，或160人性能达标。电梯busy分支、容量、真实身体和离舱保护均未改变。

@@ -1,8 +1,0 @@
-{
-  "case": "CORE-18",
-  "evidence": "core-profile-check-r1",
-  "observed_cgroup_namespace": "cgroup:[4026532214]",
-  "required_initial_namespace": "cgroup:[4026531835]",
-  "mountinfo_cgroup_records": 0,
-  "interpretation": "Existing fail-closed native Linux resource guard rejects unobservable ancestor constraints. No guard changes, no capacity override, not elevator functional failure."
-}

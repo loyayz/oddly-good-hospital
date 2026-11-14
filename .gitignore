@@ -10,3 +10,7 @@ __pycache__/
 content/core/locale/*.translation
 game/platform/linux/bin/
 /docs/product-design.html
+
+# Local performance verification artifacts
+/perf-results/
+/tools/performance/workbench-20261107/

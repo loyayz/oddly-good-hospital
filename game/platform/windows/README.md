@@ -55,7 +55,7 @@ AppRoot在读取玩家资料及启动产品日志前获取资料库。发行工�
 
 Godot 4.7.2内置JSON解码的实际对照曾把`99.52000000000027`改变一个最低有效位。当前解码读回的64位字节完全一致，所有代表中途保存及恢复对照通过。该适配维持标准JSON快照格式；资料库占用和数值转换分别由两个类拥有。
 
-当前SQLite桥接DLL的实际字节数与SHA256由[第一阶段验收数据](../../../docs/data/stage01-feasibility.json)的`build.files`记录，与`.build/windows/build-identity.json`及随包文件核对。本版本完整导入、编译、双进程error32、数据库/日志占用及提交前后强制结束后的恢复，以及实际发行包随包加载均有对应[第一阶段报告](../../../docs/design/13-stage01-feasibility.md)。
+当前SQLite桥接DLL的实际字节数与SHA256由[第一阶段验收数据](../../../docs/data/stage01-feasibility.json)的`build.files`记录，与`.build/windows/build-identity.json`及随包文件核对。本版本完整导入、编译、双进程error32、数据库/日志占用及提交前后强制结束后的恢复，以及实际发行包随包加载均有对应[第一阶段报告](../../../docs/specs/26-10/2026-10-14-stage01-technical-feasibility.md)。
 
 ## 原生验收记录
 

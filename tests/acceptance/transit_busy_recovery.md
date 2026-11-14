@@ -6,4 +6,4 @@ Run `transit_busy_recovery.gd OUTPUT.json`. Four bounded cases execute: solo and
 
 The departed state is byte-serialized and restored into fresh services, then continued in parallel fact comparison within one test process. Body separation, floor sweeps, speed budgets, actual ticket presence, exact boarding order, original request/goal, maintenance job/work/payment facts and actual target arrival are checked. Source boarding is protected even when its destination is another floor; loaded incoming arrival remains protected through blocked alighting. Recovery does not itself grant movement or a ticket.
 
-See `docs/reports/2026-11-12-transit-recovery-fix.md` for baseline failure, final selected checks, source identities and evidence. This is not a full-density throughput or starvation-free guarantee.
+This is not a full-density throughput or starvation-free guarantee.

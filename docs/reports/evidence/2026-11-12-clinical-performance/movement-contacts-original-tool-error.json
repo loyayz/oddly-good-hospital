@@ -1,9 +1,0 @@
-{
-  "classification": "tool_parse_error",
-  "business_cases_executed": 0,
-  "performance_measured": false,
-  "reason": "Test used nonexistent ConvoyTrail.poses; correct API is positions(convoy,members). Original wrapper then failed while waiting for taskkill termination; no return code or finish time was captured. Subsequent Get-Process inspection observed no remaining Godot process.",
-  "log_sha256": "81f633c78589813f0522ddb13510e00c94d060f4aa531c068a94e894ddcc7c8f",
-  "frozen_failed_helpers": ".cache/contact-candidates-20261112-overlay01/helpers",
-  "monitor_fix": "Reuse campaign160.stop_owned_process_tree and persist Popen identity before waiting."
-}

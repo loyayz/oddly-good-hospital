@@ -1,6 +1,6 @@
 # Release 性能验收
 
-验收依据为 `docs/design/04-technical.md` 第9节、发布数据的 `performance_targets` 和 `docs/specs/26-10/2026-10-16-performance-validation.md`。固定负载的诊断短测、功能回归、Release 构建及正式性能采集分别记录，互不代替。
+验收依据为 `docs/design/04-technical.md` 第9节、发布数据的 `performance_targets` 和 `docs/specs/26-10/phase28-performance-requirements.md`。固定负载的诊断短测、功能回归、Release 构建及正式性能采集分别记录，互不代替。
 
 ## 运行边界
 

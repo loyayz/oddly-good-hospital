@@ -1,9 +1,0 @@
-{
-  "status": "not_adopted_negative_diagnostic_screen",
-  "functional_gate": "selected3groups passed and800 fullfinal.bin exact",
-  "observed_single_window_mean_change": "+2.762% slower, not statistically established regression",
-  "formal_five_B": "not run because diagnostic showed no benefit",
-  "production_A_unchanged": true,
-  "verified_improvements": 0,
-  "no_speedup_claim": true
-}

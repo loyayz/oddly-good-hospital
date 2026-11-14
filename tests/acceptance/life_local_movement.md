@@ -27,21 +27,3 @@ godot --headless --path <共享验收工程> --script res://tests/acceptance/lif
 省略选择时运行五例；指定选择只构建对应必要前提。原版本先运行 `safe_release_collision`，修复后运行五例；关联回归选择 `rooms_areas_guidance` 的 `LIFE-04`、`local_only_movement.gd` 的三个真实局部场景及 `movement_target_reuse.gd` 的 `optional`。
 
 本专项验证行为与业务交接，不构成160人性能验收。结果记录各例实际耗时、生产步数、碰撞和局部选择；中断、前提失败和工具失败分别保留，不作为通过。
-
-## 2026-11-12 验证结果
-
-原函数在第0步真实后退接触时把 `release_nurse` 判为不可移动：请求西移0.20000076格、实际移动0格，唯一身体阻挡为该护士，护士实际是 standing、非同行、已有单人地面 Move。该例另外完成了安全离岗、80步饮水和原岗位返回。因此基线证明的是具体资格误判，不能据此推定该小场景存在永久死锁。
-
-| 选例 | 结果 | 用例体耗时 | 实际步数 |
-| --- | --- | --- | --- |
-| 原函数 `safe_release_collision` | 局部资格/意图失败，其余业务断言通过 | 1080.850ms | 554 |
-| 修复 `safe_release_collision` | 通过 | 1100.011ms | 564 |
-| `amenity_walk` | 通过 | 245.359ms | 163 |
-| `fixed_clinical`（含Session完整冻结承诺） | 通过 | 294.401ms | 338 |
-| `seated_use` | 通过 | 442.363ms | 506 |
-| `convoy` | 通过 | 176.407ms | 73 |
-| `LIFE-04` | 通过 | 4713.219ms | 多个真实交接子场景 |
-
-三个局部移动回归及同目标 marker 转交回归通过，进程耗时分别为5.240秒、5.442秒。FUR09不含安抚效果；其 `continuous_ticks` 是另一种安抚椅的效果时钟，本例验证实际25步连续就座及该效果时钟不变，不为普通椅增加效果规则。
-
-准备和前提修正记录保留在 `.cache/moving-staff-local-20261112`：首轮遗漏既有原生运行库、测试继承名称冲突、碰撞者目标超出已取得地块、座位缺少有效临床安排，以及旧 optional 前提使用已退役的 waiting 房间。它们均未记为业务通过；修正后仅重跑受影响选例。五例证据复用时，后续变化仅位于另一个选例的函数；生产修复、共享碰撞输入和实际让行观察没有改变。小型可追溯证据见 `docs/reports/evidence/2026-11-12-clinical-performance/moving-staff-local.json`。

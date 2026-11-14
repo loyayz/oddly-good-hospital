@@ -1,4 +1,0 @@
-{"index":0,"kind":"enter","tick":1021}
-{"kind":"complete","sample":{"elapsed_us":1395973,"index":0,"moves":36,"present":163,"sessions":0,"tick":1022}}
-{"index":1,"kind":"enter","tick":1022}
-{"kind":"complete","sample":{"elapsed_us":194510,"index":1,"moves":36,"present":163,"sessions":0,"tick":1023}}
