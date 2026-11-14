@@ -7,3 +7,7 @@ art-source/.godot/
 __pycache__/
 *.pyc
 content/core/locale/*.translation
+
+# Local performance verification artifacts
+/perf-results/
+/tools/performance/workbench-20261107/
