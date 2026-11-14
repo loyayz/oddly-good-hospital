@@ -7,12 +7,14 @@ static func reach(sim: HospitalSimulation, visit_ids: Array, tick: Callable, lim
 	var world: WorldState = sim.world
 	var guide: HospitalFloorGuidance = sim.services.floor_guidance
 	var rows: Dictionary = {}
+	var selected_actors: Dictionary = {}
 	var result: Dictionary = {"ok":false,"started_tick":world.sim_tick,"no_clinical_resources":true,"visits":rows}
 	if not world.facts.preparations.is_empty() or not world.facts.sessions.is_empty() or not world.facts.attempts.is_empty():
 		result.error = "导诊前提要求尚无临床准备、会话或Attempt"
 		return result
 	for id: String in visit_ids:
 		var visit: Dictionary = world.facts.visits[id]
+		selected_actors[visit.actor_id] = id
 		var prior: Dictionary = guide.state(world,id)
 		rows[id] = {"ticket_id":visit.ticket_id,"initial_location":world.facts.actors[visit.actor_id].location.duplicate(true),"initial_receipts":prior.get("receipts",[]).size(),"work_ticks":0,"real_work":true,"walked":false,"arrived":false,"transitions":[],"last_phase":"","before_work":{}}
 	var dispatch_gate: Callable = func() -> void:
@@ -38,8 +40,24 @@ static func reach(sim: HospitalSimulation, visit_ids: Array, tick: Callable, lim
 	for _index: int in limit:
 		tick.call(dispatch_gate)
 		result.no_clinical_resources = result.no_clinical_resources and world.facts.preparations.is_empty() and world.facts.sessions.is_empty() and world.facts.attempts.is_empty() and sim.services.supplies.reserved(world)==0
-		for held: Dictionary in world.facts.adaptations.values():
-			result.no_clinical_resources = result.no_clinical_resources and world.facts.facilities.get(str(held.get("facility_id","")),{}).get("definition_id","")=="SE01"
+		for id: String in world.facts.adaptations:
+			var held: Dictionary = world.facts.adaptations[id]
+			# A doorway used by actual movement is not a clinical resource.
+			# Only the guidance counter may hold a facility adaptation here.
+			if held.get("kind","")=="door":
+				continue
+			var facility: Dictionary = world.facts.facilities.get(str(held.get("facility_id","")),{})
+			var actor_id: String = str(held.get("actor_id",""))
+			var visit_id: String = str(selected_actors.get(actor_id,""))
+			var waiting_seat: Dictionary = world.facts.waiting_life.seats.get(visit_id,{})
+			# One patient may really take a public chair while others are
+			# reaching the same clinic. A walking seat target, reservation
+			# for another actor, or any clinical device cannot qualify.
+			var public_wait: bool = held.get("kind","")=="facility" and not facility.is_empty() and sim.services.waiting._public_seat(world,facility) and held.get("owner_id","")==actor_id and held.get("staff_ids",[]).is_empty() and waiting_seat.get("facility_id","")==id and HospitalWaitingLife.is_seated(world,visit_id)
+			if held.get("kind","")!="facility" or (facility.get("definition_id","")!="SE01" and not public_wait):
+				result.no_clinical_resources = false
+				if not result.has("unexpected_adaptation"):
+					result.unexpected_adaptation = {"id":id,"tick":world.sim_tick,"held":held.duplicate(true)}
 		var complete: bool = true
 		for id: String in visit_ids:
 			var visit: Dictionary = world.facts.visits[id]

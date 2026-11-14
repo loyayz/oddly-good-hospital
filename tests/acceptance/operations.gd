@@ -33,7 +33,7 @@ const CASES: Dictionary = {
 	"OPS-26":"docs/design/08-hospital-life.md §21；原病例设备安全释放后实际升级，旧承诺不变且后续服务读取新等级",
 	"OPS-27":"docs/design/08-hospital-life.md §21；已开工12秒升级保留18秒不退材料",
 	"OPS-32":"docs/design/08-hospital-life.md §1/18/19；评分缺样本与真实完成事实去重只读",
-	"OPS-33":"docs/design/01-simulation.md §8/8.2；运营20日1401持余及工资逐人取整",
+	"OPS-33":"docs/design/01-simulation.md §8/8.2；样板运营20日1434持余及工资逐人取整",
 	"OPS-34":"docs/design/01-simulation.md §8；第三日首补助与1F地块周期幂等",
 	"OPS-35":"docs/design/01-simulation.md §8/8.1；成本890实付100援助790不算盈利",
 	"OPS-36":"docs/design/01-simulation.md §8.1/8.2；六账页三日展望与目标便签不圈存",
@@ -254,20 +254,6 @@ func _clinic_move(f: Dictionary, actor_id: String) -> Dictionary:
 		"cursor":cursor,"blocked_since":movement.get("blocked_since",-1),"yielding":movement.get("yielding",false),
 		"pending":movement.get("route_pending",false),"next3segments":path.slice(cursor,mini(path.size(),cursor+3))}
 
-func _outpatient(f: Dictionary, key: String) -> String:
-	var arrived: CommandResult = _command(f,"clinical_arrive",{"arrival_key":key,"binding_id":"B_S49_D37_M37","personality_id":"PP01"})
-	if not arrived.accepted:
-		f.errors.append({"arrival":key,"reason":arrived.reason})
-		return ""
-	var visit_id: String = str(arrived.changed_ids[0])
-	for tick: int in 2200:
-		var visit: Dictionary = f.w.facts.visits[visit_id]
-		if visit.phase=="wait_outpatient": return visit_id
-		if visit.phase in ["leaving","departed"]: break
-		_clinic_tick(f)
-	f.errors.append({"outpatient_not_reached":visit_id,"visit":f.w.facts.visits[visit_id].duplicate(true)})
-	return ""
-
 func _diagnosed_outpatient(f: Dictionary, key: String, waiting_cell: Array) -> String:
 	# Focused cases begin with a diagnosed, unpaid-treatment patient. Completed
 	# earlier visits retain their actual Attempts, issues and departure facts.
@@ -480,6 +466,11 @@ func _case_08() -> Dictionary:
 	var f: Dictionary = _new("真实缺货与复工",true)
 	var visit_id: String = _diagnosed_outpatient(f,"ops08_request",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
+	# Actual guidance and local arrival precede the shortage boundary. The
+	# unchanged 500-step restart witness measures real treatment readiness
+	# after the strike, not the patient's first trip to a guidance desk.
+	var guidance: Dictionary = GuidancePrerequisite.reach(f.s,[visit_id],func(gate: Callable) -> void: _clinic_tick(f,false,gate))
+	if not guidance.ok: return _result(false,{"prerequisite":"真实导诊和当地到达","guidance":guidance})
 	f.w.facts.inventory.units = 0
 	var requests: Array = f.s.services.supplies.requests(f.w)
 	if requests.is_empty(): return _result(false,{"request_missing":f.w.facts.visits[visit_id]})
@@ -530,7 +521,7 @@ func _case_08() -> Dictionary:
 	for tick: int in 500:
 		_clinic_tick(restored)
 		if not restored.w.facts.attempts.is_empty(): break
-	return _result(quiet and accumulated and warning_once and thresholds==[38000,44000,50000] and striking and buy.accepted and closed and no_repeat and not before_return.get("ok",true) and after_return.get("ok",false) and restored.w.facts.attempts.size()==1,{"boundary_inputs":boundary_inputs,"accumulated":accumulated,"warning_once":warning_once,"thresholds":thresholds,"strike":striking,"return_tick":until,"closed":f.w.facts.inventory.shortage,"before_return":before_return,"after_return":after_return,"attempts_after_return":restored.w.facts.attempts.size()})
+	return _result(quiet and accumulated and warning_once and thresholds==[38000,44000,50000] and striking and buy.accepted and closed and no_repeat and not before_return.get("ok",true) and after_return.get("ok",false) and restored.w.facts.attempts.size()==1,{"guidance":guidance,"boundary_inputs":boundary_inputs,"accumulated":accumulated,"warning_once":warning_once,"thresholds":thresholds,"strike":striking,"return_tick":until,"closed":f.w.facts.inventory.shortage,"before_return":before_return,"after_return":after_return,"attempts_after_return":restored.w.facts.attempts.size()})
 
 func _case_09() -> Dictionary:
 	var f: Dictionary = _new("先补首项准备",true,5000)
@@ -815,12 +806,16 @@ func _machine(label: String) -> Dictionary:
 
 func _case_19() -> Dictionary:
 	var f: Dictionary = _new("首次真实工作磨损",true)
-	var visit_id: String = _outpatient(f,"ops19_visit")
+	# This case verifies the treatment machine's first actual use, not the
+	# doctor's random decision to order a check. Supply the same validated
+	# completed diagnostic history as OPS-18, then perform every remaining step.
+	var visit_id: String = _diagnosed_outpatient(f,"ops19_visit",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
 	var before: float = float(f.w.facts.facilities.cold_machine.condition)
 	for tick: int in 1500:
 		_clinic_tick(f)
 		if not f.w.facts.attempts.is_empty(): break
+	var actual_treatment: bool = f.w.facts.visits[visit_id].attempt_ids.size()==1 and f.w.facts.attempts.size()==1
 	var worn: float = float(f.w.facts.facilities.cold_machine.condition)
 	var restored: Dictionary = _restore(f)
 	for tick: int in 5: _clinic_tick(restored)
@@ -830,7 +825,7 @@ func _case_19() -> Dictionary:
 	var illegal_job: bool = false
 	for job: Dictionary in restored.w.facts.maintenance.jobs.values():
 		if job.facility_id in ["chair_1","water","bin"]: illegal_job = true
-	return _result(before==100.0 and worn==98.0 and restored.w.facts.facilities.cold_machine.condition==98.0 and f.w.facts.facilities.cold_machine.use_receipts.size()==1 and not chair.accepted and not water.accepted and not illegal_job,{"before":before,"after":worn,"uses":f.w.facts.facilities.cold_machine.use_receipts,"jobs":restored.w.facts.maintenance.jobs})
+	return _result(actual_treatment and before==100.0 and worn==98.0 and restored.w.facts.facilities.cold_machine.condition==98.0 and f.w.facts.facilities.cold_machine.use_receipts.size()==1 and not chair.accepted and not water.accepted and not illegal_job,{"actual_treatment":actual_treatment,"before":before,"after":worn,"uses":f.w.facts.facilities.cold_machine.use_receipts,"jobs":restored.w.facts.maintenance.jobs})
 
 func _case_20() -> Dictionary:
 	var f: Dictionary = _machine("维护阈值唯一工单")
@@ -1204,13 +1199,18 @@ func _case_33() -> Dictionary:
 	var f: Dictionary = _new("运营精确持余",true,100000)
 	var finance: FinanceService = f.s.services.finance
 	var rate: int = finance.operating_rate(f.w)
+	# The starter has FUR02/M09/M37 and six rooms totaling 154 cells.
+	# Independently apply the documented 40 + 8n + 0.05a daily rate.
+	var expected_rate: int = 800 + 160*3 + 154
 	for tick: int in 3:
 		finance.settle(f.w)
 		f.w.facts.sim_tick += 1
 		_zero_arrivals(f.w)
-	var actual_accrual: bool = f.w.facts.economy.daily_accumulators.operating_numerator==4203
+	var actual_accrual: bool = f.w.facts.economy.daily_accumulators.operating_numerator==3*expected_rate
 	var costs: Array = []
+	var remainders: Array = []
 	var total: int = 0
+	var expected: bool = true
 	for day: int in range(1,21):
 		# Checkpoints contain the exact historical integral. No twenty-day replay
 		# or guessed rounded daily amount is used to prove the carry contract.
@@ -1227,6 +1227,10 @@ func _case_33() -> Dictionary:
 		var cost: int = int(entry.get("cost",-1))
 		costs.append(cost)
 		total += cost
+		var remainder: int = int(f.w.facts.economy.daily_accumulators.operating_numerator)
+		remainders.append(remainder)
+		# 71.70/day means the cumulative whole-coin debit is floor(day*717/10).
+		expected = expected and total==day*717/10 and remainder==(day*717%10)*36000
 	var restored: Dictionary = _restore(f)
 	var before: Dictionary = restored.w.freeze()
 	restored.s.services.finance.settle(restored.w)
@@ -1243,9 +1247,7 @@ func _case_33() -> Dictionary:
 	g.s.services.finance.settle(g.w)
 	var wage_a: Dictionary = g.w.facts.ledger.entries.get("ops33_doctor_a:wages_day_1",{})
 	var wage_b: Dictionary = g.w.facts.ledger.entries.get("ops33_doctor_b:wages_day_1",{})
-	var expected: bool = costs.size()==20
-	for index: int in costs.size(): expected = expected and costs[index]==(71 if index==19 else 70)
-	return _result(rate==1401 and actual_accrual and expected and total==1401 and f.w.facts.economy.daily_accumulators.operating_numerator==0 and duplicate and wage_a.get("cost")==0 and wage_b.get("cost")==0 and g.w.facts.staff.ops33_doctor_a.wage_numerator==17900 and g.w.facts.staff.ops33_doctor_b.wage_numerator==17900,{"per_tick_numerator":rate,"daily_costs":costs,"total":total,"wages":[wage_a,wage_b],"duplicate_unchanged":duplicate})
+	return _result(rate==expected_rate and actual_accrual and expected and total==1434 and f.w.facts.economy.daily_accumulators.operating_numerator==0 and duplicate and wage_a.get("cost")==0 and wage_b.get("cost")==0 and g.w.facts.staff.ops33_doctor_a.wage_numerator==17900 and g.w.facts.staff.ops33_doctor_b.wage_numerator==17900,{"per_tick_numerator":rate,"daily_costs":costs,"daily_remainders":remainders,"total":total,"wages":[wage_a,wage_b],"duplicate_unchanged":duplicate})
 
 func _case_34() -> Dictionary:
 	var f: Dictionary = _new("补助医院日周期",false,10000)
@@ -1306,7 +1308,12 @@ func _case_36() -> Dictionary:
 	for view: Dictionary in first.views: groups.append(str(view.group))
 	var readonly: bool = before==f.w.freeze()
 	var forecast: Array = first.forecast
-	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==690 and forecast[0].operations==70 and forecast[0].closing_cash==4240 and forecast[0].forecast and forecast[2].subsidy==1200
+	# From 690/day wages, 71.70/day operating carry, and the day-three subsidy.
+	var expected_forecast: Array = [[1,690,71,0,4239],[2,690,72,0,3477],[3,690,72,1200,3915]]
+	var estimated: bool = forecast.size()==expected_forecast.size()
+	for index: int in mini(forecast.size(),expected_forecast.size()):
+		var row: Dictionary = forecast[index]
+		estimated = estimated and row.forecast and [row.day,row.wages,row.operations,row.subsidy,row.closing_cash]==expected_forecast[index]
 	var note: CommandResult = _command(f,"finance_note",{"text":"扩建诊室","target_amount":6000})
 	var noted: Dictionary = f.s.services.finance.query(f.w)
 	var goal: bool = note.accepted and noted.get("saving_note")=="扩建诊室" and noted.get("target_amount")==6000 and noted.get("remaining_to_target")==1000 and HospitalLedger.balance(f.w)==5000

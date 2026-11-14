@@ -210,7 +210,10 @@ func _case_67(t) -> void:
 
 func _case_68(t) -> void:
 	var ctx: Dictionary = _context()
-	var visit: Dictionary = _patient(ctx,[45,76])
+	var visit: Dictionary = _admit_fixture(ctx,"B_S49_D37_M37", "acceptance_occupancy")
+	if visit.is_empty():
+		t.check("GROW-68",false,ctx.last_admission)
+		return
 	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
 	ctx.space.begin_route_query(ctx.world)
 	var first: Dictionary = observer._availability(ctx.world)
@@ -220,7 +223,7 @@ func _case_68(t) -> void:
 	# Registration reserves space first. Walk and start the real service before
 	# checking the clinical owners; no preparation exists for an unassigned diagnosis.
 	var ticks: int = 0
-	while ctx.world.facts.sessions.is_empty() and ticks<500:
+	while ctx.world.facts.sessions.is_empty() and ticks<1200 and not visit.phase in ["leaving","departed"]:
 		ctx.simulation.step()
 		ticks += 1
 	var next: Dictionary = observer._availability(ctx.world)
@@ -239,7 +242,7 @@ func _case_68(t) -> void:
 	var use_equal: bool = true
 	for id: String in ctx.world.facts.facilities:
 		use_equal = use_equal and HospitalEquipmentUse.query(ctx.world,id,uses)==HospitalEquipmentUse.query(ctx.world,id)
-	t.check("GROW-68",shared and next==fresh and not ctx.world.facts.sessions.is_empty() and next!=first and a==b and environment.query_builds==builds+1 and environment._query.is_empty() and readonly and use_equal,{"shared":shared,"new_sessions":ctx.world.facts.sessions.size(),"ticks":ticks,"new_occupancy_seen":next!=first,"environment_builds":environment.query_builds-builds,"readonly":readonly})
+	t.check("GROW-68",shared and next==fresh and not ctx.world.facts.sessions.is_empty() and next!=first and a==b and environment.query_builds==builds+1 and environment._query.is_empty() and readonly and use_equal,{"shared":shared,"new_sessions":ctx.world.facts.sessions.size(),"ticks":ticks,"new_occupancy_seen":next!=first,"environment_builds":environment.query_builds-builds,"readonly":readonly,"visit_phase":visit.phase,"waiting_reason":visit.waiting_reason,"guidance":ctx.simulation.clinic.floor_guidance.state(ctx.world,visit.id)})
 
 func _case_78(t) -> void:
 	load("res://tests/acceptance/reference_route_envelope.gd").new().run_case(t,_content)
@@ -263,11 +266,14 @@ func _case_76(t) -> void:
 	# This candidate/reservation boundary begins after ordinary base preparation.
 	world.facts.staff.starter_doctor_a.base_prepared = true
 	var validation: String = world.validate(_content)
+	world.staff_id_reads = 0
 	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
 	var before: Dictionary = world.freeze()
 	var all: Array = observer.service_candidates(world,first,"gp")
 	var first_only: Array = observer.service_candidates(world,second,"gp",false,false,{"first_only":true})
-	var independent: bool = all.size()==1 and first_only==all and observer.availability_calls==2 and world.staff_id_reads==2 and ctx.space._route_queries.is_empty() and world.freeze()==before
+	var independent_builds: int = observer.availability_calls
+	var independent_reads: int = world.staff_id_reads
+	var independent: bool = all.size()==1 and first_only==all and independent_builds==2 and independent_reads==2 and ctx.space._route_queries.is_empty() and world.freeze()==before
 	observer.availability_calls = 0
 	world.staff_id_reads = 0
 	var structural: Array = observer.service_candidates(world,second,"gp",true,false,{"staff_id":"starter_doctor_a","first_only":true})
@@ -284,11 +290,13 @@ func _case_76(t) -> void:
 	observer.availability_calls = 0
 	world.staff_id_reads = 0
 	var blocked: Array = observer.service_candidates(world,second,"gp",false,false,{"first_only":true})
-	var early: bool = blocked.is_empty() and observer.availability_calls==0 and world.staff_id_reads==0 and ctx.space._route_queries.is_empty() and world.freeze()==before
+	var blocked_builds: int = observer.availability_calls
+	var blocked_reads: int = world.staff_id_reads
+	var early: bool = blocked.is_empty() and blocked_builds==0 and blocked_reads==0 and ctx.space._route_queries.is_empty() and world.freeze()==before
 	ctx.clinic._dispatch_service(world,second,second_ticket)
 	var original_ticket: bool = [second_ticket.id,second_ticket.enqueued_tick]==second_identity and second.ticket_id==second_ticket.id and not second_ticket.get("service_assigned",false) and world.facts.adaptations==before.adaptations and world.facts.ledger==before.ledger and world.facts.rng==before.rng
 	validation += world.validate(_content)
-	t.check("GROW-76",independent and structural_readonly and reserved and early and original_ticket and validation.is_empty(),{"independent_queries":independent,"pairs":all,"first_only":first_only,"reason":first.waiting_reason,"structural_readonly":structural_readonly,"actual_reservation":reserved,"blocked_without_views":early,"blocked_availability_builds":observer.availability_calls,"blocked_staff_id_reads":world.staff_id_reads,"original_ticket":original_ticket,"validation":validation})
+	t.check("GROW-76",independent and structural_readonly and reserved and early and original_ticket and validation.is_empty(),{"independent_queries":independent,"pairs":all,"first_only":first_only,"reason":first.waiting_reason,"structural_readonly":structural_readonly,"actual_reservation":reserved,"blocked_without_views":early,"independent_availability_builds":independent_builds,"independent_staff_id_reads":independent_reads,"blocked_availability_builds":blocked_builds,"blocked_staff_id_reads":blocked_reads,"original_ticket":original_ticket,"validation":validation})
 
 func _case_75(t) -> void:
 	var ctx: Dictionary = _context()
@@ -758,7 +766,10 @@ func _case_23(t) -> void:
 	t.check("GROW-23",not_early and paused_same and mail.world.facts.research_progress.materials.get("R03",{}).get("kind","")=="mail" and mail.world.facts.research_progress.materials==arrived_materials and not mail.world.facts.research_progress.mail.has("R03") and HospitalLedger.balance(mail.world)==cash,{"not_early":not_early,"paused_same":paused_same,"material":mail.world.facts.research_progress.materials.get("R03",{})})
 
 func _case_24(t) -> void:
-	var diagnosis: Dictionary = _research_context()
+	# Neither evidence collection nor the free brief requires a research desk
+	# or worker. Keep the fully linked simulation's geometry together: the
+	# desk-only research fixture installs a private space for isolated ticks.
+	var diagnosis: Dictionary = _context(true,true)
 	# The input hospital has this prior unlock, but no research-progress cache for
 	# its next actual diagnosis. This is also a valid migration evidence boundary.
 	diagnosis.world.facts.research.append("R19")
@@ -776,10 +787,11 @@ func _case_24(t) -> void:
 			if generator.randi_range(0,9999)>=4000:
 				diagnosis.world.facts.rng.treatment={"algorithm":"godot-pcg32-4.7.2","seed_decimal":str(seed_value),"state_decimal":str(initial)}
 				break
-		diagnosed = _patient(diagnosis,[47,93],"B_S49_D41_M41")
+		diagnosed = _admit_fixture(diagnosis,"B_S49_D41_M41","acceptance_diagnosis_material")
 	var diagnosis_ready: bool = false
 	if not diagnosed.is_empty():
-		for index: int in 900:
+		for index: int in 1200:
+			if diagnosed.phase in ["leaving","departed"]: break
 			diagnosis.simulation.step()
 			var receipt: Dictionary = diagnosis.world.facts.research_progress.materials.get("R19",{})
 			if receipt.get("kind","")=="diagnosis" and receipt.get("visit_id","")==diagnosed.id:
@@ -801,6 +813,9 @@ func _case_24(t) -> void:
 	diagnosis_details.admitted = not diagnosed.is_empty()
 	diagnosis_details.diagnosis_ready = diagnosis_ready
 	diagnosis_details.diagnosis = diagnosed.get("diagnosis",{}).duplicate(true)
+	diagnosis_details.phase = diagnosed.get("phase","")
+	diagnosis_details.waiting_reason = diagnosed.get("waiting_reason","")
+	diagnosis_details.guidance = diagnosis.simulation.clinic.floor_guidance.state(diagnosis.world,str(diagnosed.get("id","")))
 	diagnosis_details.initial_readiness = {"ok":initial_readiness.ok,"reason":initial_readiness.reason}
 	diagnosis_details.opening_handoff = opening_handoff
 	diagnosis_details.admission = diagnosis.get("last_admission",{}).duplicate(true)
@@ -885,19 +900,23 @@ func _case_30(t) -> void:
 	var sharing: Dictionary = _research_context()
 	sharing.world.facts.research.append("R11")
 	var opening_doctor_busy: bool = HospitalClinicalDevelopment.safe_busy(sharing.world,"starter_doctor_a")
-	# The first GP's doctor may still own a safe clinical release. The idle third
-	# doctor supplies an executable training task, and the desk starts unoccupied.
-	sharing.world.facts.staff.starter_doctor_c.schedule[0] = {"kind":"training","pools":[],"locked":false}
-	sharing.world.facts.staff.starter_doctor_c.scheduled_kind = "training"
-	sharing.world.facts.staff.starter_doctor_c.on_shift = true
+	# The night/rest state of a starter doctor is not an available student.
+	# Begin with a fresh, rested learner and a valid current training shift.
+	var learner: String = "research_desk_learner"
 	sharing.world.facts.actors.research_worker.location.cell = [47,74]
+	HospitalFactory._add_staff(sharing.world,learner,"课程医生","doctor",[45,71],_content)
 	sharing.world.touch()
 	sharing.space.sync_actor(sharing.world,"research_worker")
-	var course: CommandResult = sharing.development.execute(sharing.world,"train_staff",{"staff_id":"starter_doctor_c","track":"diagnosis","desk_id":"research_desk"})
+	var scheduler: HospitalShiftScheduler = sharing.simulation.services.scheduler
+	var scheduled: CommandResult = scheduler.execute(sharing.world,"apply_schedule",{"changes":[{"staff_id":learner,"schedule":[{"kind":"training","pools":[],"locked":false},{"kind":"work","pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]}]})
+	scheduler.boundaries(sharing.world)
+	var course: CommandResult = sharing.development.execute(sharing.world,"train_staff",{"staff_id":learner,"track":"diagnosis","desk_id":"research_desk"})
+	sharing.development.dispatch(sharing.world)
+	var course_job: Dictionary = sharing.world.facts.training_jobs.get(sharing.world.facts.staff[learner].training_job_id,{})
+	var prior_owned: bool = course_job.get("desk_id","")=="research_desk" and course_job.get("state","") in ["travelling","working"]
 	var shared_start: CommandResult = _start(sharing,"R12",{"allow_waiting":true})
 	sharing.development.dispatch(sharing.world)
 	var shared_job: Dictionary = sharing.research.active_job(sharing.world,"R12")
-	var course_job: Dictionary = sharing.world.facts.training_jobs.get(sharing.world.facts.staff.starter_doctor_c.training_job_id,{})
 	var exclusive: bool = course_job.get("desk_id","")=="research_desk" and str(shared_job.get("desk_id","x")).is_empty()
 	sharing.research.execute(sharing.world,"research_todo_add",{"research_id":"R12"})
 	sharing.research.execute(sharing.world,"research_todo_move",{"research_id":"R12","index":0})
@@ -915,7 +934,7 @@ func _case_30(t) -> void:
 	_research_tick(parallel)
 	var one_job: Dictionary = parallel.research.active_job(parallel.world,"R12")
 	var two_job: Dictionary = parallel.research.active_job(parallel.world,"R14")
-	t.check("GROW-30",course.accepted and shared_start.accepted and exclusive and retained_desk and one.accepted and two.accepted and one_job.get("state","")=="working" and two_job.get("state","")=="working" and one_job.get("desk_id","")!=two_job.get("desk_id","") and not _start(parallel,"R12",{"allow_waiting":true}).accepted,{"start_one":one.to_record(),"start_two":two.to_record(),"shared_start":shared_start.to_record(),"exclusive":exclusive,"retained":retained_desk,"original_gp_doctor_busy":opening_doctor_busy,"course_accepted":course.accepted,"course_reason":course.reason,"course":course_job,"shared":shared_job,"first":one_job,"second":two_job})
+	t.check("GROW-30",scheduled.accepted and course.accepted and prior_owned and shared_start.accepted and exclusive and retained_desk and one.accepted and two.accepted and one_job.get("state","")=="working" and two_job.get("state","")=="working" and one_job.get("desk_id","")!=two_job.get("desk_id","") and not _start(parallel,"R12",{"allow_waiting":true}).accepted,{"start_one":one.to_record(),"start_two":two.to_record(),"shared_start":shared_start.to_record(),"exclusive":exclusive,"retained":retained_desk,"original_gp_doctor_busy":opening_doctor_busy,"course_accepted":course.accepted,"schedule":scheduled.to_record(),"prior_owned":prior_owned,"course_reason":course.reason,"course":course_job,"shared":shared_job,"first":one_job,"second":two_job})
 
 func _case_31(t) -> void:
 	var pausing: Dictionary = _research_context()
@@ -1033,6 +1052,7 @@ func _case_37(t) -> void:
 	var unbuilt: Array = unlocking.research.reception_readiness(unlocking.world,"R01")
 	var missing_real_resources: bool = not unbuilt.is_empty()
 	var natural_candidates: int = 0
+	var checked_d04: int = 0
 	for row: Dictionary in unbuilt:
 		if not row.ok: continue # A body may still lack a safe static entrance.
 		natural_candidates += 1
@@ -1043,12 +1063,20 @@ func _case_37(t) -> void:
 		var quotes: Array = candidate.clinic.compare_plans(candidate.world,candidate.visit.id)
 		row.treatment_quotes = quotes
 		missing_real_resources = missing_real_resources and not quotes.is_empty()
-		# D25 legitimately shares the starter zombie machine. Research is
-		# allowed to unlock both immediately treatable cases and care gaps.
+		# Unlocks admit cases independently of the treatment option. D04's
+		# common plan needs no new resource in this initial hospital; its other
+		# plans must explain their distinct expertise and research gaps.
+		var available: Dictionary = {}
 		for quote: Dictionary in quotes:
-			if row.disease_id=="D04": missing_real_resources = missing_real_resources and not quote.ok and not str(quote.reason).is_empty()
-			elif not quote.ok: missing_real_resources = missing_real_resources and not str(quote.reason).is_empty()
-	missing_real_resources = missing_real_resources and natural_candidates>0
+			available[quote.plan_id] = quote
+			if not quote.ok: missing_real_resources = missing_real_resources and not str(quote.reason).is_empty()
+		if row.disease_id=="D04":
+			var common: Dictionary = available.get("P_D04_COMMON",{})
+			var gentle: Dictionary = available.get("P_D04_GENTLE",{})
+			var surgery: Dictionary = available.get("P_D04_SURGERY",{})
+			missing_real_resources = missing_real_resources and common.get("ok",false) and not gentle.get("ok",true) and "等级" in str(gentle.get("reason","")) and not surgery.get("ok",true) and "研究" in str(surgery.get("reason",""))
+			checked_d04 += 1
+	missing_real_resources = missing_real_resources and natural_candidates>0 and checked_d04>0
 	var actual_before: Dictionary = {"actors":unlocking.world.facts.actors.duplicate(true),"facilities":unlocking.world.facts.facilities.duplicate(true),"staff":unlocking.world.facts.staff.duplicate(true),"intake":unlocking.world.facts.arrivals.intake_open}
 	unlocking.research.reception_readiness(unlocking.world,"R01")
 	var ordinary: Dictionary = _context()

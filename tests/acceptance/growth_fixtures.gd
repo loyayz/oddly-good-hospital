@@ -76,6 +76,13 @@ func _observer(ctx: Dictionary) -> AdmissionObserver:
 	ctx.arrivals.clinic = observer
 	return observer
 
+# Arrival-to-service integration begins at the actual entry, with no ticket
+# or actor position overwritten before clinical dispatch.
+func _admit_fixture(ctx: Dictionary, binding_id: String, key: String) -> Dictionary:
+	var result: CommandResult = ctx.clinic.execute(ctx.world,"clinical_arrive",{"arrival_key":key,"binding_id":binding_id,"personality_id":"PP01","complex":false})
+	ctx.last_admission = result.to_record()
+	return ctx.world.facts.visits[result.changed_ids[0]] if result.accepted else {}
+
 # Fixture setup uses production admission and queue creation. The chosen cell is
 # the initial position of this focused saved-world input, not a movement result.
 func _patient(ctx: Dictionary, cell: Array, binding: String = "B_S49_D37_M37", personality: String = "PP01", resident: Dictionary = {}) -> Dictionary:

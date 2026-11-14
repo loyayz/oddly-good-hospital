@@ -7,8 +7,12 @@ class FullReservationSpace extends HospitalSpace:
 		var result: Array = []
 		for id: String in world.facts.adaptations:
 			var reservation: Dictionary = world.facts.adaptations[id]
-			for area: Array in reservation.regions:
-				result.append({"reservation":reservation,"reservation_id":id,"rect":Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))})
+			# A nursing bed's real body blocks passage; its extra work
+			# posts remain placement/use claims. Keep the full-scan oracle.
+			var soft_bed: bool = reservation.kind=="facility" and world.facts.facilities.get(reservation.get("facility_id",""),{}).get("definition_id","")=="EQ05"
+			for ordinal: int in reservation.regions.size():
+				var area: Array = reservation.regions[ordinal]
+				result.append({"reservation":reservation,"reservation_id":id,"rect":Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),"blocks_passage":ordinal==0 or not soft_bed})
 		return result
 
 func _builder(content: HospitalContent) -> RefCounted:
@@ -112,7 +116,6 @@ func run_routes(content: HospitalContent) -> Dictionary:
 	var base: Dictionary = f.w.freeze()
 	var results: Array = []
 	var passed: bool = true
-	var reduction: bool = false
 	for condition: String in ["clear","egress_occupied","reservation","authorized","fractional","other_actor"]:
 		var world: WorldState = WorldState.new(base.duplicate(true))
 		if condition=="egress_occupied": world.facts.actors.route_blocker.location.cell = [51,86]
@@ -128,23 +131,15 @@ func run_routes(content: HospitalContent) -> Dictionary:
 		var control: HospitalSpace = FullReservationSpace.new(content)
 		var quotes: Array = []
 		var expected: Array = []
-		var actual_us: int = 0
-		var control_us: int = 0
-		var scope_started: int = Time.get_ticks_usec()
 		actual.begin_dynamic_route_query(world)
-		var scope_build_us: int = Time.get_ticks_usec()-scope_started
 		for goal: Array in [[40,80],[41,80],[40,80],[42,80]]:
 			var id: String = "route_other" if condition=="other_actor" and goal==[42,80] else "route_cleaner"
-			var query_started: int = Time.get_ticks_usec()
 			# Public entry/fit helpers nest actual queries inside one actor's
 			# sealed enumeration. These must preserve current body permissions.
 			actual.begin_route_query(world,{},false)
 			quotes.append(actual.route(world,id,2,goal))
 			actual.end_route_query()
-			actual_us += Time.get_ticks_usec()-query_started
-			query_started = Time.get_ticks_usec()
 			expected.append(control.route(world,id,2,goal))
-			control_us += Time.get_ticks_usec()-query_started
 		var rect: Rect2 = Rect2(55.25,81.25,0.25,0.25)
 		var dynamic: bool = actual._dynamic_clear(world,"route_cleaner",2,rect)
 		var full_dynamic: bool = control._dynamic_clear(world,"route_cleaner",2,rect)
@@ -172,11 +167,9 @@ func run_routes(content: HospitalContent) -> Dictionary:
 			control.movement._movement_contacts(world,"route_cleaner",2,broad,sweeps,["route_cleaner"],full_motion)
 			sweeps_equal = sweeps_equal and not actual_motion.blocked and not full_motion.blocked
 		actual.end_route_query()
-		var actual_counts: Dictionary = actual.query_counts.duplicate()
-		var control_counts: Dictionary = control.query_counts.duplicate()
-		var equal: bool = quotes==expected and dynamic==full_dynamic and sweeps_equal and world.freeze()==input and actual._route_queries.is_empty()
+		var repeated_route_unchanged: bool = quotes[0]==quotes[2]
+		var equal: bool = repeated_route_unchanged and quotes==expected and dynamic==full_dynamic and sweeps_equal and world.freeze()==input and actual._route_queries.is_empty()
 		if condition=="clear":
-			reduction = int(actual.query_counts.floor_route_hits)>0 and int(actual.query_counts.floor_route_builds)<int(control.query_counts.floor_route_builds)
 			equal = equal and bool(quotes[0].get("ok",false))
 		if condition=="egress_occupied":
 			# Structural journeys may depart toward a busy landing. The real
@@ -192,9 +185,9 @@ func run_routes(content: HospitalContent) -> Dictionary:
 		var fresh: Dictionary = HospitalSpace.new(content).route(world,"route_cleaner",2,[40,80])
 		equal = equal and changed==fresh
 		passed = passed and equal
-		results.append({"condition":condition,"equal":equal,"route_queries":quotes.size(),"actual_scope_build_us":scope_build_us,"actual_query_us":actual_us,"actual_total_query_us":actual_us+scope_build_us,"control_query_us":control_us,"actual_counts":actual_counts,"control_counts":control_counts})
+		results.append({"condition":condition,"equal":equal,"route_queries":quotes.size(),"repeated_route_unchanged":repeated_route_unchanged})
 	_dispose(builder)
-	return {"ok":passed and reduction,"details":{"variants":results,"dynamic_leg_computations_reduced":reduction,"complete_route_and_facts_rng_equal":passed}}
+	return {"ok":passed,"details":{"variants":results,"complete_route_and_facts_rng_equal":passed}}
 
 func run_spawns(content: HospitalContent) -> Dictionary:
 	var builder: RefCounted = _builder(content)

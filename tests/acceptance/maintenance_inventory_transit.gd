@@ -46,7 +46,10 @@ func _scenario(suite, upgrade: bool, waiting: bool) -> Dictionary:
 		if id.is_empty(): continue
 		var c: Dictionary = sim.world.facts.connectors[connector_id]
 		if waiting:
-			reached = c.phase=="empty_riding" and c.get("assigned_actor_id","")==id and sim.world.facts.moves.get(id,{}).has("transit_ticket")
+			var entry: Dictionary = helper._directional_queue_entry(c,id)
+			# Empty transit commits to the pickup floor, not a person. Observe
+			# the worker's physical, upward queue row independently of the car.
+			reached = c.phase=="empty_riding" and int(c.from)==2 and int(c.to)==1 and int(c.remaining_ticks)>0 and c.riders.is_empty() and sim.world.facts.actors[id].location.kind=="floor" and int(entry.get("floor_id",-1))==1 and int(entry.get("direction",0))==1 and int(entry.get("destination",-1))==2 and entry.get("leader_ids",[])==[id]
 		else:
 			reached = c.phase=="riding" and sim.world.facts.actors[id].location.kind=="transit" and c.riders.has(id)
 		if reached: break
@@ -65,8 +68,13 @@ func _scenario(suite, upgrade: bool, waiting: bool) -> Dictionary:
 	var commitment: bool
 	if waiting:
 		var expected_connection: Dictionary = connection.duplicate(true)
-		expected_connection.erase("assigned_actor_id")
-		commitment = not sim.world.facts.moves.has(worker_id) and after_connection==expected_connection
+		# Remove only the real waiting entry and its optional unavailable-head
+		# record; exact equality protects all other car and landing state.
+		var landing: Array = expected_connection.landing_queues["1:1"]
+		for index: int in range(landing.size()-1,-1,-1):
+			if landing[index].actor_id==worker_id: landing.remove_at(index)
+		expected_connection.get("unavailable_heads",{}).erase(worker_id)
+		commitment = not sim.world.facts.moves.has(worker_id) and helper._directional_queue_entry(after_connection,worker_id).is_empty() and after_connection==expected_connection
 	else:
 		commitment = sim.world.facts.moves.get(worker_id,{})==movement and after_connection==connection
 	var immediate_validation: String = sim.world.validate(suite._content)

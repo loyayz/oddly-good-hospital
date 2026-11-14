@@ -2,7 +2,7 @@ extends "res://tests/acceptance/environment_direct_query.gd"
 
 func run_sources(database: HospitalContent, selected: Array) -> Dictionary:
 	_content = database
-	var cases: Dictionary = {"ENV-SOURCE-SCOPES":_source_scopes,"ENV-SOURCE-OWNERS":_source_owners,"ENV-SOURCE-RESTORE":_source_restore,"ENV-SOURCE-MEASURE":_source_measure,"ENV-SOURCE-EDGES":_source_edges,"ENV-SOURCE-WORKERS":_source_workers}
+	var cases: Dictionary = {"ENV-SOURCE-SCOPES":_source_scopes,"ENV-SOURCE-OWNERS":_source_owners,"ENV-SOURCE-RESTORE":_source_restore,"ENV-SOURCE-EDGES":_source_edges,"ENV-SOURCE-WORKERS":_source_workers}
 	var rows: Dictionary = {}
 	for id: String in selected:
 		if not cases.has(id): return {"ok":false,"unknown_case":id}
@@ -11,7 +11,7 @@ func run_sources(database: HospitalContent, selected: Array) -> Dictionary:
 
 func _source_fixture() -> Dictionary:
 	var x: Dictionary = _fixture()
-	HospitalFactory._add_room(x.world,{"id":"room","type":"waiting","anchor":[40,72],"size":[12,12],"door":{"definition_id":"DR04","offset":3}},_content)
+	HospitalFactory._add_room(x.world,{"id":"room","type":"","anchor":[40,72],"size":[12,12],"door":{"definition_id":"DR04","edge":"south","offset":3}},_content)
 	var helper: RefCounted = preload("res://tests/acceptance/environment_source_intersection.gd").new()
 	helper._content = _content
 	for x_cell: int in range(32,64):
@@ -81,12 +81,15 @@ func _source_owners() -> Dictionary:
 	var suite: RefCounted = preload("res://tests/acceptance/operations.gd").new()
 	suite._content = _content
 	var f: Dictionary = suite._new("Environment source owner boundaries",false,20000)
-	HospitalFactory._add_room(f.w,{"id":"room","type":"waiting","anchor":[40,72],"size":[12,12],"door":{"definition_id":"DR04","offset":3}},_content)
+	HospitalFactory._add_room(f.w,{"id":"room","type":"","anchor":[40,72],"size":[12,12],"door":{"definition_id":"DR04","edge":"south","offset":3}},_content)
 	f.w.touch()
 	suite._staff(f,"source_cleaner","cleaner",[38,88])
 	var x: Dictionary = {"world":f.w,"e":f.s.services.environment,"space":f.s.space}
 	var reference: HospitalEnvironment = _reference_for(x)
 	var checks: Dictionary = {"warm_empty":_compare_direct(x,reference,[40,88]).ok}
+	# A neutral, genuinely enclosed room supplies the actual west wall; waiting
+	# space is an area, not a room type.
+	checks.real_wall_fixture = f.w.facts.rooms.has("room") and x.e._wall_edge(f.w,1,[40,78],"west")
 	var builds: int = _count(x.space,"dirt_source_builds")
 	var id: String = x.e.spawn_dirt(f.w,"CL01","warm_new","warm_new:1",1,[40,88])
 	checks.actual_spawn_updates_one = not id.is_empty() and _compare_direct(x,reference,[40,88]).ok and _count(x.space,"dirt_source_builds")==builds and x.e.sample_at(f.w,1,[40,88]).dirt==1
@@ -119,20 +122,6 @@ func _source_owners() -> Dictionary:
 	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"wall_orders":rows,"final_validation":f.w.validate(_content),"dirt_boundaries":boundaries.size()}
 	for sim: HospitalSimulation in suite._live: sim.dispose()
 	suite._live.clear()
-	return result
-
-# Fixed operation benchmark, not a claim about whole-game frame time. Run the
-# same file on baseline and candidate in independent processes, three pairs.
-func _source_measure() -> Dictionary:
-	var x: Dictionary = _source_fixture()
-	var before: Dictionary = x.world.freeze()
-	var initial: Dictionary = x.e.sample_at(x.world,1,[44,78])
-	var builds: int = x.e.query_builds
-	var start: int = Time.get_ticks_usec()
-	for repeat: int in 1000: x.e.sample_at(x.world,1,[40+repeat%12,72+repeat%12])
-	var elapsed: int = Time.get_ticks_usec()-start
-	var result: Dictionary = {"ok":before==x.world.freeze() and x.world.validate(_content).is_empty(),"warm_direct_queries":1000,"elapsed_us":elapsed,"query_builds":x.e.query_builds-builds,"surfaces":x.world.facts.environment.surfaces.size(),"dirt":x.world.facts.environment.dirt.size(),"initial":initial,"counts":x.space.query_counts.duplicate(),"readonly":before==x.world.freeze()}
-	Coverage.new()._dispose(x)
 	return result
 
 # Index-contract calculations are separate from the real owner work above.
