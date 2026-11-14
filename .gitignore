@@ -1,5 +1,6 @@
 .godot/
 .cache/
+# Local performance tools, inputs, results, and analysis.
 /perf-work/
 .build/
 game/platform/windows/bin/
