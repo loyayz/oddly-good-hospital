@@ -19,9 +19,24 @@ func run(t, database: HospitalContent, case_id: String) -> void:
 
 func _areas(staff: Dictionary = {}) -> Dictionary:
 	var x: Dictionary = _fixture(staff)
+	# Patient waiting regions come from actual chairs on open public floor;
+	# only staff use separate legal rest rooms.
 	for entry: Array in [["west",34],["east",48]]:
-		HospitalFactory._add_room(x.world,{"id":entry[0],"type":"waiting" if staff.is_empty() else "rest","anchor":[entry[1],66],"size":[10,12],"door":{"definition_id":"DR04","offset":3}},_content)
-		_facility(x,str(entry[0])+"_chair","FUR09",[int(entry[1])+2,68],str(entry[0]))
+		var room: String = ""
+		if not staff.is_empty():
+			room = str(entry[0])
+			HospitalFactory._add_room(x.world,{"id":room,"type":"rest","anchor":[entry[1],66],"size":[10,12],"door":{"definition_id":"DR04","offset":3}},_content)
+		_facility(x,str(entry[0])+"_chair","FUR09",[int(entry[1])+2,68],room)
+	x.world.touch()
+	return x
+
+func _toilet_areas() -> Dictionary:
+	var x: Dictionary = _areas()
+	# The toilet is a real room and the chair is outside, not in its queue.
+	HospitalFactory._add_room(x.world,{"id":"west","type":"toilet","anchor":[34,66],"size":[10,12],"door":{"definition_id":"DR04","offset":3}},_content)
+	x.world.facts.facilities.erase("west_chair")
+	_facility(x,"west_chair","FUR09",[42,83])
+	_facility(x,"toilet","FUR07",[39,68],"west")
 	x.world.touch()
 	return x
 
@@ -46,7 +61,7 @@ func _case_45(t) -> void:
 	x.world.facts.sim_tick = 50
 	x.l.dispatch(x.world)
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(visit.id,{})
-	var departure: bool = intent.get("mode","")=="auto" and intent.get("facility_id","missing")=="" and intent.get("area",{}).get("room_id","")=="west" and x.world.facts.adaptations.is_empty()
+	var departure: bool = intent.get("mode","")=="auto" and intent.get("facility_id","missing")=="" and intent.get("area",{}).get("facility_id","")=="west_chair" and x.world.facts.adaptations.is_empty()
 	var travel_energy: float = float(visit.anger)
 	var seated: bool = _until_seated(x,visit)
 	t.check("STAFF-45",departure and seated and visit.anger==travel_energy and intent.facility_id=="west_chair" and intent.arrived_tick>=50 and x.l.validate(x.world).is_empty(),{"departure":departure,"seated":seated,"intent":intent,"validation":x.l.validate(x.world)})
@@ -68,19 +83,28 @@ func _case_46(t) -> void:
 
 func _case_47(t) -> void:
 	var modes: Dictionary = _queue_mode_boundary()
-	var x: Dictionary = _areas()
-	_facility(x,"toilet","FUR07",[39,68],"west")
+	var x: Dictionary = _toilet_areas()
 	x.world.touch()
-	var first: Dictionary = _visit(x,"first",[38,73])
-	var second: Dictionary = _visit(x,"second",[40,73])
+	var first: Dictionary = _visit(x,"first",[36,81])
 	x.world.facts.sim_tick = 1800
 	x.l._begin_need(x.world,first)
 	var first_using: bool = false
 	for _tick: int in 150:
-		if x.world.facts.waiting_life.needs[first.id].phase=="using": first_using = true; break
+		if x.world.facts.waiting_life.needs.get(first.id,{}).get("phase","")=="using": first_using = true; break
 		_tick_waiting(x)
+	# Register the second visit once, after the first is actually using the
+	# toilet. The ordinary dispatch loop can then never double-start its need.
+	var second: Dictionary = _visit(x,"second",[40,81])
 	x.l._begin_need(x.world,second)
-	var queued: bool = x.world.facts.waiting_life.needs[second.id].phase=="local_wait"
+	var queued: bool = false
+	for _tick: int in 60:
+		if x.world.facts.waiting_life.needs.get(second.id,{}).get("phase","")=="local_wait" and second.actor_id in x.l.toilets.members(x.world,"west"):
+			queued = true
+			break
+		_tick_waiting(x)
+	if not first_using or not queued:
+		t.check("STAFF-47",false,{"first_started":first_using,"second_reached_real_queue":queued,"actual":x.world.facts.waiting_life.needs})
+		return
 	var area: Dictionary = x.space.public_areas.for_facility(x.world,"toilet")
 	var reordered: Dictionary = {}
 	var keys: Array = area.keys()
@@ -88,6 +112,8 @@ func _case_47(t) -> void:
 	for key: String in keys: reordered[key] = area[key]
 	var queue_need: Dictionary = x.world.facts.waiting_life.needs[second.id]
 	var original_area: Dictionary = queue_need.area
+	# The formal room queue is authoritative for live toilet use. Inject only
+	# an explicit region projection into this independent estimate oracle.
 	queue_need.area = reordered
 	var queue_before: Dictionary = x.world.freeze()
 	var service_ticks: int = 0
@@ -110,25 +136,29 @@ func _case_47(t) -> void:
 			safe_release = not x.space.overlaps_facility(x.world,first.actor_id,"toilet")
 			break
 		_tick_waiting(x)
-	var y: Dictionary = _areas()
-	_facility(y,"toilet","FUR07",[39,68],"west")
-	var exact: Dictionary = _visit(y,"exact",y.space.facility_layout(y.world,"toilet").patient_cell)
-	y.world.touch()
+	var y: Dictionary = _toilet_areas()
+	var exact: Dictionary = _visit(y,"exact",[36,81])
+	y.world.facts.sim_tick = 1800
 	y.l._begin_need(y.world,exact)
-	var boundary: Dictionary = y.world.facts.waiting_life.needs[exact.id]
-	boundary.phase = "local_wait"
-	boundary.remaining_ticks = 0
-	boundary.facility_id = ""
-	y.world.facts.adaptations.clear()
-	y.world.facts.sim_tick = int(boundary.started_tick)+450
+	var boundary: Dictionary = y.world.facts.waiting_life.needs.get(exact.id,{})
+	var at_target_before_dispatch: bool = false
+	var fit_cell: Array = y.space.facility_layout(y.world,"toilet").patient_cell
+	for _tick: int in 300:
+		y.space.advance(y.world)
+		if boundary.get("phase","")=="local_travel" and boundary.get("facility_id","")=="toilet" and y.space.at(y.world,exact.actor_id,1,fit_cell):
+			at_target_before_dispatch = true
+			break
+		y.world.facts.sim_tick += 1
+		y.l.dispatch(y.world)
+		y.world.touch(false)
+	y.world.facts.sim_tick = int(boundary.get("started_tick",-1))+450
 	y.l.dispatch(y.world)
-	var exact_start: bool = boundary.phase=="using" and boundary.remaining_ticks==80
-	t.check("STAFF-47",modes.passed and queue_order_safe and first_using and queued and second_using and safe_release and exact_start,{"nominal_actual_queue_modes":modes,"queue_region_key_order":queue_boundary,"first_started":first_using,"queued":queued,"second_started":second_using,"prior_physically_left":safe_release,"exact_45_seconds":exact_start,"second":x.world.facts.waiting_life.needs.get(second.id,{})})
+	var exact_start: bool = at_target_before_dispatch and boundary.get("phase","")=="using" and boundary.get("remaining_ticks",-1)==80
+	t.check("STAFF-47",modes.passed and queue_order_safe and first_using and queued and second_using and safe_release and exact_start,{"nominal_actual_queue_modes":modes,"queue_region_key_order":queue_boundary,"first_started":first_using,"queued":queued,"second_started":second_using,"prior_physically_left":safe_release,"exact_45_seconds":exact_start,"arrived_before_exact_boundary":at_target_before_dispatch,"boundary_need":boundary,"second":x.world.facts.waiting_life.needs.get(second.id,{})})
 
 func _queue_mode_boundary() -> Dictionary:
-	var x: Dictionary = _areas()
-	_facility(x,"toilet","FUR07",[39,68],"west")
-	var requester: Dictionary = _visit(x,"mode_requester",[38,73])
+	var x: Dictionary = _toilet_areas()
+	var requester: Dictionary = _visit(x,"mode_requester",[36,81])
 	_visit(x,"mode_blocker",x.space.facility_layout(x.world,"toilet").patient_cell)
 	x.world.touch()
 	var validation: String = x.world.validate(_content)
@@ -158,7 +188,7 @@ func _case_48(t) -> void:
 	var two: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":second.id,"facility_id":"west_chair"})
 	var no_remote: bool = x.world.facts.adaptations.is_empty()
 	var first_seated: bool = _until_seated(x,first)
-	var second_seated: bool = x.world.facts.waiting_life.seats[second.id].phase=="seated"
+	var second_seated: bool = HospitalWaitingLife.is_seated(x.world,second.id)
 	var ticket: String = first.ticket_id
 	var wait_ticks: int = int(x.world.facts.tickets[ticket].waited_ticks)
 	var called: bool = x.l.call_patient(x.world,first.id)
@@ -167,11 +197,13 @@ func _case_48(t) -> void:
 
 func _arrival_first_seat() -> Dictionary:
 	var x: Dictionary = _areas()
-	var far: Dictionary = _visit(x,"a_earlier_far",[42,76])
-	var near: Dictionary = _visit(x,"z_later_near",[37,71])
-	var validation: String = x.world.validate(_content)
+	var far: Dictionary = _visit(x,"a_earlier_far",[34,69])
 	var early: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":far.id,"facility_id":"west_chair"})
 	_tick_waiting(x)
+	# The later entrant was not blocking the earlier command's preview.
+	# They enter on the opposite side of the chair, with a short real final leg.
+	var near: Dictionary = _visit(x,"z_later_near",[36.2,69])
+	var validation: String = x.world.validate(_content)
 	var late: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":near.id,"facility_id":"west_chair"})
 	var one: Dictionary = x.world.facts.waiting_life.seats.get(far.id,{})
 	var two: Dictionary = x.world.facts.waiting_life.seats.get(near.id,{})
@@ -224,6 +256,9 @@ func _case_51(t) -> void:
 	var visit: Dictionary = _visit(x,"manual_invalid",[37,73])
 	x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"west_chair"})
 	var travelling: bool = x.world.facts.moves.has(visit.actor_id)
+	var route_before: Dictionary = x.world.facts.moves.get(visit.actor_id,{}).duplicate(true)
+	x.l.dispatch(x.world)
+	var valid_trip_unchanged: bool = travelling and route_before==x.world.facts.moves.get(visit.actor_id,{})
 	var location: Dictionary = x.world.facts.actors[visit.actor_id].location.duplicate(true)
 	x.world.facts.facilities.erase("west_chair")
 	x.world.touch()
@@ -233,7 +268,7 @@ func _case_51(t) -> void:
 		_tick_waiting(x)
 		if not x.world.facts.waiting_life.seats.has(visit.id): break
 	var stopped: bool = not x.world.facts.waiting_life.seats.has(visit.id) and x.world.facts.actors[visit.actor_id].get("support_facility_id","")!="east_chair"
-	t.check("STAFF-51",timely and stopped,{"real_trip_started":travelling,"cancelled_at_current_safe_ground_position":timely,"stopped_invalid_exact_target":stopped,"reason":visit.waiting_reason})
+	t.check("STAFF-51",valid_trip_unchanged and timely and stopped,{"valid_trip_unchanged":valid_trip_unchanged,"real_trip_started":travelling,"cancelled_at_current_safe_ground_position":timely,"stopped_invalid_exact_target":stopped,"reason":visit.waiting_reason})
 
 func _case_52(t) -> void:
 	var x: Dictionary = _areas({"resting":"doctor"})
@@ -252,7 +287,7 @@ func _case_52(t) -> void:
 
 func _beds() -> Dictionary:
 	var x: Dictionary = _fixture({"first":"doctor","second":"nurse"})
-	var room: String = _room(x)
+	var room: String = _room(x,"dormitory")
 	_facility(x,"bed_a","SE04",[40,70],room)
 	_facility(x,"bed_b","SE04",[50,70],room)
 	x.world.touch()
@@ -312,14 +347,18 @@ func _case_56(t) -> void:
 func _case_57(t) -> void:
 	var x: Dictionary = _areas()
 	x.world.facts.entry = {"floor_id":1,"cell":[38,90],"exit_cell":[38,90]}
-	var owner: Dictionary = _visit(x,"owner",[53,74])
-	var admitted: bool = x.c.visitors._admit(x.world,owner,{"purpose":"companion","window":""})
+	var fixture: RefCounted = preload("res://tests/acceptance/public_yield_wait_recovery.gd").new()
+	fixture._content = _content
+	var input: Dictionary = fixture.inpatient_host(x)
+	var owner: Dictionary = input.host
+	var owner_id: String = str(owner.get("id",""))
+	var admitted: bool = input.error.is_empty() and not owner.is_empty() and x.c.visitors._admit(x.world,owner,{"purpose":"companion","window":""})
 	var seated: bool = false
 	var visitor: Dictionary = {}
 	for tick: int in 500:
-		visitor = x.c.visitors._present(x.world,owner.id)
+		visitor = x.c.visitors._present(x.world,owner_id)
 		if visitor.get("public_use",{}).get("phase","")=="seated": seated = true; break
-		_tick_waiting(x)
+		fixture.tick_public_wait(x,owner_id)
 	var patient: Dictionary = _visit(x,"priority",[40,74])
 	var request: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":patient.id,"facility_id":"west_chair"})
 	var taken: bool = false
@@ -327,20 +366,20 @@ func _case_57(t) -> void:
 	var courtesy: Dictionary = {}
 	for _tick: int in 600:
 		if HospitalWaitingLife.is_seated(x.world,patient.id): taken = true; break
-		_tick_waiting(x)
-		visitor = x.c.visitors._present(x.world,owner.id)
+		fixture.tick_public_wait(x,owner_id)
+		visitor = x.c.visitors._present(x.world,owner_id)
 		if not restored and visitor.get("public_use",{}).has("yielded_seat"):
 			courtesy = _yield_courtesy_boundaries(x,visitor,patient)
 			var before: Dictionary = x.world.freeze()
 			x = _restore(x)
 			patient = x.world.facts.visits[patient.id]
-			visitor = x.c.visitors._present(x.world,owner.id)
+			visitor = x.c.visitors._present(x.world,owner_id)
 			restored = before==x.world.freeze() and visitor.public_use.has("yielded_seat") and x.world.validate(_content).is_empty()
 	var clear: bool = not visitor.is_empty() and not x.space.overlaps_facility(x.world,visitor.actor_id,"west_chair")
 	var final_intent: Dictionary = x.world.facts.waiting_life.seats.get(patient.id,{})
 	var manual_kept: bool = final_intent.get("mode","")=="manual" and final_intent.get("manual_facility_id","")=="west_chair"
-	var nearby_release: Dictionary = preload("res://tests/acceptance/public_yield_wait_recovery.gd").new().run_case(_content)
-	t.check("STAFF-57",admitted and seated and request.accepted and taken and clear and manual_kept and restored and courtesy.get("ok",false) and nearby_release.ok,{"visitor_admitted":admitted,"visitor_actually_seated":seated,"patient_request":request.to_record(),"patient_seated":taken,"visitor_actually_clear":clear,"manual_target_kept_through_handoff":manual_kept,"yield_courtesy_restored_before_real_handoff":restored,"courtesy_boundaries":courtesy,"patient_intent":x.world.facts.waiting_life.seats.get(patient.id,{}),"patient_actor":x.world.facts.actors[patient.actor_id],"visitor":visitor,"quote":x.l._seat_quote(x.world,patient,"west_chair"),"adaptations":x.world.facts.adaptations,"other_seats":x.world.facts.waiting_life.seats,"nonqueue_body_release_restarts_real_yield":nearby_release})
+	var nearby_release: Dictionary = fixture.run_case(_content)
+	t.check("STAFF-57",admitted and seated and request.accepted and taken and clear and manual_kept and restored and courtesy.get("ok",false) and nearby_release.ok,{"inpatient_input_error":input.error,"visitor_admitted":admitted,"visitor_actually_seated":seated,"patient_request":request.to_record(),"patient_seated":taken,"visitor_actually_clear":clear,"manual_target_kept_through_handoff":manual_kept,"yield_courtesy_restored_before_real_handoff":restored,"courtesy_boundaries":courtesy,"patient_intent":x.world.facts.waiting_life.seats.get(patient.id,{}),"patient_actor":x.world.facts.actors[patient.actor_id],"visitor":visitor,"quote":x.l._seat_quote(x.world,patient,"west_chair"),"adaptations":x.world.facts.adaptations,"other_seats":x.world.facts.waiting_life.seats,"nonqueue_body_release_restarts_real_yield":nearby_release})
 
 func _yield_courtesy_boundaries(x: Dictionary, visitor: Dictionary, patient: Dictionary) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
@@ -496,8 +535,8 @@ func _case_62(t) -> void:
 # Calculation input immediately before an anger update. Actual arrival, queue,
 # eight-second work and exit are exercised separately by STAFF-47.
 func _case_63(t) -> void:
-	var x: Dictionary = _areas()
-	var visit: Dictionary = _visit(x,"queue_anger",[40,74])
+	var x: Dictionary = _toilet_areas()
+	var visit: Dictionary = _visit(x,"queue_anger",[44,81])
 	x.world.facts.sim_tick = 2000
 	var need: Dictionary = {"id":"anger_need","visit_id":visit.id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,"purpose":"toilet","public_purpose":"toilet","mode":"auto","area":{},"arrived_tick":1800,"phase":"local_wait","queued_ticks":199,"started_tick":1800,"facility_id":"","remaining_ticks":0,"return_to":x.world.facts.actors[visit.actor_id].location.duplicate(true),"scene_id":""}
 	x.world.facts.waiting_life.needs[visit.id] = need
@@ -514,19 +553,30 @@ func _case_63(t) -> void:
 	need.phase = "local_wait"
 	need.purpose = "toilet"
 	need.queued_ticks = 200
-	var moved: String = x.space.request_move(x.world,visit.actor_id,1,[41,74])
+	# A route owned by another task cannot be mistaken for toilet movement.
+	var foreign: String = x.space.request_move(x.world,visit.actor_id,1,[45,81])
 	x.l.dispatch(x.world)
+	var foreign_preserved: bool = foreign.is_empty() and need.queued_ticks==200 and x.world.facts.moves.has(visit.actor_id)
+	var cancelled: bool = x.space.cancel_ground_move(x.world,visit.actor_id)
+	# Use the real room door queue point. The toilet task itself now starts
+	# the public walk, so the continuous stationary wait must end immediately.
+	need.toilet_room_id = "west"
+	var point: Dictionary = x.l.toilets.point(x.world,"west",visit.actor_id)
+	x.l.dispatch(x.world)
+	var motion: Dictionary = x.world.facts.moves.get(visit.actor_id,{})
+	var moved: bool = not point.is_empty() and motion.get("waiting_need_id","")==need.id and motion.target_cell==point.cell and need.phase=="area_travel"
+	var cleared: bool = need.queued_ticks==0 and int(need.started_tick)==1800
 	var expected: Array = [0.0,1.4,0.0,0.0,0.0] # Original base 2 × PP01 growth 0.7, no environment buffer.
 	var correct: bool = true
 	for index: int in expected.size(): correct = correct and is_equal_approx(float(results[index]),float(expected[index]))
-	t.check("STAFF-63",correct and moved.is_empty() and need.queued_ticks==0,{"toilet_19_9_seconds_toilet_20_seconds_walking_using_water":results,"expected_original_personality_applied":expected,"actual_move_requested":moved,"continuous_queue_cleared_while_moving":need.queued_ticks==0})
+	t.check("STAFF-63",correct and foreign_preserved and cancelled and moved and cleared,{"toilet_19_9_seconds_toilet_20_seconds_walking_using_water":results,"expected_original_personality_applied":expected,"foreign_move_preserved":foreign_preserved,"actual_move_requested":moved,"movement":motion,"queue_point":point,"continuous_queue_cleared_while_moving":cleared})
 
 func _case_64(t) -> void:
 	var x: Dictionary = _areas()
-	_facility(x,"west_second","FUR09",[39,68],"west")
+	_facility(x,"west_second","FUR09",[39,68])
 	x.world.touch()
-	var first: Dictionary = _visit(x,"first_device",[36,74])
-	var second: Dictionary = _visit(x,"second_device",[39,74])
+	var first: Dictionary = _visit(x,"first_device",[35,70])
+	var second: Dictionary = _visit(x,"second_device",[40,70])
 	var one: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":first.id,"facility_id":"west_chair"})
 	var two: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":second.id,"facility_id":"west_second"})
 	var a: Dictionary = x.world.facts.waiting_life.seats.get(first.id,{})
@@ -539,23 +589,30 @@ func _case_65(t) -> void:
 	var x: Dictionary = _areas()
 	var visit: Dictionary = _visit(x,"wide_body",[38,73])
 	x.world.facts.actors[visit.actor_id].species_id = "S08"
-	x.world.facts.floors.overrides["1"].blocked.append([37,70])
 	x.world.touch()
 	var west: Dictionary = x.space.public_areas.for_facility(x.world,"west_chair")
-	var frozen: Dictionary = x.world.freeze()
-	var unfit: bool = not x.space.public_areas.compatible_geometry(x.world,west,x.l.PUBLIC_SEAT_DEFINITIONS,[visit.actor_id])
-	var readonly: bool = frozen==x.world.freeze()
-	x.space.public_areas.invalidate()
 	x.world.facts.sim_tick = 50
 	x.l.dispatch(x.world)
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(visit.id,{})
-	var changed: bool = intent.get("area",{}).get("room_id","")=="east" and intent.get("facility_id","missing")=="" and int(intent.started_tick)==50
+	var started: bool = intent.get("area",{}).get("facility_id","")=="west_chair" and int(intent.get("started_tick",-1))==50 and x.world.facts.moves.has(visit.actor_id)
+	var first_budget: int = int(intent.get("area_travel_ticks",0))
+	# Invalidate a previously selected region, rather than starting with an
+	# already-invalid region which a correct search can skip altogether.
+	x.world.facts.floors.overrides["1"].blocked.append([37,70])
+	x.world.touch()
+	var frozen: Dictionary = x.world.freeze()
+	var unfit: bool = not x.space.public_areas.compatible_geometry(x.world,west,x.l.PUBLIC_SEAT_DEFINITIONS,[visit.actor_id])
+	var readonly: bool = frozen==x.world.freeze()
+	for _tick: int in 400:
+		if intent.get("area",{}).get("facility_id","")=="east_chair": break
+		_tick_waiting(x)
+	var changed: bool = intent.get("area",{}).get("facility_id","")=="east_chair" and int(intent.get("started_tick",-1))==50
 	var cumulative: int = int(intent.get("area_travel_ticks",0))
 	var seated: bool = _until_seated(x,visit)
 	x.world.facts.floors.overrides["1"].blocked.erase([37,70])
 	x.world.touch()
 	var invalidated: bool = x.space.public_areas.compatible_geometry(x.world,west,x.l.PUBLIC_SEAT_DEFINITIONS,[visit.actor_id])
-	t.check("STAFF-65",unfit and readonly and changed and cumulative>0 and seated and intent.facility_id=="east_chair" and intent.started_tick==50 and intent.area_travel_ticks==cumulative and invalidated,{"fixed_geometry_unfit":unfit,"readonly":readonly,"changed_to_legal_area":changed,"cumulative_area_ticks":cumulative,"actually_seated":seated,"original_started_tick":intent.get("started_tick",-1),"geometry_change_rechecks_fit":invalidated})
+	t.check("STAFF-65",started and unfit and readonly and changed and cumulative>first_budget and seated and intent.facility_id=="east_chair" and intent.started_tick==50 and intent.area_travel_ticks==cumulative and invalidated,{"began_actual_west_trip":started,"fixed_geometry_unfit":unfit,"readonly":readonly,"changed_to_legal_area":changed,"first_area_travel_ticks":first_budget,"cumulative_area_ticks":cumulative,"actually_seated":seated,"original_started_tick":intent.get("started_tick",-1),"geometry_change_rechecks_fit":invalidated,"intent":intent})
 
 func _case_66(t) -> void:
 	var x: Dictionary = _fixture({"cleaner":"cleaner"})
@@ -580,7 +637,7 @@ func _case_66(t) -> void:
 
 func _case_67(t) -> void:
 	var x: Dictionary = _fixture({"unassigned":"doctor"})
-	var room: String = _room(x)
+	var room: String = _room(x,"dormitory")
 	_facility(x,"blocked_bed","SE04",[40,70],room)
 	var target: Array = x.space.facility_layout(x.world,"blocked_bed").patient_cell
 	var visitor: Dictionary = _visit(x,"temporary_body",target)
@@ -601,10 +658,9 @@ func _case_67(t) -> void:
 func _case_68(t) -> void:
 	var checks: Array = []
 	for kind: String in ["gp","surgery"]:
-		var x: Dictionary = _areas()
-		_facility(x,"toilet","FUR07",[39,68],"west")
+		var x: Dictionary = _toilet_areas()
 		x.world.touch()
-		var visit: Dictionary = _visit(x,"clinical_pause_"+kind,[38,73])
+		var visit: Dictionary = _visit(x,"clinical_pause_"+kind,[36,81])
 		if kind!="gp": x.c._retarget_ticket(x.world,visit,kind)
 		var ticket_id: String = str(visit.ticket_id)
 		x.world.facts.sim_tick = 1800

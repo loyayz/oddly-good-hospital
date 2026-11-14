@@ -190,6 +190,8 @@ func _case_05(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	var built: CommandResult = _command(sim,"build_room",_room("exit_room",[35,68]))
 	var door: Dictionary = _doors(sim.world,"exit_room")[0] if built.accepted else {}
+	if built.accepted: _add_actor(sim,"exit_occupant","S49",[36,69])
+	var originally_reachable: bool = built.accepted and sim.space.travel_quote(sim.world,"exit_occupant",1,[47,93]).get("ok",false)
 	var before: Dictionary = sim.world.freeze()
 	var exit_result: CommandResult = _command(sim,"build_demolish",{"target_id":door.get("id","missing")})
 	var exit_atomic: bool = not exit_result.accepted and sim.world.freeze()==before
@@ -198,7 +200,7 @@ func _case_05(_t) -> Dictionary:
 	var money: CommandResult = _command(poor,"build_facility",{"definition_id":"SE02","cell":[45,75],"floor_id":1})
 	var money_atomic: bool = not money.accepted and poor_before==poor.world.freeze()
 	poor.dispose()
-	return _done(sim,built.accepted and exit_atomic and money_atomic,{"exit":exit_result.to_record(),"money":money.to_record()})
+	return _done(sim,originally_reachable and exit_atomic and money_atomic,{"originally_reachable":originally_reachable,"exit":exit_result.to_record(),"money":money.to_record()})
 
 class SafetyCountingBuilder extends BuildService:
 	var safety_floors: Array = []
@@ -636,13 +638,15 @@ func _case_18(_t) -> Dictionary:
 	_command(sim,"floor_resume",{"order_id":id})
 	sim.step()
 	var stopped: bool = int(_order(sim).get("remaining_milli",-2))==remaining and str(_order(sim).get("reason","")).contains("下层")
-	var rebuilt: CommandResult = _command(sim,"build_room",_room("below_again",[35,66]))
+	# Wall demolition does not remove the existing door fixture. Rebuild
+	# on an independent footprint on the same 1F plot.
+	var rebuilt: CommandResult = _command(sim,"build_room",_room("below_again",[44,66]))
 	var moved: bool = _wait(sim,func() -> bool: return int(_order(sim).get("remaining_milli",remaining))<remaining,500)
 	var order: Dictionary = _order(sim)
 	var same_work: bool = order.id==id and int(order.paid_cost)==paid and int(order.total_milli)==90000 and order.floor_id==2 and order.plot==[1,2] and int(order.get("work_cell",[0,0])[0])/32==1 and int(order.get("work_cell",[0,0])[1])/32==2
 	for worker_id: String in original_contribution:
 		same_work = same_work and int(order.contributions.get(worker_id,0))>=int(original_contribution[worker_id])
-	return _done(sim,started and demolished.accepted and stopped and rebuilt.accepted and moved and same_work,{"demolished":demolished.to_record(),"stopped":stopped,"order":order.duplicate(true)})
+	return _done(sim,started and demolished.accepted and stopped and rebuilt.accepted and moved and same_work,{"started":started,"demolished":demolished.to_record(),"stopped":stopped,"rebuilt":rebuilt.to_record(),"moved":moved,"same_work":same_work,"order":order.duplicate(true)})
 
 func _case_19(_t) -> Dictionary:
 	var sim: HospitalSimulation = _floor_fixture()
@@ -1569,12 +1573,14 @@ func _case_46(_t) -> Dictionary:
 	var own_clear: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
 	var other_blocked: bool = not sim.space._navigation.clearance(sim.space,sim.world,1,leader,replacement,offsets).reason(origin).is_empty()
 	var own_again: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
-	var own_distance: Dictionary = {}
-	var other_distance: Dictionary = {}
-	for index: int in 13:
-		own_distance = sim.space._navigation.travel_distance(sim.space,sim.world,1,sim.world.facts.actors.reserved_patient,origin,origin)
-		other_distance = sim.space._navigation.travel_distance(sim.space,sim.world,1,sim.world.facts.actors.replacement_patient,origin,origin)
-	var individual_exemptions: bool = own_distance.get("ok",false) and not other_distance.get("ok",true)
+	var individual_exemptions: bool = true
+	var cold: HospitalSpace = HospitalSpace.new(content)
+	for actor_id: String in ["reserved_patient","replacement_patient","reserved_patient"]:
+		var actor: Dictionary = sim.world.facts.actors[actor_id]
+		var actual: String = sim.space._navigation.clearance(sim.space,sim.world,1,actor).reason(origin)
+		var expected: String = cold._navigation.clearance(cold,sim.world,1,actor).reason(origin)
+		individual_exemptions = individual_exemptions and actual==expected and actual.is_empty()==(actor_id=="reserved_patient")
+		cold = HospitalSpace.new(content)
 	var readonly: bool = before==sim.world.freeze()
 	var obstacle: Array = [origin.x+3,origin.y]
 	sim.world.facts.floors.overrides["1"].blocked.append(obstacle)
@@ -1671,15 +1677,13 @@ func _case_49(_t) -> Dictionary:
 	waiting.ensure(sim.world)
 	var visitors: VisitorCandidateObservation = VisitorCandidateObservation.new(content,sim.space)
 	visitors.ensure(sim.world)
-	var request: Dictionary = {"id":"first:companion:","visit_id":first.id,"purpose":"companion","window":"","request_tick":sim.world.sim_tick}
-	sim.world.facts.visitors.requests[request.id] = request
 	var before: Dictionary = sim.world.freeze()
 	var readonly: bool = true
 	for index: int in 3:
 		var choices: Array = waiting.seat_candidates(sim.world,first.id)
-		readonly = readonly and choices.size()==1 and choices[0].facility_id=="a_patient_only" and visitors._waiting_point(sim.world,first.actor_id).is_empty()
-	var no_waiting: bool = not visitors._admit(sim.world,first,request) and sim.world.freeze()==before
-	readonly = readonly and no_waiting and sim.space._route_queries.is_empty()
+		var family_seat: Dictionary = sim.space.public_areas.select(sim.world,first.actor_id,HospitalVisitors.WAITING_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat")
+		readonly = readonly and choices.size()==1 and choices[0].facility_id=="a_patient_only" and family_seat.is_empty()
+	readonly = readonly and sim.world.freeze()==before and sim.space._route_queries.is_empty()
 	var reference: Dictionary = {"waiting_contract":true}
 	sim.space.begin_route_query(sim.world,reference)
 	var nominal: Dictionary = waiting._facility_quote(sim.world,first,"a_patient_only")
@@ -1697,25 +1701,77 @@ func _case_49(_t) -> Dictionary:
 	candidate_isolated = candidate_isolated and actual_candidate==cold_candidate and before==sim.world.freeze()
 	var visitor_seat: CommandResult = _command(sim,"build_facility",{"id":"z_family_seat","definition_id":"FUR09","floor_id":1,"cell":[44,72]})
 	if not visitor_seat.accepted: return _done(sim,false,{"visitor_seat":visitor_seat.to_record()})
-	var point: Dictionary = visitors._waiting_point(sim.world,first.actor_id)
-	var indexed_definitions: bool = "z_family_seat" in sim.space.public_areas.region(sim.world,point.get("area",{})).get("facilities",[])
-	var admitted: bool = visitors._admit(sim.world,first,request)
-	var actual_arrival: bool = false
-	if admitted:
-		actual_arrival = _wait(sim,func() -> bool: return visitors._present(sim.world,first.id).get("phase","")=="waiting",1000,func() -> void:
-			visitors.dispatch(sim.world)
-			_movement_tick(sim))
-	var second_request: Dictionary = {"id":"second:companion:","visit_id":second.id,"purpose":"companion","window":"","request_tick":sim.world.sim_tick}
-	sim.world.facts.visitors.requests[second_request.id] = second_request
-	before = sim.world.freeze()
-	var next_queued: bool = visitors._admit(sim.world,second,second_request) and not sim.world.facts.visitors.stays.is_empty()
 	var first_quote: Dictionary = waiting._seat_quote(sim.world,first,"a_patient_only")
 	var chosen: CommandResult = waiting.execute(sim.world,"waiting_select_seat",{"visit_id":first.id,"facility_id":"a_patient_only"})
 	before = sim.world.freeze()
 	var second_quote: Dictionary = waiting._seat_quote(sim.world,second,"a_patient_only")
 	var target_unowned: bool = first_quote.get("ok",false) and chosen.accepted and second_quote.get("ok",false) and sim.world.freeze()==before and not sim.world.facts.adaptations.has("a_patient_only")
-	var source_view: bool = visitors.provided_queries>=2 and visitors.cold_equivalent and visitors.candidate_readonly
-	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_queued and target_unowned and source_view and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_area_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"next_visitor_can_queue":next_queued,"manual_target_not_owned_enroute":target_unowned,"regional_probe_readonly_and_cold_equal":source_view})
+	var ward_input: Dictionary = _space_49_family_input(sim)
+	if not ward_input.ok: return _done(sim,false,{"family_input":ward_input})
+	var family_first: Dictionary = ward_input.visits[0]
+	var family_second: Dictionary = ward_input.visits[1]
+	visitors._request(sim.world,family_first,"companion","")
+	var request: Dictionary = sim.world.facts.visitors.requests[family_first.id+":companion"]
+	# A family chair is optional. Exercise failure with a real body actually
+	# blocking the entry, not an unrelated patient chair or a missing ward stay.
+	_add_actor(sim,"family_entry_blocker","S49",sim.world.facts.entry.cell)
+	before = sim.world.freeze()
+	var blocked_atomic: bool = not visitors._admit(sim.world,family_first,request) and sim.world.freeze()==before
+	sim.world.facts.actors.family_entry_blocker.location = {"kind":"outside"}
+	sim.space.sync_actor(sim.world,"family_entry_blocker")
+	sim.world.touch()
+	var point: Dictionary = visitors._waiting_point(sim.world,first.actor_id)
+	var indexed_definitions: bool = "z_family_seat" in sim.space.public_areas.region(sim.world,point.get("area",{})).get("facilities",[])
+	var admitted: bool = visitors._admit(sim.world,family_first,request)
+	var actual_arrival: bool = false
+	var first_stay: Dictionary = visitors._present(sim.world,family_first.id)
+	if admitted:
+		sim.world.facts.visitors.requests.erase(request.id)
+		# Test the public-wait owner, not a competing trip straight to the ward.
+		actual_arrival = _wait(sim,func() -> bool: return int(first_stay.public_use.arrived_tick)>=0 and sim.space.public_areas.contains(sim.world,first_stay.public_use.area,first_stay.actor_id) and sim.world.facts.actors[first_stay.actor_id].location.cell!=sim.world.facts.entry.cell,1000,func() -> void:
+			visitors._public_waiting(sim.world,first_stay)
+			_movement_tick(sim))
+	visitors._request(sim.world,family_second,"companion","")
+	var second_request: Dictionary = sim.world.facts.visitors.requests[family_second.id+":companion"]
+	var next_queued: bool = visitors._admit(sim.world,family_second,second_request)
+	var next_stay: Dictionary = visitors._present(sim.world,family_second.id)
+	next_queued = next_queued and not next_stay.is_empty() and next_stay.actor_id!=first_stay.get("actor_id","") and next_stay.public_use.area==first_stay.public_use.area and int(next_stay.public_use.arrived_tick)<0
+	var source_view: bool = visitors.provided_queries>=3 and visitors.cold_equivalent and visitors.candidate_readonly
+	return _done(sim,readonly and blocked_atomic and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_queued and target_unowned and source_view and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"blocked_entry_is_atomic":blocked_atomic,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_area_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"next_visitor_can_queue":next_queued,"manual_target_not_owned_enroute":target_unowned,"regional_probe_readonly_and_cold_equal":source_view})
+
+func _space_49_family_input(sim: HospitalSimulation) -> Dictionary:
+	# Only the family travel is under test. Use two already-admitted patients
+	# with actual beds, diagnosis and nurse references as declared input.
+	var fixture: RefCounted = preload("res://tests/acceptance/clinical_fixtures.gd").new()
+	fixture._content = content
+	fixture._add_layout(sim.world,"ward_two_beds","family_ward",[51,65])
+	fixture._add_worker(sim.world,"family_nurse","nurse",[52,72],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","family_ward")
+	fixture._add_worker(sim.world,"family_doctor","doctor",[55,88],"outpatient",{"diagnosis":1,"treatment":2,"care":0,"surgery":0})
+	# Direct fixture staff must pass the same normal initialization as
+	# newly loaded/recruited personnel, including schedule and wellbeing.
+	sim._ensure_services()
+	for definition: Dictionary in content.catalog.research: sim.world.facts.research.append(definition.id)
+	var visits: Array[Dictionary] = []
+	for i: int in 2:
+		var id: String = "family_owner_"+str(i)
+		var bed_id: String = "family_ward_"+str(i)
+		var visit: Dictionary = _waiting_visit(sim,id,[52+i*4,69],"B_S13_D09_M09")
+		sim.world.facts.tickets[visit.ticket_id].kind = "surgery"
+		visit.phase = "wait_surgery"
+		visit.diagnosis = preload("res://tests/acceptance/clinical_input.gd").diagnosed("family_doctor","completed_gp_station")
+		visit.requested_plan_id = "P_D09_SURGERY"
+		visit.plan_decision = {"plan_id":"P_D09_SURGERY","source":"director","doctor_id":"family_doctor","revision":1,"probability_bp":9600,"expected_team":[]}
+		visit.doctor_fee_quote = 20
+		sim.world.facts.arrival_receipts[visit.arrival_key] = visit.id
+		var stay_id: String = id+":ward"
+		sim.world.facts.ward_stays[stay_id] = {"id":stay_id,"visit_id":id,"attempt_id":"","bed_id":bed_id,"phase":"waiting_surgery","remaining_ticks":0,"work_credit_milli":0,"care_completed":false,"nurse_id":"family_nurse","escort_id":"family_nurse","last_progress_tick":sim.world.sim_tick,"admitted_tick":sim.world.sim_tick,"companion_evaluated":true,"companion_qualified":true,"companion_actor_id":"","visitor_day":sim.world.sim_tick/WorldState.TICKS_PER_DAY,"visitor_intent":false,"visitor_requested":false}
+		var reserved: String = sim.space.reserve_facility(sim.world,bed_id,visit.actor_id,stay_id,["family_nurse"])
+		if not reserved.is_empty(): return {"ok":false,"reservation":reserved,"bed":bed_id}
+		sim.clinic._support(sim.world,visit,sim.space.facility_layout(sim.world,bed_id),"lying")
+		visits.append(visit)
+	sim.world.touch()
+	var validation: String = sim.world.validate(content)
+	return {"ok":validation.is_empty(),"validation":validation,"visits":visits}
 
 func _case_50(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()

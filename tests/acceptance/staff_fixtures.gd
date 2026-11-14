@@ -311,7 +311,7 @@ func _schedule(kinds: Array) -> Array:
 
 func _sleep_fixture(role: String) -> Dictionary:
 	var x: Dictionary = _fixture({"sleeper":role})
-	var room: String = _room(x)
+	var room: String = _room(x,"dormitory")
 	_facility(x,"bed","SE04",[43,75],room)
 	_position(x,"sleeper",x.space.facility_layout(x.world,"bed").patient_cell)
 	var staff: Dictionary = x.world.facts.staff.sleeper

@@ -121,7 +121,6 @@ func _declined_and_live_callbacks() -> void:
 func _actual_and_structural() -> void:
 	var edits: Array = [
 		{"label":"off_shift","field":"on_shift","value":false},
-		{"label":"base_unprepared","field":"base_prepared","value":false},
 		{"label":"blocked_new_work","field":"block_new_work","value":true},
 		{"label":"energy_boundary","field":"energy","value":15.0},
 		{"label":"fatigue_boundary","field":"fatigue","value":float(_content.balance.wellbeing.fatigue_stop_new_work)},
@@ -132,6 +131,10 @@ func _actual_and_structural() -> void:
 		c.world.facts.staff.test_staff_0[edit.field] = edit.value
 		_query("actual_excludes_"+str(edit.label),c,_pairs(FACILITIES,_without("test_staff_0")))
 		_query("structural_keeps_"+str(edit.label),c,_pairs(),true)
+	# Doctors do not have the nurse's base precondition.
+	var no_doctor_base: Dictionary = _context()
+	no_doctor_base.world.facts.staff.test_staff_0.base_prepared=false
+	_query("gp_ignores_nurse_only_base_flag",no_doctor_base,_pairs())
 	var unqualified: Dictionary = _context()
 	unqualified.world.facts.staff.test_staff_0.abilities.diagnosis = 0
 	for structural: bool in [false,true]:
@@ -157,7 +160,7 @@ func _between_call_freshness() -> void:
 	c.world.facts.staff.test_staff_0.on_shift = true
 	_query("no_touch_shift_restored",c,_pairs())
 	c.world.facts.staff.test_staff_0.base_prepared = false
-	_query("no_touch_readiness_removed",c,_pairs(FACILITIES,_without("test_staff_0")))
+	_query("no_touch_doctor_base_flag_not_a_readiness_gate",c,_pairs())
 	c.world.facts.staff.test_staff_0.base_prepared = true
 	_query("no_touch_readiness_restored_after_false",c,_pairs())
 	HospitalFactory._add_staff(c.world,"zz_added_staff","新候选医生","doctor",[64,24],_content)
@@ -183,19 +186,20 @@ func _facility_specific_schedules() -> void:
 	var scheduler: HospitalShiftScheduler = HospitalShiftScheduler.new(_content,c.space)
 	scheduler.ensure(c.world)
 	c.clinic.scheduler = scheduler
-	c.world.facts.staff.gather_worker.schedule[0].pools = [FACILITIES[1]]
-	c.world.facts.staff.test_staff_0.schedule[0].pools = [FACILITIES[0]]
-	c.world.facts.staff.test_staff_1.schedule[0].pools = ["gather_room_1"]
+	c.world.facts.staff.gather_worker.schedule[0].pools = ["gather_room_1"]
+	c.world.facts.staff.test_staff_0.schedule[0].pools = ["gather_room_0"]
+	c.world.facts.staff.test_staff_1.schedule[0].pools = []
 	c.world.facts.staff.test_staff_2.schedule[0].kind = "rest"
 	c.world.facts.staff.test_staff_2.on_shift = false
-	var expected: Array = _pairs([FACILITIES[0]],["test_staff_0"])+_pairs([FACILITIES[1]],["gather_worker","test_staff_1"])
-	_query("actual_facility_and_room_pools",c,expected)
+	var expected: Array = _pairs([FACILITIES[0]],["test_staff_0"])+_pairs([FACILITIES[1]],["gather_worker"])
+	_query("actual_uses_legal_room_pools",c,expected)
 	_query("structural_without_reference_ignores_schedule",c,_pairs(),true)
-	_query("structural_reference_keeps_facility_specific_schedule",c,expected,true,true)
-	_query("actual_reference_keeps_facility_specific_schedule",c,expected,false,true)
+	_query("structural_reference_keeps_room_specific_schedule",c,expected,true,true)
+	_query("actual_reference_keeps_room_specific_schedule",c,expected,false,true)
 	var revision: int = c.world.revision
-	c.world.facts.staff.gather_worker.schedule[0].pools = [FACILITIES[0]]
-	_query("no_touch_schedule_pool_changed",c,_pairs([FACILITIES[0]],["gather_worker","test_staff_0"])+_pairs([FACILITIES[1]],["test_staff_1"]))
+	c.world.facts.staff.gather_worker.schedule[0].pools = ["gather_room_0"]
+	c.world.facts.staff.test_staff_0.schedule[0].pools = ["gather_room_1"]
+	_query("no_touch_schedule_pool_changed",c,_pairs([FACILITIES[0]],["gather_worker"])+_pairs([FACILITIES[1]],["test_staff_0"]))
 	_record("schedule_edit_no_touch",c.world.revision==revision)
 
 func _nested_and_restored() -> void:
@@ -240,7 +244,7 @@ func _outpatient_selected_fixture() -> void:
 	for index: int in 2:
 		var room_id: String = "quote_room_"+str(index)
 		var origin: Array = [46+index*18,30]
-		HospitalFactory._add_room(c.world,{"id":room_id,"type":"T01","anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","offset":3}},_content)
+		HospitalFactory._add_room(c.world,{"id":room_id,"type":"treatment","anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","edge":"south","offset":3}},_content)
 		HospitalFactory._add_facility(c.world,{"id":"quote_facility_"+str(index),"definition_id":"M09","anchor":[int(origin[0])+1,int(origin[1])+1],"size":_content.facility_definition("M09").footprint,"room_id":room_id},_content)
 	c.world.touch()
 	var facilities: Array = ["quote_facility_0","quote_facility_1"]

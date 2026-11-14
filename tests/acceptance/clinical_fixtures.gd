@@ -53,7 +53,8 @@ func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = tr
 			world.facts.floors.completed_top_floor={HospitalSpace.plot_key([1,2]):top_floor}
 			for floor_id: int in range(2,top_floor+1):
 				world.facts.floors.overrides[str(floor_id)]={"plots":[[1,2]],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
-			world.facts.connectors["clin_lift"]={"id":"clin_lift","definition_id":"VC02","first_floor":1,"last_floor":top_floor,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"ticket_next":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+			world.facts.connectors["clin_lift"]={"id":"clin_lift","definition_id":"VC02","first_floor":1,"last_floor":top_floor,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+			LiftController.ensure(world.facts.connectors.clin_lift)
 		_add_layout(world,"or_standard","clin_or",[33,65],or_floor)
 		_add_layout(world,"ward_two_beds","clin_ward",[45,65])
 		_add_worker(world,"clin_surgeon","doctor",[34,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02","clin_or")

@@ -403,7 +403,11 @@ func _dispatch_public_seat(world: WorldState, visit: Dictionary, intent: Diction
 		return
 	var actor_id: String = str(visit.actor_id)
 	var underway: Dictionary=world.facts.moves.get(actor_id,{})
-	if underway.get("waiting_seat_id","")==intent.id and not underway.is_empty() and space.movement_failure(world,actor_id).is_empty(): return
+	if underway.get("waiting_seat_id","")==intent.id and not underway.is_empty() and space.movement_failure(world,actor_id).is_empty():
+		# A valid trip continues unchanged. A deleted manual seat instead
+		# reaches the existing safe-cancellation gate (including lift/support
+		# protection); it must not finish walking to an invalid destination.
+		if intent.mode!="manual" or _seat_target_valid(world,str(intent.get("manual_facility_id",""))): return
 	# An occupied-chair preview validates the eventual manual target. It is
 	# not a current path into the other person's occupied body/adapter.
 	if selected_entry.get("manual_target",false) and _occupied(world,str(intent.get("manual_facility_id","")),actor_id): selected_entry = {}
@@ -997,7 +1001,9 @@ func _dispatch_toilet_need(world: WorldState, visit: Dictionary, need: Dictionar
 	if not movement.is_empty():
 		if movement.get("waiting_need_id","")!=need.id: return
 		var failed: bool=not space.movement_failure(world,actor.id).is_empty()
-		if world.sim_tick<deadline and not failed: return
+		if world.sim_tick<deadline and not failed:
+			need.queued_ticks = 0
+			return
 		if not space.cancel_ground_move(world,actor.id): return
 		if failed: _leave_toilet_choice(world,need)
 	if actor.location.kind!="floor": return
@@ -1034,7 +1040,7 @@ func _dispatch_toilet_need(world: WorldState, visit: Dictionary, need: Dictionar
 			return
 		if not space.at(world,actor.id,int(point.floor_id),point.cell):
 			need.phase="area_travel" if not joined else "local_wait"
-			_request_need_move(world,need,actor.id,int(point.floor_id),point.cell)
+			if _request_need_move(world,need,actor.id,int(point.floor_id),point.cell).is_empty(): need.queued_ticks = 0
 			return
 		if not joined:
 			toilets.join(world,room_id,actor.id)
@@ -1048,7 +1054,9 @@ func _dispatch_toilet_need(world: WorldState, visit: Dictionary, need: Dictionar
 		need.facility_id=id; need.phase="local_travel"
 		if space.at(world,actor.id,int(quote.floor_id),quote.patient_cell):
 			if _claim_need(world,visit,need,id,service): return
-		elif _request_need_move(world,need,actor.id,int(quote.floor_id),quote.patient_cell).is_empty(): return
+		elif _request_need_move(world,need,actor.id,int(quote.floor_id),quote.patient_cell).is_empty():
+			need.queued_ticks = 0
+			return
 	need.facility_id=""; need.phase="local_wait"
 	need.queued_ticks+=1
 	visit.waiting_reason="卫生间门外排队，保留原需求期限"

@@ -36,7 +36,7 @@ func run_case(database: HospitalContent, mode: String) -> Dictionary:
 	_dispose_simulations()
 	return result
 
-func _produce_ward_input() -> Dictionary:
+func _produce_ward_input(admission_not_before: int = 0) -> Dictionary:
 	var started: int = Time.get_ticks_msec()
 	var c: Dictionary = _context(true,false,true,[],true)
 	for warmup: int in 1200:
@@ -44,6 +44,13 @@ func _produce_ward_input() -> Dictionary:
 		_tick(c)
 	if not _surgery_staff_ready(c):
 		_fixture_failures.append({"actual_ward_or_nurse_not_ready":_ward_nurse_return_state(c)})
+		return {}
+	# Optional independently timed admission: advance the real production
+	# world, never move its clock or prefill any medical work.
+	while c.world.sim_tick<admission_not_before:
+		_tick(c)
+	if not _surgery_staff_ready(c):
+		_fixture_failures.append({"delayed_admission_staff_not_ready":_ward_nurse_return_state(c)})
 		return {}
 	_seed_stream(c.world,"treatment",false,true,4000,9600)
 	_seed_stream(c.world,"arrival",false,false,8000,3000)

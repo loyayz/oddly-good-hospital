@@ -51,12 +51,17 @@ func _prepare(suite: RefCounted, kind: String) -> Dictionary:
 	else:
 		# The tested operation is the relative owner's final exit. Its input is
 		# a lawful, already admitted inpatient; no admission/travel claim is made
-		# for that preceding history. The relative is admitted from the real door.
+		# for that preceding history. Admit from the real entrance, with a
+		# lawful waiting area created by the same public furniture rule.
+		var seat: CommandResult=suite._command(sim,"build_facility",{"id":"departure_waiting_seat","definition_id":"FUR09","floor_id":1,"cell":[43,85]})
+		metadata.commands.append(seat.to_record())
+		if not seat.accepted: return _failed(sim,kind,"Public waiting seat could not be built",metadata)
 		var fixture: RefCounted=load("res://tests/acceptance/clinical_fixtures.gd").new()
 		fixture._content=suite.content
 		fixture._add_layout(sim.world,"ward_two_beds","departure_ward",[45,65])
 		fixture._add_worker(sim.world,"departure_cover","nurse",[46,72],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"DT01","departure_ward")
 		fixture._add_worker(sim.world,"departure_doctor","doctor",[55,88],"outpatient",{"diagnosis":1,"treatment":2,"care":0,"surgery":0})
+		sim.world.facts.staff.departure_cover.certificates=["q_ward"]
 		sim.world.facts.staff.departure_cover.base_prepared=true
 		for definition: Dictionary in suite.content.catalog.research: sim.world.facts.research.append(definition.id)
 		suite._add_actor(sim,"departure_patient","S13",[47,67])
@@ -69,10 +74,18 @@ func _prepare(suite: RefCounted, kind: String) -> Dictionary:
 		sim.world.register_visit(visit.id)
 		var ward: Dictionary={"id":"departure_stay","visit_id":visit.id,"attempt_id":"","bed_id":"departure_ward_0","phase":"waiting_surgery","remaining_ticks":0,"work_credit_milli":0,"care_completed":false,"nurse_id":"departure_cover","escort_id":"departure_cover","last_progress_tick":sim.world.sim_tick,"admitted_tick":sim.world.sim_tick,"companion_evaluated":true,"companion_qualified":true,"companion_actor_id":"","visitor_day":sim.world.sim_tick/WorldState.TICKS_PER_DAY,"visitor_intent":false,"visitor_requested":false}
 		sim.world.facts.ward_stays[ward.id]=ward
+		# These declared historical people were added after the base kernel
+		# was bound. Initialize all their normal saved service records exactly
+		# as the production kernel does when binding a world, without a step.
+		sim._ensure_services()
+		for staff_id: String in ["departure_cover","departure_doctor"]:
+			sim.space.sync_actor(sim.world,staff_id)
 		var bed_reason: String=sim.space.reserve_facility(sim.world,ward.bed_id,visit.actor_id,ward.id,[ward.nurse_id])
 		if not bed_reason.is_empty(): return _failed(sim,kind,"Lawful inpatient bed input rejected",metadata)
 		sim.clinic._support(sim.world,visit,sim.space.facility_layout(sim.world,ward.bed_id),"lying")
 		sim.world.touch();sim.space.sync_actor(sim.world,patient.id)
+		metadata.inpatient_validation=sim.world.validate(suite.content)
+		if not str(metadata.inpatient_validation).is_empty(): return _failed(sim,kind,"Declared prior inpatient boundary invalid",metadata)
 		var visitors: HospitalVisitors=sim.clinic.visitors
 		visitors._request(sim.world,visit,"companion",str(sim.world.sim_tick/WorldState.TICKS_PER_DAY))
 		var request_id: String=visit.id+":companion"
@@ -83,6 +96,11 @@ func _prepare(suite: RefCounted, kind: String) -> Dictionary:
 			if sim.world.facts.visitors.stays[id].actor_id==actor_id: owner_id=id;break
 		if owner_id.is_empty(): return _failed(sim,kind,"Admitted family lacks its real stay",metadata)
 		metadata.admitted_companion=sim.world.facts.actors[actor_id].duplicate(true)
+		var family: Dictionary=sim.world.facts.visitors.stays[owner_id]
+		var entry: Dictionary=sim.world.facts.entry
+		var admitted_at_entry: bool=metadata.admitted_companion.relative_of==visit.actor_id and family.visit_id==visit.id and family.purpose=="companion" and sim.space.at(sim.world,actor_id,int(entry.floor_id),entry.cell)
+		metadata.admission_validation=sim.world.validate(suite.content)
+		if not admitted_at_entry or not str(metadata.admission_validation).is_empty(): return _failed(sim,kind,"Companion admission did not publish a valid real entrance and relationship",metadata)
 		var entrance: Vector2=ConvoyTrail.point(sim.world.facts.entry.cell)
 		var exit: Vector2=ConvoyTrail.point(sim.space.exit_cell(sim.world,sim.world.facts.actors[actor_id]))
 		var cleared_entry: bool=false
@@ -154,21 +172,37 @@ func _exercise(suite: RefCounted, prepared: Dictionary, sim: HospitalSimulation,
 		sim.dispose();sim=replacement
 	var handed_off: bool=false
 	var stable: bool=true
+	var protected_rejoin: bool=prepared.kind=="contractor"
 	if pending_local and arrival_validation.is_empty() and errors.is_empty():
+		_observe(suite,sim,actor_id,trace,errors)
+		if prepared.kind=="visitor":
+			# Family departure must not cancel a local safety segment, even
+			# at its target. This movement phase completes its real rejoin;
+			# the next owner dispatch can then safely retire the relative.
+			var actor: Dictionary=sim.world.facts.actors.get(actor_id,{})
+			var stay: Dictionary=sim.world.facts.visitors.stays.get(prepared.owner_id,{})
+			protected_rejoin=actor.get("location",{}).get("kind","")=="floor" and ConvoyTrail.point(actor.location.cell)==ConvoyTrail.point(prepared.goal) and stay.get("phase","")=="leaving" and _move_retired(sim,actor_id)
+			_observe(suite,sim,actor_id,trace,errors)
+		handed_off=_departure_complete(sim,prepared)
 		for step: int in 4:
 			_observe(suite,sim,actor_id,trace,errors)
-			var outside: bool=not sim.world.facts.actors.has(actor_id) or sim.world.facts.actors[actor_id].location.kind=="outside"
-			var retired: bool=not sim.world.facts.moves.has(actor_id) and not sim.space.movement._pending_routes.has(actor_id) and not sim.space.movement._route_checks.has(actor_id) and not sim.space.movement._route_failures.has(actor_id)
-			var owner_done: bool=sim.world.facts.maintenance.contractors.get(actor_id,{}).get("phase","")=="departed" if prepared.kind=="contractor" else not sim.world.facts.visitors.stays.has(prepared.owner_id)
-			if step==0: handed_off=outside and retired and owner_done
-			stable=stable and outside and retired and owner_done
+			stable=stable and _departure_complete(sim,prepared)
 	var accounts: bool=sim.world.facts.ledger==ledger and sim.world.facts.environment.orders==orders and sim.world.facts.environment.receipts==receipts and sim.world.facts.inventory==inventory
 	var validation: String=sim.world.validate(suite.content)
-	var checks: Dictionary={"real_final_leg":arrival and trace.size()>0,"original_goal_sequence":original,"pending_local_rejoin_at_real_exit":pending_local,"legal_arrival_boundary":arrival_validation.is_empty(),"cold_restore_exact":restored_equal,"owner_retires_move_before_outside":handed_off,"no_resurrection_over_four_steps":stable,"original_accounts_work_receipts_and_inventory":accounts,"bounded_actual_body_sweeps":errors.is_empty(),"final_validation":validation.is_empty()}
+	var checks: Dictionary={"real_final_leg":arrival and trace.size()>0,"original_goal_sequence":original,"pending_local_rejoin_at_real_exit":pending_local,"legal_arrival_boundary":arrival_validation.is_empty(),"cold_restore_exact":restored_equal,"local_safety_rejoin_protected_until_next_owner_dispatch":protected_rejoin,"owner_retires_move_before_outside":handed_off,"no_resurrection_over_four_steps":stable,"original_accounts_work_receipts_and_inventory":accounts,"bounded_actual_body_sweeps":errors.is_empty(),"final_validation":validation.is_empty()}
 	var ok: bool=true
 	for value: bool in checks.values(): ok=ok and value
 	var row: Dictionary={"ok":ok,"kind":prepared.kind,"restore_at_real_arrival":restore_at_arrival,"checks":checks,"setup":prepared.metadata,"actor_id":actor_id,"owner_id":prepared.owner_id,"goal":prepared.goal,"initial_move":original_move,"arrived_move":arrived_move,"arrival_validation":arrival_validation,"errors":errors,"final_validation":validation,"final_actor":sim.world.facts.actors.get(actor_id,{}).duplicate(true),"final_movement":sim.world.facts.moves.get(actor_id,{}).duplicate(true),"trace":trace}
 	sim.dispose();return row
+
+func _move_retired(sim: HospitalSimulation, actor_id: String) -> bool:
+	return not sim.world.facts.moves.has(actor_id) and not sim.space.movement._pending_routes.has(actor_id) and not sim.space.movement._route_checks.has(actor_id) and not sim.space.movement._route_failures.has(actor_id)
+
+func _departure_complete(sim: HospitalSimulation, prepared: Dictionary) -> bool:
+	var actor_id: String=prepared.actor_id
+	var outside: bool=not sim.world.facts.actors.has(actor_id) or sim.world.facts.actors[actor_id].location.kind=="outside"
+	var owner_done: bool=sim.world.facts.maintenance.contractors.get(actor_id,{}).get("phase","")=="departed" if prepared.kind=="contractor" else not sim.world.facts.visitors.stays.has(prepared.owner_id)
+	return outside and _move_retired(sim,actor_id) and owner_done
 
 func _observe(suite: RefCounted, sim: HospitalSimulation, actor_id: String, trace: Array, errors: Array) -> void:
 	var before: Dictionary={}

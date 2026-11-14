@@ -27,7 +27,7 @@ func tea_rules() -> Dictionary:
 
 func facility_rules() -> Dictionary:
 	var x: Dictionary = _fixture({"searcher":"doctor","reserved":"nurse"})
-	var room_id: String = _room(x)
+	var room_id: String = _room(x,"dormitory")
 	_facility(x,"a_bed","SE04",[40,75],room_id)
 	_facility(x,"b_bed","SE04",[48,75],room_id)
 	_position(x,"searcher",[38,79])
@@ -78,7 +78,7 @@ func handoff_rules(t) -> Dictionary:
 		var failure: Dictionary = {"ok":false,"old_departure":false,"departure_reason":departure_reason,"old_actor":c.world.facts.actors[old_id].duplicate(true),"old_move":c.world.facts.moves.get(old_id,{}).duplicate(true)}
 		fixture._dispose_simulations()
 		return failure
-	fixture._add_worker(c.world,"a_relief","nurse",[44,74],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
+	fixture._add_worker(c.world,"a_relief","nurse",[44,74],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0},"",ward_id)
 	c.sim._ensure_services()
 	var scheduler: HospitalShiftScheduler = c.sim.services.scheduler
 	var bedside: Array = HospitalShiftScheduler._bedside(c.sim.space.facility_layout(c.world,stay.bed_id))
@@ -89,13 +89,17 @@ func handoff_rules(t) -> Dictionary:
 	var blocked_before: Dictionary = blocked.freeze()
 	HospitalShiftScheduler.new(_content,HospitalSpace.new(_content)).dispatch(blocked)
 	var failure_atomic: bool = blocked.freeze()==blocked_before
+	var expected_access: Array = c.world.facts.adaptations.get(stay.bed_id,{}).get("staff_ids",[]).duplicate()
+	if not "a_relief" in expected_access: expected_access.append("a_relief")
+	expected_access.sort()
 	scheduler.dispatch(c.world)
 	var handoff: Dictionary = c.world.facts.staff_schedule.handoffs.get(ward_id,{})
 	var started: bool = handoff.get("new_id","")=="a_relief" and handoff.get("stay_ids",[])==[stay.id] and stay.nurse_id==old_id and c.world.facts.staff.a_relief.block_new_work
-	var access: Array = c.world.facts.adaptations.get(stay.bed_id,{}).get("staff_ids",[])
-	started = started and "a_relief" in access and old_id in access and stay.round_doctor_id in access
+	var access: Array = c.world.facts.adaptations.get(stay.bed_id,{}).get("staff_ids",[]).duplicate()
+	access.sort()
+	started = started and old_id in access and access==expected_access
 	if not started:
-		var details: Dictionary = {"ok":false,"started":false,"default_route":default_route,"bed_adaptation":c.world.facts.adaptations.get(stay.bed_id,{}).duplicate(true)}
+		var details: Dictionary = {"ok":false,"started":false,"handoff":handoff,"expected_access":expected_access,"replacement_duty":scheduler.assignment(c.world,"a_relief",scheduler.shift_index(c.world)),"default_route":default_route,"bed_adaptation":c.world.facts.adaptations.get(stay.bed_id,{}).duplicate(true)}
 		fixture._dispose_simulations()
 		return details
 	var frozen: Dictionary = c.world.freeze()

@@ -230,8 +230,11 @@ func _social_visit() -> Dictionary:
 	var scan_input: Dictionary = _freeze_context(scan)
 	var scan_hash: String = _facts_hash(scan_input.facts)
 	var setup_ms: int = Time.get_ticks_msec()-started
-	var runs: Array = [_visit_positive(scan_input,doctor_id),_visit_rejections(scan_input,doctor_id),_visit_priority(scan_input,doctor_id),_discharge_without_visit(ward),_visit_during_discharge(ward)]
-	var immutable: bool = _facts_hash(ward.facts)==ward_hash and _facts_hash(scan_input.facts)==scan_hash
+	var active_source: Dictionary = _near_discharge_scan_input(producer,ward)
+	var active_hash: String = _facts_hash(active_source.facts) if not active_source.is_empty() else ""
+	var active_case: Dictionary = _visit_during_discharge(active_source) if not active_source.is_empty() else {"name":"active_visit_is_not_discharge_gate","ok":false,"reason":"Could not align a real admission with a scan near actual settlement","fixture_errors":producer.get("_fixture_failures")}
+	var runs: Array = [_visit_positive(scan_input,doctor_id),_visit_rejections(scan_input,doctor_id),_visit_priority(scan_input,doctor_id),_discharge_without_visit(ward),active_case]
+	var immutable: bool = _facts_hash(ward.facts)==ward_hash and _facts_hash(scan_input.facts)==scan_hash and (active_source.is_empty() or _facts_hash(active_source.facts)==active_hash)
 	return {"ok":changed.accepted and immutable and runs.all(func(row: Dictionary)->bool:return row.ok),"setup_ms":setup_ms,"sources":{"ward_care":{"sha256":ward_hash,"freshly_built":true,"prefix":ward.prefix,"staff":ward.facts.staff.size(),"facilities":ward.facts.facilities.size()},"eligible_scan":{"sha256":scan_hash,"tick":scan_input.facts.sim_tick,"doctor_id":doctor_id,"schedule_command":changed.to_record()}},"immutable_sources":immutable,"runs":runs}
 
 func _visit_positive(source: Dictionary, doctor_id: String) -> Dictionary:
@@ -344,6 +347,34 @@ func _discharge_without_visit(source: Dictionary) -> Dictionary:
 	var checks: Dictionary = {"actual_full_remaining_recovery":ready and work==remaining,"necessary_care_complete":_stay(c).get("care_completed",false),"no_early_final_fees":no_early,"no_social_visit_required":never_visited and _visit(c).get("final_result","")=="cured" and c.world.sim_tick==before_tick+1,"unique_original_settlement":_income(c)==505 and _income(c,"ward")==60 and _income(c,"cure")==360 and _units_used(c)==8 and _visit(c).attempt_ids.size()==1}
 	return _result(c,checks,{"name":"no_visit_discharge_gate","remaining_at_input":remaining,"real_recovery_work_ticks":work,"settlement_tick":before_tick,"income":_income(c),"supply_units":_units_used(c),"errors":errors})
 
+# Keep the full operation under test: natural admission, real treatment and
+# original uninterrupted recovery. Only vary the time the patient enters so
+# the actual next-to-last recovery boundary can intersect a scheduled scan.
+func _near_discharge_scan_input(producer: RefCounted, ward: Dictionary) -> Dictionary:
+	var scan_interval: int = ceili(float(_content.balance.doctor_visits.scan_seconds)/WorldState.TICK_SECONDS)
+	var work_ticks: int = ceili(float(_content.balance.doctor_visits.interaction_seconds)/WorldState.TICK_SECONDS)
+	var expected: int = _expected_settlement(ward)
+	var desired: int = ceili(float(expected)/scan_interval)*scan_interval+work_ticks/2
+	var admission: int = int(ward.facts.visits[ward.visit_id].arrived_tick)+desired-expected
+	for variant: int in 3:
+		var candidate: Dictionary = producer.call("_produce_ward_input",admission)
+		if candidate.is_empty(): return {}
+		var settlement: int = _expected_settlement(candidate)
+		var previous_scan: int = (settlement-1)/scan_interval*scan_interval
+		if settlement-previous_scan<work_ticks and int(candidate.facts.sim_tick)<previous_scan-scan_interval+1:
+			return candidate
+		# Recreate from the start with a corrected entry time if the changed
+		# physical routes shifted the real boundary. Do not alter frozen facts.
+		admission += desired-settlement
+		if admission<=int(ward.facts.visits[ward.visit_id].arrived_tick): return {}
+	return {}
+
+func _expected_settlement(source: Dictionary) -> int:
+	for stay: Dictionary in source.facts.ward_stays.values():
+		if stay.visit_id==source.visit_id:
+			return int(stay.entered_tick)+int(source.facts.attempts[stay.attempt_id].recovery_ticks)-1
+	return -1
+
 func _visit_during_discharge(source: Dictionary) -> Dictionary:
 	var c: Dictionary = _clone(source)
 	var errors: Array = []
@@ -351,11 +382,14 @@ func _visit_during_discharge(source: Dictionary) -> Dictionary:
 	var original_stay: Dictionary = _stay(c).duplicate(true)
 	var attempt: Dictionary = c.world.facts.attempts[original_stay.attempt_id]
 	var expected_tick: int = int(original_stay.entered_tick)+int(attempt.recovery_ticks)-1
+	var scan_interval: int = ceili(float(_content.balance.doctor_visits.scan_seconds)/WorldState.TICK_SECONDS)
+	var scan_tick: int = (expected_tick-1)/scan_interval*scan_interval
+	var release_tick: int = scan_tick-scan_interval+1
 	var initial_remaining: int = int(original_stay.remaining_ticks)
 	var advanced: int = 0
 	var normal_rate: bool = true
 	var no_early_fees: bool = true
-	while c.world.sim_tick<4201:
+	while c.world.sim_tick<release_tick:
 		var before: int = int(_stay(c).get("remaining_ticks",0))
 		if not _step_checked(c,errors): break
 		var work: int = before-int(_stay(c).get("remaining_ticks",0))
@@ -363,14 +397,14 @@ func _visit_during_discharge(source: Dictionary) -> Dictionary:
 		no_early_fees = no_early_fees and _income(c,"ward")==0 and _income(c,"cure")==0
 	var schedule_tick: int = c.world.sim_tick
 	var schedule: CommandResult = _room_schedule(c,doctor_id,[])
-	while c.world.sim_tick<4800:
+	while c.world.sim_tick<scan_tick:
 		var before: int = int(_stay(c).get("remaining_ticks",0))
 		if not _step_checked(c,errors): break
 		var work: int = before-int(_stay(c).get("remaining_ticks",0))
 		advanced += maxi(0,work); normal_rate = normal_rate and work==1
 		no_early_fees = no_early_fees and _income(c,"ward")==0 and _income(c,"cure")==0
-	var eligible: bool = c.world.sim_tick==4800 and c.world.facts.staff[doctor_id].life_task.phase=="idle" and not c.world.facts.moves.has(doctor_id) and c.sim.services.wellbeing.doctor_visits._available(c.world,doctor_id) and _stay(c).get("phase","")=="recovery"
-	var checks: Dictionary = {"original_doctor":_is_original(c,doctor_id),"real_release_and_4800_scan":schedule.accepted and eligible,"actual_social_visit_started":false,"visit_unfinished_at_settlement":false,"normal_recovery_rate":false,"no_early_fees":false,"immediate_original_settlement":false}
+	var eligible: bool = c.world.sim_tick==scan_tick and c.world.facts.staff[doctor_id].life_task.phase=="idle" and not c.world.facts.moves.has(doctor_id) and c.sim.services.wellbeing.doctor_visits._available(c.world,doctor_id) and _stay(c).get("phase","")=="recovery"
+	var checks: Dictionary = {"original_doctor":_is_original(c,doctor_id),"real_release_and_scheduled_scan":schedule.accepted and schedule_tick==release_tick and eligible,"actual_social_visit_started":false,"visit_unfinished_at_settlement":false,"normal_recovery_rate":false,"no_early_fees":false,"immediate_original_settlement":false}
 	if not eligible: return _result(c,checks,{"name":"active_visit_is_not_discharge_gate","schedule_tick":schedule_tick,"scan_tick":c.world.sim_tick,"doctor":c.world.facts.staff[doctor_id].duplicate(true),"errors":errors})
 	_seed_communication(c.world,true)
 	var before_settlement: Dictionary = {}
@@ -394,7 +428,7 @@ func _visit_during_discharge(source: Dictionary) -> Dictionary:
 	checks.normal_recovery_rate = normal_rate and advanced==initial_remaining
 	checks.no_early_fees = no_early_fees
 	checks.immediate_original_settlement = actual_settlement==expected_tick and c.world.sim_tick==expected_tick+1 and _visit(c).get("final_result","")=="cured" and _stay(c).get("care_completed",false) and _income(c)==505 and _income(c,"ward")==60 and _income(c,"cure")==360 and _units_used(c)==8 and _visit(c).attempt_ids.size()==1
-	return _result(c,checks,{"name":"active_visit_is_not_discharge_gate","schedule_tick":schedule_tick,"schedule":schedule.to_record(),"scan_tick":4800,"expected_settlement_tick":expected_tick,"actual_settlement_tick":actual_settlement,"boundary":before_settlement,"remaining_at_input":initial_remaining,"actual_recovery_work_ticks":advanced,"income":_income(c),"supply_units":_units_used(c),"errors":errors})
+	return _result(c,checks,{"name":"active_visit_is_not_discharge_gate","schedule_tick":schedule_tick,"schedule":schedule.to_record(),"scan_tick":scan_tick,"expected_settlement_tick":expected_tick,"actual_settlement_tick":actual_settlement,"boundary":before_settlement,"remaining_at_input":initial_remaining,"actual_recovery_work_ticks":advanced,"income":_income(c),"supply_units":_units_used(c),"errors":errors})
 
 func _measure_need(c: Dictionary, staff_id: String, before: Dictionary, rows: Dictionary) -> void:
 	var after: Dictionary = c.world.facts.staff[staff_id].life_task

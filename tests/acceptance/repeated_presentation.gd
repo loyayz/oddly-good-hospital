@@ -109,8 +109,8 @@ func run_projection(t, content: HospitalContent, case_id: String = "CORE-51") ->
 	var validation: String = world.validate(content)
 	var decorations: Dictionary = _geometry_dependencies(t,content)
 	var marks: Dictionary = _environment_dependencies(t,content)
-	var floors: Dictionary = _room_floor_batches(t,content)
-	t.check(case_id,reused and geometry and environment and heatmap and validation.is_empty() and decorations.passed and marks.passed and floors.passed,{"unchanged_projection_reused":reused,"same_revision_geometry":geometry,"direct_dirt_change":environment,"heatmap_current_inputs":heatmap,"decoration_dependencies":decorations,"environment_dependencies":marks,"room_floor_batches":floors,"validation":validation,"scope":"exact dependency reuse, per-cell static geometry and live direct writes; no GPU timing claim"})
+	var floors: Dictionary = _surface_finishes(t,content)
+	t.check(case_id,reused and geometry and environment and heatmap and validation.is_empty() and decorations.passed and marks.passed and floors.passed,{"unchanged_projection_reused":reused,"same_revision_geometry":geometry,"direct_dirt_change":environment,"heatmap_current_inputs":heatmap,"decoration_dependencies":decorations,"environment_dependencies":marks,"surface_finishes":floors,"validation":validation,"scope":"exact dependency reuse, per-cell static geometry and live direct writes; no GPU timing claim"})
 	simulation.dispose()
 	warm.queue_free()
 	cold.queue_free()
@@ -186,68 +186,83 @@ func _environment_dependencies(t, content: HospitalContent) -> Dictionary:
 	simulation.dispose()
 	return {"passed":passed and invalidated and stopped and republished and floor_clear and hospital_clear and validation.is_empty(),"observations":observations,"invalidated_hidden":invalidated,"invalidated_stamp_reads_stopped":stopped,"explicit_republication":republished,"floor_clear":floor_clear,"hospital_clear":hospital_clear,"validation":validation}
 
-func _room_floor_batches(t, content: HospitalContent) -> Dictionary:
-	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"逐格地板批次",true,content)
-	var baseline: Dictionary = world.freeze()
-	# Direct presentation probes preserve ordered cells, L-shapes and holes;
-	# construction legality remains the responsibility of SPACE-06/52.
-	world.facts.rooms.room_gp.cells = [[36,86],[37,86],[36,87]]
-	var other: Dictionary = world.facts.rooms.room_gp.duplicate(true)
-	other.id = "other_floor_probe"
-	other.floor_id = 2
-	other.kind = "ward"
-	other.cells = [[35,70],[36,70],[37,70],[35,71],[37,71],[35,72],[36,72],[37,72]]
-	world.facts.rooms[other.id] = other
-	var before: Dictionary = world.freeze()
+func _surface_finishes(t, content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"逐格付费饰面",true,content)
+	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
 	var view: HospitalView = HospitalView.new(content)
 	t.root.add_child(view)
 	view.bind(world,1)
-	var observations: Array = []
-	var passed: bool = true
+	# A furnished room is not a purchase of surface finishes.
+	var implicit_tiles: bool = not world.facts.rooms.is_empty() and world.facts.environment.surfaces.is_empty() and _drawn_finishes(view).is_empty()
+	for node: Node in view._decorations.get_children():
+		if node is MultiMeshInstance3D: implicit_tiles = false
+		if node is MeshInstance3D and node.mesh is BoxMesh and node.mesh.size.is_equal_approx(Vector3(1.5,0.02,1.5)): implicit_tiles = false
+	# Independent already-paid legal history for mark geometry. The upper
+	# floor's hole and the lower L must not become a rectangular fill.
+	world.facts.floors.completed_top_floor["1:2"]=2
+	world.facts.floors.height_intervals=[{"first":1,"last":2,"height_m":float(content.balance.floors.clear_height_m)}]
+	world.facts.floors.overrides["2"]={"plots":[[1,2]],"blocked":[],"walls":[],"doors":[],"paths":[]}
+	var lower: Array=[[36,86],[37,86],[36,87]]
+	var upper: Array=[[35,70],[36,70],[37,70],[35,71],[37,71],[35,72],[36,72],[37,72]]
+	var cash: int=HospitalLedger.balance(world)
+	var expected_payment: int=0
+	var paid: bool=true
+	for floor_id: int in [1,2]:
+		var material: String="MAT01" if floor_id==1 else "MAT04"
+		var cells: Array=lower if floor_id==1 else upper
+		var price: int=int(content.definition("renovation_materials",material).unit_price)
+		var units: Array=cells.map(func(cell: Array)->Dictionary: return {"cell":cell})
+		var payment: CommandResult=simulation.services.environment.execute(world,"renovation_order",{"material_id":material,"floor_id":floor_id,"units":units,"allow_waiting":true})
+		paid = paid and payment.accepted
+		expected_payment += price*cells.size()
+		if not payment.accepted:
+			view.queue_free()
+			simulation.dispose()
+			return {"passed":false,"floor_id":floor_id,"order":payment.to_record()}
+		# This projection fixture starts from installed tiles. The actual order
+		# owns the production material debit and every installed unit.
+		var order: Dictionary=world.facts.environment.orders[payment.changed_ids[0]]
+		for unit: Dictionary in order.units:
+			unit.phase="completed"
+			unit.started=true
+			unit.remaining_milli=0
+			world.facts.environment.surfaces[unit.key]={"floor_id":floor_id,"cell":unit.cell.duplicate(),"surface":order.surface,"edge":unit.edge,"material_id":order.material_id,"paid_cost":unit.paid_cost,"order_id":order.id}
+		order.phase="completed"
+	world.touch()
+	var validation: String=world.validate(content)
+	var before: Dictionary=world.freeze()
+	var observations: Array=[]
+	var passed: bool=implicit_tiles and paid and HospitalLedger.balance(world)==cash-expected_payment and validation.is_empty()
 	for floor_id: int in [1,2,1]:
 		view.set_floor(floor_id)
-		var expected: Array = []
-		for room: Dictionary in world.facts.rooms.values():
-			if int(room.floor_id)!=floor_id or not room.has("cells"): continue
-			for cell: Array in room.cells:
-				expected.append({"transform":Transform3D(Basis.IDENTITY,Vector3((float(cell[0])-32)*1.5+0.75,0.03,(float(cell[1])-64)*1.5+0.75)),"size":Vector3(1.5,0.02,1.5),"color":HospitalView.Palette.WARD_FLOOR if room.kind=="ward" else HospitalView.Palette.SURGERY_FLOOR,"roughness":0.9})
-		var actual: Array = []
-		var batches: int = 0
-		var complete_buffers: bool = true
-		var backend_transform: String = "none"
-		for node: Node in view._decorations.get_children():
-			if not node is MultiMeshInstance3D: continue
-			batches += 1
-			var mesh: BoxMesh = node.multimesh.mesh
-			var material: StandardMaterial3D = mesh.material
-			var buffer: PackedFloat32Array = node.multimesh.buffer
-			complete_buffers = complete_buffers and buffer.size()==node.multimesh.instance_count*12
-			if buffer.size()!=node.multimesh.instance_count*12: continue
-			if node.multimesh.instance_count>0: backend_transform = var_to_str(node.multimesh.get_instance_transform(0))
-			for index: int in node.multimesh.instance_count:
-				# Decode the actual submitted renderer buffer. Dummy rendering does
-				# retain this buffer but its per-instance getter returns identity.
-				var at: int = index*12
-				var transform: Transform3D = Transform3D(Basis(Vector3(buffer[at],buffer[at+4],buffer[at+8]),Vector3(buffer[at+1],buffer[at+5],buffer[at+9]),Vector3(buffer[at+2],buffer[at+6],buffer[at+10])),Vector3(buffer[at+3],buffer[at+7],buffer[at+11]))
-				actual.append({"transform":node.global_transform*transform,"size":mesh.size,"color":material.albedo_color,"roughness":material.roughness})
-		var same: bool = complete_buffers and actual.size()==expected.size()
-		for index: int in mini(actual.size(),expected.size()):
-			same = same and (actual[index].transform as Transform3D).is_equal_approx(expected[index].transform) and (actual[index].size as Vector3).is_equal_approx(expected[index].size) and (actual[index].color as Color).is_equal_approx(expected[index].color) and is_equal_approx(float(actual[index].roughness),float(expected[index].roughness))
-		view.walls_cut = true
+		view.update_facts()
+		var actual: Array=_drawn_finishes(view)
+		var cells: Array=lower if floor_id==1 else upper
+		var material: String="MAT01" if floor_id==1 else "MAT04"
+		var expected_color: Color=HospitalView.Palette.SURFACE.lerp(HospitalView.Palette.OAK,0.24) if floor_id==1 else HospitalView.Palette.WARD_FLOOR
+		var exact: bool=actual.size()==cells.size()
+		for index: int in mini(actual.size(),cells.size()):
+			var cell: Array=cells[index]
+			var expected_position:=Vector3((float(cell[0])-32)*1.5+0.75,0.065,(float(cell[1])-64)*1.5+0.75)
+			var mark: MeshInstance3D=actual[index]
+			var box: BoxMesh=mark.mesh
+			var surface: StandardMaterial3D=box.material
+			exact=exact and mark.get_meta("completed_material_id")==material and mark.position.is_equal_approx(expected_position) and box.size.is_equal_approx(Vector3(1.48,0.025,1.48)) and surface.albedo_color.is_equal_approx(expected_color) and is_equal_approx(surface.roughness,0.9)
+		view.walls_cut=true
 		view._update_space_geometry()
-		var visible: bool = true
-		for node: Node in view._decorations.get_children():
-			if node is MultiMeshInstance3D: visible = visible and node.visible
-		passed = passed and same and visible
-		observations.append({"floor_id":floor_id,"cells":expected.size(),"instances":actual.size(),"batches":batches,"complete_uploaded_buffers":complete_buffers,"complete_geometry_materials":same,"visible_after_wall_cut":visible,"first_expected":var_to_str(expected[0]) if not expected.is_empty() else "empty","first_actual":var_to_str(actual[0]) if not actual.is_empty() else "empty","backend_first_transform":backend_transform})
-	var old_decorations: Node3D = view._decorations
+		var visible: bool=actual.all(func(mark: MeshInstance3D)->bool:return mark.visible)
+		passed=passed and exact and visible
+		observations.append({"floor_id":floor_id,"expected":cells.size(),"actual":actual.size(),"geometry_and_material":exact,"visible_after_wall_cut":visible})
+	var old_marks: Node3D=view._environment_marks
 	view.bind(HospitalFactory.create(HospitalSnapshots.uuid(),"清空院区",false,content),1)
-	var cleared: bool = old_decorations.get_parent()==null and not old_decorations in view.get_children()
-	passed = passed and cleared and world.freeze()==before
-	world.facts = baseline
-	var validation: String = world.validate(content)
+	var cleared: bool=old_marks.get_parent()==null and _drawn_finishes(view).is_empty()
+	passed=passed and cleared and world.freeze()==before
 	view.queue_free()
-	return {"passed":passed and validation.is_empty(),"observations":observations,"old_hospital_retired":cleared,"validation":validation,"scope":"decode actual complete submitted transform buffers plus box dimensions/materials, not GPU readback or occlusion performance"}
+	simulation.dispose()
+	return {"passed":passed,"no_implicit_tiles":implicit_tiles,"payment_conserved":paid and HospitalLedger.balance(world)==cash-expected_payment,"observations":observations,"old_hospital_retired":cleared,"validation":validation,"scope":"Exact paid visible per-cell presentation, no GPU or timing claim"}
+
+func _drawn_finishes(view: HospitalView) -> Array:
+	return view._environment_marks.get_children().filter(func(node: Node)->bool:return node is MeshInstance3D and node.has_meta("completed_material_id"))
 
 func _geometry_dependencies(t, content: HospitalContent) -> Dictionary:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"装饰几何读集",true,content)
@@ -273,9 +288,10 @@ func _geometry_dependencies(t, content: HospitalContent) -> Dictionary:
 	var passed: bool = initial_validation.is_empty()
 	# These are direct-write read-view probes, each restored from the same legal
 	# world. They do not stand in for transport, construction or clinical flows.
-	for probe: String in ["used","transport_clock","other_floor","room_origin","room_size","room_cells","cell_order","wall_edges","blocked","door_cell","door_span","connector_cell","connector_anchor","connector_footprint","connector_stop","plots","top_floor"]:
+	for probe: String in ["used","transport_clock","other_floor","room_origin","room_size","legacy_origin","legacy_size","room_cells","cell_order","wall_edges","blocked","door_cell","door_span","connector_cell","connector_anchor","connector_footprint","connector_stop","plots","top_floor"]:
 		world.facts = baseline.duplicate(true)
 		if probe=="cell_order": world.facts.rooms.room_gp.cells = [[36,86],[37,86],[36,87]]
+		if probe in ["legacy_origin","legacy_size"]: world.facts.rooms.room_gp.erase("cells")
 		warm.observed_floor = 1
 		cold.observed_floor = 1
 		warm._sync_geometry()
@@ -290,8 +306,8 @@ func _geometry_dependencies(t, content: HospitalContent) -> Dictionary:
 				upper.id = "upper_probe"
 				upper.floor_id = 2
 				world.facts.rooms.upper_probe = upper
-			"room_origin": world.facts.rooms.room_gp.origin[0] += 1
-			"room_size": world.facts.rooms.room_gp.size[0] += 1
+			"room_origin", "legacy_origin": world.facts.rooms.room_gp.origin[0] += 1
+			"room_size", "legacy_size": world.facts.rooms.room_gp.size[0] += 1
 			"room_cells": world.facts.rooms.room_gp.cells = [[36,86],[37,86],[36,87]]
 			"cell_order": world.facts.rooms.room_gp.cells = [[36,87],[37,86],[36,86]]
 			"wall_edges": world.facts.rooms.room_gp.wall_edges = [{"axis":"x","line":86,"low":36,"high":40}]
@@ -316,7 +332,7 @@ func _geometry_dependencies(t, content: HospitalContent) -> Dictionary:
 		warm._sync_geometry()
 		cold._geometry_signature = ""
 		cold._sync_geometry()
-		var ignored: bool = probe in ["used","transport_clock","other_floor"]
+		var ignored: bool = probe in ["used","transport_clock","other_floor","room_origin","room_size"]
 		var nodes: Array = warm._decorations.get_children().map(func(node: Node) -> int: return node.get_instance_id())
 		var rebuilt: bool = int(warm.builds.geometry)==before_builds+1 and nodes!=before_nodes
 		var untouched: bool = int(warm.builds.geometry)==before_builds and nodes==before_nodes and warm._geometry_signature==original_signature and nodes==original_nodes
@@ -507,15 +523,30 @@ func run_ui(t, content: HospitalContent, case_id: String = "CORE-53") -> void:
 	var original: HospitalClinic = simulation.clinic
 	var clinic: QuoteClinic = QuoteClinic.new(content,simulation.space)
 	simulation.clinic = clinic
+	var pending: HospitalPlansPanel = HospitalPlansPanel.new()
+	pending.simulation = simulation
+	pending.build_controls()
+	var hidden: bool = pending._plans.item_count==0 and clinic.comparisons==0 and pending._apply.disabled and pending._auto.disabled
+	var visit: Dictionary=c.world.facts.visits[pending._visit_id]
+	var visit_id: String=pending._visit_id
+	pending.free()
+	# Comparison starts from a lawful completed diagnosis with its original
+	# operator and desk identity; the earlier GP session is not under test.
+	visit.diagnosis=preload("res://tests/acceptance/clinical_input.gd").diagnosed("gather_worker","gather_facility_0")
+	visit.phase="wait_plan"
+	c.world.facts.tickets[visit.ticket_id].kind="plan"
+	c.world.touch()
+	var valid: bool=c.world.validate(content).is_empty()
 	var panel: HospitalPlansPanel = HospitalPlansPanel.new()
 	panel.simulation = simulation
+	panel._visit_id=visit_id
 	panel.build_controls()
 	var expected: Array = []
 	for plan: Dictionary in content.catalog.treatment_plans:
 		if plan.disease_id==c.world.facts.visits[panel._visit_id].disease_id: expected.append(plan.id)
 	var actual: Array = []
 	for index: int in panel._plans.item_count: actual.append(panel._plans.get_item_metadata(index))
-	var once: bool = clinic.comparisons==1 and actual==expected
+	var once: bool = clinic.comparisons==1 and not expected.is_empty() and actual==expected
 	panel._submit()
 	var submit_rechecks: bool = clinic.submissions==1
 	var search: SearchStatus = SearchStatus.new()
@@ -551,7 +582,7 @@ func run_ui(t, content: HospitalContent, case_id: String = "CORE-53") -> void:
 	var restored: bool = cleared and publications.size()==before_hide+1 and overlay.mesh!=null
 	build._publish_preview()
 	restored = restored and publications.size()==before_hide+1
-	t.check(case_id,once and submit_rechecks and narrow and duplicate_suppressed and restored,{"initial_plan_compare_once":once,"option_order":actual,"submit_rechecks":submit_rechecks,"narrow_search_status":narrow,"unchanged_preview_not_republished":duplicate_suppressed,"preview_restored_after_reshow":restored,"preview_publications_before_hide":before_hide,"preview_publications_after_reshow":publications.size()})
+	t.check(case_id,hidden and valid and once and submit_rechecks and narrow and duplicate_suppressed and restored,{"hidden_until_confirmed_diagnosis":hidden,"diagnosed_boundary_valid":valid,"initial_plan_compare_once":once,"option_order":actual,"submit_rechecks":submit_rechecks,"narrow_search_status":narrow,"unchanged_preview_not_republished":duplicate_suppressed,"preview_restored_after_reshow":restored,"preview_publications_before_hide":before_hide,"preview_publications_after_reshow":publications.size()})
 	simulation.clinic = original
 	simulation.dispose()
 	panel.free()

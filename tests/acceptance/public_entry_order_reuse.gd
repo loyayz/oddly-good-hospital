@@ -22,7 +22,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var original: Dictionary = probe._entry_geometry_view(x.world,actor,area)
 	var shared: Dictionary = probe._entry_geometry_view(x.world,x.world.facts.actors[peer.actor_id],area)
 	var first: Dictionary = _compare_owner(x,probe,actor,original)
-	x.world.facts.floors.overrides["1"].blocked.append([40,74])
+	x.world.facts.floors.overrides["1"].blocked.append([37,70])
 	x.world.touch()
 	area = probe.region(x.world,reference)
 	var changed: Dictionary = probe._entry_geometry_view(x.world,actor,area)
@@ -46,19 +46,38 @@ func _geometry(points: Array) -> Dictionary:
 	for point: Vector2i in points: encoded.append(point.y*96+point.x)
 	return {"cells":points.duplicate(),"entry_cells":encoded,"native_order":true,"points":{},"ordering":{},"previous_ordering":{}}
 
-func _decoded(ordered: Dictionary) -> Array:
-	if not ordered.compact: return ordered.fallback
+func _decoded(ordered: Dictionary, limit: int = HospitalTransit.MAX_TICK) -> Array:
+	if not ordered.compact: return ordered.fallback.filter(func(row: Dictionary)->bool:return int(row.lower)<=limit)
 	var result: Array = []
 	for key: int in ordered.packed:
 		var id: int = key%HospitalPublicAreas.ENTRY_CELL_COUNT
-		result.append({"cell":Vector2i(id%96,id/96),"lower":key/HospitalPublicAreas.ENTRY_CELL_COUNT+int(ordered.get("offset_ticks",0))})
+		var lower: int = key/HospitalPublicAreas.ENTRY_CELL_COUNT+int(ordered.get("offset_ticks",0))
+		if lower>limit: break
+		result.append({"cell":Vector2i(id%96,id/96),"lower":lower})
 	return result
 
-func _original_order(x: Dictionary, actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, limit: int) -> Dictionary:
-	# No prepared native input: this is the preserved complete GDScript builder,
-	# including its int64 noncompact fallback and static-point exclusions.
-	var original: Dictionary = {"cells":geometry.cells.duplicate(),"points":geometry.points.duplicate()}
-	return HospitalPublicAreas.new(x.space)._ordered_entry_cells(actor,origin,bounds,original,limit)
+func _original_order(x: Dictionary, actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, limit: int) -> Array:
+	# Independent literal oracle: never calls the production preparation,
+	# native encoder, fallback branch, or either cached-order slot.
+	var start := Vector2i(roundi(origin.x),roundi(origin.y))
+	var speed: float = float(x.space.content.balance.movement_speeds[str(x.space.clearance(actor))])
+	var prefix: int = ceili(origin.distance_to(Vector2(start))/speed/WorldState.TICK_SECONDS)
+	var rows: Array = []
+	for cell: Vector2i in geometry.cells:
+		if geometry.points.get(Vector2(cell),true)==false: continue
+		var distance: int = absi(cell.x-start.x)+absi(cell.y-start.y)
+		var lower: int = prefix+ceili(float(distance)/speed/WorldState.TICK_SECONDS)
+		if not bounds.unknown and not bounds.landings.is_empty():
+			lower = HospitalTransit.MAX_TICK
+			for landing: Dictionary in bounds.landings:
+				distance = absi(cell.x-int(landing.cell.x))+absi(cell.y-int(landing.cell.y))
+				var walking: int = ceili(float(distance)/speed/WorldState.TICK_SECONDS)
+				lower = mini(lower,int(landing.ticks)+walking)
+		if lower<=limit: rows.append({"cell":cell,"lower":lower})
+	rows.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
+		if int(a.lower)!=int(b.lower): return int(a.lower)<int(b.lower)
+		return a.cell.y<b.cell.y or a.cell.y==b.cell.y and a.cell.x<b.cell.x)
+	return rows
 
 func _complete_order_corpus(x: Dictionary, actor: Dictionary) -> Dictionary:
 	var high: int = HospitalTransit.MAX_TICK-2000
@@ -82,14 +101,14 @@ func _complete_order_corpus(x: Dictionary, actor: Dictionary) -> Dictionary:
 		if item.has("excluded"): geometry.points[item.excluded] = false
 		var native_before: int = int(x.space.query_counts.get("entry_order_native_builds",0))
 		var actual: Dictionary = x.space.public_areas._ordered_entry_cells(actor,item.origin,item.bounds,geometry,item.limit)
-		var expected: Dictionary = _original_order(x,actor,item.origin,item.bounds,geometry,item.limit)
+		var expected: Array = _original_order(x,actor,item.origin,item.bounds,geometry,item.limit)
 		var native_used: bool = int(x.space.query_counts.get("entry_order_native_builds",0))==native_before+1
 		var decoded: Array = _decoded(actual)
 		var literal: bool = true
 		if item.name=="ordinary_ties": literal = decoded==[{"cell":Vector2i(40,75),"lower":85},{"cell":Vector2i(40,74),"lower":90},{"cell":Vector2i(41,75),"lower":90},{"cell":Vector2i(42,76),"lower":90}]
 		if item.name=="exact_budget": literal = decoded==[{"cell":Vector2i(40,75),"lower":85}]
 		if item.name=="empty_budget": literal = decoded.is_empty()
-		rows.append({"ok":actual==expected and native_used==bool(item.native) and literal,"case":item.name,"all_candidates_and_order_match_original":actual==expected,"native_used":native_used,"expected_native":item.native,"literal_boundary":literal,"decoded":decoded})
+		rows.append({"ok":decoded==expected and native_used==bool(item.native) and literal,"case":item.name,"all_candidates_and_order_match_original":decoded==expected,"native_used":native_used,"expected_native":item.native,"literal_boundary":literal,"decoded":decoded})
 	# The full 96x96 literal grid catches lost far points, duplicate keys and
 	# y/x tie changes. It does not impose a nearest-N or travel-time cap.
 	var complete: Array = []
@@ -98,8 +117,8 @@ func _complete_order_corpus(x: Dictionary, actor: Dictionary) -> Dictionary:
 	var geometry: Dictionary = _geometry(complete)
 	var bounds: Dictionary = {"landings":[{"cell":Vector2(0,0),"ticks":17},{"cell":Vector2(95,95),"ticks":23}],"unknown":false}
 	var actual: Dictionary = x.space.public_areas._ordered_entry_cells(actor,Vector2(38,90),bounds,geometry,HospitalTransit.MAX_TICK)
-	var expected: Dictionary = _original_order(x,actor,Vector2(38,90),bounds,geometry,HospitalTransit.MAX_TICK)
-	var all_cells: bool = actual==expected and actual.packed.size()==9216
+	var expected: Array = _original_order(x,actor,Vector2(38,90),bounds,geometry,HospitalTransit.MAX_TICK)
+	var all_cells: bool = _decoded(actual)==expected and actual.packed.size()==9216
 	return {"ok":all_cells and rows.all(func(row: Dictionary)->bool: return row.ok),"literal_small_boundaries":rows,"complete_grid_9216_cells_and_total_order":all_cells}
 
 func _two_recent_bases(x: Dictionary, probe: OrderProbe, actor: Dictionary) -> Dictionary:
@@ -112,8 +131,8 @@ func _two_recent_bases(x: Dictionary, probe: OrderProbe, actor: Dictionary) -> D
 	for index: int in origins.size():
 		var before: int = probe.builds
 		var actual: Dictionary = probe._entry_order(actor,origins[index],bounds,geometry,HospitalTransit.MAX_TICK)
-		var expected: Dictionary = _original_order(x,actor,origins[index],bounds,geometry,HospitalTransit.MAX_TICK)
-		rows.append({"ok":_decoded(actual)==_decoded(expected) and probe.builds-before==int(builds[index]),"origin":origins[index],"new_builds":probe.builds-before,"expected_builds":builds[index]})
+		var expected: Array = _original_order(x,actor,origins[index],bounds,geometry,HospitalTransit.MAX_TICK)
+		rows.append({"ok":_decoded(actual)==expected and probe.builds-before==int(builds[index]),"origin":origins[index],"new_builds":probe.builds-before,"expected_builds":builds[index]})
 	var walking_builds: int = int(x.space.query_counts.get("entry_walking_table_builds",0))-walking_before
 	var unchanged_walking: bool = walking_builds==1
 	var landing_geometry: Dictionary = _geometry(_points())
@@ -122,14 +141,17 @@ func _two_recent_bases(x: Dictionary, probe: OrderProbe, actor: Dictionary) -> D
 	var before: int = probe.builds
 	var shifted: Dictionary = {"landings":[{"cell":Vector2(40,75),"ticks":91},{"cell":Vector2(43,75),"ticks":98}],"unknown":false}
 	var actual: Dictionary = probe._entry_order(actor,Vector2(30.25,80.25),shifted,landing_geometry,96)
-	var expected: Dictionary = _original_order(x,actor,Vector2(30.25,80.25),shifted,landing_geometry,HospitalTransit.MAX_TICK)
-	var prefix: bool = _decoded(actual)==_decoded(expected) and probe.builds==before and int(actual.offset_ticks)==91
-	return {"ok":unchanged_walking and prefix and rows.all(func(row: Dictionary)->bool: return row.ok),"alternating_and_true_eviction":rows,"same_speed_table_retained":unchanged_walking,"same_speed_table_builds":walking_builds,"common_landing_prefix_reuses_complete_order":prefix}
+	var complete: Array = _original_order(x,actor,Vector2(30.25,80.25),shifted,landing_geometry,HospitalTransit.MAX_TICK)
+	var expected: Array = _original_order(x,actor,Vector2(30.25,80.25),shifted,landing_geometry,96)
+	var budget_exact: bool = _decoded(actual,96)==expected and expected.size()<complete.size()
+	var complete_retained: bool = _decoded(actual)==complete
+	var prefix: bool = budget_exact and complete_retained and probe.builds==before and int(actual.offset_ticks)==91
+	return {"ok":unchanged_walking and prefix and rows.all(func(row: Dictionary)->bool: return row.ok),"alternating_and_true_eviction":rows,"same_speed_table_retained":unchanged_walking,"same_speed_table_builds":walking_builds,"common_landing_prefix_reuses_complete_order":prefix,"common_landing_exact_budget":budget_exact,"common_landing_retains_every_candidate":complete_retained,"common_landing_no_extra_build":probe.builds==before,"common_landing_actual_prefix":int(actual.get("offset_ticks",-1))}
 
 func _compare_owner(x: Dictionary, probe: OrderProbe, actor: Dictionary, geometry: Dictionary) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
 	var bounds: Dictionary = {"landings":[],"unknown":false}
 	var actual: Dictionary = probe._entry_order(actor,Vector2(38,90),bounds,geometry,HospitalTransit.MAX_TICK)
-	var expected: Dictionary = _original_order(x,actor,Vector2(38,90),bounds,geometry,HospitalTransit.MAX_TICK)
+	var expected: Array = _original_order(x,actor,Vector2(38,90),bounds,geometry,HospitalTransit.MAX_TICK)
 	var packed_complete: bool = geometry.entry_cells.size()==geometry.cells.size()
-	return {"ok":packed_complete and _decoded(actual)==_decoded(expected) and before==x.world.freeze(),"static_cells_prepared_once_and_complete":packed_complete,"full_order_matches_original":_decoded(actual)==_decoded(expected),"world_and_rng_unchanged":before==x.world.freeze(),"cells":geometry.cells.size()}
+	return {"ok":packed_complete and _decoded(actual)==expected and before==x.world.freeze(),"static_cells_prepared_once_and_complete":packed_complete,"full_order_matches_original":_decoded(actual)==expected,"world_and_rng_unchanged":before==x.world.freeze(),"cells":geometry.cells.size()}

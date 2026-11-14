@@ -75,8 +75,12 @@ func _case(mode: String, kind: String) -> Dictionary:
 	var selected: String = ""
 	if not after.sessions.is_empty(): selected = str(after.sessions.values()[0].facility_id)
 	else:
-		var holds: Array = _owned(w,tid)
-		if not holds.is_empty(): selected = holds[0]
+		# Use the captured re-dispatch boundary, not the fully completed live
+		# world where the original ticket and its ownership are gone.
+		for hold: Dictionary in after.held:
+			if hold.owner==tid and hold.staff==["gather_worker"]:
+				selected = str(hold.facility)
+				break
 	var retained: bool = mode!="new_earlier_desk_at_arrival" or selected=="gather_facility_1"
 	for n: int in 160:
 		c.clinic._dispatch_clinical_releases(w)

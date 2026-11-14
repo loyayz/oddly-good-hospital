@@ -109,7 +109,13 @@ func flow_boundary(t, key: String, account_time: bool = true) -> Dictionary:
 		var c: Dictionary=await flow_build(t,key)
 		if not c.is_empty() and c.get("flow_ready",false):
 			row=flow_freeze(c)
-			if not _flow_cache.publish(key,row): row={}
+			if not _flow_cache.publish(key,row):
+				row={}
+				var validation: String=c.world.validate(_content)
+				var failure: Dictionary={"boundary":key,"publication_error":validation if not validation.is_empty() else "检查点发布失败（世界验证通过）","state":flow_diagnostic(c)}
+				_flow_failed_nodes[key]=failure.duplicate(true)
+				_fixture_failures.append(failure)
+				print("FLOW_FIXTURE_FAILURE "+JSON.stringify(failure))
 		elif not c.is_empty():
 			var failure: Dictionary={"boundary":key,"state":flow_diagnostic(c)}
 			_flow_failed_nodes[key]=failure.duplicate(true)
@@ -339,6 +345,7 @@ func flow_add_floor(c: Dictionary, last_floor: int = 2) -> void:
 	for floor_id: int in range(2,last_floor+1):
 		c.world.facts.floors.overrides[str(floor_id)]={"plots":[[1,2]],"blocked":[],"wall_edges":[],"doors":[],"paths":[]}
 	c.world.facts.connectors["flow_lift"]={"id":"flow_lift","definition_id":"VC02","first_floor":1,"last_floor":last_floor,"cell":[57,66],"footprint":[4,4],"rotation":0,"anchor":[58,70],"repair_cell":[56,67],"floor_id":1,"phase":"idle","riders":[],"remaining_ticks":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":3200,"used":false}
+	LiftController.ensure(c.world.facts.connectors.flow_lift)
 	c.world.touch(true)
 
 func flow_add_worker(c: Dictionary, id: String, role: String, floor_id: int, cell: Array, room_id: String = "") -> void:

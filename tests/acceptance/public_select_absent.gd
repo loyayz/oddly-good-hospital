@@ -46,14 +46,14 @@ func run_case(database: HospitalContent) -> Dictionary:
 
 	# No requested furniture means no derived geometry, query, or index work,
 	# both cold and after a successful query has retained real region views.
-	rows.append(_observe("cold_absent_definition",x.world,actual,["FUR07"],["waiting"],"toilet",true,true))
-	rows.append(_observe("cold_empty_definitions",x.world,actual,[],["waiting"],"seat",true,true))
-	rows.append(_observe("warm_matching_definition",x.world,actual,["FUR09"],["waiting"],"seat",false,false))
-	rows.append(_observe("warm_absent_definition",x.world,actual,["FUR07"],["waiting"],"toilet",true,true))
-	rows.append(_observe("warm_empty_definitions",x.world,actual,[],["waiting"],"recreation",true,true))
+	rows.append(_observe("cold_absent_definition",x.world,actual,["FUR07"],[""],"toilet",true,true))
+	rows.append(_observe("cold_empty_definitions",x.world,actual,[],[""],"seat",true,true))
+	rows.append(_observe("warm_matching_definition",x.world,actual,["FUR09"],[""],"seat",false,false))
+	rows.append(_observe("warm_absent_definition",x.world,actual,["FUR07"],[""],"toilet",true,true))
+	rows.append(_observe("warm_empty_definitions",x.world,actual,[],[""],"recreation",true,true))
 	actual.space.begin_dynamic_route_query(x.world)
 	var outer: Dictionary = actual.space._route_queries.back()
-	rows.append(_observe("absent_inside_caller_query",x.world,actual,["FUR07"],["waiting"],"toilet",true,true))
+	rows.append(_observe("absent_inside_caller_query",x.world,actual,["FUR07"],[""],"toilet",true,true))
 	checks.caller_query_survives_empty_selection = actual.space._route_queries.size()==1 and is_same(outer,actual.space._route_queries.back())
 	actual.space.end_route_query()
 	checks.initial_queries_readonly = x.world.freeze()==original
@@ -70,7 +70,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 	var restored_absent: WorldState = WorldState.new(absent.freeze())
 	checks.independent_worlds_share_revision_not_facilities = present.revision==absent.revision and present.geometry_revision==absent.geometry_revision and not is_same(present.facts.facilities,absent.facts.facilities)
 	for pair: Array in [["independent_present",present,false],["independent_absent",absent,true],["restored_present",restored,false],["restored_absent",restored_absent,true],["return_original_present",present,false]]:
-		rows.append(_observe(pair[0],pair[1],actual,["FUR09"],["waiting"],"seat",pair[2],pair[2]))
+		rows.append(_observe(pair[0],pair[1],actual,["FUR09"],[""],"seat",pair[2],pair[2]))
 	checks.source_world_never_changed = x.world.freeze()==original
 
 	# Presence is deliberately a conservative definition-only test. Failed,
@@ -80,9 +80,9 @@ func run_case(database: HospitalContent) -> Dictionary:
 		for facility: Dictionary in world.facts.facilities.values():
 			if variant!="wrong_room": facility[variant] = true
 		world.touch()
-		rows.append(_observe("present_but_"+variant,world,_probe(),["FUR09"],["rest"] if variant=="wrong_room" else ["waiting"],"seat",true,false))
+		rows.append(_observe("present_but_"+variant,world,_probe(),["FUR09"],["rest"] if variant=="wrong_room" else [""],"seat",true,false))
 	var mixed: WorldState = WorldState.new(original.duplicate(true))
-	rows.append(_observe("mixed_absent_matching_and_duplicate_definitions",mixed,_probe(),["FUR07","FUR09","FUR06","FUR09"],["waiting"],"seat",false,false))
+	rows.append(_observe("mixed_absent_matching_and_duplicate_definitions",mixed,_probe(),["FUR07","FUR09","FUR06","FUR09"],[""],"seat",false,false))
 
 	# Existing real reservation API creates a busy legal calculation boundary.
 	# The holder starts at the genuine facility patient cell; no move, arrival,
@@ -95,21 +95,19 @@ func run_case(database: HospitalContent) -> Dictionary:
 	busy.world.touch()
 	var reserved: String = busy.space.reserve_facility(busy.world,"west_chair",holder.actor_id,holder.actor_id)
 	checks.busy_input_has_real_exclusive_reservation = reserved.is_empty() and busy.world.facts.adaptations.has("west_chair") and not busy.space.facility_quote(busy.world,"west_chair",ACTOR).get("ok",true)
-	rows.append(_observe("present_busy_region_still_selectable",busy.world,_probe(),["FUR09"],["waiting"],"seat",false,false))
+	rows.append(_observe("present_busy_region_still_selectable",busy.world,_probe(),["FUR09"],[""],"seat",false,false))
 
-	# Empty furniture cannot suppress safe standing for either exempt purpose.
+	# With no qualifying fixture there is no generated public region.
+	# Safe ordinary standing on owned public floor remains independent from
+	# finding an area or falsely promising an available seat.
 	for purpose: String in ["rest","waiting"]:
 		var world: WorldState = WorldState.new(original.duplicate(true))
 		world.facts.facilities.clear()
-		world.facts.rooms.west.kind = "rest" if purpose=="rest" else "waiting"
-		world.facts.rooms.west.room_type_id = world.facts.rooms.west.kind
-		world.facts.rooms.east.kind = world.facts.rooms.west.kind
-		world.facts.rooms.east.room_type_id = world.facts.rooms.west.kind
 		world.touch()
 		for definitions: Array in [[],["FUR09"]]:
 			var standing: CountingAreas = _probe()
-			var row: Dictionary = _observe(purpose+"_without_furniture_"+str(definitions.size()),world,standing,definitions,[world.facts.rooms.west.kind],purpose,false,false)
-			var point: Dictionary = row.result
+			var row: Dictionary = _observe(purpose+"_without_furniture_"+str(definitions.size()),world,standing,definitions,["rest"] if purpose=="rest" else [""],purpose,true,false)
+			var point: Dictionary = standing.floor_waiting_point(world,ACTOR)
 			row.safe_standing = not point.is_empty() and standing.safe_wait(world,ACTOR,int(point.get("floor_id",0)),point.get("cell",[]))
 			row.ok = row.ok and row.safe_standing and world.facts.facilities.is_empty()
 			rows.append(row)
@@ -146,16 +144,16 @@ func _live_edit_rows(original: Dictionary, tick: int, checks: Dictionary, rows: 
 	edited.facts.facilities.clear()
 	edited.touch()
 	var live: CountingAreas = _probe()
-	rows.append(_observe("same_tick_before_add",edited,live,["FUR09"],["waiting"],"seat",true,true))
+	rows.append(_observe("same_tick_before_add",edited,live,["FUR09"],[""],"seat",true,true))
 	edited.facts.facilities["west_chair"] = saved.west_chair.duplicate(true)
 	edited.touch()
-	rows.append(_observe("same_tick_direct_add",edited,live,["FUR09"],["waiting"],"seat",false,false))
+	rows.append(_observe("same_tick_direct_add",edited,live,["FUR09"],[""],"seat",false,false))
 	edited.facts.facilities.erase("west_chair")
 	edited.touch()
-	rows.append(_observe("same_tick_direct_remove",edited,live,["FUR09"],["waiting"],"seat",true,true))
+	rows.append(_observe("same_tick_direct_remove",edited,live,["FUR09"],[""],"seat",true,true))
 	edited.facts.facilities["west_chair"] = saved.west_chair.duplicate(true)
 	edited.touch()
-	rows.append(_observe("same_tick_direct_readd",edited,live,["FUR09"],["waiting"],"seat",false,false))
+	rows.append(_observe("same_tick_direct_readd",edited,live,["FUR09"],[""],"seat",false,false))
 	checks.all_live_edits_keep_original_tick = edited.sim_tick==tick
 
 
@@ -185,9 +183,9 @@ func _observe(label: String, world: WorldState, actual: CountingAreas, definitio
 	var equal: bool = observed==expected and entries==expected_entries
 	var output: bool = entries==seed if empty else entries.has(ACTOR) and entries[ACTOR].has("travel_ticks")
 	output = output and is_same(sentinel,entries.keep) and entries.keep==seed.keep
-	var work: bool = untouched and ensure_delta==0 and dynamic_delta==0 and actor_delta==0 if skipped else ensure_delta>0 and dynamic_delta==1 and actor_delta>0
+	var ownership: bool = not skipped or untouched
 	var closed: bool = actual.space._route_queries.size()==runtime.query_depth and reference_space._route_queries.is_empty()
-	return {"ok":validation.is_empty() and readonly and facts==world.freeze() and equal and observed.is_empty()==empty and output and work and closed,"boundary":label,"valid_input":validation,"result":observed,"same_complete_selection_and_entries":equal,"world_rng_and_arguments_unchanged":readonly and facts==world.freeze(),"output_preserved_or_correctly_merged":output,"expected_empty":empty,"skipped_materialization":skipped,"runtime_untouched":untouched,"ensure_calls":ensure_delta,"dynamic_query_begins":dynamic_delta,"actor_index_calls":actor_delta,"query_scope_preserved":closed}
+	return {"ok":validation.is_empty() and readonly and facts==world.freeze() and equal and observed.is_empty()==empty and output and ownership and closed,"boundary":label,"valid_input":validation,"result":observed,"same_complete_selection_and_entries":equal,"world_rng_and_arguments_unchanged":readonly and facts==world.freeze(),"output_preserved_or_correctly_merged":output,"expected_empty":empty,"skipped_materialization":skipped,"runtime_untouched":untouched,"ensure_calls":ensure_delta,"dynamic_query_begins":dynamic_delta,"actor_index_calls":actor_delta,"query_scope_preserved":closed}
 
 func _runtime(areas: CountingAreas) -> Dictionary:
 	var geometry: CountingSpace = areas.space

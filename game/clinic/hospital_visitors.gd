@@ -562,10 +562,19 @@ func _take_waiting_seat(world: WorldState, stay: Dictionary, quote: Dictionary) 
 	return true
 
 func yield_seat(world: WorldState, facility_id: String, visit_id: String) -> bool:
+	var visit: Dictionary = world.facts.visits.get(visit_id,{})
+	if visit.is_empty(): return false
 	for stay: Dictionary in world.facts.visitors.stays.values():
 		var intent: Dictionary = stay.public_use
 		if intent.get("phase","")!="seated" or intent.get("facility_id","")!=facility_id or not stay.phase in ["waiting","to_waiting"]: continue
-		var point: Dictionary = space.public_areas.waiting_point(world,stay.actor_id,intent.area)
+		# A larger recipient may need more space than the person now seated.
+		# Use an independent geometry quote only to choose the visitor's own
+		# safe endpoint: it grants neither a reservation nor priority.
+		var future: Dictionary = space.facility_geometry_quote(world,facility_id,str(visit.actor_id))
+		if not future.ok: return false
+		var current: Dictionary = world.facts.adaptations.get(facility_id,{})
+		var avoid: Array = current.get("regions",[])+future.get("regions",[])
+		var point: Dictionary = _courtesy_wait_point(world,stay,avoid)
 		if point.is_empty(): return false
 		_leave_public_seat(world,stay)
 		intent.phase = "yielding"
@@ -575,6 +584,36 @@ func yield_seat(world: WorldState, facility_id: String, visit_id: String) -> boo
 		space.request_move(world,stay.actor_id,int(point.floor_id),point.cell)
 		return true
 	return false
+
+func _courtesy_wait_point(world: WorldState, stay: Dictionary, avoid: Array) -> Dictionary:
+	var actor_id: String = str(stay.actor_id)
+	var actor: Dictionary = world.facts.actors[actor_id]
+	var area_ref: Dictionary = stay.public_use.area
+	var best: Dictionary = space.public_areas.waiting_point(world,actor_id,area_ref)
+	if best.is_empty() or _clear_courtesy_regions(actor,ConvoyTrail.point(best.cell),avoid): return best
+	# The usual point is unsafe for this particular handoff. Keep the same
+	# public area and select the fastest reachable nonblocking alternative.
+	var area: Dictionary = space.public_areas.region(world,area_ref)
+	var candidates: Array = area.get("cells",{}).keys()
+	candidates.sort_custom(func(a: Vector2i,b: Vector2i)->bool: return a.y<b.y or a.y==b.y and a.x<b.x)
+	var floor_id: int = int(area_ref.floor_id)
+	best = {}
+	space.begin_route_query(world,{},false)
+	for candidate: Vector2i in candidates:
+		if not _clear_courtesy_regions(actor,Vector2(candidate),avoid): continue
+		var cell: Array = [candidate.x,candidate.y]
+		if not space.public_areas.safe_wait(world,actor_id,floor_id,cell): continue
+		var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
+		if route.get("ok",false) and route.has("travel_ticks") and (best.is_empty() or int(route.travel_ticks)<int(best.travel_ticks)):
+			best = {"floor_id":floor_id,"cell":cell,"travel_ticks":route.travel_ticks}
+	space.end_route_query()
+	return best
+
+func _clear_courtesy_regions(actor: Dictionary, point: Vector2, regions: Array) -> bool:
+	var body: Rect2 = space._actor_rect(actor,point)
+	for raw: Array in regions:
+		if body.intersects(Rect2(float(raw[0]),float(raw[1]),float(raw[2]),float(raw[3])),false): return false
+	return true
 
 # A small courtesy owned by the yielding visitor, never a seat reservation or
 # patient priority. It ends on use, cancellation, another target or departure.

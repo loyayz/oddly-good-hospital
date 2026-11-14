@@ -469,11 +469,16 @@ func _return_target(world: WorldState, staff_id: String, task: Dictionary) -> bo
 	var target: Vector2 = Vector2(float(task.cell[0]),float(task.cell[1]))
 	var usable: bool = space.static_reason(world,actor,int(task.floor_id),Vector2i(roundi(target.x),roundi(target.y))).is_empty() and space._dynamic_clear(world,staff_id,int(task.floor_id),space._actor_rect(actor,target))
 	if usable and space.movement_failure(world,staff_id).is_empty(): return true
+	# Only this task's ground move may be cancelled. cancel_ground_move also
+	# protects pending lift handoffs and the body's physical support exit.
+	if not movement.is_empty():
+		if not _owns_public_move(world,staff_id,task) or not space.cancel_ground_move(world,staff_id): return false
 	# Physical support/seat release has already completed. Reuse the full
 	# current-region safe-standing search, including bodies, doors, work slots,
 	# reservations and real routes. No nearby-N cutoff or forced displacement.
 	var area: Dictionary = space.public_areas.current_area(world,staff_id)
 	var point: Dictionary = space.public_areas.waiting_point(world,staff_id,area)
+	if point.is_empty(): point = space.public_areas.floor_waiting_point(world,staff_id)
 	if point.is_empty():
 		world.facts.staff[staff_id].life_reason = "原返回位置不可用，等待真实可达的安全返岗位置"
 		return false
@@ -1384,7 +1389,7 @@ func _owns_public_move(world: WorldState, staff_id: String, task: Dictionary) ->
 	return cursor<0 or cursor>=movement.path.size() or movement.path[cursor].kind=="floor"
 
 func _cancel_life_move(world: WorldState, staff_id: String, task: Dictionary) -> bool:
-	if world.facts.moves.has(staff_id) and (task.has("public_purpose") or not str(task.get("group_leader_id","")).is_empty()) and not _owns_public_move(world,staff_id,task): return false
+	if world.facts.moves.has(staff_id) and (task.has("public_purpose") or not str(task.get("group_leader_id","")).is_empty() or task.phase in ["returning","release"]) and not _owns_public_move(world,staff_id,task): return false
 	return space.cancel_ground_move(world,staff_id)
 
 func _request_public_target(world: WorldState, staff_id: String, task: Dictionary, floor_id: int, cell: Array, replace_arrival: bool = false) -> bool:
@@ -1402,7 +1407,7 @@ func _request_public_target(world: WorldState, staff_id: String, task: Dictionar
 
 func _move_target(world: WorldState, staff_id: String, task: Dictionary) -> void:
 	if not _at_target(world,staff_id,task):
-		if task.has("public_purpose") or not str(task.get("group_leader_id","")).is_empty():
+		if task.has("public_purpose") or not str(task.get("group_leader_id","")).is_empty() or task.phase in ["returning","release"]:
 			_request_public_target(world,staff_id,task,int(task.floor_id),task.cell,task.phase in ["returning","release","exiting"])
 			return
 		var reason: String = space.request_move(world,staff_id,int(task.floor_id),task.cell)

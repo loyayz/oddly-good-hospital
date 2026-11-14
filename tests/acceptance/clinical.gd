@@ -22,7 +22,7 @@ const CASES: Dictionary = {
 	"CLIN-19":"docs/design/07-clinical-team.md §8、§14；术毕仍须15秒苏醒，完成才收60且不提前治愈",
 	"CLIN-20":"docs/design/07-clinical-team.md §8；手术护士真实陪同转床，同Attempt交接床承诺",
 	"CLIN-21":"docs/design/07-clinical-team.md §8；术中待故障安全完成，原结果/工时/领包不变",
-	"CLIN-22":"docs/design/07-clinical-team.md §8.1；实际病房覆盖才推进，缺员/故障/暂停为0",
+	"CLIN-22":"docs/design/07-clinical-team.md §8.1；合格护士在房外可覆盖，缺员/故障/暂停为0",
 	"CLIN-23":"docs/design/07-clinical-team.md §8.1；同床双护士不加倍，每人不同时做两项主动护理",
 	"CLIN-24":"docs/design/07-clinical-team.md §8.1、§14；真实护理与完整恢复后直接收床费/治愈费，无查房等待",
 	"CLIN-25":"docs/design/07-clinical-team.md §8.1、§10；安全换床保留标准余量/护理，回原床不重复磨损/收费",
@@ -564,33 +564,47 @@ func _case_22(t) -> void:
 	var coverage: Dictionary = _copy("ward_after_care")
 	var nurse_id: String = str(_stay(coverage).nurse_id)
 	var idle: bool = await _until(t,coverage,func()->bool: return not coverage.sim.clinic.staff_busy(coverage.world,nurse_id) and not coverage.world.facts.moves.has(nurse_id),180)
-	var moving: String = coverage.sim.space.request_move(coverage.world,nurse_id,1,[44,75]) if idle else "覆盖护士尚未安全离位"
-	var outside_seen: bool = false
-	var uncovered_ticks: int = 0
-	var uncovered_stops: bool = true
-	var returned: bool = false
+	var hall: Array = [44,75]
+	var moving: String = coverage.sim.space.request_move(coverage.world,nurse_id,1,hall) if idle else "覆盖护士尚未安全离位"
+	var outside_ticks: int = 0
+	var outside_progress: bool = true
+	var arrived: bool = false
 	if moving.is_empty():
 		for index: int in 500:
 			var before_inside: bool = _in_stay_ward(coverage,nurse_id)
 			var before_remaining: int = int(_stay(coverage).get("remaining_ticks",-1))
 			_tick(coverage)
 			var after_inside: bool = _in_stay_ward(coverage,nurse_id)
-			outside_seen = outside_seen or not after_inside
 			if not before_inside and not after_inside:
-				uncovered_ticks += 1
-				uncovered_stops = uncovered_stops and int(_stay(coverage).get("remaining_ticks",-2))==before_remaining
-			if outside_seen and after_inside and not coverage.world.facts.moves.has(nurse_id) and not coverage.sim.clinic.staff_busy(coverage.world,nurse_id):
-				returned = true
+				outside_ticks += 1
+				outside_progress = outside_progress and int(_stay(coverage).get("remaining_ticks",-2))==before_remaining-1
+			if not after_inside and coverage.sim.space.at(coverage.world,nurse_id,1,hall) and not coverage.world.facts.moves.has(nurse_id):
+				arrived = true
 				break
 			if index%100==99: await t.process_frame
 	var before_covered: int = int(_stay(coverage).get("remaining_ticks",-1))
 	await _steps(t,coverage,3)
-	var covered_progress: bool = returned and int(_stay(coverage).get("remaining_ticks",before_covered))==before_covered-3
+	var covered_progress: bool = arrived and coverage.sim.space.at(coverage.world,nurse_id,1,hall) and not coverage.world.facts.moves.has(nurse_id) and int(_stay(coverage).get("remaining_ticks",before_covered))==before_covered-3
 	var frozen: Dictionary = coverage.world.freeze()
 	var session: GameSession = GameSession.new(coverage.sim,"ward-paused")
 	session.set_speed(0)
 	for index: int in 3: session.advance(0.5)
-	t.check("CLIN-22",idle and moving.is_empty() and outside_seen and uncovered_ticks>0 and uncovered_stops and returned and covered_progress and coverage.world.freeze()==frozen,{"outside_ticks_checked":uncovered_ticks,"uncovered_stops":uncovered_stops,"automatic_return_completed":returned,"covered_progress":covered_progress,"move_reason":moving,"state":_state(coverage)})
+	var paused: bool = coverage.world.freeze()==frozen
+	var shortage: Dictionary = _copy("ward_after_care")
+	_all_rest(shortage.world,"nurse")
+	var shortage_nurse: String = str(_stay(shortage).nurse_id)
+	var off_shift: bool = await _until(t,shortage,func()->bool: return not shortage.world.facts.staff[shortage_nurse].on_shift,600)
+	var before_shortage: int = int(_stay(shortage).get("remaining_ticks",-1))
+	await _steps(t,shortage,3)
+	var shortage_stops: bool = off_shift and before_shortage>0 and int(_stay(shortage).get("remaining_ticks",-2))==before_shortage
+	var fault: Dictionary = _copy("ward_after_care")
+	fault.world.facts.facilities.erase("clin_ward_1")
+	var bed_id: String = str(_stay(fault).bed_id)
+	fault.world.facts.facilities[bed_id].failed = true
+	var before_fault: int = int(_stay(fault).get("remaining_ticks",-1))
+	await _steps(t,fault,3)
+	var fault_stops: bool = before_fault>0 and int(_stay(fault).get("remaining_ticks",-2))==before_fault
+	t.check("CLIN-22",idle and moving.is_empty() and outside_ticks>0 and outside_progress and covered_progress and shortage_stops and fault_stops and paused,{"outside_ticks_checked":outside_ticks,"outside_progress":outside_progress,"hall_arrival_completed":arrived,"covered_progress":covered_progress,"shortage_stops":shortage_stops,"fault_stops":fault_stops,"paused":paused,"move_reason":moving,"state":_state(coverage)})
 
 func _case_23(t) -> void:
 	var two: Dictionary = _copy("ward_after_care")

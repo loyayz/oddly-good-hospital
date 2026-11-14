@@ -58,7 +58,9 @@ func run_views(t, database: HospitalContent) -> void:
 func _tea() -> Dictionary:
 	var x: Dictionary = _fixture({"searcher":"cleaner"})
 	HospitalFactory._add_room(x.world,{"id":"small_rest","type":"rest","anchor":[34,66],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},_content)
-	_facility(x,"bed","SE04",[35,68],"small_rest")
+	_facility(x,"rest_chair","FUR06",[36,68],"small_rest")
+	HospitalFactory._add_room(x.world,{"id":"small_dorm","type":"dormitory","anchor":[47,66],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},_content)
+	_facility(x,"bed","SE04",[49,68],"small_dorm")
 	_facility(x,"public_chair","FUR09",[44,80])
 	x.world.facts.staff.searcher.energy = 35.0
 	x.world.touch()
@@ -115,33 +117,40 @@ func _receipts() -> Dictionary:
 	return {"ok":first==before+1 and repeated==first and updated==first+1 and restore_once and replaced==updated+1,"historical_receipts":records.size(),"practice_sequence":[before,first,repeated,updated,replaced],"restored_consumed_history_once":restore_once}
 
 func _occupancy_expected(world: WorldState, facility_id: String, actor_id: String) -> bool:
-	for actor: Dictionary in world.facts.actors.values():
-		if actor.id!=actor_id and actor.get("support_facility_id","")==facility_id: return true
-	for seat: Dictionary in world.facts.waiting_life.seats.values():
-		if seat.phase=="seated" and seat.facility_id==facility_id and seat.actor_id!=actor_id: return true
-	for need: Dictionary in world.facts.waiting_life.needs.values():
-		if need.phase in ["using","returning"] and need.get("facility_id","")==facility_id and world.facts.visits[need.visit_id].actor_id!=actor_id: return true
-	for session: Dictionary in world.facts.sessions.values():
-		if session.facility_id==facility_id: return true
-	return world.facts.staff_life.reservations.has(facility_id)
+	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
+	return not reservation.is_empty() and reservation.get("actor_id","")!=actor_id and not actor_id in reservation.get("staff_ids",[])
 
 func _occupancy() -> Dictionary:
-	var x: Dictionary = _fixture({"owner":"doctor","other":"nurse"})
+	var x: Dictionary = _fixture()
 	_facility(x,"chair","FUR09",[43,80])
-	x.world.facts.actors.owner.support_facility_id = "chair"
+	var target: Array = x.space.facility_layout(x.world,"chair").patient_cell
+	var owner: Dictionary = _visit(x,"owner",target)
+	var other: Dictionary = _visit(x,"other",[45,82])
+	var occupied: bool = _seat_checkpoint(x,owner,"chair")
 	var expected: Array = []
 	var actual: Array = []
 	x.space.begin_route_query(x.world)
-	for id: String in ["owner","other"]:
+	for id: String in [owner.actor_id,other.actor_id]:
 		expected.append(_occupancy_expected(x.world,"chair",id))
 		actual.append(x.l._occupied(x.world,"chair",id))
 	x.space.end_route_query()
 	var self_free: bool = not actual[0] and actual[1]
-	x.world.facts.waiting_life.seats.other = {"facility_id":"chair","actor_id":"other","phase":"local_travel"}
-	var unclaimed: bool = not x.l._occupied(x.world,"chair","owner")
-	x.world.facts.waiting_life.seats.other.phase = "seated"
-	var changed: bool = x.l._occupied(x.world,"chair","owner")
-	return {"ok":expected==actual and self_free and unclaimed and changed,"comparisons":actual.size(),"own_reservation_exemption":self_free,"travelling_intent_has_no_occupancy":unclaimed,"next_query_observes_second_owner":changed}
+	var request: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":other.id,"facility_id":"chair"})
+	var unclaimed: bool = request.accepted and not x.l._occupied(x.world,"chair",owner.actor_id) and not HospitalWaitingLife.is_seated(x.world,other.id)
+	x.l.execute(x.world,"waiting_release_seat",{"visit_id":owner.id})
+	x.c.execute(x.world,"clinical_refer",{"visit_id":owner.id})
+	var leaving: String = x.space.request_move(x.world,owner.actor_id,1,[41,83])
+	var physically_left: bool = false
+	for _tick: int in 300:
+		x.world.facts.sim_tick += 1
+		x.space.advance(x.world)
+		x.l.dispatch(x.world)
+		x.l.advance(x.world)
+		x.world.touch(false)
+		physically_left = physically_left or not x.space.overlaps_facility(x.world,owner.actor_id,"chair")
+		if HospitalWaitingLife.is_seated(x.world,other.id): break
+	var changed: bool = leaving.is_empty() and physically_left and HospitalWaitingLife.is_seated(x.world,other.id) and x.l._occupied(x.world,"chair",owner.actor_id) and not x.l._occupied(x.world,"chair",other.actor_id)
+	return {"ok":occupied and expected==actual and self_free and unclaimed and changed,"comparisons":actual.size(),"own_reservation_exemption":self_free,"travelling_intent_has_no_occupancy":unclaimed,"next_query_observes_second_owner":changed,"actual_occupant_cleared_chair":physically_left}
 
 func _base_expected(x: Dictionary, facility_id: String, candidate: String = "") -> Array:
 	var result: Array = []
@@ -160,11 +169,10 @@ func _base_expected(x: Dictionary, facility_id: String, candidate: String = "") 
 	return result
 
 func _bases() -> Dictionary:
-	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse","candidate":"doctor"})
-	var definition: String = str(_content.balance.staff_work_bases.doctor_equipment_id)
-	HospitalFactory._add_room(x.world,{"id":"base_room","type":"gp","anchor":[34,66],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},_content)
-	_facility(x,"base",definition,[35,68],"base_room")
-	for id: String in ["doctor","nurse"]:
+	var x: Dictionary = _fixture({"first":"nurse","second":"nurse","candidate":"nurse"})
+	var definition: String = str(_content.balance.staff_work_bases.nurse_equipment_id)
+	_facility(x,"base",definition,[35,68])
+	for id: String in ["first","second"]:
 		x.world.facts.staff[id].base_task = {"facility_id":"base","phase":"travel","queue_tick":0}
 		x.world.facts.staff[id].on_shift = true
 	x.world.touch()
@@ -177,19 +185,19 @@ func _bases() -> Dictionary:
 	service._base_line(x.world,"base")
 	var existing_calls: int = service.entry_calls
 	same = same and service._base_line(x.world,"base","candidate")==_base_expected(x,"base","candidate")
-	var prior: Array = service._base_signature(x.world,"doctor")
-	x.world.facts.staff.doctor.base_task = {}
-	service._refresh_base_view(x.world,"doctor",prior)
+	var prior: Array = service._base_signature(x.world,"first")
+	x.world.facts.staff.first.base_task = {}
+	service._refresh_base_view(x.world,"first",prior)
 	same = same and service._base_line(x.world,"base")==_base_expected(x,"base")
 	incoming = incoming and query.incoming==_incoming_expected(x.world)
 	for phase: String in ["working","travel"]:
-		prior = service._base_signature(x.world,"nurse")
-		x.world.facts.staff.nurse.base_task.phase = phase
-		service._refresh_base_view(x.world,"nurse",prior)
+		prior = service._base_signature(x.world,"second")
+		x.world.facts.staff.second.base_task.phase = phase
+		service._refresh_base_view(x.world,"second",prior)
 		incoming = incoming and query.incoming==_incoming_expected(x.world)
-	prior = service._base_signature(x.world,"nurse")
-	x.world.facts.staff.nurse.base_task = {}
-	service._refresh_base_view(x.world,"nurse",prior)
+	prior = service._base_signature(x.world,"second")
+	x.world.facts.staff.second.base_task = {}
+	service._refresh_base_view(x.world,"second",prior)
 	incoming = incoming and query.incoming==_incoming_expected(x.world)
 	prior = service._base_signature(x.world,"candidate")
 	x.world.facts.staff.candidate.base_task = {"facility_id":"base","phase":"travel","queue_tick":0}

@@ -27,7 +27,7 @@ const CASES: Dictionary = {
 	"STAFF-21":"docs/design/09-consultation-wellbeing.md §4 空闲时自然短休；复用当前派工结果，无替手预测或每池限额，不抢断或强召回",
 	"STAFF-22":"docs/design/09-consultation-wellbeing.md §4 找到能真正使用的休息位置；真实兼容员工位与恢复总时长",
 	"STAFF-23":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；900秒无床自愿睡眠不等床或离院",
-	"STAFF-24":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；1350秒必须睡，缺床45秒后真实离院",
+	"STAFF-24":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；清醒1350秒后无合法睡眠位置不离院；新有合法个人床才真实开始睡眠",
 	"STAFF-25":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；睡25秒后移床20秒仍余425秒",
 	"STAFF-26":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；四岗位实际450秒才清醒归零，恢复不叠加",
 	"STAFF-27":"docs/design/09-consultation-wellbeing.md §6；娱乐开场才消耗次数冷却，30秒恢复有上限，双人不补搭档",
@@ -226,30 +226,39 @@ func _case_06(t) -> void:
 	mentor.title_id = "DT03"
 	mentor.abilities.treatment = 3
 	mentor.scheduled_kind = "training"
+	mentor.on_shift = true
+	var desk_layout: Dictionary = mentor_fixture.space.facility_layout(mentor_fixture.world,"desk")
+	var operator: Array = desk_layout.operator_cells[0]
+	var teacher_cell: Array = [int(operator[0])+mentor_fixture.space.clearance(mentor_fixture.world.facts.actors.doctor),int(operator[1])]
+	# A real approach from the free north cell avoids crossing the desk
+	# use envelope or the trainee's independent operator position.
+	_position(mentor_fixture,"mentor",[int(teacher_cell[0]),int(teacher_cell[1])-2])
 	var taught: Dictionary = _enroll(mentor_fixture,"doctor","treatment","mentor")
 	mentor_fixture.d.dispatch(mentor_fixture.world)
 	var before_solo: int = int(taught.get("remaining_work_milli",0))
 	mentor_fixture.d.advance(mentor_fixture.world)
 	var solo_delta: int = before_solo-int(taught.get("remaining_work_milli",0))
-	var desk_layout: Dictionary = mentor_fixture.space.facility_layout(mentor_fixture.world,"desk")
-	var teacher_cell: Array = [int(desk_layout.operator_cells[0][0])+1,int(desk_layout.operator_cells[0][1])]
 	for _tick: int in 200:
-		if mentor_fixture.space.at(mentor_fixture.world,"mentor",1,teacher_cell):
+		if mentor_fixture.space.at(mentor_fixture.world,"mentor",1,teacher_cell) and mentor_fixture.space.at(mentor_fixture.world,"doctor",1,operator) and not mentor_fixture.world.facts.moves.has("mentor"):
 			break
 		mentor_fixture.world.facts.sim_tick += 1
 		mentor_fixture.space.advance(mentor_fixture.world)
+		mentor_fixture.d.dispatch(mentor_fixture.world)
 		mentor_fixture.d.advance(mentor_fixture.world)
 	var teacher_at_desk: bool = mentor_fixture.space.at(mentor_fixture.world,"mentor",1,teacher_cell)
+	var student_at_desk: bool = mentor_fixture.space.at(mentor_fixture.world,"doctor",1,operator)
 	mentor_fixture.d.dispatch(mentor_fixture.world)
+	mentor_fixture.world.facts.sim_tick += 1
 	var before_joint: int = int(taught.get("remaining_work_milli",0))
 	mentor_fixture.d.advance(mentor_fixture.world)
 	var joint_delta: int = before_joint-int(taught.get("remaining_work_milli",0))
 	mentor.on_shift = false
+	mentor_fixture.world.facts.sim_tick += 1
 	var before_absent: int = int(taught.get("remaining_work_milli",0))
 	mentor_fixture.d.advance(mentor_fixture.world)
 	var absent_delta: int = before_absent-int(taught.get("remaining_work_milli",0))
-	desk_ok = desk_ok and teacher_at_desk and solo_delta==1000 and joint_delta==1250 and absent_delta==1000 and taught.get("total_work_milli",0)==1080000
-	t.check("STAFF-06",desk_ok,{"course":job,"second_course":second,"completed":trained.completed_courses,"teacher_at_desk":teacher_at_desk,"solo_work":solo_delta,"joint_work":joint_delta,"absent_work":absent_delta})
+	desk_ok = desk_ok and teacher_at_desk and student_at_desk and solo_delta==1000 and joint_delta==1250 and absent_delta==1000 and taught.get("total_work_milli",0)==1080000
+	t.check("STAFF-06",desk_ok,{"course":job,"second_course":second,"completed":trained.completed_courses,"teacher_at_desk":teacher_at_desk,"student_at_desk":student_at_desk,"mentored_course":taught,"operator":operator,"teacher_cell":teacher_cell,"teacher_location":mentor_fixture.world.facts.actors.mentor.location,"teacher_move":mentor_fixture.world.facts.moves.get("mentor",{}),"teacher_failure":mentor_fixture.space.movement_failure(mentor_fixture.world,"mentor"),"student_location":mentor_fixture.world.facts.actors.doctor.location,"solo_work":solo_delta,"joint_work":joint_delta,"absent_work":absent_delta})
 
 func _case_07(t) -> void:
 	var x: Dictionary = _training_checkpoint(540)
@@ -566,7 +575,9 @@ func _case_21(t) -> void:
 	# Legal start boundary: the original work dispatch has finished this tick.
 	# Its idle result is an input, never a prediction about a replacement worker.
 	var x: Dictionary = _fixture({"first":"doctor","second":"doctor"})
-	_room(x)
+	var shared_room: String = _room(x)
+	_facility(x,"first_chair","FUR06",[37,73],shared_room)
+	_facility(x,"second_chair","FUR06",[44,73],shared_room)
 	for staff: Dictionary in x.world.facts.staff.values():
 		staff.base_prepared = true
 		staff.scheduled_kind = "outpatient"
@@ -580,10 +591,12 @@ func _case_21(t) -> void:
 	x.w.dispatch(x.world)
 	var together: bool = x.world.facts.staff.first.life_task.get("early",false) and x.world.facts.staff.second.life_task.get("early",false)
 	var solo: Dictionary = _fixture({"alone":"doctor"})
-	_room(solo)
-	_position(solo,"alone",[38,75])
+	var solo_room: String = _room(solo)
+	_facility(solo,"chair","FUR06",[38,74],solo_room)
+	_position(solo,"alone",solo.space.facility_layout(solo.world,"chair").patient_cell)
 	var alone: Dictionary = solo.world.facts.staff.alone
 	alone.base_prepared = true
+	alone.scheduled_kind = "outpatient"
 	alone.energy = 40.0
 	alone.dispatch_idle = true
 	alone.dispatch_idle_tick = solo.world.sim_tick
@@ -598,11 +611,12 @@ func _case_21(t) -> void:
 	var actual_recovery: bool = alone.energy>before_energy and alone.life_task.phase=="rest"
 	var returned: bool = _reach_life_phase(solo,"alone","idle",1600)
 	var sleeping: Dictionary = _fixture({"sleeper":"doctor"})
-	var sleep_room: String = _room(sleeping)
+	var sleep_room: String = _room(sleeping,"dormitory")
 	_facility(sleeping,"bed","SE04",[43,75],sleep_room)
 	_position(sleeping,"sleeper",[38,75])
 	var sleeper: Dictionary = sleeping.world.facts.staff.sleeper
 	sleeper.base_prepared = true
+	sleeper.scheduled_kind = "outpatient"
 	sleeper.awake_ticks = 9000
 	sleeper.energy = 50.0
 	sleeper.dispatch_idle = true
@@ -635,21 +649,24 @@ func _case_22(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor"})
 	var room: String = _room(x)
 	_facility(x,"ordinary","FUR06",[40,70],room)
-	_facility(x,"vitality","FUR52",[50,70],room)
-	_position(x,"doctor",[36,70])
+	# Both chairs must belong to the same local comparison, not distant
+	# independent regions that the staff member does not scan from here.
+	_facility(x,"vitality","FUR52",[44,70],room)
+	_position(x,"doctor",[43,73])
 	var doctor: Dictionary = x.world.facts.staff.doctor
 	doctor.energy = 35.0
 	x.w.dispatch(x.world)
+	var no_advance_reservation: bool = x.world.facts.staff_life.reservations.is_empty()
 	var selected: String = str(doctor.life_task.get("facility_id",""))
 	var travel_before: float = doctor.energy
 	_life_ticks(x,1)
 	var no_early_recovery: bool = _near(doctor.energy,travel_before)
-	_life_ticks(x,10,true)
+	_life_ticks(x,5,true)
 	var travelling_energy: float = doctor.energy
 	x = _restore(x)
 	doctor = x.world.facts.staff.doctor
 	var reached: bool = _reach_life_phase(x,"doctor","rest")
-	var reservation_ok: bool = selected=="vitality" and no_early_recovery and travelling_energy<travel_before and reached and doctor.life_task.facility_id==selected and x.world.facts.staff_life.reservations.size()==1
+	var reservation_ok: bool = no_advance_reservation and selected=="vitality" and no_early_recovery and travelling_energy<travel_before and reached and doctor.life_task.facility_id==selected and x.world.facts.staff_life.reservations.size()==1
 	var original_recovery: float = doctor.energy
 	x.world.facts.facilities.erase("vitality")
 	x.w.dispatch(x.world)
@@ -671,28 +688,22 @@ func _case_23(t) -> void:
 
 func _case_24(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor"})
-	_room(x)
 	_position(x,"doctor",[38,75])
-	x.world.facts.staff.doctor.awake_ticks = 13500
-	x.w.dispatch(x.world)
-	var waiting: bool = x.world.facts.staff.doctor.life_task.phase=="wait_bed" and x.world.facts.staff.doctor.block_new_work
-	_life_ticks(x,449)
-	x.w.dispatch(x.world)
-	waiting = waiting and x.world.facts.staff.doctor.life_task.phase=="wait_bed" and x.world.facts.staff.doctor.life_task.waited_ticks==449
-	_life_ticks(x,1)
-	x.w.dispatch(x.world)
-	var leaving: bool = x.world.facts.staff.doctor.life_task.phase=="exiting" and x.world.facts.actors.doctor.location.kind=="floor" and x.world.facts.staff.doctor.sleep_remaining_ticks==4500
-	var reached_exit: bool = _reach_life_phase(x,"doctor","offsite")
-	var starts_outside: bool = reached_exit and x.world.facts.staff.doctor.life_task.offsite_ticks==0 and x.world.facts.actors.doctor.location.kind=="outside"
-	var y: Dictionary = _fixture({"doctor":"doctor"})
-	y.world.facts.staff.doctor.awake_ticks = 13500
-	y.world.facts.floors.overrides["1"].blocked.append([48,95])
-	y.w.dispatch(y.world)
-	for _tick: int in 10:
-		y.w.dispatch(y.world)
-		_life_ticks(y,1,true)
-	var no_teleport: bool = y.world.facts.actors.doctor.location.kind=="floor" and y.world.facts.staff.doctor.life_task.phase=="exiting" and y.world.facts.staff.doctor.sleep_remaining_ticks==4500
-	t.check("STAFF-24",waiting and leaving and starts_outside and no_teleport,{"waited":449,"exit_reached":reached_exit,"blocked_task":y.world.facts.staff.doctor.life_task})
+	var doctor: Dictionary = x.world.facts.staff.doctor
+	doctor.awake_ticks = 13500
+	var old_energy: float = doctor.energy
+	var unchanged: bool = true
+	# A failed search neither teleports the worker nor advances sleep recovery.
+	# Observe beyond the superseded 45-second automatic-departure deadline.
+	for tick: int in 451:
+		x.w.dispatch(x.world)
+		_life_ticks(x,1,true)
+		unchanged = unchanged and doctor.life_task.phase=="idle" and x.world.facts.actors.doctor.location.kind=="floor" and not x.world.facts.moves.has("doctor") and doctor.awake_ticks==13501+tick and _near(doctor.energy,old_energy)
+	var room: String = _room(x,"dormitory")
+	_facility(x,"own_bed","SE04",[43,75],room)
+	x.world.touch()
+	var slept: bool = _reach_life_phase(x,"doctor","sleep")
+	t.check("STAFF-24",unchanged and slept and doctor.life_task.get("facility_id","")=="own_bed" and doctor.sleep_remaining_ticks==4500,{"no_false_sleep_or_departure":unchanged,"legal_bed_retried":slept,"task":doctor.life_task})
 
 func _case_25(t) -> void:
 	var x: Dictionary = _sleep_fixture("doctor")
@@ -941,9 +952,16 @@ func _case_33(t) -> void:
 		chair_ok = chair_ok and result.awake==10 and result.phase=="rest"
 	t.check("STAFF-33",chair_ok,chair_results)
 
+func _waiting_toilet(x: Dictionary) -> String:
+	var room: String = _room(x,"toilet")
+	_facility(x,"toilet","FUR07",[43,75],room)
+	x.world.touch()
+	return room
+
 func _case_34(t) -> void:
 	var x: Dictionary = _fixture()
-	var visit: Dictionary = _visit(x)
+	_waiting_toilet(x)
+	var visit: Dictionary = _visit(x,"visit",[44,91])
 	var original_ticket: String = visit.ticket_id
 	x.world.facts.sim_tick = 1799
 	x.l.dispatch(x.world)
@@ -965,32 +983,21 @@ func _case_34(t) -> void:
 		x.a.advance_wait(x.world)
 		x.a.needs(x.world)
 	var temporary: bool = not need.is_empty() and need.purpose=="toilet" and ticket.pause_reasons.has("need_service") and visit.ticket_id==original_ticket and ticket.waited_ticks==original_wait and x.world.facts.rng.patience==random_patience and not x.l.call_patient(x.world,visit.id)
-	t.check("STAFF-34",before_due and clinical_first and temporary,{"before_due":before_due,"clinical_first":clinical_first,"need":need,"ticket":ticket})
+	t.check("STAFF-34",before_due and clinical_first and temporary,{"before_due":before_due,"clinical_first":clinical_first,"need":need,"ticket":ticket,"move":x.world.facts.moves.get(visit.actor_id,{})})
 
 func _case_35(t) -> void:
 	var x: Dictionary = _fixture()
-	var visit: Dictionary = _visit(x)
+	var visit: Dictionary = _visit(x,"no_toilet",[43,91])
 	x.world.facts.sim_tick = 1800
 	x.l.dispatch(x.world)
-	var need: Dictionary = x.world.facts.waiting_life.needs.get(visit.id,{})
-	var no_facility_fallback: bool = need.get("phase","")=="fallback" and need.get("remaining_ticks",-1)==80
-	var ticket: Dictionary = x.world.facts.tickets[visit.ticket_id]
-	ticket.pause_reasons.event = "independent_event"
-	for _tick: int in 79:
-		x.world.facts.sim_tick += 1
-		x.l.advance(x.world)
-	var safe_until_eight: bool = need.phase=="fallback" and need.remaining_ticks==1 and visit.anger==50.0
-	x.world.facts.sim_tick += 1
-	x.l.advance(x.world)
-	x.l.advance(x.world)
-	var clock: Dictionary = x.world.facts.waiting_life.clocks[visit.id]
-	var once_fallback: bool = visit.anger==55.0 and clock.next_purpose=="water" and clock.next_need_tick==x.world.sim_tick+1800 and not ticket.pause_reasons.has("need_service") and ticket.pause_reasons.get("event","")=="independent_event"
+	var absent: Dictionary = x.world.facts.waiting_life.needs.get(visit.id,{})
+	var no_facility_no_fake_service: bool = absent.get("phase","") in ["","returning"] and visit.anger==50.0 and x.world.facts.waiting_life.clocks[visit.id].next_purpose=="toilet" and x.world.facts.waiting_life.clocks[visit.id].next_need_tick==3600
 	var y: Dictionary = _fixture()
-	_facility(y,"toilet","FUR07",[42,75])
-	var actual: Dictionary = _visit(y,"actual",y.space.facility_layout(y.world,"toilet").patient_cell)
+	_waiting_toilet(y)
+	var actual: Dictionary = _visit(y,"actual",[44,91])
 	y.world.facts.sim_tick = 1800
 	y.l.dispatch(y.world)
-	for _tick: int in 10:
+	for _tick: int in 300:
 		if y.world.facts.waiting_life.needs.get(actual.id,{}).get("phase","")=="using":
 			break
 		y.world.facts.sim_tick += 1
@@ -1006,19 +1013,30 @@ func _case_35(t) -> void:
 	y.world.facts.sim_tick += 1
 	y.l.advance(y.world)
 	var facility_done: bool = actual.anger==50.0 and y.world.facts.waiting_life.clocks[actual.id].next_purpose=="water"
-	# A checkpoint still seeking at the original 45-second deadline must stop
-	# acquiring facilities and use supplies at the next real floor position.
+	# An actual registered toilet search at its deadline still owes the
+	# portable fallback, unlike a failed search with no candidate at all.
 	var z: Dictionary = _fixture()
-	var timeout_visit: Dictionary = _visit(z,"timeout")
+	_waiting_toilet(z)
+	var timeout_visit: Dictionary = _visit(z,"timeout",[42,91])
 	z.world.facts.sim_tick = 1800
-	z.l._begin_need(z.world,timeout_visit)
-	var timeout_need: Dictionary = z.world.facts.waiting_life.needs[timeout_visit.id]
-	timeout_need.phase = "seek"
-	timeout_need.remaining_ticks = 0
+	z.l.dispatch(z.world)
+	var timeout_need: Dictionary = z.world.facts.waiting_life.needs.get(timeout_visit.id,{})
+	var found_toilet: bool = timeout_need.get("toilet_room_id","")=="support_room" and timeout_need.get("phase","")!="using"
+	var ticket: Dictionary = z.world.facts.tickets[timeout_visit.ticket_id]
+	ticket.pause_reasons.event = "independent_event"
 	z.world.facts.sim_tick = 2250
 	z.l.dispatch(z.world)
-	var timeout: bool = timeout_need.phase=="fallback" and timeout_need.remaining_ticks==80 and timeout_need.facility_id.is_empty()
-	t.check("STAFF-35",no_facility_fallback and safe_until_eight and once_fallback and facility_started and quote_kept and use_safe and facility_done and timeout,{"fallback_once":once_fallback,"actual_started":facility_started,"actual_safe":use_safe,"deadline_fallback":timeout})
+	var timeout: bool = timeout_need.get("phase","")=="fallback" and timeout_need.get("remaining_ticks",-1)==80 and timeout_need.get("facility_id","missing")==""
+	for _tick: int in 79:
+		z.world.facts.sim_tick += 1
+		z.l.advance(z.world)
+	var safe_until_eight: bool = timeout_need.get("phase","")=="fallback" and timeout_need.get("remaining_ticks",0)==1 and timeout_visit.anger==50.0
+	z.world.facts.sim_tick += 1
+	z.l.advance(z.world)
+	z.l.advance(z.world)
+	var clock: Dictionary = z.world.facts.waiting_life.clocks[timeout_visit.id]
+	var once_fallback: bool = timeout_visit.anger==55.0 and clock.next_purpose=="water" and clock.next_need_tick==z.world.sim_tick+1800 and ticket.pause_reasons.get("event","")=="independent_event"
+	t.check("STAFF-35",no_facility_no_fake_service and facility_started and quote_kept and use_safe and facility_done and found_toilet and timeout and safe_until_eight and once_fallback,{"no_facility":no_facility_no_fake_service,"actual_started":facility_started,"actual_safe":use_safe,"actual_finished":facility_done,"original_search":found_toilet,"deadline_fallback":timeout,"no_early_credit":safe_until_eight,"fallback_once":once_fallback,"actual":use,"deadline":timeout_need})
 
 func _case_36(t) -> void:
 	var x: Dictionary = _fixture()

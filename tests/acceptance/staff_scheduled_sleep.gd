@@ -2,7 +2,7 @@ extends "res://tests/acceptance/staff_fixtures.gd"
 
 func _input(kinds: Array, tick: int, awake: int, bed: bool = true, role: String = "nurse") -> Dictionary:
 	var x: Dictionary = _fixture({"sleeper":role})
-	var room: String = _room(x)
+	var room: String = _room(x,"dormitory")
 	if bed: _facility(x,"bed","SE04",[43,75],room)
 	_position(x,"sleeper",[43,80])
 	# Legal pre-dispatch boundaries, not fabricated sleep completion. Journeys

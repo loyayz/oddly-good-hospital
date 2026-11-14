@@ -824,6 +824,11 @@ func _treatment_parallel() -> Dictionary:
 	_staff(x,"doctor_b","doctor",[39,85],"treatment")
 	_staff(x,"nurse","nurse",[42,85],"treatment")
 	x.world.facts.staff.nurse.base_prepared=true
+	# Declared legal historical unlock, independent of today's clinical work.
+	# The actual first profile-B admission is tested in CLFLOW-03.
+	x.world.facts.research_progress.first_profile_b_tick=x.world.sim_tick
+	x.world.touch(false)
+	x.checks.spectrum_unlocked_for_nurse=x.world.validate(content).is_empty() and x.sim.clinic._service_qualified(x.world,x.world.facts.staff.nurse,"spectrum")
 	var a: Dictionary=_patient(x,"treatment_a",[45,85],"outpatient","B_S13_D09_M09")
 	var b: Dictionary=_patient(x,"treatment_b",[48,85],"outpatient","B_S49_D37_M37")
 	var exam: Dictionary=_patient(x,"examination",[51,85],"spectrum","B_S13_D09_M09")
@@ -849,7 +854,10 @@ func _treatment_parallel() -> Dictionary:
 				if busy.has(id): same_person=true
 				busy[id]=session.facility_id
 		if x.world.facts.sessions.size()==3:
-			parallel=busy.size()==3 and busy.get("nurse","")=="diagnostic"
+			var active: Dictionary={}
+			for session: Dictionary in x.world.facts.sessions.values():
+				active[session.visit_id]=[session.kind,session.facility_id]
+			parallel=busy.size()==3 and busy.get("nurse","")=="diagnostic" and active.get(exam.id,[])==["spectrum","diagnostic"] and active.get(a.id,[])==["outpatient","machine_a"] and active.get(b.id,[])==["outpatient","machine_b"]
 			break
 	x.checks.three_devices_work_in_parallel=parallel
 	x.checks.one_worker_one_device=not same_person

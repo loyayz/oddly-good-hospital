@@ -48,7 +48,7 @@ func run_case(t, content: HospitalContent) -> void:
 	for index: int in 2:
 		var room_id: String = "quote_room_"+str(index)
 		var origin: Array = [46+index*18,30]
-		HospitalFactory._add_room(source,{"id":room_id,"type":"T01","anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
+		HospitalFactory._add_room(source,{"id":room_id,"type":"treatment","anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","edge":"south","offset":3}},content)
 		HospitalFactory._add_facility(source,{"id":"quote_facility_"+str(index),"definition_id":"M09","anchor":[int(origin[0])+1,int(origin[1])+1],"size":content.facility_definition("M09").footprint,"room_id":room_id},content)
 		var id: String = "quote_doctor_"+str(index)
 		HospitalFactory._add_staff(source,id,"治疗医生","doctor",[44+index*4,24],content)

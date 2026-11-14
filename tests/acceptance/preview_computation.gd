@@ -1,6 +1,6 @@
 extends RefCounted
 
-const Fixture = preload("res://tools/performance/fixture.gd")
+const Fixture = preload("res://tests/fixtures/preview_tall_hospital.gd")
 
 class CountPreview extends BuildPreview:
 	var updates: int = 0
@@ -12,7 +12,7 @@ static func run(content: HospitalContent) -> Dictionary:
 	# Original geometric fixture: all 640 bodies remain on its four active
 	# floors; floor 2 is owned and empty except for the real shaft. Factory
 	# visitor placeholders do not qualify this test as a formal active load.
-	var fixture: RefCounted = Fixture.new(content,640,"tall")
+	var fixture: RefCounted = Fixture.new(content)
 	var world: WorldState = fixture.world
 	var raw_input: Dictionary={"tick":world.sim_tick,"rng":world.facts.rng.duplicate(true),"ledger":world.facts.ledger.duplicate(true),"inventory":world.facts.inventory.duplicate(true)}
 	# Bind the complete declared input through ordinary service initialization;
@@ -65,20 +65,16 @@ static func run(content: HospitalContent) -> Dictionary:
 		var draft: Dictionary = _draft(width)
 		var preview: BuildPreview = BuildPreview.new(BuildService.new(content))
 		preview.request(draft,{"hospital_id":world.hospital_id,"view_floor_id":2})
-		var started: int = Time.get_ticks_usec()
 		var updates: int = 0
-		var maximum_update_us: int = 0
 		while (preview.job==null or not preview.job.complete) and updates<2000:
-			var begin: int = Time.get_ticks_usec()
 			preview.update(world,0,[world,world.revision])
-			maximum_update_us = maxi(maximum_update_us,Time.get_ticks_usec()-begin)
 			updates += 1
 		var expected: bool = bool(preview.result.get("ok",false)) if width==85 else not bool(preview.result.get("ok",false)) and str(preview.result.get("reason","")).contains("竖向结构")
 		# Empty 2F has no shared wall discount: 360 new wall edges at 20,
 		# plus the selected DR01 at 50. Interior area has no construction fee.
 		if width==85: expected = expected and int(preview.result.get("price",-1))==2*(85+95)*20+50
 		ok = ok and expected and preview.job.complete and world.freeze()==before
-		observations.append({"width":width,"height":95,"complete":preview.job.complete,"ok":preview.result.get("ok",false),"reason":preview.result.get("reason",""),"price":preview.result.get("price",-1),"updates":updates,"elapsed_us":Time.get_ticks_usec()-started,"maximum_update_us":maximum_update_us,"maximum_unit_usec":preview.job.maximum_unit_usec,"maximum_unit_phase":preview.job.maximum_unit_phase,"atomic_overruns":preview.job.atomic_overruns})
+		observations.append({"width":width,"height":95,"complete":preview.job.complete,"ok":preview.result.get("ok",false),"reason":preview.result.get("reason",""),"price":preview.result.get("price",-1),"updates":updates})
 	var preview: BuildPreview = BuildPreview.new(BuildService.new(content))
 	preview.request(_draft(85),{"hospital_id":world.hospital_id,"view_floor_id":2,"view_generation":1})
 	preview.update(world,1)
@@ -106,7 +102,7 @@ static func run(content: HospitalContent) -> Dictionary:
 		turning.update(world,1,[world,world.revision])
 		if not turning.job._occupancy_views.is_empty() or turning.job.complete: break
 	var cached_occupancy: bool = not turning.job._occupancy_views.is_empty()
-	var occupancy_boundary: Dictionary={"draft":first_floor_draft.duplicate(true),"phase":turning.job._phase,"units_checked":turning.job.units_checked,"complete":turning.job.complete,"reason":turning.job.result.get("reason",""),"plan_ok":turning.job._plan.get("ok",false),"changed_ids":turning.job._plan.get("changed_ids",[]).size(),"candidate_rooms":turning.job._candidate.facts.rooms.size() if turning.job._candidate!=null else 0,"candidate_actors":turning.job._candidate.facts.actors.size() if turning.job._candidate!=null else 0,"maximum_unit_usec":turning.job.maximum_unit_usec,"maximum_unit_phase":turning.job.maximum_unit_phase}
+	var occupancy_boundary: Dictionary={"draft":first_floor_draft.duplicate(true),"phase":turning.job._phase,"units_checked":turning.job.units_checked,"complete":turning.job.complete,"reason":turning.job.result.get("reason",""),"plan_ok":turning.job._plan.get("ok",false),"changed_ids":turning.job._plan.get("changed_ids",[]).size(),"candidate_rooms":turning.job._candidate.facts.rooms.size() if turning.job._candidate!=null else 0,"candidate_actors":turning.job._candidate.facts.actors.size() if turning.job._candidate!=null else 0}
 	if not cached_occupancy:
 		turning.cancel()
 		return {"ok":false,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cancelled":cancelled,"cached_occupancy_before_facing_change":false,"occupancy_precondition_boundary":occupancy_boundary,"facing_checks_executed":false}}
@@ -156,7 +152,7 @@ static func run(content: HospitalContent) -> Dictionary:
 	world.facts.floors.overrides["2"].blocked.clear()
 	preview.cancel()
 	var window: Dictionary = _window_result(content)
-	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and shape_reused and separate_economics and cache_retained and source_recaptured and cache_released and cancelled and shared and outline and window.passed,"details":{"input_validation":input_validation,"input_preserved":input_preserved,"initialization":initialization,"fixture_errors":fixture.errors,"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"occupancy_precondition_boundary":occupancy_boundary,"facing_restart_without_revision":facing_restart,"completed_shape_reused":shape_reused,"shared_basis_separate_economics":separate_economics,"static_cache_retained_with_fresh_scope":cache_retained,"navigation_source_recaptured_without_touch":source_recaptured,"cache_released_on_cancel":cache_released,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"window_owned_result":window,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
+	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and shape_reused and separate_economics and cache_retained and source_recaptured and cache_released and cancelled and shared and outline and window.passed,"details":{"input_validation":input_validation,"input_preserved":input_preserved,"initialization":initialization,"fixture_errors":fixture.errors,"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"occupancy_precondition_boundary":occupancy_boundary,"facing_restart_without_revision":facing_restart,"completed_shape_reused":shape_reused,"shared_basis_separate_economics":separate_economics,"static_cache_retained_with_fresh_scope":cache_retained,"navigation_source_recaptured_without_touch":source_recaptured,"cache_released_on_cancel":cache_released,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"window_owned_result":window}}
 
 static func _window_result(content: HospitalContent) -> Dictionary:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"窗口结果边界",false,content)
